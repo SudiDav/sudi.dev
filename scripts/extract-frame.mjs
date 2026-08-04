@@ -43,21 +43,37 @@ const fmt = (value) => {
 
 /**
  * A `ref` node instantiates a reusable component and overrides properties on
- * its descendants, keyed by descendant id (or a `parentId/childId` path for
- * nested instances). Merge those overrides in so the caller sees real values.
+ * its descendants.
+ *
+ * Override keys are BARE descendant ids at any depth ("B4dAvr"), and nest only
+ * at ref boundaries: a Tech Badge instance `uaCfz` inside this component has
+ * its label overridden as "uaCfz/beLmj". So the path accumulates when we
+ * recurse into a nested ref, and not for ordinary frames — prefixing every
+ * frame makes nested keys never match, and the instance silently renders the
+ * component's default content instead of its own.
  */
-const resolveRef = (node) => {
-  const source = byId.get(node.ref)
-  if (!source) return { ...node, __unresolved: node.ref }
-  const overrides = node.descendants ?? {}
-  const apply = (n, path) => {
-    const key = path ? `${path}/${n.id}` : n.id
-    const merged = { ...n, ...(overrides[key] ?? overrides[n.id] ?? {}) }
-    if (merged.children) merged.children = merged.children.map((c) => apply(c, key))
+const resolveRef = (refNode, outerOverrides = {}, prefix = '') => {
+  const source = byId.get(refNode.ref)
+  if (!source) return { ...refNode, __unresolved: refNode.ref }
+
+  // This instance's own overrides, plus any inherited entries scoped under our prefix.
+  const overrides = { ...(refNode.descendants ?? {}) }
+  if (prefix) {
+    for (const [key, value] of Object.entries(outerOverrides)) {
+      if (key.startsWith(`${prefix}/`)) overrides[key.slice(prefix.length + 1)] = value
+    }
+  }
+
+  const walk = (node) => {
+    if (node.type === 'ref') return resolveRef(node, overrides, node.id)
+    const merged = { ...node, ...(overrides[node.id] ?? {}) }
+    if (merged.children) merged.children = merged.children.map(walk)
     return merged
   }
-  const instance = apply(source, '')
-  return { ...instance, name: node.name ?? instance.name, width: node.width ?? instance.width }
+
+  const instance = { ...source, ...(overrides[source.id] ?? {}) }
+  instance.children = (source.children ?? []).map(walk)
+  return { ...instance, name: refNode.name ?? instance.name, width: refNode.width ?? instance.width }
 }
 
 const print = (node, depth, maxDepth) => {
