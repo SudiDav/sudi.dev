@@ -1,0 +1,15 @@
+---
+title: A Practical Guide to Database Migrations
+excerpt: Strategies for zero-downtime schema changes in production PostgreSQL deployments at scale.
+date: "2026-05-22"
+readingTime: 10 min read
+category: DEVOPS
+cover: /images/generated-1784965801717.png
+featured: false
+---
+
+Schema changes are where a lot of production incidents start. A migration that looks harmless on a local database can lock a table for minutes on production once real traffic and real row counts are involved.
+
+The core strategy that has served us well is expand-and-contract: add new columns or tables without touching existing ones, backfill in small batches, switch reads and writes over gradually, and only remove the old structure once nothing depends on it anymore.
+
+Combined with `NOT VALID` constraints that get validated separately, and migrations that always run outside of a long transaction when touching large tables, we've been able to ship schema changes to PostgreSQL databases with billions of rows without a single user-facing outage.

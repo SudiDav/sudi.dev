@@ -1,0 +1,47 @@
+---
+title: Building a Real-Time Collaboration Engine from Scratch
+excerpt: A deep dive into CRDTs, operational transforms, and the architecture decisions behind building conflict-free real-time editing.
+date: "2026-07-15"
+readingTime: 12 min read
+category: DEVELOPMENT
+cover: /images/generated-1784965801717.png
+featured: true
+---
+
+Real-time collaboration is one of those features that seems deceptively simple from the outside. Users type, and everyone sees the changes. But beneath the surface lies a fascinating set of distributed systems challenges that have occupied computer scientists for decades.
+
+## The Problem with Naive Approaches
+
+The simplest approach — last-write-wins — breaks down immediately in a collaborative context. When two users edit the same paragraph simultaneously, one person's changes will be silently overwritten. This is not just a bad user experience; it's data loss.
+
+Operational Transform (OT) was the first serious attempt to solve this. Google Docs uses OT, and it works well — but it requires a central server to serialize operations. For our use case, we wanted something that could work peer-to-peer.
+
+> "CRDTs guarantee that if two replicas have received the same set of updates — possibly in different orders — they will be in the same state. No coordination required."
+
+## Enter CRDTs
+
+Conflict-free Replicated Data Types solve this elegantly. Instead of transforming operations against each other, CRDTs define data structures where all concurrent operations commute — meaning the order doesn't matter. The result is always the same.
+
+```typescript
+interface CRDT<T> {
+  state: T;
+  merge(remote: T): T;
+  apply(op: Operation): T;
+}
+
+class TextCRDT implements CRDT<Doc> {
+  merge(remote: Doc): Doc {
+    return this.state.integrate(remote);
+  }
+}
+```
+
+### Architecture Decisions
+
+We chose Yjs as our CRDT library for its maturity and performance characteristics. The architecture consists of three layers: a thin client SDK that wraps Yjs, a WebSocket relay server for propagating updates, and an optional persistence layer backed by PostgreSQL.
+
+The relay server is intentionally stateless — it simply broadcasts updates to all connected clients in a room. This means horizontal scaling is trivial: spin up more relay servers behind a load balancer and use Redis Pub/Sub for cross-server communication.
+
+### Results & Lessons Learned
+
+After six months in production, the system handles 500+ concurrent editors with sub-50ms sync latency. The key takeaway: CRDTs aren't magic, but they dramatically simplify the mental model. Instead of reasoning about operation ordering, you reason about data structure properties.

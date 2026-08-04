@@ -1,0 +1,15 @@
+---
+title: Why I Switched from REST to tRPC
+excerpt: Type-safe APIs end-to-end changed how I think about client-server communication and development velocity.
+date: "2026-06-28"
+readingTime: 5 min read
+category: DEVELOPMENT
+cover: /images/generated-1784965801717.png
+featured: false
+---
+
+For years, I treated the boundary between client and server as a necessary evil — a place where types went to die and runtime errors crept in. Switching to tRPC changed that completely.
+
+With tRPC, the API contract is just TypeScript. There's no schema to keep in sync, no codegen step to forget to run, and no mismatch between what the server sends and what the client expects. Autocomplete works across the wire as if it were a single process.
+
+The velocity gains compound over time. Refactoring a backend function signature immediately surfaces every call site that needs updating, right in the editor, before you ever hit save.
