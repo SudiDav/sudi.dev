@@ -212,9 +212,13 @@ The design's nine reusable components port directly, keeping their names:
 | `WorkProjectCard` | `sMypG` | 1 | 480w, work page grid |
 | `ArticleItem` | `U25B8` | 1 | 700w, list row |
 | `FeaturedBlogCard` | `HTw3I` | 1 | 900×320 |
-| `StatusBadge` | `MJaWx` | 1 | "Available for work" dot |
 | `AdminNavItem` | `NwfPg` | 2 | 220w sidebar row |
 | `StatCard` | `Z5YYn7` | 2 | 280w dashboard tile |
+| `StatusBadge` | `MJaWx` | 2 | post-status pill, `admin-success` |
+
+The homepage's "Available for work" indicator is *not* the `StatusBadge` component — it is
+inline markup in the homepage sidebar (`Status` frame: 6px ellipse plus text). Only the
+admin's post-status pill is the reusable.
 
 Plus layout components not modeled as reusables in the design but repeated across frames:
 `SiteHeader`, `SiteFooter`, `PageIntro` (breadcrumb + title + subtitle), `ThemeToggle`, and
