@@ -378,20 +378,17 @@ git commit -m "feat: add design tokens, fonts, and theme switching"
 
 ---
 
-### Task 3: Content types and loader
+### Task 3: Content types and seed content
 
 **Files:**
-- Create: `lib/content.types.ts`, `lib/content.ts`, `lib/content.test.ts`
+- Create: `lib/content.types.ts`, `content/posts/*.mdx` (7), `content/projects/*.mdx` (6)
 
 **Interfaces:**
 - Consumes: Task 1 scaffold
 - Produces:
   - `type Post = { slug, title, excerpt, date, readingTime, category, cover, featured, body }`
   - `type Project = { slug, title, year, description, tech: string[], category, cover, links: { github?, live? } }`
-  - `getPosts(): Promise<Post[]>` — newest first
-  - `getPost(slug: string): Promise<Post | null>`
-  - `getProjects(): Promise<Project[]>` — newest year first
-  - `getProject(slug: string): Promise<Project | null>`
+  - 13 MDX files whose frontmatter matches those types — the fixtures Task 4's loader tests read
 
 - [ ] **Step 1: Write `lib/content.types.ts`**
 
@@ -421,7 +418,95 @@ export type Project = {
 }
 ```
 
-- [ ] **Step 2: Write the failing test `lib/content.test.ts`**
+- [ ] **Step 2: Extract the real copy**
+
+```bash
+node scripts/extract-frame.mjs "Work Page" --depth 6      # 6 projects
+node scripts/extract-frame.mjs "Blog Page" --depth 6      # 6 posts + featured
+node scripts/extract-frame.mjs "Article Page" --depth 5   # featured post body
+```
+
+Every title, excerpt, date, reading time, description, and tech tag comes from this output verbatim.
+
+- [ ] **Step 3: Write the six project files**
+
+Slugs are the kebab-case title. Example — `content/projects/nexus-cli.mdx`:
+
+```mdx
+---
+title: Nexus CLI
+year: "2026"
+description: A lightning-fast CLI tool for scaffolding full-stack apps. Supports React, Vue, and Svelte templates with built-in testing and CI configuration.
+tech: [Rust, CLI, WASM]
+category: CLI Tools
+cover: /images/generated-1784965527781.png
+links:
+  github: https://github.com/sudidavid/nexus-cli
+  live: https://nexus-cli.dev
+---
+
+Nexus CLI scaffolds production-ready full-stack applications in seconds.
+```
+
+Repeat for: Syncboard (2026, React/WebSocket/Yjs), Datapipe (2025, Go/Kafka/gRPC), Termsync (2025, Rust/CLI/SSH), Reacton (2024, TypeScript/React/NPM), Infrawatch (2024, Next.js/Docker/Grafana). Take each description verbatim from the extractor. Assign `category` from the Work page's five filters based on what the project is; `cover` from each card's resolved `fill=image(...)`.
+
+- [ ] **Step 4: Write the featured post with its full body**
+
+`content/posts/building-a-real-time-collaboration-engine-from-scratch.mdx`. The Article Page frame contains the complete body — intro paragraph, an H2, two paragraphs, a blockquote, a second H2, a paragraph, and a code block. Transcribe all of it as MDX.
+
+```mdx
+---
+title: Building a Real-Time Collaboration Engine from Scratch
+excerpt: A deep dive into CRDTs, operational transforms, and the architecture decisions behind building conflict-free real-time editing.
+date: "2026-07-15"
+readingTime: 12 min read
+category: DEVELOPMENT
+cover: /images/generated-1784965801717.png
+featured: true
+---
+
+<!-- transcribed verbatim from Article Page → Article Body -->
+```
+
+- [ ] **Step 5: Write the six remaining posts**
+
+Frontmatter verbatim from the Blog Page article list; `featured: false`. Bodies are two or three short paragraphs consistent with the excerpt — the design does not specify them.
+
+Dates from the design: tRPC Jun 28 2026, Docker Jun 10 2026, Migrations May 22 2026, Server Components May 5 2026, CLI Tools Apr 18 2026, Event Sourcing Mar 30 2026. Convert each to ISO (`2026-06-28`) for the `date` field; the display string is derived at render time.
+
+Exactly one post carries `featured: true` — the one from Step 4.
+
+- [ ] **Step 6: Verify**
+
+```bash
+pnpm typecheck
+```
+
+Expected: PASS. Confirm 13 files exist: `ls content/posts | wc -l` → 7, `ls content/projects | wc -l` → 6.
+
+- [ ] **Step 7: Commit**
+
+```bash
+git add -A
+git commit -m "feat: add content types and seed content from design"
+```
+
+---
+
+### Task 4: Content loader
+
+**Files:**
+- Create: `lib/content.ts`, `lib/content.test.ts`
+
+**Interfaces:**
+- Consumes: `Post`, `Project` and the 13 MDX files from Task 3
+- Produces:
+  - `getPosts(): Promise<Post[]>` — newest first
+  - `getPost(slug: string): Promise<Post | null>`
+  - `getProjects(): Promise<Project[]>` — newest year first
+  - `getProject(slug: string): Promise<Project | null>`
+
+- [ ] **Step 1: Write the failing test `lib/content.test.ts`**
 
 ```ts
 import { describe, it, expect } from 'vitest'
@@ -481,7 +566,7 @@ describe('getProjects', () => {
 })
 ```
 
-- [ ] **Step 3: Run it and confirm it fails**
+- [ ] **Step 2: Run it and confirm it fails**
 
 ```bash
 pnpm test
@@ -489,7 +574,7 @@ pnpm test
 
 Expected: FAIL — `Cannot find module './content'`.
 
-- [ ] **Step 4: Write `lib/content.ts`**
+- [ ] **Step 3: Write `lib/content.ts`**
 
 Everything the pages need goes through these four functions. Keep them the only export surface — that is what makes the later database swap a one-file change.
 
@@ -559,101 +644,19 @@ export async function getProject(slug: string): Promise<Project | null> {
 
 Resolving by scanning the collection — rather than building a path from the slug — is what makes the traversal test pass: an unknown or malicious slug simply matches nothing.
 
-- [ ] **Step 5: Run the tests**
+- [ ] **Step 4: Run the tests**
 
 ```bash
 pnpm test
 ```
 
-Expected: still FAIL — the content files do not exist yet. That is Task 4. Confirm the failures are "no such file or directory" for `content/posts`, not type errors.
+Expected: PASS — all 11 tests. Task 3's seed content is already in place, so the loader has real files to read.
 
-- [ ] **Step 6: Commit**
-
-```bash
-git add -A
-git commit -m "feat: add content types and MDX loader"
-```
-
----
-
-### Task 4: Seed content
-
-**Files:**
-- Create: `content/posts/*.mdx` (7), `content/projects/*.mdx` (6)
-
-**Interfaces:**
-- Consumes: `Post`, `Project` from Task 3
-- Produces: content that makes Task 3's tests pass
-
-- [ ] **Step 1: Extract the real copy**
-
-```bash
-node scripts/extract-frame.mjs "Work Page" --depth 6      # 6 projects
-node scripts/extract-frame.mjs "Blog Page" --depth 6      # 6 posts + featured
-node scripts/extract-frame.mjs "Article Page" --depth 5   # featured post body
-```
-
-Every title, excerpt, date, reading time, description, and tech tag comes from this output verbatim.
-
-- [ ] **Step 2: Write the six project files**
-
-Slugs are the kebab-case title. Example — `content/projects/nexus-cli.mdx`:
-
-```mdx
----
-title: Nexus CLI
-year: "2026"
-description: A lightning-fast CLI tool for scaffolding full-stack apps. Supports React, Vue, and Svelte templates with built-in testing and CI configuration.
-tech: [Rust, CLI, WASM]
-category: CLI Tools
-cover: /images/generated-1784965527781.png
-links:
-  github: https://github.com/sudidavid/nexus-cli
-  live: https://nexus-cli.dev
----
-
-Nexus CLI scaffolds production-ready full-stack applications in seconds.
-```
-
-Repeat for: Syncboard (2026, React/WebSocket/Yjs), Datapipe (2025, Go/Kafka/gRPC), Termsync (2025, Rust/CLI/SSH), Reacton (2024, TypeScript/React/NPM), Infrawatch (2024, Next.js/Docker/Grafana). Take each description verbatim from the extractor. Assign `category` from the Work page's five filters based on what the project is; `cover` from each card's resolved `fill=image(...)`.
-
-- [ ] **Step 3: Write the featured post with its full body**
-
-`content/posts/building-a-real-time-collaboration-engine-from-scratch.mdx`. The Article Page frame contains the complete body — intro paragraph, an H2, two paragraphs, a blockquote, a second H2, a paragraph, and a code block. Transcribe all of it as MDX.
-
-```mdx
----
-title: Building a Real-Time Collaboration Engine from Scratch
-excerpt: A deep dive into CRDTs, operational transforms, and the architecture decisions behind building conflict-free real-time editing.
-date: "2026-07-15"
-readingTime: 12 min read
-category: DEVELOPMENT
-cover: /images/generated-1784965801717.png
-featured: true
----
-
-<!-- transcribed verbatim from Article Page → Article Body -->
-```
-
-- [ ] **Step 4: Write the six remaining posts**
-
-Frontmatter verbatim from the Blog Page article list; `featured: false`. Bodies are two or three short paragraphs consistent with the excerpt — the design does not specify them.
-
-Dates from the design: tRPC Jun 28 2026, Docker Jun 10 2026, Migrations May 22 2026, Server Components May 5 2026, CLI Tools Apr 18 2026, Event Sourcing Mar 30 2026. Convert each to ISO (`2026-06-28`) for the `date` field; the display string is derived at render time.
-
-- [ ] **Step 5: Run the tests**
-
-```bash
-pnpm test
-```
-
-Expected: PASS — all of Task 3's tests.
-
-- [ ] **Step 6: Commit**
+- [ ] **Step 5: Commit**
 
 ```bash
 git add -A
-git commit -m "feat: add seed posts and projects from design content"
+git commit -m "feat: add MDX content loader"
 ```
 
 ---
