@@ -399,7 +399,13 @@ export type Post = {
   excerpt: string
   date: string          // ISO 8601, e.g. "2026-07-15"
   readingTime: string   // as displayed, e.g. "12 min read"
-  category: string      // as displayed, e.g. "DEVELOPMENT"
+  // Title Case, and one of the Blog page's filter pills:
+  // "Development" | "DevOps" | "Architecture" | "Open Source"
+  // The design renders this two ways from the SAME value: the filter pills show it
+  // as stored, the FeaturedBlogCard badge shows "DEVELOPMENT". The badge applies
+  // `uppercase` in CSS — do NOT store it uppercased, or category filtering silently
+  // matches nothing.
+  category: string
   cover: string         // path under /public
   featured: boolean
   body: string          // raw MDX
