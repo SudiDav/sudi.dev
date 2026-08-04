@@ -1,26 +1,87 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --bg-primary: #0B0B11;
+  --bg-secondary: #13131B;
+  --bg-card: #1A1A24;
+  --bg-elevated: #22222E;
+  --text-primary: #EDEDF0;
+  --text-secondary: #8B8B96;
+  --text-tertiary: #5C5C66;
+  --accent: #607EBC;
+  --accent-dim: #607EBC20;
+  --border: #2A2A35;
+  --border-hover: #3A3A48;
+
+  /* Admin — single-valued, no theme variance. Phase 2. */
+  --admin-bg: #F8F9FB;
+  --admin-sidebar: #111827;
+  --admin-sidebar-hover: #1F2937;
+  --admin-sidebar-active: #607EBC20;
+  --admin-sidebar-text: #9CA3AF;
+  --admin-sidebar-text-active: #FFFFFF;
+  --admin-card: #FFFFFF;
+  --admin-border: #E5E7EB;
+  --admin-text: #111827;
+  --admin-text-secondary: #6B7280;
+  --admin-text-tertiary: #9CA3AF;
+  --admin-success: #10B981;
+  --admin-warning: #F59E0B;
+  --admin-danger: #EF4444;
+}
+
+.light {
+  --bg-primary: #FFFFFF;
+  --bg-secondary: #F5F7FA;
+  --bg-card: #FFFFFF;
+  --bg-elevated: #EDF0F5;
+  --text-primary: #1A1D24;
+  --text-secondary: #5A6070;
+  --text-tertiary: #8B91A0;
+  --accent: #607EBC;
+  --accent-dim: #D1E0D7;
+  --border: #D8DCE4;
+  --border-hover: #C0C6D2;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-secondary: var(--bg-secondary);
+  --color-bg-card: var(--bg-card);
+  --color-bg-elevated: var(--bg-elevated);
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-accent: var(--accent);
+  --color-accent-dim: var(--accent-dim);
+  --color-border: var(--border);
+  --color-border-hover: var(--border-hover);
+  --color-admin-bg: var(--admin-bg);
+  --color-admin-sidebar: var(--admin-sidebar);
+  --color-admin-sidebar-hover: var(--admin-sidebar-hover);
+  --color-admin-sidebar-active: var(--admin-sidebar-active);
+  --color-admin-sidebar-text: var(--admin-sidebar-text);
+  --color-admin-sidebar-text-active: var(--admin-sidebar-text-active);
+  --color-admin-card: var(--admin-card);
+  --color-admin-border: var(--admin-border);
+  --color-admin-text: var(--admin-text);
+  --color-admin-text-secondary: var(--admin-text-secondary);
+  --color-admin-text-tertiary: var(--admin-text-tertiary);
+  --color-admin-success: var(--admin-success);
+  --color-admin-warning: var(--admin-warning);
+  --color-admin-danger: var(--admin-danger);
+
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-geist);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@media (prefers-reduced-motion: no-preference) {
+  body { transition: background-color 200ms ease, color 200ms ease; }
 }
