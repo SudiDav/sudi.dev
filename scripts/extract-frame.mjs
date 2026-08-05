@@ -16,11 +16,17 @@ import { dirname, join } from 'node:path'
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..')
 const DESIGN = join(ROOT, 'design', 'Sudi David.pen')
 
+// Order matters for readability: layout first, then box, then paint, then type.
+// `layout` is the flex direction and is ABSENT on horizontal frames — a frame with
+// no `layout` is a ROW. Only `layout: "vertical"` makes a column. Dropping this
+// property silently turns every column in the design into a row.
 const PROPS = [
-  'width', 'height', 'padding', 'gap', 'direction', 'alignItems', 'justifyContent',
-  'fill', 'stroke', 'strokeWidth', 'cornerRadius', 'opacity',
-  'fontFamily', 'fontSize', 'fontWeight', 'lineHeight', 'letterSpacing',
-  'icon', 'library',
+  'layout', 'layoutPosition', 'x', 'y', 'width', 'height', 'padding', 'gap',
+  'alignItems', 'justifyContent', 'clip',
+  'fill', 'stroke', 'strokeWidth', 'strokeAlignment', 'cornerRadius', 'opacity', 'effect',
+  'fontFamily', 'fontSize', 'fontWeight', 'lineHeight', 'letterSpacing', 'textAlign',
+  'fontStyle', 'textGrowth',
+  'icon', 'library', 'theme',
 ]
 
 const doc = JSON.parse(readFileSync(DESIGN, 'utf8'))
@@ -40,6 +46,10 @@ const fmt = (value) => {
   if (Array.isArray(value) || (value && typeof value === 'object')) return JSON.stringify(value)
   return String(value)
 }
+
+/** Frames are rows unless they opt into `layout: "vertical"`. Make that explicit. */
+const flow = (node) =>
+  node.type === 'frame' ? (node.layout === 'vertical' ? 'COLUMN' : 'ROW') : null
 
 /**
  * A `ref` node instantiates a reusable component and overrides properties on
@@ -82,7 +92,8 @@ const print = (node, depth, maxDepth) => {
   const pairs = PROPS.filter((p) => resolved[p] !== undefined && resolved[p] !== null)
     .map((p) => `${p}=${fmt(resolved[p])}`)
   const label = `${resolved.type === 'ref' ? 'ref' : resolved.type}` +
-    (resolved.name ? ` "${resolved.name}"` : '')
+    (resolved.name ? ` "${resolved.name}"` : '') +
+    (flow(resolved) ? ` [${flow(resolved)}]` : '')
   const text = resolved.content !== undefined ? `  content=${JSON.stringify(resolved.content)}` : ''
   console.log(`${'  '.repeat(depth)}${label}${pairs.length ? '  ' + pairs.join(' ') : ''}${text}`)
   for (const child of resolved.children ?? []) print(child, depth + 1, maxDepth)

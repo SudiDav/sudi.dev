@@ -291,8 +291,10 @@ changing its palette is the user's call. `text-tertiary` on `bg-primary` and
 
 ## Decisions
 
-1. **The duplicate hero code snippet is replicated.** The Homepage hero contains two
-   `Code Snippet` frames with identical content. Both are rendered, as authored.
+1. **The two hero code snippets are a deliberate stacked effect, not a duplicate.** Both
+   are `layoutPosition: absolute` inside the Hero at (920, 40) and (1019, 203), at
+   `opacity: 0.5` with an outer shadow — offset floating cards on the hero's right.
+   An earlier reading of this as an accidental duplicate was wrong.
 
 2. **The AI-generated portraits ship as-is.** They are wired as swappable assets in
    `public/images/` so replacing them later is a file drop with no code change. Worth

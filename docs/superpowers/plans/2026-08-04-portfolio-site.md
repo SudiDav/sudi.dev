@@ -17,7 +17,9 @@ These apply to **every** task. They are not repeated per-task.
 - **The design file is the specification.** Where this plan and the `.pen` file disagree, the file wins.
 - **Never guess a value.** Before writing any component, run `node scripts/extract-frame.mjs "<Frame Name>"` and take every padding, gap, width, height, corner radius, stroke, color token, font family, font size, font weight, and line height from its output. Do not eyeball, do not round, do not substitute a near-enough Tailwind default.
 - **Copy is verbatim.** Text comes from the extractor's `content=` fields exactly as written, including em dashes (—), middots (·), and curly quotes.
-- **Nothing omitted, nothing added.** Do not merge elements that look redundant, drop decorative nodes, or invent content. The duplicate hero code snippet is intentional and both render.
+- **Nothing omitted, nothing added.** Do not merge elements that look redundant, drop decorative nodes, or invent content. The hero's two code snippets are absolutely positioned offset cards, not a duplicate — render both at their given x/y.
+- **Read `[ROW]` / `[COLUMN]` on every frame.** The extractor prints the flow direction it resolved. A frame is a ROW unless it carries `layout=vertical`. Never assume from how the content reads.
+- **Honour `layoutPosition=absolute`.** Such a node is positioned at its own `x`/`y` within the nearest positioned ancestor and is NOT part of the flex flow.
 - **Token names mirror the design.** `bg-card`, `text-secondary`, `border-hover`, `admin-sidebar-text-active` — never rename, never hardcode a hex where a token exists.
 - **Icons are lucide.** Every `icon=` in the extractor output is a lucide name; import the PascalCase equivalent from `lucide-react` (`arrow-up-right` → `ArrowUpRight`).
 - **Judgment is confined to two areas:** responsive behavior below 1440px, and motion. Everything else is dictated by the file.
