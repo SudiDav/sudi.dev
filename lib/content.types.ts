@@ -11,6 +11,9 @@ export type Post = {
   category: string
   cover: string // path under /public
   featured: boolean
+  // Editorial state, surfaced in the admin. Absent means Published, so existing
+  // content needs no migration.
+  status?: 'Published' | 'Draft' | 'Archived'
   // Article-page only. The design's Article Subtitle differs slightly from the
   // excerpt the blog cards show, and its breadcrumb shows a short slug.
   subtitle?: string

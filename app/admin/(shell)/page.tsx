@@ -11,33 +11,37 @@ import {
   Pencil,
 } from 'lucide-react'
 import { AdminTopBar, StatCard, AdminCard } from '@/components/admin/admin-ui'
+import { getAdminStats } from '@/lib/admin-data'
 
-/** Design: "Stats Row" — four cards, gap 20. */
-const STATS = [
-  { label: 'Total Views', value: '24,891', trend: '+12.5%', period: 'from last month', Icon: Eye },
-  {
-    label: 'Published Posts',
-    value: '18',
-    trend: '+3',
-    period: 'from last month',
-    Icon: FileText,
-  },
-  {
-    label: 'Comments',
-    value: '142',
-    trend: '+24',
-    period: 'from last month',
-    Icon: MessageCircle,
-  },
-  {
-    label: 'Projects',
-    value: '8',
-    trend: '+1',
-    period: 'from last month',
-    Icon: FolderKanban,
-    trendTone: 'accent' as const,
-  },
-]
+/**
+ * Design: "Stats Row" — four cards, gap 20.
+ *
+ * Published posts and projects are counted from the real content. Views and
+ * comments read "—" because a statically generated site has no analytics or
+ * comment store to count; showing invented numbers in a tool you actually use
+ * would be worse than showing none.
+ */
+function stats(counts: { posts: string; projects: string }) {
+  return [
+    { label: 'Total Views', value: '—', trend: '', period: 'no analytics connected', Icon: Eye },
+    {
+      label: 'Published Posts',
+      value: counts.posts,
+      trend: '',
+      period: 'in content/posts',
+      Icon: FileText,
+    },
+    { label: 'Comments', value: '—', trend: '', period: 'no comment store', Icon: MessageCircle },
+    {
+      label: 'Projects',
+      value: counts.projects,
+      trend: '',
+      period: 'in content/projects',
+      Icon: FolderKanban,
+      trendTone: 'accent' as const,
+    },
+  ]
+}
 
 /**
  * Design: "Recent Activity" — six rows of padding [14,0], gap 14, each with a
@@ -110,10 +114,10 @@ const ACTIONS = [
   },
 ]
 
-/** Design: "Quick Actions" → "Drafts", below a 1px top rule. */
-const DRAFTS = ['Event Sourcing in Practice', 'Scaling WebSocket Connections']
+export default async function AdminDashboardPage() {
+  const counts = await getAdminStats()
+  const STATS = stats(counts)
 
-export default function AdminDashboardPage() {
   return (
     <>
       <AdminTopBar title="Dashboard" subtitle="Welcome back, Sudi. Here's what's happening." />
@@ -177,7 +181,10 @@ export default function AdminDashboardPage() {
           <div className="flex-1" />
           <div className="flex flex-col gap-3 border-t border-admin-border pt-4">
             <h3 className="text-[13px] font-semibold text-admin-text-secondary">Recent Drafts</h3>
-            {DRAFTS.map((draft) => (
+            {counts.drafts.length === 0 ? (
+              <span className="text-[13px] text-admin-text-tertiary">No drafts</span>
+            ) : null}
+            {counts.drafts.map((draft) => (
               <Link
                 key={draft}
                 href="/admin/posts"

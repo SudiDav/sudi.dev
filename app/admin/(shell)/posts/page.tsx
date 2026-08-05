@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { Search, Plus, Ellipsis } from 'lucide-react'
 import { AdminTopBar, StatusBadge } from '@/components/admin/admin-ui'
-import { adminPosts, adminPostCounts } from '@/lib/admin-fixtures'
+import { getAdminPosts, getAdminPostCounts } from '@/lib/admin-data'
 
 /**
  * Design: "Admin — Posts" — a top bar with search and a New Post button, a
@@ -12,7 +12,9 @@ import { adminPosts, adminPostCounts } from '@/lib/admin-fixtures'
  * it scrolls horizontally below `lg` instead of reflowing — the columns are
  * fixed widths in the design.
  */
-export default function AdminPostsPage() {
+export default async function AdminPostsPage() {
+  const [posts, counts] = await Promise.all([getAdminPosts(), getAdminPostCounts()])
+
   return (
     <>
       <AdminTopBar title="Posts">
@@ -31,7 +33,7 @@ export default function AdminPostsPage() {
 
       {/* Filter Row — tabs on a shared bottom rule; the active tab carries a 2px accent underline */}
       <div className="flex flex-wrap border-b border-admin-border">
-        {adminPostCounts.map((tab, index) => {
+        {counts.map((tab, index) => {
           const active = index === 0
           return (
             <button
@@ -79,7 +81,7 @@ export default function AdminPostsPage() {
             </tr>
           </thead>
           <tbody>
-            {adminPosts.map((post) => (
+            {posts.map((post) => (
               <tr key={post.id} className="border-t border-admin-border">
                 <td className="px-5 py-4">
                   <span className="block size-4 rounded border-[1.5px] border-admin-border" />

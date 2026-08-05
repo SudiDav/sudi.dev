@@ -1,4 +1,6 @@
 import Link from 'next/link'
+import { redirect } from 'next/navigation'
+import { isAdmin } from '@/auth'
 import {
   ArrowLeft,
   Eye,
@@ -41,7 +43,10 @@ function SidebarField({ label, children }: { label: string; children: React.Reac
   )
 }
 
-export default function AdminPostEditorPage() {
+export default async function AdminPostEditorPage() {
+  // The editor is outside the (shell) group, so it gates itself.
+  if (!(await isAdmin())) redirect('/admin/signin')
+
   return (
     <div className="flex min-h-screen flex-col bg-white">
       {/* Editor Top Bar — ROW, padding [12,24], 1px bottom border */}

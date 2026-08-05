@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import { Plus, Folder, Star, Pencil, ExternalLink, Ellipsis } from 'lucide-react'
 import { AdminTopBar } from '@/components/admin/admin-ui'
-import { adminProjects, type AdminProjectStatus } from '@/lib/admin-fixtures'
+import { type AdminProjectStatus } from '@/lib/admin-fixtures'
+import { getAdminProjects } from '@/lib/admin-data'
 
 /** Design: the status pill keeps the badge shape across all four vocabularies. */
 const PROJECT_STATUS: Record<AdminProjectStatus, string> = {
@@ -17,7 +18,9 @@ const PROJECT_STATUS: Record<AdminProjectStatus, string> = {
  * description, a Geist Mono tech line, then a footer above a 1px top rule
  * carrying the view count and three action icons.
  */
-export default function AdminProjectsPage() {
+export default async function AdminProjectsPage() {
+  const projects = await getAdminProjects()
+
   return (
     <>
       <AdminTopBar title="Projects">
@@ -31,7 +34,7 @@ export default function AdminProjectsPage() {
       </AdminTopBar>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        {adminProjects.map((project) => (
+        {projects.map((project) => (
           <article
             key={project.name}
             className="flex flex-col gap-3.5 rounded-xl border border-admin-border bg-admin-card p-5"
