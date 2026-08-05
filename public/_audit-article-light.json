@@ -1,0 +1,578 @@
+{
+  "frame": "Article Page — Light",
+  "mode": "light",
+  "nodes": [
+    {
+      "text": "Work",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "500",
+      "color": "#5A6070"
+    },
+    {
+      "text": "Blog",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "500",
+      "color": "#607EBC"
+    },
+    {
+      "text": "About",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "500",
+      "color": "#5A6070"
+    },
+    {
+      "text": "~",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#8B91A0"
+    },
+    {
+      "text": "blog",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#8B91A0"
+    },
+    {
+      "text": "real-time-collaboration",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#607EBC"
+    },
+    {
+      "text": "DEVELOPMENT",
+      "fontFamily": "Geist Mono",
+      "fontSize": 11,
+      "fontWeight": "600",
+      "color": "#607EBC"
+    },
+    {
+      "text": "Building a Real-Time Collaboration Engine from Scratch",
+      "fontFamily": "Geist",
+      "fontSize": 42,
+      "fontWeight": "700",
+      "color": "#1A1D24",
+      "lineHeight": 1.2
+    },
+    {
+      "text": "A deep dive into CRDTs, operational transforms, and the architecture decisions behind conflict-free real-time editing.",
+      "fontFamily": "Inter",
+      "fontSize": 18,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.5
+    },
+    {
+      "text": "Jul 15, 2026",
+      "fontFamily": "Geist Mono",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#8B91A0"
+    },
+    {
+      "text": "Real-time collaboration is one of those features that seems deceptively simple from the outside. Users type, and everyone sees the changes. But beneath the surface lies a fascinating set of distributed systems challenges that have occupied computer scientists for decades.",
+      "fontFamily": "Inter",
+      "fontSize": 17,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.8
+    },
+    {
+      "text": "The Problem with Naive Approaches",
+      "fontFamily": "Geist",
+      "fontSize": 28,
+      "fontWeight": "700",
+      "color": "#1A1D24"
+    },
+    {
+      "text": "The simplest approach — last-write-wins — breaks down immediately in a collaborative context. When two users edit the same paragraph simultaneously, one person's changes will be silently overwritten. This is not just a bad user experience; it's data loss.",
+      "fontFamily": "Inter",
+      "fontSize": 17,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.8
+    },
+    {
+      "text": "Operational Transform (OT) was the first serious attempt to solve this. Google Docs uses OT, and it works well — but it requires a central server to serialize operations. For our use case, we wanted something that could work peer-to-peer.",
+      "fontFamily": "Inter",
+      "fontSize": 17,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.8
+    },
+    {
+      "text": "\"CRDTs guarantee that if two replicas have received the same set of updates — possibly in different orders — they will be in the same state. No coordination required.\"",
+      "fontFamily": "Inter",
+      "fontSize": 17,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.8
+    },
+    {
+      "text": "Enter CRDTs",
+      "fontFamily": "Geist",
+      "fontSize": 28,
+      "fontWeight": "700",
+      "color": "#1A1D24"
+    },
+    {
+      "text": "Conflict-free Replicated Data Types solve this elegantly. Instead of transforming operations against each other, CRDTs define data structures where all concurrent operations commute — meaning the order doesn't matter. The result is always the same.",
+      "fontFamily": "Inter",
+      "fontSize": 17,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.8
+    },
+    {
+      "text": "typescript",
+      "fontFamily": "Geist Mono",
+      "fontSize": 11,
+      "fontWeight": "600",
+      "color": "#8B91A0"
+    },
+    {
+      "text": "interface CRDT<T> {",
+      "fontFamily": "Geist Mono",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#607EBC",
+      "lineHeight": 1.6
+    },
+    {
+      "text": "state: T;",
+      "fontFamily": "Geist Mono",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.6
+    },
+    {
+      "text": "merge(remote: T): T;",
+      "fontFamily": "Geist Mono",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.6
+    },
+    {
+      "text": "apply(op: Operation): T;",
+      "fontFamily": "Geist Mono",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.6
+    },
+    {
+      "text": "class TextCRDT implements CRDT<Doc> {",
+      "fontFamily": "Geist Mono",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#607EBC",
+      "lineHeight": 1.6
+    },
+    {
+      "text": "merge(remote: Doc): Doc {",
+      "fontFamily": "Geist Mono",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.6
+    },
+    {
+      "text": "return this.state.integrate(remote);",
+      "fontFamily": "Geist Mono",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.6
+    },
+    {
+      "text": "Architecture Decisions",
+      "fontFamily": "Geist",
+      "fontSize": 22,
+      "fontWeight": "600",
+      "color": "#1A1D24"
+    },
+    {
+      "text": "We chose Yjs as our CRDT library for its maturity and performance characteristics. The architecture consists of three layers: a thin client SDK that wraps Yjs, a WebSocket relay server for propagating updates, and an optional persistence layer backed by PostgreSQL.",
+      "fontFamily": "Inter",
+      "fontSize": 17,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.8
+    },
+    {
+      "text": "The relay server is intentionally stateless — it simply broadcasts updates to all connected clients in a room. This means horizontal scaling is trivial: spin up more relay servers behind a load balancer and use Redis Pub/Sub for cross-server communication.",
+      "fontFamily": "Inter",
+      "fontSize": 17,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.8
+    },
+    {
+      "text": "Results & Lessons Learned",
+      "fontFamily": "Geist",
+      "fontSize": 22,
+      "fontWeight": "600",
+      "color": "#1A1D24"
+    },
+    {
+      "text": "After six months in production, the system handles 500+ concurrent editors with sub-50ms sync latency. The key takeaway: CRDTs aren't magic, but they dramatically simplify the mental model. Instead of reasoning about operation ordering, you reason about data structure properties.",
+      "fontFamily": "Inter",
+      "fontSize": 17,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.8
+    },
+    {
+      "text": "React",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#607EBC"
+    },
+    {
+      "text": "WebSocket",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#607EBC"
+    },
+    {
+      "text": "CRDTs",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#607EBC"
+    },
+    {
+      "text": "Yjs",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#607EBC"
+    },
+    {
+      "text": "TypeScript",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#607EBC"
+    },
+    {
+      "text": "WRITTEN BY",
+      "fontFamily": "Geist Mono",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#8B91A0",
+      "letterSpacing": 2
+    },
+    {
+      "text": "Full-stack engineer specializing in real-time systems, distributed architectures, and developer tooling. Currently building the future of collaborative software.",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.6
+    },
+    {
+      "text": "@sudidavid",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#607EBC"
+    },
+    {
+      "text": "github.com/sudidavid",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#607EBC"
+    },
+    {
+      "text": "Comments (4)",
+      "fontFamily": "Geist",
+      "fontSize": 22,
+      "fontWeight": "600",
+      "color": "#1A1D24"
+    },
+    {
+      "text": "Write a comment",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "500",
+      "color": "#FFFFFF"
+    },
+    {
+      "text": "Share your thoughts on this article...",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#8B91A0"
+    },
+    {
+      "text": "Post comment",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "500",
+      "color": "#FFFFFF"
+    },
+    {
+      "text": "Alex Kim",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "600",
+      "color": "#1A1D24"
+    },
+    {
+      "text": "2 days ago",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#8B91A0"
+    },
+    {
+      "text": "Great deep dive! We ran into similar issues with OT at our company. CRDTs solved most of our edge cases but we still struggle with undo/redo semantics. Any tips on handling that with Yjs?",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.6
+    },
+    {
+      "text": "12",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#8B91A0"
+    },
+    {
+      "text": "2 replies",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#8B91A0"
+    },
+    {
+      "text": "Maya Rodriguez",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "600",
+      "color": "#1A1D24"
+    },
+    {
+      "text": "1 day ago",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#8B91A0"
+    },
+    {
+      "text": "The architecture diagram is super helpful. One question — how do you handle offline scenarios? Do you buffer operations locally and replay them on reconnect?",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.6
+    },
+    {
+      "text": "8",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#8B91A0"
+    },
+    {
+      "text": "1 replies",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#8B91A0"
+    },
+    {
+      "text": "James Torres",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "600",
+      "color": "#1A1D24"
+    },
+    {
+      "text": "18 hours ago",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#8B91A0"
+    },
+    {
+      "text": "I've been using Automerge instead of Yjs for a similar project. Would love to see a comparison post — the tradeoffs are quite different especially around memory usage and document size.",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.6
+    },
+    {
+      "text": "5",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#8B91A0"
+    },
+    {
+      "text": "Lisa Park",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "600",
+      "color": "#1A1D24"
+    },
+    {
+      "text": "3 hours ago",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#8B91A0"
+    },
+    {
+      "text": "This is exactly what I needed. Starting a new project with real-time collaboration requirements next month. Bookmarked!",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.6
+    },
+    {
+      "text": "3",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#8B91A0"
+    },
+    {
+      "text": "Related Articles",
+      "fontFamily": "Geist",
+      "fontSize": 24,
+      "fontWeight": "600",
+      "color": "#1A1D24"
+    },
+    {
+      "text": "All articles",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#607EBC"
+    },
+    {
+      "text": "Optimizing React Renders at Scale",
+      "fontFamily": "Geist",
+      "fontSize": 17,
+      "fontWeight": "600",
+      "color": "#1A1D24"
+    },
+    {
+      "text": "Deep dive into virtualization, memoization, and the rendering pipeline for complex UIs.",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.5
+    },
+    {
+      "text": "Mar 2025",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#8B91A0"
+    },
+    {
+      "text": "8 min read",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#8B91A0"
+    },
+    {
+      "text": "Type-Safe API Layers with tRPC",
+      "fontFamily": "Geist",
+      "fontSize": 17,
+      "fontWeight": "600",
+      "color": "#1A1D24"
+    },
+    {
+      "text": "How we eliminated an entire class of runtime errors by leveraging end-to-end type safety.",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.5
+    },
+    {
+      "text": "Jan 2025",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#8B91A0"
+    },
+    {
+      "text": "6 min read",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#8B91A0"
+    },
+    {
+      "text": "From Monolith to Microservices",
+      "fontFamily": "Geist",
+      "fontSize": 17,
+      "fontWeight": "600",
+      "color": "#1A1D24"
+    },
+    {
+      "text": "A pragmatic guide to decomposing a legacy Node.js application without rewriting everything.",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.5
+    },
+    {
+      "text": "Dec 2024",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#8B91A0"
+    },
+    {
+      "text": "© 2026 sudi.dev — Built with caffeine & curiosity",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#8B91A0"
+    },
+    {
+      "text": "RSS",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#5A6070"
+    },
+    {
+      "text": "Privacy",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#5A6070"
+    },
+    {
+      "text": "Source",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#5A6070"
+    }
+  ]
+}

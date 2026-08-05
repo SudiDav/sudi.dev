@@ -85,3 +85,16 @@ body {
 @media (prefers-reduced-motion: no-preference) {
   body { transition: background-color 200ms ease, color 200ms ease; }
 }
+
+/*
+ * Flipping the theme rewrites the colour custom properties under every element
+ * at once. Any element mid-`transition-colors` then interpolates from its old
+ * colour — and elements that already existed can wedge partway, leaving dark
+ * text on a light background. Transitions are suppressed for one frame around
+ * the switch so it applies instantly, then re-enabled for hover states.
+ */
+.theme-switching *,
+.theme-switching *::before,
+.theme-switching *::after {
+  transition: none !important;
+}

@@ -1,0 +1,307 @@
+{
+  "frame": "Work Page — Light",
+  "mode": "light",
+  "nodes": [
+    {
+      "text": "Blog",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "500",
+      "color": "#5A6070"
+    },
+    {
+      "text": "About",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "500",
+      "color": "#5A6070"
+    },
+    {
+      "text": "~",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#8B91A0"
+    },
+    {
+      "text": "/",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#8B91A0"
+    },
+    {
+      "text": "work",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#607EBC"
+    },
+    {
+      "text": "A selection of projects I've built, contributed to, or am currently working on.",
+      "fontFamily": "Inter",
+      "fontSize": 16,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.5
+    },
+    {
+      "text": "12",
+      "fontFamily": "Geist Mono",
+      "fontSize": 28,
+      "fontWeight": "700",
+      "color": "#1A1D24"
+    },
+    {
+      "text": "Projects",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#8B91A0"
+    },
+    {
+      "text": "8",
+      "fontFamily": "Geist Mono",
+      "fontSize": 28,
+      "fontWeight": "700",
+      "color": "#1A1D24"
+    },
+    {
+      "text": "3",
+      "fontFamily": "Geist Mono",
+      "fontSize": 28,
+      "fontWeight": "700",
+      "color": "#1A1D24"
+    },
+    {
+      "text": "Active",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#8B91A0"
+    },
+    {
+      "text": "All",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "500",
+      "color": "#FFFFFF"
+    },
+    {
+      "text": "Web Apps",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "500",
+      "color": "#5A6070"
+    },
+    {
+      "text": "CLI Tools",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "500",
+      "color": "#5A6070"
+    },
+    {
+      "text": "Libraries",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "500",
+      "color": "#5A6070"
+    },
+    {
+      "text": "Nexus CLI",
+      "fontFamily": "Geist",
+      "fontSize": 20,
+      "fontWeight": "700",
+      "color": "#1A1D24"
+    },
+    {
+      "text": "A lightning-fast CLI tool for scaffolding full-stack apps. Supports React, Vue, and Svelte templates with built-in testing and CI configuration.",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.6
+    },
+    {
+      "text": "WASM",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#607EBC"
+    },
+    {
+      "text": "Syncboard",
+      "fontFamily": "Geist",
+      "fontSize": 20,
+      "fontWeight": "700",
+      "color": "#1A1D24"
+    },
+    {
+      "text": "Real-time collaborative whiteboard with CRDT-based conflict resolution. Supports drawing, sticky notes, and live cursors for distributed teams.",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.6
+    },
+    {
+      "text": "WebSocket",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#607EBC"
+    },
+    {
+      "text": "Yjs",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#607EBC"
+    },
+    {
+      "text": "Datapipe",
+      "fontFamily": "Geist",
+      "fontSize": 20,
+      "fontWeight": "700",
+      "color": "#1A1D24"
+    },
+    {
+      "text": "An ETL pipeline framework for streaming data transformations at scale. Pluggable connectors for Kafka, Redis Streams, and PostgreSQL.",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.6
+    },
+    {
+      "text": "Go",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#607EBC"
+    },
+    {
+      "text": "Kafka",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#607EBC"
+    },
+    {
+      "text": "gRPC",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#607EBC"
+    },
+    {
+      "text": "Termsync",
+      "fontFamily": "Geist",
+      "fontSize": 20,
+      "fontWeight": "700",
+      "color": "#1A1D24"
+    },
+    {
+      "text": "Terminal-based dotfile synchronization tool. Keeps dev environments consistent across machines with encrypted cloud backup.",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.6
+    },
+    {
+      "text": "SSH",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#607EBC"
+    },
+    {
+      "text": "Reacton",
+      "fontFamily": "Geist",
+      "fontSize": 20,
+      "fontWeight": "700",
+      "color": "#1A1D24"
+    },
+    {
+      "text": "Lightweight state management library for React with automatic dependency tracking and zero-config persistence to localStorage.",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.6
+    },
+    {
+      "text": "TypeScript",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#607EBC"
+    },
+    {
+      "text": "NPM",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#607EBC"
+    },
+    {
+      "text": "Infrawatch",
+      "fontFamily": "Geist",
+      "fontSize": 20,
+      "fontWeight": "700",
+      "color": "#1A1D24"
+    },
+    {
+      "text": "Self-hosted infrastructure monitoring dashboard. Tracks uptime, response times, and alerts via Slack and PagerDuty integrations.",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.6
+    },
+    {
+      "text": "Next.js",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#607EBC"
+    },
+    {
+      "text": "Docker",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#607EBC"
+    },
+    {
+      "text": "Grafana",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#607EBC"
+    },
+    {
+      "text": "© 2026 sudi.dev — Built with caffeine & curiosity",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#8B91A0"
+    },
+    {
+      "text": "RSS",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#5A6070"
+    },
+    {
+      "text": "Privacy",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#5A6070"
+    }
+  ]
+}

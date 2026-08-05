@@ -1,0 +1,360 @@
+{
+  "frame": "Homepage — Light",
+  "mode": "light",
+  "nodes": [
+    {
+      "text": "Work",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "500",
+      "color": "#5A6070"
+    },
+    {
+      "text": "Blog",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "500",
+      "color": "#5A6070"
+    },
+    {
+      "text": "About",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "500",
+      "color": "#5A6070"
+    },
+    {
+      "text": "~$",
+      "fontFamily": "Geist Mono",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#607EBC"
+    },
+    {
+      "text": "whoami",
+      "fontFamily": "Geist Mono",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#8B91A0"
+    },
+    {
+      "text": "Hi, I'm Sudi David",
+      "fontFamily": "Geist",
+      "fontSize": 52,
+      "fontWeight": "700",
+      "color": "#1A1D24",
+      "lineHeight": 1.1
+    },
+    {
+      "text": "Full-Stack Developer & Open Source Enthusiast",
+      "fontFamily": "Inter",
+      "fontSize": 20,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.4
+    },
+    {
+      "text": "View My Work",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "600",
+      "color": "#FFFFFF"
+    },
+    {
+      "text": "Read Blog",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "500",
+      "color": "#1A1D24"
+    },
+    {
+      "text": "Available for work",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#8B91A0"
+    },
+    {
+      "text": "Building things for the web. Passionate about developer tools, performance, and clean architecture.",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.6
+    },
+    {
+      "text": "TECH STACK",
+      "fontFamily": "Geist Mono",
+      "fontSize": 11,
+      "fontWeight": "600",
+      "color": "#8B91A0",
+      "letterSpacing": 1.5
+    },
+    {
+      "text": "TypeScript",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#607EBC"
+    },
+    {
+      "text": "Node.js",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#607EBC"
+    },
+    {
+      "text": "Docker",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#607EBC"
+    },
+    {
+      "text": "PostgreSQL",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#607EBC"
+    },
+    {
+      "text": "Redis",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#607EBC"
+    },
+    {
+      "text": "Featured Projects",
+      "fontFamily": "Geist",
+      "fontSize": 24,
+      "fontWeight": "700",
+      "color": "#1A1D24"
+    },
+    {
+      "text": "Nexus CLI",
+      "fontFamily": "Geist",
+      "fontSize": 18,
+      "fontWeight": "600",
+      "color": "#1A1D24"
+    },
+    {
+      "text": "A lightning-fast CLI tool for scaffolding full-stack apps with best practices built in.",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.5
+    },
+    {
+      "text": "Rust",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#607EBC"
+    },
+    {
+      "text": "CLI",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#607EBC"
+    },
+    {
+      "text": "Syncboard",
+      "fontFamily": "Geist",
+      "fontSize": 18,
+      "fontWeight": "600",
+      "color": "#1A1D24"
+    },
+    {
+      "text": "Real-time collaborative whiteboard with CRDT-based conflict resolution.",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.5
+    },
+    {
+      "text": "WebSocket",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#607EBC"
+    },
+    {
+      "text": "Datapipe",
+      "fontFamily": "Geist",
+      "fontSize": 18,
+      "fontWeight": "600",
+      "color": "#1A1D24"
+    },
+    {
+      "text": "ETL pipeline framework for streaming data transformations at scale.",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.5
+    },
+    {
+      "text": "Kafka",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#607EBC"
+    },
+    {
+      "text": "Latest Articles",
+      "fontFamily": "Geist",
+      "fontSize": 24,
+      "fontWeight": "700",
+      "color": "#1A1D24"
+    },
+    {
+      "text": "Building a Real-Time Collaboration Engine",
+      "fontFamily": "Geist",
+      "fontSize": 17,
+      "fontWeight": "600",
+      "color": "#1A1D24"
+    },
+    {
+      "text": "How I implemented CRDTs for conflict-free real-time editing across distributed clients.",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.5
+    },
+    {
+      "text": "Jul 15, 2026",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#8B91A0"
+    },
+    {
+      "text": "8 min read",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#8B91A0"
+    },
+    {
+      "text": "Why I Switched from REST to tRPC",
+      "fontFamily": "Geist",
+      "fontSize": 17,
+      "fontWeight": "600",
+      "color": "#1A1D24"
+    },
+    {
+      "text": "Type-safe APIs end-to-end changed how I think about client-server communication.",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.5
+    },
+    {
+      "text": "Jun 28, 2026",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#8B91A0"
+    },
+    {
+      "text": "5 min read",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#8B91A0"
+    },
+    {
+      "text": "Optimizing Docker Builds for Monorepos",
+      "fontFamily": "Geist",
+      "fontSize": 17,
+      "fontWeight": "600",
+      "color": "#1A1D24"
+    },
+    {
+      "text": "Cutting CI build times by 70% with multi-stage builds and intelligent layer caching.",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.5
+    },
+    {
+      "text": "Jun 10, 2026",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#8B91A0"
+    },
+    {
+      "text": "6 min read",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#8B91A0"
+    },
+    {
+      "text": "A Practical Guide to Database Migrations",
+      "fontFamily": "Geist",
+      "fontSize": 17,
+      "fontWeight": "600",
+      "color": "#1A1D24"
+    },
+    {
+      "text": "Strategies for zero-downtime schema changes in production PostgreSQL deployments.",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#5A6070",
+      "lineHeight": 1.5
+    },
+    {
+      "text": "May 22, 2026",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#8B91A0"
+    },
+    {
+      "text": "10 min read",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#8B91A0"
+    },
+    {
+      "text": "© 2026 sudi.dev — Built with caffeine & curiosity",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#8B91A0"
+    },
+    {
+      "text": "RSS",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#5A6070"
+    },
+    {
+      "text": "Privacy",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#5A6070"
+    },
+    {
+      "text": "Source",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#5A6070"
+    }
+  ]
+}

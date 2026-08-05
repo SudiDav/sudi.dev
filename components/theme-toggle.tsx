@@ -32,9 +32,18 @@ export function ThemeToggle() {
   const isLight = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
 
   const toggle = useCallback(() => {
-    const next = !document.documentElement.classList.contains('light')
-    document.documentElement.classList.toggle('light', next)
+    const root = document.documentElement
+    const next = !root.classList.contains('light')
+
+    // Suppress transitions for the swap itself; see `.theme-switching` in
+    // globals.css. Two rAFs so the new colours are committed before
+    // transitions come back, otherwise they animate from the old values.
+    root.classList.add('theme-switching')
+    root.classList.toggle('light', next)
     localStorage.setItem('theme', next ? 'light' : 'dark')
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => root.classList.remove('theme-switching'))
+    })
   }, [])
 
   return (
