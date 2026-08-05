@@ -43,9 +43,9 @@ export default function AdminPostsPage() {
                   : 'text-admin-text-secondary'
               }`}
             >
-              {tab.label}
+              <span>{tab.label}</span>
               <span
-                className={`rounded-[10px] px-2 py-0.5 text-[11px] ${
+                className={`rounded-[10px] px-2 py-0.5 text-[11px] font-normal ${
                   active ? 'bg-accent-dim text-accent' : 'bg-admin-border text-admin-text-secondary'
                 }`}
               >
@@ -86,7 +86,7 @@ export default function AdminPostsPage() {
                 </td>
                 <td className="px-5 py-4">
                   <div className="flex flex-col gap-0.5">
-                    <span className="text-sm font-medium text-admin-text">{post.title}</span>
+                    <span className="text-[13px] font-medium text-admin-text">{post.title}</span>
                     <span className="text-[11px] text-admin-text-tertiary">{post.category}</span>
                   </div>
                 </td>

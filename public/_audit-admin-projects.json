@@ -1,0 +1,258 @@
+{
+  "frame": "Admin — Projects",
+  "mode": "dark",
+  "nodes": [
+    {
+      "text": "ADMIN",
+      "fontFamily": "Geist Mono",
+      "fontSize": 10,
+      "fontWeight": "400",
+      "color": "#9CA3AF",
+      "letterSpacing": 2
+    },
+    {
+      "text": "Dashboard",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Posts",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Comments",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Settings",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Sudi David",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "500",
+      "color": "#FFFFFF"
+    },
+    {
+      "text": "sudi@sudidavid.dev",
+      "fontFamily": "Inter",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Add Project",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "500",
+      "color": "#FFFFFF"
+    },
+    {
+      "text": "CollabSync",
+      "fontFamily": "Geist",
+      "fontSize": 15,
+      "fontWeight": "600",
+      "color": "#111827"
+    },
+    {
+      "text": "Featured",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#607EBC"
+    },
+    {
+      "text": "Real-time collaboration engine built with CRDTs and WebSockets",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#6B7280",
+      "lineHeight": 1.5
+    },
+    {
+      "text": "React, TypeScript, Yjs",
+      "fontFamily": "Geist Mono",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "342",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "TypeForge",
+      "fontFamily": "Geist",
+      "fontSize": 15,
+      "fontWeight": "600",
+      "color": "#111827"
+    },
+    {
+      "text": "CLI tool for generating type-safe API clients from OpenAPI specs",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#6B7280",
+      "lineHeight": 1.5
+    },
+    {
+      "text": "Node.js, TypeScript",
+      "fontFamily": "Geist Mono",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "891",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "QueryBench",
+      "fontFamily": "Geist",
+      "fontSize": 15,
+      "fontWeight": "600",
+      "color": "#111827"
+    },
+    {
+      "text": "Visual database query builder with schema introspection",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#6B7280",
+      "lineHeight": 1.5
+    },
+    {
+      "text": "React, PostgreSQL, Go",
+      "fontFamily": "Geist Mono",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "567",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "DevPulse",
+      "fontFamily": "Geist",
+      "fontSize": 15,
+      "fontWeight": "600",
+      "color": "#111827"
+    },
+    {
+      "text": "Developer productivity metrics dashboard for engineering teams",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#6B7280",
+      "lineHeight": 1.5
+    },
+    {
+      "text": "Next.js, D3.js, Redis",
+      "fontFamily": "Geist Mono",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "234",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "StackDeploy",
+      "fontFamily": "Geist",
+      "fontSize": 15,
+      "fontWeight": "600",
+      "color": "#111827"
+    },
+    {
+      "text": "Archived",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "One-click deployment templates for common tech stacks",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#6B7280",
+      "lineHeight": 1.5
+    },
+    {
+      "text": "Docker, Terraform",
+      "fontFamily": "Geist Mono",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "128",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "MemoGraph",
+      "fontFamily": "Geist",
+      "fontSize": 15,
+      "fontWeight": "600",
+      "color": "#111827"
+    },
+    {
+      "text": "WIP",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#F59E0B"
+    },
+    {
+      "text": "Knowledge graph note-taking app with bidirectional linking",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#6B7280",
+      "lineHeight": 1.5
+    },
+    {
+      "text": "React, Neo4j, GraphQL",
+      "fontFamily": "Geist Mono",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "—",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    }
+  ]
+}

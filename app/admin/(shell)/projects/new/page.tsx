@@ -41,6 +41,12 @@ function Field({
 
 const TECH = ['React', 'TypeScript']
 
+/** Design: "Display Settings" — two toggles, both on. */
+const TOGGLES = [
+  { label: 'Featured Project', description: 'Show on homepage' },
+  { label: 'Show on Work Page', description: 'List in portfolio projects' },
+]
+
 export default function AdminAddProjectPage() {
   return (
     <>
@@ -64,7 +70,7 @@ export default function AdminAddProjectPage() {
           </Link>
           <button
             type="button"
-            className="rounded-lg border border-admin-border px-4 py-2 text-[13px] font-medium text-admin-text"
+            className="rounded-lg border border-admin-border px-4 py-2 text-[13px] font-medium text-admin-text-secondary"
           >
             Save Draft
           </button>
@@ -92,7 +98,7 @@ export default function AdminAddProjectPage() {
                 {TECH.map((tech) => (
                   <span
                     key={tech}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-accent-dim px-3 py-1 font-mono text-xs font-medium text-accent"
+                    className="inline-flex items-center gap-1.5 rounded-full bg-accent-dim px-3 py-1 text-[11px] text-accent"
                   >
                     {tech}
                     <X size={12} />
@@ -101,7 +107,7 @@ export default function AdminAddProjectPage() {
                 <input
                   aria-label="Add technology"
                   placeholder="Add technology..."
-                  className="flex-1 bg-transparent text-[13px] text-admin-text placeholder:text-admin-text-tertiary focus:outline-none"
+                  className="flex-1 bg-transparent text-xs text-admin-text placeholder:text-admin-text-tertiary focus:outline-none"
                 />
               </div>
             </div>
@@ -126,7 +132,22 @@ export default function AdminAddProjectPage() {
           </AdminCard>
 
           <AdminCard title="Display Settings">
-            <Field label="Display Order" defaultValue="1" />
+            {TOGGLES.map(({ label, description }) => (
+              <div key={label} className="flex items-center justify-between gap-4">
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-[13px] font-medium text-admin-text">{label}</span>
+                  <span className="text-[11px] text-admin-text-tertiary">{description}</span>
+                </div>
+                {/* Toggle — 44×24, padding 3, justified end, $accent */}
+                <span className="flex h-6 w-11 items-center justify-end rounded-xl bg-accent p-[3px]">
+                  <span className="size-[18px] rounded-full bg-white" />
+                </span>
+              </div>
+            ))}
+            <div className="flex flex-col gap-1.5">
+              <Field label="Display Order" defaultValue="1" />
+              <span className="text-[11px] text-admin-text-tertiary">Lower = shown first</span>
+            </div>
           </AdminCard>
 
           <AdminCard title="Extended Description">

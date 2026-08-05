@@ -23,58 +23,76 @@ export type AdminPost = {
 
 export const adminPosts: AdminPost[] = [
   {
-    id: 'building-a-real-time-collaboration-engine',
-    title: 'Building a Real-Time Collaboration Engine',
-    category: 'Development',
-    status: 'Published',
-    date: 'Aug 2, 2026',
-    views: '2,841',
-    comments: '4',
+    id: "building-a-real-time-collaboration-engine",
+    title: "Building a Real-Time Collaboration Engine",
+    category: "Development",
+    status: "Published",
+    date: "Aug 2, 2026",
+    views: "2,841",
+    comments: "4",
   },
   {
-    id: 'optimizing-react-renders-at-scale',
-    title: 'Optimizing React Renders at Scale',
-    category: 'Development',
-    status: 'Published',
-    date: 'Jul 15, 2026',
-    views: '1,923',
-    comments: '8',
+    id: "optimizing-react-renders-at-scale",
+    title: "Optimizing React Renders at Scale",
+    category: "Development",
+    status: "Published",
+    date: "Jul 15, 2026",
+    views: "1,923",
+    comments: "8",
   },
   {
-    id: 'type-safe-api-layers-with-trpc',
-    title: 'Type-Safe API Layers with tRPC',
-    category: 'Development',
-    status: 'Published',
-    date: 'Jun 28, 2026',
-    views: '1,204',
-    comments: '3',
+    id: "type-safe-api-layers-with-trpc",
+    title: "Type-Safe API Layers with tRPC",
+    category: "Development",
+    status: "Published",
+    date: "Jun 28, 2026",
+    views: "1,456",
+    comments: "6",
   },
   {
-    id: 'from-monolith-to-microservices',
-    title: 'From Monolith to Microservices',
-    category: 'Architecture',
-    status: 'Published',
-    date: 'Jun 4, 2026',
-    views: '987',
-    comments: '6',
+    id: "from-monolith-to-microservices",
+    title: "From Monolith to Microservices",
+    category: "Architecture",
+    status: "Published",
+    date: "Jun 10, 2026",
+    views: "3,102",
+    comments: "12",
   },
   {
-    id: 'event-sourcing-in-practice',
-    title: 'Event Sourcing in Practice',
-    category: 'Architecture',
-    status: 'Draft',
-    date: 'Aug 4, 2026',
-    views: '—',
-    comments: '0',
+    id: "event-sourcing-in-practice",
+    title: "Event Sourcing in Practice",
+    category: "Architecture",
+    status: "Draft",
+    date: "Aug 1, 2026",
+    views: "—",
+    comments: "—",
   },
   {
-    id: 'designing-cli-tools',
-    title: 'Designing CLI Tools That Developers Love',
-    category: 'Development',
-    status: 'Draft',
-    date: 'Jul 28, 2026',
-    views: '—',
-    comments: '0',
+    id: "scaling-websocket-connections",
+    title: "Scaling WebSocket Connections",
+    category: "Development",
+    status: "Draft",
+    date: "Jul 30, 2026",
+    views: "—",
+    comments: "—",
+  },
+  {
+    id: "the-art-of-code-review",
+    title: "The Art of Code Review",
+    category: "Development",
+    status: "Published",
+    date: "May 22, 2026",
+    views: "2,187",
+    comments: "9",
+  },
+  {
+    id: "database-indexing-strategies",
+    title: "Database Indexing Strategies",
+    category: "Architecture",
+    status: "Archived",
+    date: "Apr 5, 2026",
+    views: "891",
+    comments: "3",
   },
 ]
 
@@ -85,56 +103,59 @@ export const adminPostCounts = [
   { label: 'Archived', value: '1' },
 ]
 
+/** The Projects screen uses its own status vocabulary, not the posts one. */
+export type AdminProjectStatus = 'Featured' | 'Active' | 'Archived' | 'WIP'
+
 export type AdminProject = {
   name: string
   description: string
   tech: string
   views: string
-  status: AdminPostStatus
+  status: AdminProjectStatus
 }
 
 export const adminProjects: AdminProject[] = [
   {
     name: 'CollabSync',
-    description: 'Real-time collaboration engine built with CRDTs and WebSockets.',
+    description: 'Real-time collaboration engine built with CRDTs and WebSockets',
     tech: 'React, TypeScript, Yjs',
     views: '342',
-    status: 'Published',
+    status: 'Featured',
   },
   {
     name: 'TypeForge',
-    description: 'CLI tool for generating type-safe API clients from OpenAPI specs.',
+    description: 'CLI tool for generating type-safe API clients from OpenAPI specs',
     tech: 'Node.js, TypeScript',
     views: '891',
-    status: 'Published',
+    status: 'Active',
   },
   {
     name: 'QueryBench',
-    description: 'Visual database query builder with schema introspection.',
+    description: 'Visual database query builder with schema introspection',
     tech: 'React, PostgreSQL, Go',
     views: '567',
-    status: 'Published',
+    status: 'Active',
   },
   {
     name: 'DevPulse',
-    description: 'Developer productivity metrics dashboard for engineering teams.',
+    description: 'Developer productivity metrics dashboard for engineering teams',
     tech: 'Next.js, D3.js, Redis',
     views: '234',
-    status: 'Published',
+    status: 'Active',
   },
   {
     name: 'StackDeploy',
-    description: 'One-click deployment templates for common tech stacks.',
+    description: 'One-click deployment templates for common tech stacks',
     tech: 'Docker, Terraform',
     views: '128',
-    status: 'Draft',
+    status: 'Archived',
   },
   {
     name: 'MemoGraph',
-    description: 'Knowledge graph note-taking app with bidirectional links.',
+    description: 'Knowledge graph note-taking app with bidirectional linking',
     tech: 'React, Neo4j, GraphQL',
     views: '—',
-    status: 'Draft',
+    status: 'WIP',
   },
 ]
 
@@ -147,28 +168,35 @@ export type AdminComment = {
 
 export const adminComments: AdminComment[] = [
   {
-    author: 'Sarah Chen',
-    post: 'Building a Real-Time Collaboration Engine',
-    time: '10 minutes ago',
-    body: 'This is incredibly well-written! The section on conflict resolution finally made CRDTs click for me.',
+    author: "Sarah Chen",
+    post: "Building a Real-Time Collaboration Engine",
+    time: "10 minutes ago",
+    body: "This is incredibly well-written! The section on conflict resolution with CRDTs cleared up a lot of confusion I had. Would love to see a follow-up on handling large document state.",
   },
   {
-    author: 'Marcus Johnson',
-    post: 'Optimizing React Renders at Scale',
-    time: '1 hour ago',
-    body: 'We implemented a similar virtualization strategy and saw a 40% improvement in render times.',
+    author: "Marcus Johnson",
+    post: "Optimizing React Renders at Scale",
+    time: "1 hour ago",
+    body: "We implemented a similar virtualization strategy at our company. One thing I'd add is that React.memo can actually hurt performance in some cases if the comparison function is expensive.",
   },
   {
-    author: 'Yuki Tanaka',
-    post: 'Type-Safe API Layers with tRPC',
-    time: '3 hours ago',
-    body: 'Have you compared this approach with GraphQL codegen? Curious about the tradeoffs.',
+    author: "Yuki Tanaka",
+    post: "Type-Safe API Layers with tRPC",
+    time: "3 hours ago",
+    body: "Switched our entire API layer to tRPC after reading this. The DX improvement was instant. One question: how do you handle file uploads with tRPC?",
+  },
+  {
+    author: "David Park",
+    post: "From Monolith to Microservices",
+    time: "5 hours ago",
+    body: "Great pragmatic approach. Too many articles push for a complete rewrite. The strangler fig pattern you described saved us months of work.",
   },
 ]
 
+/** The design highlights "Pending" — the moderation queue's default view. */
 export const adminCommentCounts = [
   { label: 'All', value: '142' },
-  { label: 'Pending', value: '6' },
+  { label: 'Pending', value: '6', active: true },
   { label: 'Approved', value: '128' },
   { label: 'Spam', value: '8' },
 ]

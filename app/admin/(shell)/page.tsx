@@ -8,6 +8,7 @@ import {
   FolderPlus,
   ChartBar,
   UserCog,
+  Pencil,
 } from 'lucide-react'
 import { AdminTopBar, StatCard, AdminCard } from '@/components/admin/admin-ui'
 
@@ -109,6 +110,9 @@ const ACTIONS = [
   },
 ]
 
+/** Design: "Quick Actions" → "Drafts", below a 1px top rule. */
+const DRAFTS = ['Event Sourcing in Practice', 'Scaling WebSocket Connections']
+
 export default function AdminDashboardPage() {
   return (
     <>
@@ -165,6 +169,22 @@ export default function AdminDashboardPage() {
                   <span className="text-[13px] font-medium text-admin-text">{label}</span>
                   <span className="text-[11px] text-admin-text-tertiary">{description}</span>
                 </div>
+              </Link>
+            ))}
+          </div>
+
+          {/* Drafts — pinned to the card's bottom above a 1px top rule */}
+          <div className="flex-1" />
+          <div className="flex flex-col gap-3 border-t border-admin-border pt-4">
+            <h3 className="text-[13px] font-semibold text-admin-text-secondary">Recent Drafts</h3>
+            {DRAFTS.map((draft) => (
+              <Link
+                key={draft}
+                href="/admin/posts"
+                className="flex items-center gap-2 text-[13px] text-admin-text hover:text-accent"
+              >
+                <Pencil size={14} className="text-admin-text-tertiary" />
+                {draft}
               </Link>
             ))}
           </div>

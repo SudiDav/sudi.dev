@@ -16,8 +16,8 @@ export default function AdminCommentsPage() {
       <AdminTopBar title="Comments" />
 
       <div className="flex flex-wrap border-b border-admin-border">
-        {adminCommentCounts.map((tab, index) => {
-          const active = index === 0
+        {adminCommentCounts.map((tab) => {
+          const active = 'active' in tab && tab.active
           return (
             <button
               key={tab.label}
@@ -28,9 +28,9 @@ export default function AdminCommentsPage() {
                   : 'text-admin-text-secondary'
               }`}
             >
-              {tab.label}
+              <span>{tab.label}</span>
               <span
-                className={`rounded-[10px] px-2 py-0.5 text-[11px] ${
+                className={`rounded-[10px] px-2 py-0.5 text-[11px] font-normal ${
                   active ? 'bg-accent-dim text-accent' : 'bg-admin-border text-admin-text-secondary'
                 }`}
               >

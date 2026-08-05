@@ -1,7 +1,15 @@
 import Link from 'next/link'
 import { Plus, Folder, Star, Pencil, ExternalLink, Ellipsis } from 'lucide-react'
 import { AdminTopBar } from '@/components/admin/admin-ui'
-import { adminProjects } from '@/lib/admin-fixtures'
+import { adminProjects, type AdminProjectStatus } from '@/lib/admin-fixtures'
+
+/** Design: the status pill keeps the badge shape across all four vocabularies. */
+const PROJECT_STATUS: Record<AdminProjectStatus, string> = {
+  Featured: 'bg-[#10B98115] text-accent',
+  Active: 'bg-[#10B98115] text-admin-success',
+  Archived: 'bg-[#9CA3AF15] text-admin-text-tertiary',
+  WIP: 'bg-[#F59E0B15] text-admin-warning',
+}
 
 /**
  * Design: "Admin — Projects" — a card grid (rows of two, gap 16). Each card is
@@ -36,13 +44,9 @@ export default function AdminProjectsPage() {
                 </h2>
               </div>
               <span
-                className={`rounded-xl px-2.5 py-1 text-xs font-medium ${
-                  project.status === 'Published'
-                    ? 'bg-[#10B98115] text-accent'
-                    : 'bg-[#F59E0B15] text-admin-warning'
-                }`}
+                className={`rounded-xl px-2.5 py-1 text-xs font-medium ${PROJECT_STATUS[project.status]}`}
               >
-                {project.status === 'Published' ? 'Featured' : 'Draft'}
+                {project.status}
               </span>
             </div>
 

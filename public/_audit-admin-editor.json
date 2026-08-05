@@ -1,0 +1,247 @@
+{
+  "frame": "Admin — Post Editor",
+  "mode": "dark",
+  "nodes": [
+    {
+      "text": "Posts",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#6B7280"
+    },
+    {
+      "text": "Draft · Saved 2 min ago",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Preview",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#6B7280"
+    },
+    {
+      "text": "Settings",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#6B7280"
+    },
+    {
+      "text": "Publish",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "500",
+      "color": "#FFFFFF"
+    },
+    {
+      "text": "1,247 words · 6 min read",
+      "fontFamily": "Geist Mono",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Click to add a cover image",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Recommended: 1200×630px · JPG, PNG, or WebP",
+      "fontFamily": "Inter",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Event Sourcing in Practice: Lessons from Production",
+      "fontFamily": "Geist",
+      "fontSize": 36,
+      "fontWeight": "700",
+      "color": "#111827",
+      "lineHeight": 1.3
+    },
+    {
+      "text": "Event sourcing is one of those patterns that sounds simple in theory but gets complicated fast in production. After running an event-sourced system for two years at scale, I want to share the real lessons — not the textbook ones.",
+      "fontFamily": "Inter",
+      "fontSize": 16,
+      "fontWeight": "400",
+      "color": "#111827",
+      "lineHeight": 1.8
+    },
+    {
+      "text": "Why Event Sourcing?",
+      "fontFamily": "Geist",
+      "fontSize": 24,
+      "fontWeight": "600",
+      "color": "#111827"
+    },
+    {
+      "text": "The traditional approach to data storage — mutating rows in place — works fine until you need to answer questions like \"what did this record look like three weeks ago?\" or \"what sequence of changes led to this state?\" Event sourcing flips the model: instead of storing current state, you store every change as an immutable event.",
+      "fontFamily": "Inter",
+      "fontSize": 16,
+      "fontWeight": "400",
+      "color": "#111827",
+      "lineHeight": 1.8
+    },
+    {
+      "text": "Post Settings",
+      "fontFamily": "Geist",
+      "fontSize": 15,
+      "fontWeight": "600",
+      "color": "#111827"
+    },
+    {
+      "text": "Status",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#6B7280"
+    },
+    {
+      "text": "Draft",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#F59E0B"
+    },
+    {
+      "text": "Category",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#6B7280"
+    },
+    {
+      "text": "Engineering",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#111827"
+    },
+    {
+      "text": "Tags",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#6B7280"
+    },
+    {
+      "text": "Event Sourcing",
+      "fontFamily": "Inter",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#607EBC"
+    },
+    {
+      "text": "Architecture",
+      "fontFamily": "Inter",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#607EBC"
+    },
+    {
+      "text": "Add tag...",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Publish Date",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#6B7280"
+    },
+    {
+      "text": "Aug 4, 2026",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#111827"
+    },
+    {
+      "text": "URL Slug",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#6B7280"
+    },
+    {
+      "text": "/blog/",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "event-sourcing-in-practice",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#111827"
+    },
+    {
+      "text": "SEO",
+      "fontFamily": "Geist",
+      "fontSize": 14,
+      "fontWeight": "600",
+      "color": "#111827"
+    },
+    {
+      "text": "Good",
+      "fontFamily": "Inter",
+      "fontSize": 11,
+      "fontWeight": "500",
+      "color": "#10B981"
+    },
+    {
+      "text": "Meta Title",
+      "fontFamily": "Inter",
+      "fontSize": 11,
+      "fontWeight": "500",
+      "color": "#6B7280"
+    },
+    {
+      "text": "Event Sourcing in Practice | Sudi David",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#111827"
+    },
+    {
+      "text": "Meta Description",
+      "fontFamily": "Inter",
+      "fontSize": 11,
+      "fontWeight": "500",
+      "color": "#6B7280"
+    },
+    {
+      "text": "143 / 160 characters",
+      "fontFamily": "Inter",
+      "fontSize": 10,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Featured Post",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "500",
+      "color": "#111827"
+    },
+    {
+      "text": "Pin to blog homepage",
+      "fontFamily": "Inter",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    }
+  ]
+}

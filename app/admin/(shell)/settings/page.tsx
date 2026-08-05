@@ -1,4 +1,4 @@
-import { LogOut, Camera } from 'lucide-react'
+import { LogOut, Upload, User } from 'lucide-react'
 import { AdminTopBar, AdminCard } from '@/components/admin/admin-ui'
 import { GithubIcon, TwitterIcon, LinkedinIcon } from '@/components/brand-icons'
 
@@ -60,13 +60,14 @@ export default function AdminSettingsPage() {
           <AdminCard title="Profile Information">
             <div className="flex items-center gap-4">
               <span className="flex size-16 shrink-0 items-center justify-center rounded-full bg-accent">
-                <Camera size={20} className="text-white" />
+                <User size={22} className="text-white" />
               </span>
               <div className="flex flex-col gap-2">
                 <button
                   type="button"
-                  className="w-fit rounded-lg border border-admin-border px-3.5 py-2 text-[13px] font-medium text-admin-text"
+                  className="inline-flex w-fit items-center gap-1.5 rounded-md bg-accent px-3.5 py-1.5 text-xs font-medium text-white transition-opacity hover:opacity-90"
                 >
+                  <Upload size={14} />
                   Change photo
                 </button>
                 <span className="text-[11px] text-admin-text-tertiary">

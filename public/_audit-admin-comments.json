@@ -1,0 +1,228 @@
+{
+  "frame": "Admin — Comments",
+  "mode": "dark",
+  "nodes": [
+    {
+      "text": "ADMIN",
+      "fontFamily": "Geist Mono",
+      "fontSize": 10,
+      "fontWeight": "400",
+      "color": "#9CA3AF",
+      "letterSpacing": 2
+    },
+    {
+      "text": "Dashboard",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Posts",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Projects",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Settings",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Sudi David",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "500",
+      "color": "#FFFFFF"
+    },
+    {
+      "text": "sudi@sudidavid.dev",
+      "fontFamily": "Inter",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "All",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#6B7280"
+    },
+    {
+      "text": "142",
+      "fontFamily": "Inter",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#6B7280"
+    },
+    {
+      "text": "Pending",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "600",
+      "color": "#607EBC"
+    },
+    {
+      "text": "6",
+      "fontFamily": "Inter",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#607EBC"
+    },
+    {
+      "text": "Approved",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#6B7280"
+    },
+    {
+      "text": "128",
+      "fontFamily": "Inter",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#6B7280"
+    },
+    {
+      "text": "Spam",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#6B7280"
+    },
+    {
+      "text": "8",
+      "fontFamily": "Inter",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#6B7280"
+    },
+    {
+      "text": "Sarah Chen",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "600",
+      "color": "#111827"
+    },
+    {
+      "text": "Building a Real-Time Collaboration Engine",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#607EBC"
+    },
+    {
+      "text": "10 minutes ago",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "This is incredibly well-written! The section on conflict resolution with CRDTs cleared up a lot of confusion I had. Would love to see a follow-up on handling large document state.",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#6B7280",
+      "lineHeight": 1.5
+    },
+    {
+      "text": "Marcus Johnson",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "600",
+      "color": "#111827"
+    },
+    {
+      "text": "Optimizing React Renders at Scale",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#607EBC"
+    },
+    {
+      "text": "1 hour ago",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "We implemented a similar virtualization strategy at our company. One thing I'd add is that React.memo can actually hurt performance in some cases if the comparison function is expensive.",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#6B7280",
+      "lineHeight": 1.5
+    },
+    {
+      "text": "Yuki Tanaka",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "600",
+      "color": "#111827"
+    },
+    {
+      "text": "Type-Safe API Layers with tRPC",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#607EBC"
+    },
+    {
+      "text": "3 hours ago",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Switched our entire API layer to tRPC after reading this. The DX improvement was instant. One question: how do you handle file uploads with tRPC?",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#6B7280",
+      "lineHeight": 1.5
+    },
+    {
+      "text": "David Park",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "600",
+      "color": "#111827"
+    },
+    {
+      "text": "From Monolith to Microservices",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#607EBC"
+    },
+    {
+      "text": "5 hours ago",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Great pragmatic approach. Too many articles push for a complete rewrite. The strangler fig pattern you described saved us months of work.",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#6B7280",
+      "lineHeight": 1.5
+    }
+  ]
+}

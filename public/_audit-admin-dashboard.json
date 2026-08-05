@@ -1,0 +1,308 @@
+{
+  "frame": "Admin — Dashboard",
+  "mode": "dark",
+  "nodes": [
+    {
+      "text": "ADMIN",
+      "fontFamily": "Geist Mono",
+      "fontSize": 10,
+      "fontWeight": "400",
+      "color": "#9CA3AF",
+      "letterSpacing": 2
+    },
+    {
+      "text": "Posts",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Settings",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Sudi David",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "500",
+      "color": "#FFFFFF"
+    },
+    {
+      "text": "sudi@sudidavid.dev",
+      "fontFamily": "Inter",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Welcome back, Sudi. Here's what's happening.",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#6B7280"
+    },
+    {
+      "text": "Search...",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Total Views",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#6B7280"
+    },
+    {
+      "text": "24,891",
+      "fontFamily": "Geist",
+      "fontSize": 32,
+      "fontWeight": "700",
+      "color": "#111827"
+    },
+    {
+      "text": "+12.5%",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "600",
+      "color": "#10B981"
+    },
+    {
+      "text": "Published Posts",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#6B7280"
+    },
+    {
+      "text": "18",
+      "fontFamily": "Geist",
+      "fontSize": 32,
+      "fontWeight": "700",
+      "color": "#111827"
+    },
+    {
+      "text": "+3",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "600",
+      "color": "#10B981"
+    },
+    {
+      "text": "142",
+      "fontFamily": "Geist",
+      "fontSize": 32,
+      "fontWeight": "700",
+      "color": "#111827"
+    },
+    {
+      "text": "+24",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "600",
+      "color": "#10B981"
+    },
+    {
+      "text": "8",
+      "fontFamily": "Geist",
+      "fontSize": 32,
+      "fontWeight": "700",
+      "color": "#111827"
+    },
+    {
+      "text": "+1",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "600",
+      "color": "#607EBC"
+    },
+    {
+      "text": "Recent Activity",
+      "fontFamily": "Geist",
+      "fontSize": 16,
+      "fontWeight": "600",
+      "color": "#111827"
+    },
+    {
+      "text": "View all",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#607EBC"
+    },
+    {
+      "text": "Published \"Building a Real-Time Collaboration Engine\"",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#111827"
+    },
+    {
+      "text": "2 hours ago",
+      "fontFamily": "Inter",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "New comment on \"Optimizing React Renders at Scale\"",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#111827"
+    },
+    {
+      "text": "5 hours ago",
+      "fontFamily": "Inter",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "\"Type-Safe API Layers\" reached 1,000 views",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#111827"
+    },
+    {
+      "text": "1 day ago",
+      "fontFamily": "Inter",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Updated project \"CollabSync\" status to featured",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#111827"
+    },
+    {
+      "text": "2 days ago",
+      "fontFamily": "Inter",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "New comment on \"From Monolith to Microservices\"",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#111827"
+    },
+    {
+      "text": "3 days ago",
+      "fontFamily": "Inter",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Draft saved: \"Event Sourcing in Practice\"",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#111827"
+    },
+    {
+      "text": "4 days ago",
+      "fontFamily": "Inter",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Quick Actions",
+      "fontFamily": "Geist",
+      "fontSize": 16,
+      "fontWeight": "600",
+      "color": "#111827"
+    },
+    {
+      "text": "New Blog Post",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "500",
+      "color": "#111827"
+    },
+    {
+      "text": "Create a new article draft",
+      "fontFamily": "Inter",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Add Project",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "500",
+      "color": "#111827"
+    },
+    {
+      "text": "Showcase a new project",
+      "fontFamily": "Inter",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "View Analytics",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "500",
+      "color": "#111827"
+    },
+    {
+      "text": "Check traffic & engagement",
+      "fontFamily": "Inter",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Edit Profile",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "500",
+      "color": "#111827"
+    },
+    {
+      "text": "Update your bio & links",
+      "fontFamily": "Inter",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Recent Drafts",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "600",
+      "color": "#6B7280"
+    },
+    {
+      "text": "Event Sourcing in Practice",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#111827"
+    },
+    {
+      "text": "Scaling WebSocket Connections",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#111827"
+    }
+  ]
+}

@@ -1,0 +1,204 @@
+{
+  "frame": "Admin — Settings",
+  "mode": "dark",
+  "nodes": [
+    {
+      "text": "ADMIN",
+      "fontFamily": "Geist Mono",
+      "fontSize": 10,
+      "fontWeight": "400",
+      "color": "#9CA3AF",
+      "letterSpacing": 2
+    },
+    {
+      "text": "Dashboard",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Posts",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Projects",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Comments",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Profile Information",
+      "fontFamily": "Geist",
+      "fontSize": 16,
+      "fontWeight": "600",
+      "color": "#111827"
+    },
+    {
+      "text": "Change photo",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#FFFFFF"
+    },
+    {
+      "text": "JPG, PNG or WebP. Max 2MB.",
+      "fontFamily": "Inter",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Display Name",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#6B7280"
+    },
+    {
+      "text": "Email Address",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#6B7280"
+    },
+    {
+      "text": "Bio",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#6B7280"
+    },
+    {
+      "text": "Full-stack engineer specializing in real-time systems, distributed architectures, and developer tooling.",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#111827"
+    },
+    {
+      "text": "Location",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#6B7280"
+    },
+    {
+      "text": "San Francisco, CA",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#111827"
+    },
+    {
+      "text": "Website",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#6B7280"
+    },
+    {
+      "text": "sudidavid.dev",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#111827"
+    },
+    {
+      "text": "Social Links",
+      "fontFamily": "Geist",
+      "fontSize": 16,
+      "fontWeight": "600",
+      "color": "#111827"
+    },
+    {
+      "text": "github.com/sudidavid",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#111827"
+    },
+    {
+      "text": "@sudidavid",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#111827"
+    },
+    {
+      "text": "linkedin.com/in/sudidavid",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#111827"
+    },
+    {
+      "text": "SEO & Metadata",
+      "fontFamily": "Geist",
+      "fontSize": 16,
+      "fontWeight": "600",
+      "color": "#111827"
+    },
+    {
+      "text": "Site Title",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#6B7280"
+    },
+    {
+      "text": "Sudi David — Developer Portfolio",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#111827"
+    },
+    {
+      "text": "Meta Description",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#6B7280"
+    },
+    {
+      "text": "Full-stack engineer building real-time systems and developer tools.",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#111827"
+    },
+    {
+      "text": "Session",
+      "fontFamily": "Geist",
+      "fontSize": 16,
+      "fontWeight": "600",
+      "color": "#111827"
+    },
+    {
+      "text": "Sign out of your admin account. You can log back in at any time.",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#6B7280",
+      "lineHeight": 1.5
+    },
+    {
+      "text": "Log Out",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "500",
+      "color": "#6B7280"
+    }
+  ]
+}

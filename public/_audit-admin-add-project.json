@@ -1,0 +1,316 @@
+{
+  "frame": "Admin — Add Project",
+  "mode": "dark",
+  "nodes": [
+    {
+      "text": "ADMIN",
+      "fontFamily": "Geist Mono",
+      "fontSize": 10,
+      "fontWeight": "400",
+      "color": "#9CA3AF",
+      "letterSpacing": 2
+    },
+    {
+      "text": "Dashboard",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Posts",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Comments",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Settings",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Sudi David",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "500",
+      "color": "#FFFFFF"
+    },
+    {
+      "text": "sudi@sudidavid.dev",
+      "fontFamily": "Inter",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Cancel",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "500",
+      "color": "#6B7280"
+    },
+    {
+      "text": "Save Draft",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "500",
+      "color": "#6B7280"
+    },
+    {
+      "text": "Save & Publish",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "500",
+      "color": "#FFFFFF"
+    },
+    {
+      "text": "Project Details",
+      "fontFamily": "Geist",
+      "fontSize": 16,
+      "fontWeight": "600",
+      "color": "#111827"
+    },
+    {
+      "text": "Project Name *",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#6B7280"
+    },
+    {
+      "text": "e.g. CollabSync",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Description *",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#6B7280"
+    },
+    {
+      "text": "Brief description of the project...",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Year",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#6B7280"
+    },
+    {
+      "text": "2026",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#111827"
+    },
+    {
+      "text": "Status",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#6B7280"
+    },
+    {
+      "text": "Active",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#111827"
+    },
+    {
+      "text": "Tech Stack",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#6B7280"
+    },
+    {
+      "text": "React",
+      "fontFamily": "Inter",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#607EBC"
+    },
+    {
+      "text": "TypeScript",
+      "fontFamily": "Inter",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#607EBC"
+    },
+    {
+      "text": "Add technology...",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Links",
+      "fontFamily": "Geist",
+      "fontSize": 16,
+      "fontWeight": "600",
+      "color": "#111827"
+    },
+    {
+      "text": "Live URL",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#6B7280"
+    },
+    {
+      "text": "https://myproject.dev",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "GitHub Repository",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#6B7280"
+    },
+    {
+      "text": "https://github.com/sudidavid/...",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Case Study / Blog Post",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#6B7280"
+    },
+    {
+      "text": "https://sudidavid.dev/blog/...",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Cover Image",
+      "fontFamily": "Geist",
+      "fontSize": 16,
+      "fontWeight": "600",
+      "color": "#111827"
+    },
+    {
+      "text": "Drop image here or click to upload",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#6B7280"
+    },
+    {
+      "text": "PNG, JPG, WebP · Max 5MB",
+      "fontFamily": "Inter",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Display Settings",
+      "fontFamily": "Geist",
+      "fontSize": 16,
+      "fontWeight": "600",
+      "color": "#111827"
+    },
+    {
+      "text": "Featured Project",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "500",
+      "color": "#111827"
+    },
+    {
+      "text": "Show on homepage",
+      "fontFamily": "Inter",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Show on Work Page",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "500",
+      "color": "#111827"
+    },
+    {
+      "text": "List in portfolio projects",
+      "fontFamily": "Inter",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Display Order",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#6B7280"
+    },
+    {
+      "text": "1",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#111827"
+    },
+    {
+      "text": "Lower = shown first",
+      "fontFamily": "Inter",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Extended Description",
+      "fontFamily": "Geist",
+      "fontSize": 16,
+      "fontWeight": "600",
+      "color": "#111827"
+    },
+    {
+      "text": "Shown on the project detail page. Supports markdown.",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Write a detailed overview of the project, the problems it solves, and the technical decisions behind it...",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#9CA3AF",
+      "lineHeight": 1.5
+    }
+  ]
+}

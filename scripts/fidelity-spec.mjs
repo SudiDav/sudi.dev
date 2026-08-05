@@ -83,7 +83,11 @@ const collect = (node) => {
         text,
         fontFamily: resolved.fontFamily,
         fontSize: resolved.fontSize,
-        fontWeight: resolved.fontWeight === 'normal' ? '400' : String(resolved.fontWeight),
+        // An omitted fontWeight means normal in the design file.
+        fontWeight:
+          resolved.fontWeight === undefined || resolved.fontWeight === 'normal'
+            ? '400'
+            : String(resolved.fontWeight),
         color: resolveColor(resolved.fill, mode),
         letterSpacing: resolved.letterSpacing,
         lineHeight: resolved.lineHeight,

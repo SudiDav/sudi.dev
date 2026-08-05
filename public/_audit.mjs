@@ -44,6 +44,12 @@ const findElement = (text) => {
   // Styling lives on ::placeholder, not the input itself.
   if (byPlaceholder) return { el: byPlaceholder, pseudo: '::placeholder' }
 
+  // Form fields render their content as `value`, which is not textContent.
+  const byValue = [...document.querySelectorAll('input, textarea')].find(
+    (el) => normalise(el.value || '') === wanted,
+  )
+  if (byValue) return { el: byValue }
+
   const all = [...document.querySelectorAll('body *')]
   const exact = all.filter((el) => normalise(el.textContent || '') === wanted)
   if (exact.length) {

@@ -1,0 +1,334 @@
+{
+  "frame": "Admin — Posts",
+  "mode": "dark",
+  "nodes": [
+    {
+      "text": "ADMIN",
+      "fontFamily": "Geist Mono",
+      "fontSize": 10,
+      "fontWeight": "400",
+      "color": "#9CA3AF",
+      "letterSpacing": 2
+    },
+    {
+      "text": "Dashboard",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Projects",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Comments",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Settings",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Sudi David",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "500",
+      "color": "#FFFFFF"
+    },
+    {
+      "text": "sudi@sudidavid.dev",
+      "fontFamily": "Inter",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "Search posts...",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#9CA3AF"
+    },
+    {
+      "text": "New Post",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "500",
+      "color": "#FFFFFF"
+    },
+    {
+      "text": "All Posts",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "600",
+      "color": "#607EBC"
+    },
+    {
+      "text": "18",
+      "fontFamily": "Inter",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#607EBC"
+    },
+    {
+      "text": "14",
+      "fontFamily": "Inter",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#6B7280"
+    },
+    {
+      "text": "Drafts",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#6B7280"
+    },
+    {
+      "text": "1",
+      "fontFamily": "Inter",
+      "fontSize": 11,
+      "fontWeight": "400",
+      "color": "#6B7280"
+    },
+    {
+      "text": "TITLE",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "600",
+      "color": "#6B7280",
+      "letterSpacing": 1
+    },
+    {
+      "text": "STATUS",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "600",
+      "color": "#6B7280",
+      "letterSpacing": 1
+    },
+    {
+      "text": "DATE",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "600",
+      "color": "#6B7280",
+      "letterSpacing": 1
+    },
+    {
+      "text": "VIEWS",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "600",
+      "color": "#6B7280",
+      "letterSpacing": 1
+    },
+    {
+      "text": "COMMENTS",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "600",
+      "color": "#6B7280",
+      "letterSpacing": 1
+    },
+    {
+      "text": "Building a Real-Time Collaboration Engine",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "500",
+      "color": "#111827"
+    },
+    {
+      "text": "Aug 2, 2026",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#6B7280"
+    },
+    {
+      "text": "2,841",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#6B7280"
+    },
+    {
+      "text": "4",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#6B7280"
+    },
+    {
+      "text": "Optimizing React Renders at Scale",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "500",
+      "color": "#111827"
+    },
+    {
+      "text": "Jul 15, 2026",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#6B7280"
+    },
+    {
+      "text": "1,923",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#6B7280"
+    },
+    {
+      "text": "8",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#6B7280"
+    },
+    {
+      "text": "Type-Safe API Layers with tRPC",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "500",
+      "color": "#111827"
+    },
+    {
+      "text": "Jun 28, 2026",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#6B7280"
+    },
+    {
+      "text": "1,456",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#6B7280"
+    },
+    {
+      "text": "6",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#6B7280"
+    },
+    {
+      "text": "From Monolith to Microservices",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "500",
+      "color": "#111827"
+    },
+    {
+      "text": "Jun 10, 2026",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#6B7280"
+    },
+    {
+      "text": "3,102",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#6B7280"
+    },
+    {
+      "text": "12",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#6B7280"
+    },
+    {
+      "text": "Event Sourcing in Practice",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "500",
+      "color": "#111827"
+    },
+    {
+      "text": "Aug 1, 2026",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#6B7280"
+    },
+    {
+      "text": "Scaling WebSocket Connections",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "500",
+      "color": "#111827"
+    },
+    {
+      "text": "Jul 30, 2026",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#6B7280"
+    },
+    {
+      "text": "The Art of Code Review",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "500",
+      "color": "#111827"
+    },
+    {
+      "text": "May 22, 2026",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#6B7280"
+    },
+    {
+      "text": "2,187",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#6B7280"
+    },
+    {
+      "text": "9",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#6B7280"
+    },
+    {
+      "text": "Database Indexing Strategies",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "500",
+      "color": "#111827"
+    },
+    {
+      "text": "Apr 5, 2026",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#6B7280"
+    },
+    {
+      "text": "891",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#6B7280"
+    }
+  ]
+}
