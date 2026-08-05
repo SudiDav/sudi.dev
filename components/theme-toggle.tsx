@@ -1,19 +1,41 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useCallback, useSyncExternalStore } from 'react'
 import { Sun, Moon } from 'lucide-react'
 
+/**
+ * The theme lives on `<html>`, applied by the inline bootstrap script in the
+ * root layout before first paint. The DOM is therefore the source of truth, not
+ * React — so this subscribes to it rather than mirroring it into state.
+ *
+ * `useSyncExternalStore` is the right primitive: it renders the server snapshot
+ * during hydration, then re-reads the real DOM and re-renders if they differ.
+ * Syncing with an effect instead both trips React's set-state-in-effect rule
+ * and risks a hydration mismatch, since the script has already applied the
+ * user's stored preference by the time React runs.
+ */
+const subscribe = (onStoreChange: () => void) => {
+  const observer = new MutationObserver(onStoreChange)
+  observer.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+  return () => observer.disconnect()
+}
+
+const getSnapshot = () => document.documentElement.classList.contains('light')
+const getServerSnapshot = () => false
+
+/**
+ * Design: "Theme Toggle" — padding [6,8], gap 6, fill $bg-card, 1px $border,
+ * cornerRadius 9999. A segmented pill holding BOTH icons at 14px: in dark the
+ * moon is $accent and the sun is $text-tertiary; light inverts that.
+ */
 export function ThemeToggle() {
-  const [isLight, setIsLight] = useState(false)
+  const isLight = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
 
-  useEffect(() => setIsLight(document.documentElement.classList.contains('light')), [])
-
-  const toggle = () => {
-    const next = !isLight
+  const toggle = useCallback(() => {
+    const next = !document.documentElement.classList.contains('light')
     document.documentElement.classList.toggle('light', next)
     localStorage.setItem('theme', next ? 'light' : 'dark')
-    setIsLight(next)
-  }
+  }, [])
 
   return (
     <button
@@ -21,9 +43,7 @@ export function ThemeToggle() {
       onClick={toggle}
       aria-label="Toggle colour theme"
       aria-pressed={isLight}
-      className="flex items-center gap-1.5 rounded-full border border-border bg-bg-card
-                 px-2 py-1.5 transition-colors hover:border-border-hover
-                 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      className="flex items-center gap-1.5 rounded-full border border-border bg-bg-card px-2 py-1.5 transition-colors hover:border-border-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
     >
       <Sun size={14} className={isLight ? 'text-accent' : 'text-text-tertiary'} />
       <Moon size={14} className={isLight ? 'text-text-tertiary' : 'text-accent'} />

@@ -47,6 +47,7 @@ export async function getProjects(): Promise<Project[]> {
       title: data.title,
       year: String(data.year),
       description: data.description,
+      shortDescription: data.shortDescription,
       tech: data.tech ?? [],
       category: data.category,
       cover: data.cover,
