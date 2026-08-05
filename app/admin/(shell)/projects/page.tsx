@@ -1,0 +1,73 @@
+import Link from 'next/link'
+import { Plus, Folder, Star, Pencil, ExternalLink, Ellipsis } from 'lucide-react'
+import { AdminTopBar } from '@/components/admin/admin-ui'
+import { adminProjects } from '@/lib/admin-fixtures'
+
+/**
+ * Design: "Admin — Projects" — a card grid (rows of two, gap 16). Each card is
+ * padding 20 / gap 14 / radius 12 with a folder icon, a status pill, the
+ * description, a Geist Mono tech line, then a footer above a 1px top rule
+ * carrying the view count and three action icons.
+ */
+export default function AdminProjectsPage() {
+  return (
+    <>
+      <AdminTopBar title="Projects">
+        <Link
+          href="/admin/projects/new"
+          className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-[13px] font-medium text-white transition-opacity hover:opacity-90"
+        >
+          <Plus size={16} />
+          Add Project
+        </Link>
+      </AdminTopBar>
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        {adminProjects.map((project) => (
+          <article
+            key={project.name}
+            className="flex flex-col gap-3.5 rounded-xl border border-admin-border bg-admin-card p-5"
+          >
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <Folder size={18} className="text-accent" />
+                <h2 className="font-display text-[15px] font-semibold text-admin-text">
+                  {project.name}
+                </h2>
+              </div>
+              <span
+                className={`rounded-xl px-2.5 py-1 text-xs font-medium ${
+                  project.status === 'Published'
+                    ? 'bg-[#10B98115] text-accent'
+                    : 'bg-[#F59E0B15] text-admin-warning'
+                }`}
+              >
+                {project.status === 'Published' ? 'Featured' : 'Draft'}
+              </span>
+            </div>
+
+            <p className="text-[13px] leading-[1.5] text-admin-text-secondary">
+              {project.description}
+            </p>
+
+            <p className="font-mono text-[11px] text-admin-text-tertiary">{project.tech}</p>
+
+            <div className="flex-1" />
+
+            <div className="flex items-center justify-between border-t border-admin-border pt-3">
+              <span className="flex items-center gap-1 text-xs text-admin-text-tertiary">
+                <Star size={13} />
+                {project.views}
+              </span>
+              <div className="flex items-center gap-3 text-admin-text-tertiary">
+                <Pencil size={14} />
+                <ExternalLink size={14} />
+                <Ellipsis size={14} />
+              </div>
+            </div>
+          </article>
+        ))}
+      </div>
+    </>
+  )
+}
