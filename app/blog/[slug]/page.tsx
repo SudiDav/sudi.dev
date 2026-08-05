@@ -2,12 +2,14 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ArrowRight, User } from 'lucide-react'
+import { ArrowRight, User, Copy, AtSign } from 'lucide-react'
+import { GithubIcon } from '@/components/brand-icons'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import { ArticleItem } from '@/components/article-item'
 import { ArticleComments } from '@/components/article-comments'
+import { TechBadge } from '@/components/tech-badge'
 import { getPost, getPosts } from '@/lib/content'
 import { formatPostDate } from '@/lib/format'
 
@@ -35,7 +37,7 @@ const mdxComponents = {
     <h2 className="font-display text-[28px] font-bold text-text-primary" {...props} />
   ),
   h3: (props: React.ComponentProps<'h3'>) => (
-    <h3 className="font-display text-xl font-bold text-text-primary" {...props} />
+    <h3 className="font-display text-[22px] font-semibold text-text-primary" {...props} />
   ),
   p: (props: React.ComponentProps<'p'>) => (
     <p className="text-[17px] leading-[1.8] text-text-secondary" {...props} />
@@ -52,12 +54,42 @@ const mdxComponents = {
   a: (props: React.ComponentProps<'a'>) => (
     <a className="text-accent underline underline-offset-2" {...props} />
   ),
-  pre: (props: React.ComponentProps<'pre'>) => (
-    <pre
-      className="overflow-x-auto rounded-lg border border-border bg-bg-card p-6 font-mono text-[13px] leading-[1.6] text-text-secondary"
-      {...props}
-    />
-  ),
+  pre: ({ children }: React.ComponentProps<'pre'>) => {
+    // Design: "Code Block" — padding 24, gap 2, a header row carrying the
+    // language in Geist Mono 11/600 plus a copy icon, then one text node per
+    // line at Geist Mono 13/1.6.
+    //
+    // The design paints declaration openers ("interface CRDT<T> {",
+    // "class TextCRDT implements CRDT<Doc> {") in $accent and every other line
+    // in $text-secondary — i.e. unindented lines that open a block. That rule
+    // is applied here rather than pulling in a syntax highlighter, whose own
+    // palette would not match the design.
+    const child = children as React.ReactElement<{ className?: string; children?: string }>
+    const language = child?.props?.className?.replace('language-', '') ?? ''
+    const lines = String(child?.props?.children ?? '').replace(/\n$/, '').split('\n')
+    const isDeclaration = (line: string) => /^\S/.test(line) && line.trimEnd().endsWith('{')
+
+    return (
+      <div className="flex flex-col rounded-lg border border-border bg-bg-card p-6">
+        <div className="flex items-center justify-between pb-3">
+          <span className="font-mono text-[11px] font-semibold text-text-tertiary">{language}</span>
+          <Copy size={14} className="text-text-tertiary" />
+        </div>
+        <div className="flex flex-col gap-0.5 overflow-x-auto">
+          {lines.map((line, index) => (
+            <span
+              key={index}
+              className={`font-mono text-[13px] leading-[1.6] whitespace-pre ${
+                isDeclaration(line) ? 'text-accent' : 'text-text-secondary'
+              }`}
+            >
+              {line || ' '}
+            </span>
+          ))}
+        </div>
+      </div>
+    )
+  },
   code: (props: React.ComponentProps<'code'>) => <code className="font-mono" {...props} />,
 }
 
@@ -82,7 +114,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
               blog
             </Link>
             <span className="text-text-tertiary">/</span>
-            <span className="text-accent">{post.slug}</span>
+            <span className="text-accent">{post.breadcrumb ?? post.slug}</span>
           </nav>
 
           <span className="rounded-full bg-accent-dim px-3 py-1 font-mono text-[11px] font-semibold text-accent uppercase">
@@ -93,7 +125,9 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
             {post.title}
           </h1>
 
-          <p className="text-base leading-[1.5] text-text-secondary lg:text-lg">{post.excerpt}</p>
+          <p className="text-base leading-[1.5] text-text-secondary lg:text-lg">
+            {post.subtitle ?? post.excerpt}
+          </p>
 
           <div className="flex items-center gap-4">
             <span className="flex size-10 items-center justify-center rounded-full bg-bg-elevated">
@@ -128,6 +162,55 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         {/* Article Body — COLUMN, padding [48,360], gap 28 */}
         <div className="flex flex-col gap-7 px-4 py-12 md:px-8 lg:px-40 xl:px-90">
           <MDXRemote source={post.body} components={mdxComponents} />
+
+          {post.tags?.length ? (
+            <>
+              {/* Divider — ROW, padding [8,0] */}
+              <div className="py-2">
+                <hr className="border-0 border-t border-border" />
+              </div>
+
+              {/* Tags Row — ROW, gap 8 */}
+              <div className="flex flex-wrap items-center gap-2">
+                {post.tags.map((tag) => (
+                  <TechBadge key={tag} label={tag} />
+                ))}
+              </div>
+            </>
+          ) : null}
+
+          {/* Author Bio Card — ROW, padding 24, gap 20, radius 12 */}
+          <div className="flex items-center gap-5 rounded-xl border border-border bg-bg-card p-6">
+            <span className="flex size-14 shrink-0 items-center justify-center rounded-full bg-bg-elevated">
+              <User size={22} className="text-text-tertiary" />
+            </span>
+            <div className="flex flex-col gap-2">
+              <span className="font-mono text-[11px] tracking-[2px] text-text-tertiary">
+                WRITTEN BY
+              </span>
+              <span className="text-sm font-semibold text-text-primary">Sudi David</span>
+              <p className="text-sm leading-[1.6] text-text-secondary">
+                Full-stack engineer specializing in real-time systems, distributed architectures,
+                and developer tooling. Currently building the future of collaborative software.
+              </p>
+              <div className="flex flex-wrap items-center gap-5">
+                <a
+                  href="https://twitter.com/sudidavid"
+                  className="inline-flex items-center gap-1.5 font-mono text-xs text-accent hover:underline"
+                >
+                  <AtSign size={14} />
+                  @sudidavid
+                </a>
+                <a
+                  href="https://github.com/sudidavid"
+                  className="inline-flex items-center gap-1.5 font-mono text-xs text-accent hover:underline"
+                >
+                  <GithubIcon size={14} />
+                  github.com/sudidavid
+                </a>
+              </div>
+            </div>
+          </div>
         </div>
 
         <ArticleComments />

@@ -171,7 +171,9 @@ export default async function HomePage() {
                 </Link>
               </div>
               {latestPosts.map((post) => (
-                <ArticleItem key={post.slug} post={post} />
+                // The homepage frame shows shorter copy for these same posts —
+                // and a shorter title and read time for the featured one.
+                <ArticleItem key={post.slug} post={{ ...post, ...post.home }} />
               ))}
             </section>
           </div>

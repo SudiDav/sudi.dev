@@ -11,6 +11,16 @@ export type Post = {
   category: string
   cover: string // path under /public
   featured: boolean
+  // Article-page only. The design's Article Subtitle differs slightly from the
+  // excerpt the blog cards show, and its breadcrumb shows a short slug.
+  subtitle?: string
+  breadcrumb?: string
+  tags?: string[]
+  // The homepage's "Latest Articles" instances carry shorter copy than the blog
+  // list, and the featured post additionally shows a shorter title and a
+  // different reading time there. These are the design's own per-surface
+  // overrides, so they are modelled rather than reconciled away.
+  home?: { title?: string; excerpt?: string; readingTime?: string }
   body: string // raw MDX
 }
 

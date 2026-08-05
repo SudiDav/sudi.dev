@@ -70,7 +70,12 @@ export default async function BlogPage({
           className={`flex flex-col justify-between gap-4 lg:flex-row lg:items-center ${PAGE_GUTTER}`}
         >
           <BlogSearch query={q} />
-          <FilterBar options={POST_FILTERS} active={active} label="Filter articles by category" />
+          <FilterBar
+            options={POST_FILTERS}
+            active={active}
+            label="Filter articles by category"
+            size="blog"
+          />
         </div>
 
         {showFeatured ? (

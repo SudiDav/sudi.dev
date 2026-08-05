@@ -23,11 +23,19 @@ const themeScript = `
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <head><script dangerouslySetInnerHTML={{ __html: themeScript }} /></head>
-      <body className={`${inter.variable} ${geist.variable} ${geistMono.variable}`}>
-        {children}
-      </body>
+    // The font variables must live on <html>, not <body>. Tailwind's `@theme`
+    // defines `--font-sans: var(--font-inter)` at `:root` — if `--font-inter`
+    // is only declared on <body>, that reference resolves to nothing at :root
+    // and every font silently falls back to the system stack.
+    <html
+      lang="en"
+      className={`${inter.variable} ${geist.variable} ${geistMono.variable}`}
+      suppressHydrationWarning
+    >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
+      <body className="antialiased">{children}</body>
     </html>
   )
 }

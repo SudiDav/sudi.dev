@@ -1,0 +1,439 @@
+{
+  "frame": "Blog Page",
+  "mode": "dark",
+  "nodes": [
+    {
+      "text": "Work",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "500",
+      "color": "#8B8B96"
+    },
+    {
+      "text": "About",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "500",
+      "color": "#8B8B96"
+    },
+    {
+      "text": "~",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#5C5C66"
+    },
+    {
+      "text": "/",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#5C5C66"
+    },
+    {
+      "text": "blog",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#607EBC"
+    },
+    {
+      "text": "Thoughts on software engineering, developer tooling, and building for the web.",
+      "fontFamily": "Inter",
+      "fontSize": 16,
+      "fontWeight": "400",
+      "color": "#8B8B96",
+      "lineHeight": 1.5
+    },
+    {
+      "text": "Search articles...",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#5C5C66"
+    },
+    {
+      "text": "All",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#FFFFFF"
+    },
+    {
+      "text": "Development",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#8B8B96"
+    },
+    {
+      "text": "Open Source",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#8B8B96"
+    },
+    {
+      "text": "PINNED",
+      "fontFamily": "Geist Mono",
+      "fontSize": 11,
+      "fontWeight": "600",
+      "color": "#5C5C66",
+      "letterSpacing": 1.5
+    },
+    {
+      "text": "DEVELOPMENT",
+      "fontFamily": "Geist Mono",
+      "fontSize": 11,
+      "fontWeight": "600",
+      "color": "#607EBC"
+    },
+    {
+      "text": "Building a Real-Time Collaboration Engine from Scratch",
+      "fontFamily": "Geist",
+      "fontSize": 24,
+      "fontWeight": "700",
+      "color": "#EDEDF0",
+      "lineHeight": 1.3
+    },
+    {
+      "text": "A deep dive into CRDTs, operational transforms, and the architecture decisions behind building conflict-free real-time editing.",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#8B8B96",
+      "lineHeight": 1.5
+    },
+    {
+      "text": "Jul 15, 2026",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#5C5C66"
+    },
+    {
+      "text": "12 min read",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#5C5C66"
+    },
+    {
+      "text": "Why I Switched from REST to tRPC",
+      "fontFamily": "Geist",
+      "fontSize": 17,
+      "fontWeight": "600",
+      "color": "#EDEDF0"
+    },
+    {
+      "text": "Type-safe APIs end-to-end changed how I think about client-server communication and development velocity.",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#8B8B96",
+      "lineHeight": 1.5
+    },
+    {
+      "text": "Jun 28, 2026",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#5C5C66"
+    },
+    {
+      "text": "5 min read",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#5C5C66"
+    },
+    {
+      "text": "Optimizing Docker Builds for Monorepos",
+      "fontFamily": "Geist",
+      "fontSize": 17,
+      "fontWeight": "600",
+      "color": "#EDEDF0"
+    },
+    {
+      "text": "Cutting CI build times by 70% with multi-stage builds, BuildKit caching, and intelligent layer ordering.",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#8B8B96",
+      "lineHeight": 1.5
+    },
+    {
+      "text": "Jun 10, 2026",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#5C5C66"
+    },
+    {
+      "text": "6 min read",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#5C5C66"
+    },
+    {
+      "text": "A Practical Guide to Database Migrations",
+      "fontFamily": "Geist",
+      "fontSize": 17,
+      "fontWeight": "600",
+      "color": "#EDEDF0"
+    },
+    {
+      "text": "Strategies for zero-downtime schema changes in production PostgreSQL deployments at scale.",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#8B8B96",
+      "lineHeight": 1.5
+    },
+    {
+      "text": "May 22, 2026",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#5C5C66"
+    },
+    {
+      "text": "10 min read",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#5C5C66"
+    },
+    {
+      "text": "The Case for Server Components",
+      "fontFamily": "Geist",
+      "fontSize": 17,
+      "fontWeight": "600",
+      "color": "#EDEDF0"
+    },
+    {
+      "text": "How React Server Components changed my mental model of frontend architecture and data fetching patterns.",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#8B8B96",
+      "lineHeight": 1.5
+    },
+    {
+      "text": "May 5, 2026",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#5C5C66"
+    },
+    {
+      "text": "7 min read",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#5C5C66"
+    },
+    {
+      "text": "Designing CLI Tools That Developers Love",
+      "fontFamily": "Geist",
+      "fontSize": 17,
+      "fontWeight": "600",
+      "color": "#EDEDF0"
+    },
+    {
+      "text": "UX principles, progressive disclosure, and ergonomic defaults that make command-line tools a joy to use.",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#8B8B96",
+      "lineHeight": 1.5
+    },
+    {
+      "text": "Apr 18, 2026",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#5C5C66"
+    },
+    {
+      "text": "8 min read",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#5C5C66"
+    },
+    {
+      "text": "Event Sourcing in Practice",
+      "fontFamily": "Geist",
+      "fontSize": 17,
+      "fontWeight": "600",
+      "color": "#EDEDF0"
+    },
+    {
+      "text": "Lessons learned from implementing event sourcing in a production fintech application over two years.",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#8B8B96",
+      "lineHeight": 1.5
+    },
+    {
+      "text": "Mar 30, 2026",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#5C5C66"
+    },
+    {
+      "text": "11 min read",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#5C5C66"
+    },
+    {
+      "text": "Stay Updated",
+      "fontFamily": "Geist",
+      "fontSize": 16,
+      "fontWeight": "700",
+      "color": "#EDEDF0"
+    },
+    {
+      "text": "Get notified when I publish new articles. No spam, unsubscribe anytime.",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#8B8B96",
+      "lineHeight": 1.5
+    },
+    {
+      "text": "your@email.com",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#5C5C66"
+    },
+    {
+      "text": "Subscribe",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "600",
+      "color": "#FFFFFF"
+    },
+    {
+      "text": "TOPICS",
+      "fontFamily": "Geist Mono",
+      "fontSize": 11,
+      "fontWeight": "600",
+      "color": "#5C5C66",
+      "letterSpacing": 1.5
+    },
+    {
+      "text": "React",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#607EBC"
+    },
+    {
+      "text": "TypeScript",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#607EBC"
+    },
+    {
+      "text": "Rust",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#607EBC"
+    },
+    {
+      "text": "Go",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#607EBC"
+    },
+    {
+      "text": "THIS BLOG",
+      "fontFamily": "Geist Mono",
+      "fontSize": 11,
+      "fontWeight": "600",
+      "color": "#5C5C66",
+      "letterSpacing": 1.5
+    },
+    {
+      "text": "Articles",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#8B8B96"
+    },
+    {
+      "text": "24",
+      "fontFamily": "Geist Mono",
+      "fontSize": 13,
+      "fontWeight": "600",
+      "color": "#EDEDF0"
+    },
+    {
+      "text": "Avg. Read",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#8B8B96"
+    },
+    {
+      "text": "7 min",
+      "fontFamily": "Geist Mono",
+      "fontSize": 13,
+      "fontWeight": "600",
+      "color": "#EDEDF0"
+    },
+    {
+      "text": "Total Views",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#8B8B96"
+    },
+    {
+      "text": "48.2K",
+      "fontFamily": "Geist Mono",
+      "fontSize": 13,
+      "fontWeight": "600",
+      "color": "#EDEDF0"
+    },
+    {
+      "text": "© 2026 sudi.dev — Built with caffeine & curiosity",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#5C5C66"
+    },
+    {
+      "text": "RSS",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#8B8B96"
+    },
+    {
+      "text": "Privacy",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#8B8B96"
+    },
+    {
+      "text": "Source",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#8B8B96"
+    }
+  ]
+}

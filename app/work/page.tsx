@@ -65,7 +65,12 @@ export default async function WorkPage({
 
         {/* Filters — ROW, padding [0,120], gap 8 */}
         <div className={PAGE_GUTTER}>
-          <FilterBar options={PROJECT_FILTERS} active={active} label="Filter projects by category" />
+          <FilterBar
+            options={PROJECT_FILTERS}
+            active={active}
+            label="Filter projects by category"
+            size="work"
+          />
         </div>
 
         {/* Projects Section — COLUMN, padding [32,120,48,120], gap 20; rows of two */}

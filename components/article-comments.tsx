@@ -1,4 +1,13 @@
-import { MessageSquarePlus, Heart, MessageSquare, Bold, Italic, Code } from 'lucide-react'
+import {
+  MessageSquarePlus,
+  Heart,
+  MessageSquare,
+  Bold,
+  Italic,
+  CodeXml,
+  Link as LinkIcon,
+  List,
+} from 'lucide-react'
 
 /**
  * Design: Article Page → "Comment Section" — COLUMN, padding [48,0], gap 32,
@@ -65,10 +74,12 @@ export function ArticleComments() {
             <div className="flex gap-1 text-text-tertiary">
               <Bold size={16} />
               <Italic size={16} />
-              <Code size={16} />
+              <CodeXml size={16} />
+              <LinkIcon size={16} />
+              <List size={16} />
             </div>
-            <span className="rounded-md bg-accent px-4 py-2 text-sm text-white opacity-50">
-              Post
+            <span className="rounded-md bg-accent px-4 py-2 text-[13px] font-medium text-white opacity-50">
+              Post comment
             </span>
           </div>
         </div>

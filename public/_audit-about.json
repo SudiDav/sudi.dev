@@ -1,0 +1,513 @@
+{
+  "frame": "About Page",
+  "mode": "dark",
+  "nodes": [
+    {
+      "text": "Work",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "500",
+      "color": "#8B8B96"
+    },
+    {
+      "text": "Blog",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "500",
+      "color": "#8B8B96"
+    },
+    {
+      "text": "~",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#5C5C66"
+    },
+    {
+      "text": "/",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#5C5C66"
+    },
+    {
+      "text": "about",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#607EBC"
+    },
+    {
+      "text": "I build tools that make developers' lives easier.",
+      "fontFamily": "Geist",
+      "fontSize": 28,
+      "fontWeight": "700",
+      "color": "#EDEDF0",
+      "lineHeight": 1.3
+    },
+    {
+      "text": "I'm Sudi David — a full-stack developer based in San Francisco with a deep interest in developer experience, performance engineering, and open source. I've spent the last 8 years building products at the intersection of infrastructure and developer tooling.",
+      "fontFamily": "Inter",
+      "fontSize": 15,
+      "fontWeight": "400",
+      "color": "#8B8B96",
+      "lineHeight": 1.7
+    },
+    {
+      "text": "Currently, I'm focused on building Nexus CLI and contributing to the Rust ecosystem. Previously, I helped scale infrastructure at Vercel and built internal tooling at Stripe.",
+      "fontFamily": "Inter",
+      "fontSize": 15,
+      "fontWeight": "400",
+      "color": "#8B8B96",
+      "lineHeight": 1.7
+    },
+    {
+      "text": "Available for work",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "500",
+      "color": "#607EBC"
+    },
+    {
+      "text": "San Francisco, CA",
+      "fontFamily": "Inter",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#8B8B96"
+    },
+    {
+      "text": "EXPERIENCE",
+      "fontFamily": "Geist Mono",
+      "fontSize": 11,
+      "fontWeight": "600",
+      "color": "#5C5C66",
+      "letterSpacing": 1.5
+    },
+    {
+      "text": "Where I've Worked",
+      "fontFamily": "Geist",
+      "fontSize": 28,
+      "fontWeight": "700",
+      "color": "#EDEDF0"
+    },
+    {
+      "text": "Founder & Lead Developer",
+      "fontFamily": "Geist",
+      "fontSize": 16,
+      "fontWeight": "600",
+      "color": "#EDEDF0"
+    },
+    {
+      "text": "2024 — Present",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#5C5C66"
+    },
+    {
+      "text": "Nexus Tools",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "600",
+      "color": "#607EBC"
+    },
+    {
+      "text": "Building open-source developer tools including Nexus CLI, Syncboard, and Datapipe. Focused on Rust, WebAssembly, and real-time collaboration.",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#8B8B96",
+      "lineHeight": 1.6
+    },
+    {
+      "text": "Senior Infrastructure Engineer",
+      "fontFamily": "Geist",
+      "fontSize": 16,
+      "fontWeight": "600",
+      "color": "#EDEDF0"
+    },
+    {
+      "text": "2021 — 2024",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#5C5C66"
+    },
+    {
+      "text": "Vercel",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "600",
+      "color": "#607EBC"
+    },
+    {
+      "text": "Scaled edge infrastructure to handle 30B+ requests/month. Led the migration from legacy deployment pipeline to a new Kubernetes-based architecture.",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#8B8B96",
+      "lineHeight": 1.6
+    },
+    {
+      "text": "Software Engineer",
+      "fontFamily": "Geist",
+      "fontSize": 16,
+      "fontWeight": "600",
+      "color": "#EDEDF0"
+    },
+    {
+      "text": "2019 — 2021",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#5C5C66"
+    },
+    {
+      "text": "Stripe",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "600",
+      "color": "#607EBC"
+    },
+    {
+      "text": "Built internal developer tools for the payments team. Designed and shipped a real-time monitoring dashboard used by 200+ engineers daily.",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#8B8B96",
+      "lineHeight": 1.6
+    },
+    {
+      "text": "Junior Developer",
+      "fontFamily": "Geist",
+      "fontSize": 16,
+      "fontWeight": "600",
+      "color": "#EDEDF0"
+    },
+    {
+      "text": "2018 — 2019",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#5C5C66"
+    },
+    {
+      "text": "Freelance",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "600",
+      "color": "#607EBC"
+    },
+    {
+      "text": "Built web applications for startups and small businesses. Focused on React, Node.js, and PostgreSQL.",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "400",
+      "color": "#8B8B96",
+      "lineHeight": 1.6
+    },
+    {
+      "text": "EXPERTISE",
+      "fontFamily": "Geist Mono",
+      "fontSize": 11,
+      "fontWeight": "600",
+      "color": "#5C5C66",
+      "letterSpacing": 1.5
+    },
+    {
+      "text": "Skills & Technologies",
+      "fontFamily": "Geist",
+      "fontSize": 28,
+      "fontWeight": "700",
+      "color": "#EDEDF0"
+    },
+    {
+      "text": "Languages",
+      "fontFamily": "Geist",
+      "fontSize": 15,
+      "fontWeight": "600",
+      "color": "#EDEDF0"
+    },
+    {
+      "text": "Rust",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#8B8B96"
+    },
+    {
+      "text": "TypeScript",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#8B8B96"
+    },
+    {
+      "text": "Go",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#8B8B96"
+    },
+    {
+      "text": "Python",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#8B8B96"
+    },
+    {
+      "text": "Frontend",
+      "fontFamily": "Geist",
+      "fontSize": 15,
+      "fontWeight": "600",
+      "color": "#EDEDF0"
+    },
+    {
+      "text": "React",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#8B8B96"
+    },
+    {
+      "text": "Next.js",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#8B8B96"
+    },
+    {
+      "text": "Svelte",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#8B8B96"
+    },
+    {
+      "text": "Tailwind",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#8B8B96"
+    },
+    {
+      "text": "Backend",
+      "fontFamily": "Geist",
+      "fontSize": 15,
+      "fontWeight": "600",
+      "color": "#EDEDF0"
+    },
+    {
+      "text": "Node.js",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#8B8B96"
+    },
+    {
+      "text": "PostgreSQL",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#8B8B96"
+    },
+    {
+      "text": "Redis",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#8B8B96"
+    },
+    {
+      "text": "Kafka",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#8B8B96"
+    },
+    {
+      "text": "DevOps",
+      "fontFamily": "Geist",
+      "fontSize": 15,
+      "fontWeight": "600",
+      "color": "#EDEDF0"
+    },
+    {
+      "text": "Docker",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#8B8B96"
+    },
+    {
+      "text": "Kubernetes",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#8B8B96"
+    },
+    {
+      "text": "Terraform",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#8B8B96"
+    },
+    {
+      "text": "GitHub Actions",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#8B8B96"
+    },
+    {
+      "text": "BEYOND CODE",
+      "fontFamily": "Geist Mono",
+      "fontSize": 11,
+      "fontWeight": "600",
+      "color": "#5C5C66",
+      "letterSpacing": 1.5
+    },
+    {
+      "text": "When I'm Not Coding",
+      "fontFamily": "Geist",
+      "fontSize": 28,
+      "fontWeight": "700",
+      "color": "#EDEDF0"
+    },
+    {
+      "text": "I believe great software comes from well-rounded thinking. Outside of work, I explore other creative and physical outlets that keep me energized and inspired.",
+      "fontFamily": "Inter",
+      "fontSize": 15,
+      "fontWeight": "400",
+      "color": "#8B8B96",
+      "lineHeight": 1.7
+    },
+    {
+      "text": "Trail Running",
+      "fontFamily": "Geist",
+      "fontSize": 14,
+      "fontWeight": "600",
+      "color": "#EDEDF0"
+    },
+    {
+      "text": "50K ultramarathon finisher. I think best when moving.",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#8B8B96",
+      "lineHeight": 1.5
+    },
+    {
+      "text": "Reading",
+      "fontFamily": "Geist",
+      "fontSize": 14,
+      "fontWeight": "600",
+      "color": "#EDEDF0"
+    },
+    {
+      "text": "Science fiction and systems thinking. Currently reading Designing Data-Intensive Applications.",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#8B8B96",
+      "lineHeight": 1.5
+    },
+    {
+      "text": "Photography",
+      "fontFamily": "Geist",
+      "fontSize": 14,
+      "fontWeight": "600",
+      "color": "#EDEDF0"
+    },
+    {
+      "text": "Street photography on film. Shooting on a Leica M6 with Portra 400.",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#8B8B96",
+      "lineHeight": 1.5
+    },
+    {
+      "text": "Music",
+      "fontFamily": "Geist",
+      "fontSize": 14,
+      "fontWeight": "600",
+      "color": "#EDEDF0"
+    },
+    {
+      "text": "Amateur jazz pianist. Practicing standards and exploring improvisation.",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#8B8B96",
+      "lineHeight": 1.5
+    },
+    {
+      "text": "LET'S CONNECT",
+      "fontFamily": "Geist Mono",
+      "fontSize": 11,
+      "fontWeight": "600",
+      "color": "#607EBC",
+      "letterSpacing": 1.5
+    },
+    {
+      "text": "Interested in working together?",
+      "fontFamily": "Geist",
+      "fontSize": 32,
+      "fontWeight": "700",
+      "color": "#EDEDF0"
+    },
+    {
+      "text": "I'm always open to new opportunities, collaborations, and interesting conversations.",
+      "fontFamily": "Inter",
+      "fontSize": 15,
+      "fontWeight": "400",
+      "color": "#8B8B96",
+      "lineHeight": 1.5
+    },
+    {
+      "text": "Get in Touch",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "600",
+      "color": "#FFFFFF"
+    },
+    {
+      "text": "Schedule a Call",
+      "fontFamily": "Inter",
+      "fontSize": 14,
+      "fontWeight": "500",
+      "color": "#EDEDF0"
+    },
+    {
+      "text": "© 2026 sudi.dev — Built with caffeine & curiosity",
+      "fontFamily": "Geist Mono",
+      "fontSize": 12,
+      "fontWeight": "400",
+      "color": "#5C5C66"
+    },
+    {
+      "text": "RSS",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#8B8B96"
+    },
+    {
+      "text": "Privacy",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#8B8B96"
+    },
+    {
+      "text": "Source",
+      "fontFamily": "Inter",
+      "fontSize": 13,
+      "fontWeight": "400",
+      "color": "#8B8B96"
+    }
+  ]
+}

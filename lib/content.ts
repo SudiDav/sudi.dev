@@ -30,6 +30,10 @@ export async function getPosts(): Promise<Post[]> {
       category: data.category,
       cover: data.cover,
       featured: Boolean(data.featured),
+      subtitle: data.subtitle,
+      breadcrumb: data.breadcrumb,
+      tags: data.tags,
+      home: data.home,
       body,
     }))
     .sort((a, b) => b.date.localeCompare(a.date))
