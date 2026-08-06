@@ -83,9 +83,13 @@ the first time a post is edited.
 | Posts | Edit title, excerpt, body, category, status. Toggle status from the list. Writes MDX. |
 | Post Editor | Live word count and reading time, SEO preview, Save and Publish/Unpublish |
 | Add Project | Creates `content/projects/<slug>.mdx`. Refuses to overwrite an existing slug. |
-| Projects | Read-only list of real projects |
+| Edit Project | Same form, update mode, at `/admin/projects/<slug>/edit` |
+| Settings | Writes `content/site.json`; Log Out really signs you out |
 | Comments | Fixtures — there is no comment store to moderate |
-| Settings | Renders your details but does not save |
+
+Settings feed the site: the `<title>` and meta description come from
+`content/site.json`, as do the RSS channel details and the footer's social
+links. Changing your GitHub handle in Settings changes where the footer points.
 
 Two fields on Add Project are not in the design, because the design's form does
 not cover what the site needs:

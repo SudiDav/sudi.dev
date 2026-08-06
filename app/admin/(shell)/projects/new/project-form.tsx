@@ -5,7 +5,8 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Upload, X, TriangleAlert } from 'lucide-react'
 import { AdminCard } from '@/components/admin/admin-ui'
-import { addProject } from '@/app/admin/actions'
+import { addProject, editProject } from '@/app/admin/actions'
+import type { Project } from '@/lib/content.types'
 
 /** Design: Work Page → "Filters". `All` is the no-filter option. */
 const CATEGORIES = ['Web Apps', 'CLI Tools', 'Libraries', 'Open Source']
@@ -62,19 +63,30 @@ function Field({
   )
 }
 
-export function ProjectForm({ canPublish }: { canPublish: boolean }) {
+/**
+ * Shared by "Add New Project" and the edit route. Passing an existing project
+ * switches it to update mode — same fields, same validation, different action.
+ */
+export function ProjectForm({
+  canPublish,
+  project,
+}: {
+  canPublish: boolean
+  project?: Project
+}) {
+  const editing = Boolean(project)
   const router = useRouter()
-  const [name, setName] = useState('')
-  const [description, setDescription] = useState('')
-  const [year, setYear] = useState('2026')
-  const [category, setCategory] = useState(CATEGORIES[0])
-  const [cover, setCover] = useState('')
-  const [tech, setTech] = useState<string[]>([])
+  const [name, setName] = useState(project?.title ?? '')
+  const [description, setDescription] = useState(project?.description ?? '')
+  const [year, setYear] = useState(project?.year ?? '2026')
+  const [category, setCategory] = useState(project?.category ?? CATEGORIES[0])
+  const [cover, setCover] = useState(project?.cover ?? '')
+  const [tech, setTech] = useState<string[]>(project?.tech ?? [])
   const [techDraft, setTechDraft] = useState('')
-  const [liveUrl, setLiveUrl] = useState('')
-  const [githubUrl, setGithubUrl] = useState('')
+  const [liveUrl, setLiveUrl] = useState(project?.links?.live ?? '')
+  const [githubUrl, setGithubUrl] = useState(project?.links?.github ?? '')
   const [caseStudy, setCaseStudy] = useState('')
-  const [body, setBody] = useState('')
+  const [body, setBody] = useState(project?.body ?? '')
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
 
@@ -88,7 +100,7 @@ export function ProjectForm({ canPublish }: { canPublish: boolean }) {
   const submit = () => {
     setError(null)
     startTransition(async () => {
-      const result = await addProject({
+      const input = {
         name,
         description,
         year,
@@ -98,7 +110,10 @@ export function ProjectForm({ canPublish }: { canPublish: boolean }) {
         liveUrl,
         githubUrl,
         body: [body, caseStudy && `Case study: ${caseStudy}`].filter(Boolean).join('\n\n'),
-      })
+      }
+      const result = project
+        ? await editProject(project.slug, input)
+        : await addProject(input)
       if (result.ok) router.push('/admin/projects')
       else setError(result.error)
     })
@@ -113,9 +128,11 @@ export function ProjectForm({ canPublish }: { canPublish: boolean }) {
               Projects
             </Link>
             <span>/</span>
-            <span className="text-admin-text-secondary">Add New Project</span>
+            <span className="text-admin-text-secondary">{editing ? name : 'Add New Project'}</span>
           </nav>
-          <h1 className="font-display text-[26px] font-bold text-admin-text">Add New Project</h1>
+          <h1 className="font-display text-[26px] font-bold text-admin-text">
+            {editing ? 'Edit Project' : 'Add New Project'}
+          </h1>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <Link
@@ -130,7 +147,7 @@ export function ProjectForm({ canPublish }: { canPublish: boolean }) {
             disabled={pending || !canPublish}
             className="rounded-lg bg-accent px-4 py-2 text-[13px] font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
           >
-            {pending ? 'Saving…' : 'Save & Publish'}
+            {pending ? 'Saving…' : editing ? 'Save Changes' : 'Save & Publish'}
           </button>
         </div>
       </div>

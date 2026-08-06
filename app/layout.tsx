@@ -1,14 +1,15 @@
 import type { Metadata } from 'next'
 import { Inter, Geist, Geist_Mono } from 'next/font/google'
+import { getSettings } from '@/lib/site'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 const geist = Geist({ subsets: ['latin'], variable: '--font-geist' })
 const geistMono = Geist_Mono({ subsets: ['latin'], variable: '--font-geist-mono' })
 
-export const metadata: Metadata = {
-  title: 'Sudi David — Developer Portfolio',
-  description: 'Full-stack engineer building real-time systems and developer tools.',
+export async function generateMetadata(): Promise<Metadata> {
+  const settings = await getSettings()
+  return { title: settings.seo.title, description: settings.seo.description }
 }
 
 const themeScript = `

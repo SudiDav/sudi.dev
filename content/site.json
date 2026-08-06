@@ -1,0 +1,16 @@
+{
+  "displayName": "Sudi David",
+  "email": "sudi@sudidavid.dev",
+  "bio": "Full-stack engineer specializing in real-time systems, distributed architectures, and developer tooling.",
+  "location": "San Francisco, CA",
+  "website": "sudidavid.dev",
+  "social": {
+    "github": "github.com/sudidavid",
+    "twitter": "@sudidavid",
+    "linkedin": "linkedin.com/in/sudidavid"
+  },
+  "seo": {
+    "title": "Sudi David — Developer Portfolio",
+    "description": "Full-stack engineer building real-time systems and developer tools."
+  }
+}

@@ -2,7 +2,15 @@
 
 import { revalidatePath } from 'next/cache'
 import { isAdmin } from '@/auth'
-import { savePost, createProject, slugify, type PostDraft } from '@/lib/publish'
+import {
+  savePost,
+  createProject,
+  saveProject,
+  saveSettings,
+  slugify,
+  type PostDraft,
+} from '@/lib/publish'
+import type { SiteSettings } from '@/lib/site'
 
 /**
  * Every action re-checks authorisation itself.
@@ -90,4 +98,58 @@ export async function addProject(
   revalidatePath('/work')
   revalidatePath('/')
   return { ok: true, slug }
+}
+
+export async function editProject(
+  slug: string,
+  input: NewProject,
+): Promise<ActionResult> {
+  await requireAdmin()
+  if (!/^[a-z0-9-]+$/.test(slug)) return { ok: false, error: 'Invalid slug' }
+
+  const name = input.name.trim()
+  const description = input.description.trim()
+  if (!name) return { ok: false, error: 'Project name is required' }
+  if (!description) return { ok: false, error: 'Description is required' }
+
+  try {
+    await saveProject(
+      slug,
+      {
+        title: name,
+        year: input.year.trim(),
+        description,
+        tech: input.tech.filter(Boolean),
+        category: input.category,
+        cover: input.cover.trim(),
+        links: { github: input.githubUrl?.trim(), live: input.liveUrl?.trim() },
+        body: input.body?.trim() || description,
+      },
+      `content: update project ${slug}`,
+    )
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : 'Could not save project' }
+  }
+
+  revalidatePath('/admin/projects')
+  revalidatePath('/work')
+  revalidatePath('/')
+  return { ok: true }
+}
+
+export async function updateSettings(settings: SiteSettings): Promise<ActionResult> {
+  await requireAdmin()
+
+  if (!settings.displayName.trim()) return { ok: false, error: 'Display name is required' }
+  if (!settings.seo.title.trim()) return { ok: false, error: 'Site title is required' }
+
+  try {
+    await saveSettings(settings, 'content: update site settings')
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : 'Could not save settings' }
+  }
+
+  // Settings feed the layout metadata and the footer, so revalidate broadly.
+  revalidatePath('/', 'layout')
+  return { ok: true }
 }

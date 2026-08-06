@@ -107,6 +107,7 @@ export const adminPostCounts = [
 export type AdminProjectStatus = 'Featured' | 'Active' | 'Archived' | 'WIP'
 
 export type AdminProject = {
+  slug?: string
   name: string
   description: string
   tech: string

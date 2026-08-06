@@ -43,6 +43,7 @@ export async function getAdminPostCounts() {
 export async function getAdminProjects(): Promise<AdminProject[]> {
   const projects = await getProjects()
   return projects.map((project) => ({
+    slug: project.slug,
     name: project.title,
     description: project.description,
     tech: project.tech.join(', '),

@@ -3,6 +3,7 @@ import { readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import matter from 'gray-matter'
 import type { Post, Project } from './content.types'
+import type { SiteSettings } from './site'
 
 /**
  * Git-backed publishing.
@@ -17,6 +18,9 @@ import type { Post, Project } from './content.types'
  * not instantly.
  */
 const API = 'https://api.github.com'
+
+const NOT_CONFIGURED =
+  'Publishing is not configured. Set GITHUB_TOKEN and GITHUB_REPO — see .env.example.'
 
 type GitHubConfig = { token: string; repo: string; branch: string }
 
@@ -115,9 +119,7 @@ export type PostDraft = Partial<Omit<Post, 'slug' | 'body'>> & { body?: string }
 export async function savePost(slug: string, changes: PostDraft, message: string) {
   const target = publishTarget()
   if (target === 'disabled') {
-    throw new Error(
-      'Publishing is not configured. Set GITHUB_TOKEN and GITHUB_REPO — see .env.example.',
-    )
+    throw new Error(NOT_CONFIGURED)
   }
   if (target === 'local') return saveLocally(slug, changes)
 
@@ -180,9 +182,7 @@ export function slugify(name: string): string {
 export async function createProject(slug: string, draft: ProjectDraft, message: string) {
   const target = publishTarget()
   if (target === 'disabled') {
-    throw new Error(
-      'Publishing is not configured. Set GITHUB_TOKEN and GITHUB_REPO — see .env.example.',
-    )
+    throw new Error(NOT_CONFIGURED)
   }
 
   const path = `content/projects/${slug}.mdx`
@@ -210,6 +210,63 @@ async function exists(path: string): Promise<boolean> {
   } catch {
     return false
   }
+}
+
+/**
+ * Update an existing project. Unlike `createProject` this requires the file to
+ * exist — a missing slug means the caller is editing something that was renamed
+ * or deleted, which should surface rather than quietly create a new project.
+ */
+export async function saveProject(slug: string, changes: ProjectDraft, message: string) {
+  const target = publishTarget()
+  if (target === 'disabled') throw new Error(NOT_CONFIGURED)
+
+  const path = `content/projects/${slug}.mdx`
+  const { body, ...frontmatter } = changes
+
+  if (target === 'local') {
+    const absolute = join(process.cwd(), path)
+    const existing = matter(await readFile(absolute, 'utf8'))
+    await writeFile(
+      absolute,
+      serialise(
+        { ...existing.data, ...(frontmatter as Record<string, unknown>) },
+        body ?? existing.content,
+      ),
+      'utf8',
+    )
+    return
+  }
+
+  const { repo, branch } = config()
+  const response = await gh(`/repos/${repo}/contents/${encodeURI(path)}?ref=${branch}`)
+  if (!response.ok) throw new Error(`Cannot read ${path} (${response.status})`)
+  const file = (await response.json()) as { content: string }
+  const existing = matter(Buffer.from(file.content, 'base64').toString('utf8'))
+
+  await commitFile(
+    path,
+    serialise(
+      { ...existing.data, ...(frontmatter as Record<string, unknown>) },
+      body ?? existing.content,
+    ),
+    message,
+  )
+}
+
+/** Site settings live in content/site.json, written the same way as content. */
+export async function saveSettings(settings: SiteSettings, message: string) {
+  const target = publishTarget()
+  if (target === 'disabled') throw new Error(NOT_CONFIGURED)
+
+  const path = 'content/site.json'
+  const contents = `${JSON.stringify(settings, null, 2)}\n`
+
+  if (target === 'local') {
+    await writeFile(join(process.cwd(), path), contents, 'utf8')
+    return
+  }
+  await commitFile(path, contents, message)
 }
 
 /** True when saving will actually persist somewhere. */

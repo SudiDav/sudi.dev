@@ -67,8 +67,28 @@ export default async function AdminProjectsPage() {
                 {project.views}
               </span>
               <div className="flex items-center gap-3 text-admin-text-tertiary">
-                <Pencil size={14} />
-                <ExternalLink size={14} />
+                {project.slug ? (
+                  <Link
+                    href={`/admin/projects/${project.slug}/edit`}
+                    aria-label={`Edit ${project.name}`}
+                    className="hover:text-admin-text"
+                  >
+                    <Pencil size={14} />
+                  </Link>
+                ) : (
+                  <Pencil size={14} />
+                )}
+                {project.slug ? (
+                  <Link
+                    href={`/work#${project.slug}`}
+                    aria-label={`View ${project.name} on the site`}
+                    className="hover:text-admin-text"
+                  >
+                    <ExternalLink size={14} />
+                  </Link>
+                ) : (
+                  <ExternalLink size={14} />
+                )}
                 <Ellipsis size={14} />
               </div>
             </div>

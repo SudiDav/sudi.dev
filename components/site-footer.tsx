@@ -1,16 +1,10 @@
 import Link from 'next/link'
 import { GithubIcon, TwitterIcon, LinkedinIcon } from './brand-icons'
+import { getSettings, socialUrl } from '@/lib/site'
 
 const LINKS = [
   { href: '/rss.xml', label: 'RSS' },
   { href: '/privacy', label: 'Privacy' },
-  { href: 'https://github.com/sudidavid', label: 'Source' },
-]
-
-const SOCIALS = [
-  { href: 'https://github.com/sudidavid', label: 'GitHub', Icon: GithubIcon },
-  { href: 'https://twitter.com/sudidavid', label: 'Twitter', Icon: TwitterIcon },
-  { href: 'https://linkedin.com/in/sudidavid', label: 'LinkedIn', Icon: LinkedinIcon },
 ]
 
 /**
@@ -18,7 +12,14 @@ const SOCIALS = [
  * Copyright is Geist Mono 12 in $text-tertiary; the right group is a ROW gap 24
  * with Inter 13 links and 16px icons in $text-tertiary.
  */
-export function SiteFooter() {
+export async function SiteFooter() {
+  const settings = await getSettings()
+  const socials = [
+    { kind: 'github' as const, label: 'GitHub', Icon: GithubIcon },
+    { kind: 'twitter' as const, label: 'Twitter', Icon: TwitterIcon },
+    { kind: 'linkedin' as const, label: 'LinkedIn', Icon: LinkedinIcon },
+  ]
+
   return (
     <footer className="border-t border-border">
       <div className="mx-auto flex max-w-[1440px] flex-col items-center justify-between gap-4 px-4 py-8 sm:flex-row sm:gap-0 md:px-6 lg:px-12">
@@ -26,7 +27,7 @@ export function SiteFooter() {
           © 2026 sudi.dev — Built with caffeine &amp; curiosity
         </p>
         <div className="flex items-center gap-6">
-          {LINKS.map((link) => (
+          {[...LINKS, { href: socialUrl('github', settings.social.github), label: 'Source' }].map((link) => (
             <Link
               key={link.label}
               href={link.href}
@@ -36,10 +37,10 @@ export function SiteFooter() {
             </Link>
           ))}
           <div className="flex items-center gap-4">
-            {SOCIALS.map(({ href, label, Icon }) => (
+            {socials.map(({ kind, label, Icon }) => (
               <Link
                 key={label}
-                href={href}
+                href={socialUrl(kind, settings.social[kind])}
                 aria-label={label}
                 className="text-text-tertiary transition-colors hover:text-text-primary"
               >
