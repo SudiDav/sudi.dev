@@ -76,6 +76,25 @@ Note that saving recalculates `readingTime` from the actual body at ~200 words
 per minute, so the seeded values from the design are replaced with real counts
 the first time a post is edited.
 
+## What the admin can actually do
+
+| Screen | State |
+| --- | --- |
+| Posts | Edit title, excerpt, body, category, status. Toggle status from the list. Writes MDX. |
+| Post Editor | Live word count and reading time, SEO preview, Save and Publish/Unpublish |
+| Add Project | Creates `content/projects/<slug>.mdx`. Refuses to overwrite an existing slug. |
+| Projects | Read-only list of real projects |
+| Comments | Fixtures — there is no comment store to moderate |
+| Settings | Renders your details but does not save |
+
+Two fields on Add Project are not in the design, because the design's form does
+not cover what the site needs:
+
+- **Category** — the Work page filters by it, so a project without one could
+  never be filtered to.
+- **Cover path** — the design draws an upload dropzone, but there is nowhere to
+  upload to yet. The field takes a path to an image already in `/public`.
+
 ## How it fits together
 
 - `auth.ts` — Google provider, JWT session (no database), single-email allowlist

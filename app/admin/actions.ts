@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { isAdmin } from '@/auth'
-import { savePost, type PostDraft } from '@/lib/publish'
+import { savePost, createProject, slugify, type PostDraft } from '@/lib/publish'
 
 /**
  * Every action re-checks authorisation itself.
@@ -40,4 +40,54 @@ export async function setPostStatus(
   status: 'Published' | 'Draft' | 'Archived',
 ): Promise<ActionResult> {
   return updatePost(slug, { status })
+}
+
+export type NewProject = {
+  name: string
+  description: string
+  year: string
+  category: string
+  tech: string[]
+  cover: string
+  liveUrl?: string
+  githubUrl?: string
+  body?: string
+}
+
+export async function addProject(
+  input: NewProject,
+): Promise<ActionResult & { slug?: string }> {
+  await requireAdmin()
+
+  const name = input.name.trim()
+  const description = input.description.trim()
+  if (!name) return { ok: false, error: 'Project name is required' }
+  if (!description) return { ok: false, error: 'Description is required' }
+
+  const slug = slugify(name)
+  if (!slug) return { ok: false, error: 'Project name must contain letters or numbers' }
+
+  try {
+    await createProject(
+      slug,
+      {
+        title: name,
+        year: input.year.trim() || String(new Date().getFullYear()),
+        description,
+        tech: input.tech.filter(Boolean),
+        category: input.category,
+        cover: input.cover.trim(),
+        links: { github: input.githubUrl?.trim(), live: input.liveUrl?.trim() },
+        body: input.body?.trim() || description,
+      },
+      `content: add project ${slug}`,
+    )
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : 'Could not save project' }
+  }
+
+  revalidatePath('/admin/projects')
+  revalidatePath('/work')
+  revalidatePath('/')
+  return { ok: true, slug }
 }

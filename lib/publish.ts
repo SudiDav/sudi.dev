@@ -2,7 +2,7 @@ import 'server-only'
 import { readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import matter from 'gray-matter'
-import type { Post } from './content.types'
+import type { Post, Project } from './content.types'
 
 /**
  * Git-backed publishing.
@@ -87,18 +87,20 @@ function serialise(data: Record<string, unknown>, body: string): string {
   // loader's string sort depends on NOT happening.
   const lines = Object.entries(data)
     .filter(([, value]) => value !== undefined && value !== null)
-    .map(([key, value]) => {
+    .map(([key, value]): string | null => {
       if (Array.isArray(value)) return `${key}: [${value.join(', ')}]`
       if (typeof value === 'object') {
         const nested = Object.entries(value as Record<string, unknown>)
+          .filter(([, v]) => v !== undefined && v !== null && v !== '')
           .map(([k, v]) => `  ${k}: ${v}`)
-          .join('\n')
-        return `${key}:\n${nested}`
+        // An object whose every field is empty would emit a dangling key.
+        if (nested.length === 0) return null
+        return `${key}:\n${nested.join('\n')}`
       }
       if (QUOTED.has(key)) return `${key}: "${value}"`
       return `${key}: ${value}`
     })
-  return `---\n${lines.join('\n')}\n---\n\n${body.trim()}\n`
+  return `---\n${lines.filter(Boolean).join('\n')}\n---\n\n${body.trim()}\n`
 }
 
 export type PostDraft = Partial<Omit<Post, 'slug' | 'body'>> & { body?: string }
@@ -158,6 +160,56 @@ async function saveLocally(slug: string, changes: PostDraft) {
     serialise({ ...existing.data, ...frontmatterChanges }, body ?? existing.content),
     'utf8',
   )
+}
+
+export type ProjectDraft = Omit<Project, 'slug' | 'body'> & { body?: string }
+
+/** Turns a project name into a filename-safe slug. */
+export function slugify(name: string): string {
+  return name
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
+/**
+ * Create a project. Refuses to overwrite: a name that collides with an existing
+ * project is an error rather than a silent replacement of someone's work.
+ */
+export async function createProject(slug: string, draft: ProjectDraft, message: string) {
+  const target = publishTarget()
+  if (target === 'disabled') {
+    throw new Error(
+      'Publishing is not configured. Set GITHUB_TOKEN and GITHUB_REPO — see .env.example.',
+    )
+  }
+
+  const path = `content/projects/${slug}.mdx`
+  const { body, ...frontmatter } = draft
+  const contents = serialise(
+    frontmatter as unknown as Record<string, unknown>,
+    body ?? `${draft.description}`,
+  )
+
+  if (target === 'local') {
+    const absolute = join(process.cwd(), path)
+    if (await exists(absolute)) throw new Error(`A project called "${slug}" already exists.`)
+    await writeFile(absolute, contents, 'utf8')
+    return
+  }
+
+  if (await currentSha(path)) throw new Error(`A project called "${slug}" already exists.`)
+  await commitFile(path, contents, message)
+}
+
+async function exists(path: string): Promise<boolean> {
+  try {
+    await readFile(path, 'utf8')
+    return true
+  } catch {
+    return false
+  }
 }
 
 /** True when saving will actually persist somewhere. */
