@@ -1,7 +1,8 @@
 'use client'
 
 import { useState, useTransition } from 'react'
-import { LogOut, Upload, User, Check, TriangleAlert } from 'lucide-react'
+import Image from 'next/image'
+import { LogOut, Upload, Check, TriangleAlert } from 'lucide-react'
 import { AdminCard } from '@/components/admin/admin-ui'
 import { GithubIcon, TwitterIcon, LinkedinIcon } from '@/components/brand-icons'
 import { updateSettings } from '@/app/admin/actions'
@@ -64,6 +65,7 @@ export function SettingsForm({
 }) {
   const [settings, setSettings] = useState(initial)
   const [saved, setSaved] = useState(false)
+  const [editingAvatar, setEditingAvatar] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
 
@@ -120,20 +122,38 @@ export function SettingsForm({
         <div className="flex flex-1 flex-col gap-6">
           <AdminCard title="Profile Information">
             <div className="flex items-center gap-4">
-              <span className="flex size-16 shrink-0 items-center justify-center rounded-full bg-accent">
-                <User size={22} className="text-white" />
-              </span>
-              <div className="flex flex-col gap-2">
+              <Image
+                src={settings.avatar}
+                alt=""
+                width={64}
+                height={64}
+                className="size-16 shrink-0 rounded-full object-cover"
+              />
+              <div className="flex flex-1 flex-col gap-2">
                 <button
                   type="button"
+                  onClick={() => setEditingAvatar((open) => !open)}
+                  aria-expanded={editingAvatar}
                   className="inline-flex w-fit items-center gap-1.5 rounded-md bg-accent px-3.5 py-1.5 text-xs font-medium text-white transition-opacity hover:opacity-90"
                 >
                   <Upload size={14} />
                   Change photo
                 </button>
-                <span className="text-[11px] text-admin-text-tertiary">
-                  JPG, PNG or WebP. Max 2MB.
-                </span>
+                {editingAvatar ? (
+                  /*
+                    Uploading needs an asset store this site does not have yet,
+                    so the field takes a path to an image already in /public.
+                  */
+                  <Field
+                    label="Avatar path"
+                    value={settings.avatar}
+                    onChange={(value) => set('avatar', value)}
+                  />
+                ) : (
+                  <span className="text-[11px] text-admin-text-tertiary">
+                    JPG, PNG or WebP. Max 2MB.
+                  </span>
+                )}
               </div>
             </div>
 

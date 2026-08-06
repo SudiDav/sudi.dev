@@ -8,6 +8,8 @@ import { join } from 'node:path'
  */
 export type SiteSettings = {
   displayName: string
+  /** Path under /public. There is no asset store yet, so this is a path, not an upload. */
+  avatar: string
   email: string
   bio: string
   location: string
@@ -19,6 +21,7 @@ export type SiteSettings = {
 /** Used when the file is missing or unreadable, so the site still renders. */
 export const DEFAULT_SETTINGS: SiteSettings = {
   displayName: 'Sudi David',
+  avatar: '/images/generated-1784965046774.png',
   email: 'sudi@sudidavid.dev',
   bio: 'Full-stack engineer specializing in real-time systems, distributed architectures, and developer tooling.',
   location: 'San Francisco, CA',

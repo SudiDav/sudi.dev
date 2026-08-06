@@ -78,14 +78,46 @@ the first time a post is edited.
 
 ## What the admin can actually do
 
-| Screen | State |
+Everything below is wired end to end — no screen is a mock-up.
+
+| Screen | What works |
 | --- | --- |
-| Posts | Edit title, excerpt, body, category, status. Toggle status from the list. Writes MDX. |
-| Post Editor | Live word count and reading time, SEO preview, Save and Publish/Unpublish |
+| Dashboard | Real counts, real draft list. Views/comments read "—": no analytics source. |
+| Posts | Tabs filter by status. Row actions toggle Published/Draft. |
+| Post Editor | Edit title, excerpt, body, category. Save, Publish/Unpublish. Live word count. |
 | Add Project | Creates `content/projects/<slug>.mdx`. Refuses to overwrite an existing slug. |
-| Edit Project | Same form, update mode, at `/admin/projects/<slug>/edit` |
-| Settings | Writes `content/site.json`; Log Out really signs you out |
-| Comments | Fixtures — there is no comment store to moderate |
+| Edit Project | Same form in update mode, at `/admin/projects/<slug>/edit` |
+| Comments | Approve / Reject (spam) / Delete, with tab filtering. Writes `content/comments.json`. |
+| Settings | Writes `content/site.json`. Log Out really signs out. |
+
+Public side:
+
+| Feature | What works |
+| --- | --- |
+| Article comments | Anyone can post. Held as pending; only approved comments render. |
+| Newsletter | Validates and stores to `content/subscribers.json` |
+| Work / Blog filters, search | Client-side, synced to the URL, shareable |
+| Theme toggle | Persists, no flash on reload |
+
+### Storage
+
+All of it is files in `content/`, on one persistence model:
+
+- `posts/*.mdx`, `projects/*.mdx` — content
+- `site.json` — profile, socials, SEO, avatar
+- `comments.json` — moderation queue
+- `subscribers.json` — newsletter list
+
+In development these write to your working copy. With a GitHub token they
+become commits. Comment volume is the one thing to watch: every write
+serialises the whole file, which suits a personal blog, not a busy forum.
+
+### Still not real
+
+- **Image upload** — the dropzones render but there is no asset store. Cover
+  and avatar fields take a path to something already in `/public`.
+- **Sending newsletters** — addresses are collected; sending needs a provider.
+- **View counts** — no analytics, so they show "—" rather than invented numbers.
 
 Settings feed the site: the `<title>` and meta description come from
 `content/site.json`, as do the RSS channel details and the footer's social

@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Mail, FileText, Timer, Eye } from 'lucide-react'
+import { FileText, Timer, Eye } from 'lucide-react'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import { PageIntro } from '@/components/page-intro'
@@ -8,6 +8,7 @@ import { BlogSearch } from '@/components/blog-search'
 import { FeaturedBlogCard } from '@/components/featured-blog-card'
 import { ArticleItem } from '@/components/article-item'
 import { TechBadge } from '@/components/tech-badge'
+import { NewsletterForm } from '@/components/newsletter-form'
 import { PAGE_GUTTER } from '@/components/layout'
 import { getPosts } from '@/lib/content'
 import { filterPostsByCategory, searchPosts, POST_FILTERS } from '@/lib/filters'
@@ -100,26 +101,7 @@ export default async function BlogPage({
           </div>
 
           <aside className="flex w-full shrink-0 flex-col gap-8 lg:w-[300px]">
-            {/* Newsletter — presentational, as designed */}
-            <div className="flex flex-col gap-4 rounded-lg border border-border bg-bg-card p-6">
-              <Mail size={20} className="text-accent" />
-              <h2 className="font-display text-base font-bold text-text-primary">Stay Updated</h2>
-              <p className="text-[13px] leading-[1.5] text-text-secondary">
-                Get notified when I publish new articles. No spam, unsubscribe anytime.
-              </p>
-              <input
-                type="email"
-                aria-label="Email address"
-                placeholder="your@email.com"
-                className="rounded-md border border-border bg-bg-primary px-3.5 py-2.5 text-[13px] text-text-primary placeholder:text-text-tertiary focus:border-border-hover focus:outline-none"
-              />
-              <button
-                type="button"
-                className="rounded-md bg-accent py-2.5 text-[13px] font-semibold text-white transition-opacity hover:opacity-90"
-              >
-                Subscribe
-              </button>
-            </div>
+            <NewsletterForm />
 
             <div className="flex flex-col gap-3">
               <h2 className="font-mono text-[11px] font-semibold tracking-[1.5px] text-text-tertiary">

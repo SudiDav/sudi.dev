@@ -1,116 +1,66 @@
-import {
-  MessageSquarePlus,
-  Heart,
-  MessageSquare,
-  Bold,
-  Italic,
-  CodeXml,
-  Link as LinkIcon,
-  List,
-} from 'lucide-react'
+import { MessageSquarePlus } from 'lucide-react'
+import { getApprovedComments, relativeTime } from '@/lib/comments'
+import { CommentForm } from './comment-form'
 
 /**
  * Design: Article Page → "Comment Section" — COLUMN, padding [48,0], gap 32,
  * with a 720px inner column.
  *
- * This is presentational, exactly as designed. Nothing submits anywhere:
- * comment persistence needs the backend work that is out of scope for this
- * phase, and the design itself shows a fixed thread.
+ * The thread is real: only approved comments render, and the form below stores
+ * new ones as pending for moderation in the admin.
  */
-const COMMENTS = [
-  {
-    name: 'Alex Kim',
-    time: '2 days ago',
-    body: 'Great deep dive! We ran into similar issues with OT at our company. CRDTs solved most of our edge cases but we still struggle with undo/redo semantics. Any tips on handling that with Yjs?',
-    likes: '12',
-    replies: '2 replies',
-  },
-  {
-    name: 'Maya Rodriguez',
-    time: '1 day ago',
-    body: 'The architecture diagram is super helpful. One question — how do you handle offline scenarios? Do you buffer operations locally and replay them on reconnect?',
-    likes: '8',
-    replies: '1 replies',
-  },
-  {
-    name: 'James Torres',
-    time: '18 hours ago',
-    body: "I've been using Automerge instead of Yjs for a similar project. Would love to see a comparison post — the tradeoffs are quite different especially around memory usage and document size.",
-    likes: '5',
-    replies: 'Reply',
-  },
-  {
-    name: 'Lisa Park',
-    time: '3 hours ago',
-    body: 'This is exactly what I needed. Starting a new project with real-time collaboration requirements next month. Bookmarked!',
-    likes: '3',
-    replies: 'Reply',
-  },
-]
+export async function ArticleComments({ postSlug }: { postSlug: string }) {
+  const comments = await getApprovedComments(postSlug)
 
-export function ArticleComments() {
   return (
     <section className="flex flex-col items-center px-4 py-12 md:px-8">
       <div className="flex w-full max-w-[720px] flex-col gap-8">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <h2 className="font-display text-[22px] font-semibold text-text-primary">
-            Comments ({COMMENTS.length})
+            Comments ({comments.length})
           </h2>
-          <button
-            type="button"
+          <a
+            href="#comment-form"
             className="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
           >
             <MessageSquarePlus size={16} />
             Write a comment
-          </button>
+          </a>
         </div>
 
-        <div className="flex flex-col gap-4 rounded-xl border border-border bg-bg-card p-5">
-          <p className="text-sm font-medium text-text-primary">Sudi David</p>
-          <div className="rounded-lg border border-border bg-bg-secondary px-4 py-3">
-            <p className="text-sm text-text-tertiary">Share your thoughts on this article...</p>
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="flex gap-1 text-text-tertiary">
-              <Bold size={16} />
-              <Italic size={16} />
-              <CodeXml size={16} />
-              <LinkIcon size={16} />
-              <List size={16} />
-            </div>
-            <span className="rounded-md bg-accent px-4 py-2 text-[13px] font-medium text-white opacity-50">
-              Post comment
-            </span>
-          </div>
+        <div id="comment-form">
+          <CommentForm postSlug={postSlug} />
         </div>
 
-        <div className="flex flex-col">
-          {COMMENTS.map((comment, index) => (
-            <article
-              key={comment.name}
-              className={`flex gap-4 py-6 ${index < COMMENTS.length - 1 ? 'border-b border-border' : ''}`}
-            >
-              <div className="flex flex-1 flex-col gap-2">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-sm font-semibold text-text-primary">{comment.name}</span>
-                  <span className="text-sm text-text-tertiary">·</span>
-                  <span className="text-[13px] text-text-tertiary">{comment.time}</span>
+        {comments.length === 0 ? (
+          <p className="text-sm text-text-tertiary">
+            No comments yet — be the first to say something.
+          </p>
+        ) : (
+          <div className="flex flex-col">
+            {comments.map((comment, index) => (
+              <article
+                key={comment.id}
+                className={`flex gap-4 py-6 ${
+                  index < comments.length - 1 ? 'border-b border-border' : ''
+                }`}
+              >
+                <div className="flex flex-1 flex-col gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="text-sm font-semibold text-text-primary">
+                      {comment.author}
+                    </span>
+                    <span className="text-sm text-text-tertiary">·</span>
+                    <span className="text-[13px] text-text-tertiary">
+                      {relativeTime(comment.createdAt)}
+                    </span>
+                  </div>
+                  <p className="text-sm leading-[1.6] text-text-secondary">{comment.body}</p>
                 </div>
-                <p className="text-sm leading-[1.6] text-text-secondary">{comment.body}</p>
-                <div className="flex items-center gap-4 text-xs text-text-tertiary">
-                  <span className="inline-flex items-center gap-1.5">
-                    <Heart size={14} />
-                    {comment.likes}
-                  </span>
-                  <span className="inline-flex items-center gap-1.5">
-                    <MessageSquare size={14} />
-                    {comment.replies}
-                  </span>
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
+              </article>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   )

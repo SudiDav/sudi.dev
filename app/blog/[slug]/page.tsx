@@ -213,7 +213,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           </div>
         </div>
 
-        <ArticleComments />
+        <ArticleComments postSlug={post.slug} />
 
         {/* Related Articles — COLUMN, padding [48,80], gap 32, fill $bg-secondary */}
         <section className="flex flex-col gap-8 bg-bg-secondary px-4 py-12 md:px-20">

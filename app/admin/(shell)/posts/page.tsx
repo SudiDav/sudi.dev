@@ -13,8 +13,26 @@ import { getAdminPosts, getAdminPostCounts } from '@/lib/admin-data'
  * it scrolls horizontally below `lg` instead of reflowing — the columns are
  * fixed widths in the design.
  */
-export default async function AdminPostsPage() {
-  const [posts, counts] = await Promise.all([getAdminPosts(), getAdminPostCounts()])
+const TABS = ['All Posts', 'Published', 'Drafts', 'Archived'] as const
+
+/** Tab label → the status it filters to. "All Posts" filters nothing. */
+const TAB_STATUS: Record<string, string | null> = {
+  'All Posts': null,
+  Published: 'Published',
+  Drafts: 'Draft',
+  Archived: 'Archived',
+}
+
+export default async function AdminPostsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tab?: string }>
+}) {
+  const { tab } = await searchParams
+  const activeTab = (TABS as readonly string[]).includes(tab ?? '') ? (tab as string) : 'All Posts'
+  const [allPosts, counts] = await Promise.all([getAdminPosts(), getAdminPostCounts()])
+  const wanted = TAB_STATUS[activeTab]
+  const posts = wanted ? allPosts.filter((post) => post.status === wanted) : allPosts
 
   return (
     <>
@@ -34,16 +52,17 @@ export default async function AdminPostsPage() {
 
       {/* Filter Row — tabs on a shared bottom rule; the active tab carries a 2px accent underline */}
       <div className="flex flex-wrap border-b border-admin-border">
-        {counts.map((tab, index) => {
-          const active = index === 0
+        {counts.map((tab) => {
+          const active = tab.label === activeTab
           return (
-            <button
+            <Link
               key={tab.label}
-              type="button"
+              href={tab.label === 'All Posts' ? '/admin/posts' : `/admin/posts?tab=${encodeURIComponent(tab.label)}`}
+              aria-current={active ? 'page' : undefined}
               className={`-mb-px flex items-center gap-1.5 px-4 py-2.5 text-[13px] ${
                 active
                   ? 'border-b-2 border-accent font-semibold text-accent'
-                  : 'text-admin-text-secondary'
+                  : 'text-admin-text-secondary hover:text-admin-text'
               }`}
             >
               <span>{tab.label}</span>
@@ -54,7 +73,7 @@ export default async function AdminPostsPage() {
               >
                 {tab.value}
               </span>
-            </button>
+            </Link>
           )
         })}
       </div>
@@ -82,6 +101,13 @@ export default async function AdminPostsPage() {
             </tr>
           </thead>
           <tbody>
+            {posts.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="px-5 py-10 text-center text-[13px] text-admin-text-secondary">
+                  No {activeTab === 'All Posts' ? 'posts' : activeTab.toLowerCase()} yet.
+                </td>
+              </tr>
+            ) : null}
             {posts.map((post) => (
               <tr key={post.id} className="border-t border-admin-border">
                 <td className="px-5 py-4">

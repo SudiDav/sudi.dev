@@ -254,6 +254,19 @@ export async function saveProject(slug: string, changes: ProjectDraft, message: 
   )
 }
 
+/** Write any JSON file in the repo through the configured target. */
+export async function writeJson(path: string, data: unknown, message: string) {
+  const target = publishTarget()
+  if (target === 'disabled') throw new Error(NOT_CONFIGURED)
+
+  const contents = `${JSON.stringify(data, null, 2)}\n`
+  if (target === 'local') {
+    await writeFile(join(process.cwd(), path), contents, 'utf8')
+    return
+  }
+  await commitFile(path, contents, message)
+}
+
 /** Site settings live in content/site.json, written the same way as content. */
 export async function saveSettings(settings: SiteSettings, message: string) {
   const target = publishTarget()

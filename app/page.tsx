@@ -8,6 +8,7 @@ import { ProjectCard } from '@/components/project-card'
 import { ArticleItem } from '@/components/article-item'
 import { TechBadge } from '@/components/tech-badge'
 import { getPosts, getProjects } from '@/lib/content'
+import { getSettings } from '@/lib/site'
 
 /** Design: Hero → "Code Snippet", two absolutely-positioned offset cards. */
 const CODE_LINES = [
@@ -50,7 +51,11 @@ const SOCIALS = [
 ]
 
 export default async function HomePage() {
-  const [posts, projects] = await Promise.all([getPosts(), getProjects()])
+  const [posts, projects, settings] = await Promise.all([
+    getPosts(),
+    getProjects(),
+    getSettings(),
+  ])
   const featuredProjects = projects.slice(0, 3)
   const latestPosts = posts.slice(0, 4)
 
@@ -99,8 +104,8 @@ export default async function HomePage() {
           {/* Sidebar — COLUMN, 260w, gap 28, right border */}
           <aside className="flex w-full shrink-0 flex-col gap-7 py-8 lg:w-[260px] lg:border-r lg:border-border lg:pr-8">
             <Image
-              src="/images/generated-1784965046774.png"
-              alt="Sudi David"
+              src={settings.avatar}
+              alt={settings.displayName}
               width={80}
               height={80}
               className="size-20 rounded-full border border-border object-cover"

@@ -8,9 +8,12 @@ import {
   saveProject,
   saveSettings,
   slugify,
+  writeJson,
   type PostDraft,
 } from '@/lib/publish'
 import type { SiteSettings } from '@/lib/site'
+import { addComment, moderateComment, deleteComment } from '@/lib/comments-write'
+import { getSubscribers } from '@/lib/subscribers'
 
 /**
  * Every action re-checks authorisation itself.
@@ -151,5 +154,88 @@ export async function updateSettings(settings: SiteSettings): Promise<ActionResu
 
   // Settings feed the layout metadata and the footer, so revalidate broadly.
   revalidatePath('/', 'layout')
+  return { ok: true }
+}
+
+export async function moderate(
+  id: string,
+  status: 'pending' | 'approved' | 'spam',
+): Promise<ActionResult> {
+  await requireAdmin()
+  try {
+    await moderateComment(id, status)
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : 'Could not update comment' }
+  }
+  revalidatePath('/admin/comments')
+  revalidatePath('/blog', 'layout')
+  return { ok: true }
+}
+
+export async function removeComment(id: string): Promise<ActionResult> {
+  await requireAdmin()
+  try {
+    await deleteComment(id)
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : 'Could not delete comment' }
+  }
+  revalidatePath('/admin/comments')
+  revalidatePath('/blog', 'layout')
+  return { ok: true }
+}
+
+/**
+ * Public: anyone reading an article can leave a comment. It is stored as
+ * pending and never appears on the site until it is approved in the admin,
+ * so this action deliberately does NOT require an admin session.
+ */
+export async function submitComment(input: {
+  postSlug: string
+  author: string
+  email: string
+  body: string
+}): Promise<ActionResult> {
+  const author = input.author.trim()
+  const email = input.email.trim()
+  const body = input.body.trim()
+
+  if (!author) return { ok: false, error: 'Please add your name' }
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return { ok: false, error: 'Please add a valid email' }
+  if (body.length < 2) return { ok: false, error: 'Please write a comment' }
+  if (body.length > 2000) return { ok: false, error: 'Comment is too long (2000 characters max)' }
+
+  try {
+    await addComment({ postSlug: input.postSlug, author, email, body })
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : 'Could not post comment' }
+  }
+  revalidatePath('/admin/comments')
+  return { ok: true }
+}
+
+/**
+ * Public: newsletter sign-up.
+ *
+ * Stores the address in content/subscribers.json. This is a list you own, not
+ * a mailing integration — sending actually requires an email provider. Storing
+ * addresses now means none are lost before that exists.
+ */
+export async function subscribe(email: string): Promise<ActionResult> {
+  const address = email.trim().toLowerCase()
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(address)) {
+    return { ok: false, error: 'Please enter a valid email address' }
+  }
+
+  try {
+    const existing = await getSubscribers()
+    if (existing.some((entry) => entry.email === address)) return { ok: true }
+    await writeJson(
+      'content/subscribers.json',
+      [...existing, { email: address, subscribedAt: new Date().toISOString() }],
+      'content: new subscriber',
+    )
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : 'Could not subscribe' }
+  }
   return { ok: true }
 }

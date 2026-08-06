@@ -1,0 +1,38 @@
+[
+  {
+    "id": "c1",
+    "postSlug": "building-a-real-time-collaboration-engine-from-scratch",
+    "author": "Sarah Chen",
+    "email": "sarah@example.com",
+    "body": "This is incredibly well-written! The section on conflict resolution with CRDTs cleared up a lot of confusion I had. Would love to see a follow-up on handling large document state.",
+    "createdAt": "2026-08-05T11:50:00Z",
+    "status": "pending"
+  },
+  {
+    "id": "c2",
+    "postSlug": "optimizing-docker-builds-for-monorepos",
+    "author": "Marcus Johnson",
+    "email": "marcus@example.com",
+    "body": "We implemented a similar virtualization strategy at our company. One thing I'd add is that React.memo can actually hurt performance in some cases if the comparison function is expensive.",
+    "createdAt": "2026-08-05T11:00:00Z",
+    "status": "pending"
+  },
+  {
+    "id": "c3",
+    "postSlug": "why-i-switched-from-rest-to-trpc",
+    "author": "Yuki Tanaka",
+    "email": "yuki@example.com",
+    "body": "Switched our entire API layer to tRPC after reading this. The DX improvement was instant. One question: how do you handle file uploads with tRPC?",
+    "createdAt": "2026-08-05T09:00:00Z",
+    "status": "approved"
+  },
+  {
+    "id": "c4",
+    "postSlug": "building-a-real-time-collaboration-engine-from-scratch",
+    "author": "David Park",
+    "email": "david@example.com",
+    "body": "Great pragmatic approach. Too many articles push for a complete rewrite. The strangler fig pattern you described saved us months of work.",
+    "createdAt": "2026-08-05T07:00:00Z",
+    "status": "approved"
+  }
+]
