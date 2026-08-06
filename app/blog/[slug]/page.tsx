@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ArrowRight, User, Copy, AtSign } from 'lucide-react'
+import { ArrowRight, Copy, AtSign } from 'lucide-react'
 import { GithubIcon } from '@/components/brand-icons'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import { SiteHeader } from '@/components/site-header'
@@ -11,6 +11,7 @@ import { ArticleItem } from '@/components/article-item'
 import { ArticleComments } from '@/components/article-comments'
 import { TechBadge } from '@/components/tech-badge'
 import { getPost, getPosts } from '@/lib/content'
+import { getSettings } from '@/lib/site'
 import { formatPostDate } from '@/lib/format'
 
 export async function generateStaticParams() {
@@ -98,7 +99,10 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
   const post = await getPost(slug)
   if (!post) notFound()
 
-  const related = (await getPosts()).filter((other) => other.slug !== post.slug).slice(0, 2)
+  const [related, settings] = await Promise.all([
+    getPosts().then((all) => all.filter((other) => other.slug !== post.slug).slice(0, 2)),
+    getSettings(),
+  ])
 
   return (
     <div className="flex min-h-screen flex-col bg-bg-primary">
@@ -130,11 +134,17 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           </p>
 
           <div className="flex items-center gap-4">
-            <span className="flex size-10 items-center justify-center rounded-full bg-bg-elevated">
-              <User size={18} className="text-text-tertiary" />
-            </span>
+            <Image
+              src={settings.avatar}
+              alt=""
+              width={40}
+              height={40}
+              className="size-10 rounded-full object-cover"
+            />
             <div className="flex flex-wrap items-center gap-3">
-              <span className="text-sm font-semibold text-text-primary">Sudi David</span>
+              <span className="text-sm font-semibold text-text-primary">
+                {settings.displayName}
+              </span>
               <span className="text-sm text-text-tertiary">·</span>
               <span className="font-mono text-[13px] text-text-tertiary">
                 {formatPostDate(post.date)}
@@ -181,14 +191,20 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
           {/* Author Bio Card — ROW, padding 24, gap 20, radius 12 */}
           <div className="flex items-center gap-5 rounded-xl border border-border bg-bg-card p-6">
-            <span className="flex size-14 shrink-0 items-center justify-center rounded-full bg-bg-elevated">
-              <User size={22} className="text-text-tertiary" />
-            </span>
+            <Image
+              src={settings.avatar}
+              alt=""
+              width={56}
+              height={56}
+              className="size-14 shrink-0 rounded-full object-cover"
+            />
             <div className="flex flex-col gap-2">
               <span className="font-mono text-[11px] tracking-[2px] text-text-tertiary">
                 WRITTEN BY
               </span>
-              <span className="text-sm font-semibold text-text-primary">Sudi David</span>
+              <span className="text-sm font-semibold text-text-primary">
+                {settings.displayName}
+              </span>
               <p className="text-sm leading-[1.6] text-text-secondary">
                 Full-stack engineer specializing in real-time systems, distributed architectures,
                 and developer tooling. Currently building the future of collaborative software.

@@ -19,6 +19,7 @@ import { SiteFooter } from '@/components/site-footer'
 import { PageIntro } from '@/components/page-intro'
 import { GithubIcon, TwitterIcon, LinkedinIcon } from '@/components/brand-icons'
 import { PAGE_GUTTER } from '@/components/layout'
+import { getSettings } from '@/lib/site'
 
 export const metadata: Metadata = {
   title: 'About | Sudi David',
@@ -120,7 +121,9 @@ function SectionHeading({ label, title }: { label: string; title: string }) {
   )
 }
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const settings = await getSettings()
+
   return (
     <div className="flex min-h-screen flex-col bg-bg-primary">
       <SiteHeader />
@@ -132,8 +135,8 @@ export default function AboutPage() {
         <section className={`flex flex-col items-center gap-14 py-12 lg:flex-row ${PAGE_GUTTER}`}>
           <div className="relative h-[420px] w-full shrink-0 overflow-hidden rounded-xl border border-border bg-bg-elevated lg:w-[340px]">
             <Image
-              src="/images/generated-1784965976593.png"
-              alt="Sudi David"
+              src={settings.portrait ?? settings.avatar}
+              alt={settings.displayName}
               fill
               sizes="(max-width: 1024px) 100vw, 340px"
               className="object-cover"

@@ -10,6 +10,8 @@ export type SiteSettings = {
   displayName: string
   /** Path under /public. There is no asset store yet, so this is a path, not an upload. */
   avatar: string
+  /** The larger About-page portrait. Falls back to `avatar` when unset. */
+  portrait?: string
   email: string
   bio: string
   location: string
