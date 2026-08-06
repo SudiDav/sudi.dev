@@ -1,6 +1,7 @@
 import Link from 'next/link'
-import { Search, Plus, Ellipsis } from 'lucide-react'
+import { Search, Plus } from 'lucide-react'
 import { AdminTopBar, StatusBadge } from '@/components/admin/admin-ui'
+import { PostRowActions } from '@/components/admin/post-row-actions'
 import { getAdminPosts, getAdminPostCounts } from '@/lib/admin-data'
 
 /**
@@ -88,7 +89,12 @@ export default async function AdminPostsPage() {
                 </td>
                 <td className="px-5 py-4">
                   <div className="flex flex-col gap-0.5">
-                    <span className="text-[13px] font-medium text-admin-text">{post.title}</span>
+                    <Link
+                      href={`/admin/posts/${post.id}/edit`}
+                      className="text-[13px] font-medium text-admin-text hover:text-accent"
+                    >
+                      {post.title}
+                    </Link>
                     <span className="text-[11px] text-admin-text-tertiary">{post.category}</span>
                   </div>
                 </td>
@@ -99,13 +105,7 @@ export default async function AdminPostsPage() {
                 <td className="px-5 py-4 text-[13px] text-admin-text-secondary">{post.views}</td>
                 <td className="px-5 py-4 text-[13px] text-admin-text-secondary">{post.comments}</td>
                 <td className="px-5 py-4">
-                  <Link
-                    href={`/admin/posts/${post.id}/edit`}
-                    aria-label={`Edit ${post.title}`}
-                    className="inline-flex text-admin-text-tertiary hover:text-admin-text"
-                  >
-                    <Ellipsis size={16} />
-                  </Link>
+                  <PostRowActions slug={post.id} title={post.title} status={post.status} />
                 </td>
               </tr>
             ))}

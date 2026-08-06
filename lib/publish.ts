@@ -1,4 +1,6 @@
 import 'server-only'
+import { readFile, writeFile } from 'node:fs/promises'
+import { join } from 'node:path'
 import matter from 'gray-matter'
 import type { Post } from './content.types'
 
@@ -109,6 +111,14 @@ export type PostDraft = Partial<Omit<Post, 'slug' | 'body'>> & { body?: string }
  * behind, and on a deployed instance there is no checkout at all.
  */
 export async function savePost(slug: string, changes: PostDraft, message: string) {
+  const target = publishTarget()
+  if (target === 'disabled') {
+    throw new Error(
+      'Publishing is not configured. Set GITHUB_TOKEN and GITHUB_REPO — see .env.example.',
+    )
+  }
+  if (target === 'local') return saveLocally(slug, changes)
+
   const { repo, branch } = config()
   const path = `content/posts/${slug}.mdx`
 
@@ -123,7 +133,34 @@ export async function savePost(slug: string, changes: PostDraft, message: string
   await commitFile(path, serialise(merged, body ?? existing.content), message)
 }
 
-/** True when publishing is configured, so the UI can say so instead of failing. */
+/**
+ * Where a save goes.
+ *
+ * With a GitHub token configured, writes are commits — the only option that
+ * works on a deployed instance, whose filesystem is read-only and ephemeral.
+ * Without one, and only in development, writes go straight to the working copy
+ * so the admin is genuinely usable before any tokens exist. In production with
+ * no token, saving is refused rather than silently discarded.
+ */
+export type PublishTarget = 'github' | 'local' | 'disabled'
+
+export function publishTarget(): PublishTarget {
+  if (process.env.GITHUB_TOKEN && process.env.GITHUB_REPO) return 'github'
+  return process.env.NODE_ENV === 'production' ? 'disabled' : 'local'
+}
+
+async function saveLocally(slug: string, changes: PostDraft) {
+  const path = join(process.cwd(), 'content', 'posts', `${slug}.mdx`)
+  const existing = matter(await readFile(path, 'utf8'))
+  const { body, ...frontmatterChanges } = changes
+  await writeFile(
+    path,
+    serialise({ ...existing.data, ...frontmatterChanges }, body ?? existing.content),
+    'utf8',
+  )
+}
+
+/** True when saving will actually persist somewhere. */
 export function isPublishingConfigured(): boolean {
-  return Boolean(process.env.GITHUB_TOKEN && process.env.GITHUB_REPO)
+  return publishTarget() !== 'disabled'
 }

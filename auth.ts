@@ -1,5 +1,6 @@
 import NextAuth from 'next-auth'
 import Google from 'next-auth/providers/google'
+import Credentials from 'next-auth/providers/credentials'
 
 /**
  * The single account allowed into the admin.
@@ -10,8 +11,32 @@ import Google from 'next-auth/providers/google'
  */
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL?.toLowerCase().trim()
 
+/**
+ * A development-only sign-in that skips Google entirely.
+ *
+ * This exists so the admin is usable before OAuth credentials are set up. It is
+ * gated on TWO conditions that both have to hold: NODE_ENV must not be
+ * production, and AUTH_DEV_BYPASS must be explicitly "true". `next build` sets
+ * NODE_ENV=production, so the provider is not merely hidden in a deployed
+ * build — it is not registered at all, and there is no route to reach it.
+ *
+ * Delete this block once Google sign-in is configured.
+ */
+const devBypassEnabled =
+  process.env.NODE_ENV !== 'production' && process.env.AUTH_DEV_BYPASS === 'true'
+
+const devBypass = Credentials({
+  id: 'dev',
+  name: 'Development bypass',
+  credentials: {},
+  authorize: () =>
+    ADMIN_EMAIL ? { id: 'dev-admin', name: 'Sudi David', email: ADMIN_EMAIL } : null,
+})
+
+export const isDevBypassEnabled = devBypassEnabled
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  providers: [Google],
+  providers: devBypassEnabled ? [Google, devBypass] : [Google],
   session: { strategy: 'jwt' },
   pages: { signIn: '/admin/signin', error: '/admin/signin' },
   callbacks: {
@@ -21,8 +46,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
      * `email_verified` matters: without it, an unverified Google account
      * claiming the admin address would be let in.
      */
-    signIn({ profile }) {
+    signIn({ account, profile, user }) {
       if (!ADMIN_EMAIL) return false
+
+      // The dev bypass mints the admin identity itself; it only exists when
+      // both guards above allow it.
+      if (account?.provider === 'dev') {
+        return devBypassEnabled && user?.email?.toLowerCase() === ADMIN_EMAIL
+      }
+
       return profile?.email?.toLowerCase() === ADMIN_EMAIL && profile.email_verified === true
     },
     /**

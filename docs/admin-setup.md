@@ -51,6 +51,31 @@ GITHUB_BRANCH=main
 Until these are set the admin still loads and reads content; only saving is
 disabled, and it says so rather than failing at the API call.
 
+## Working locally without any credentials
+
+`.env.local` sets `AUTH_DEV_BYPASS=true`, which adds a **Continue without
+Google (dev)** button to the sign-in page. It is gated on two conditions that
+must BOTH hold: `NODE_ENV` is not production, and the flag is exactly `"true"`.
+`next build` sets `NODE_ENV=production`, so in a deployed build the provider is
+not merely hidden — it is never registered and there is no route to reach it.
+
+Delete the flag once Google sign-in is configured.
+
+## Where saves go
+
+| Configuration | Behaviour |
+| --- | --- |
+| `GITHUB_TOKEN` + `GITHUB_REPO` set | Commits MDX to the repo, triggering a redeploy |
+| Neither set, running `next dev` | Writes straight to `content/posts/*.mdx` in your working copy |
+| Neither set, production | Saving refused with a visible message, not silently dropped |
+
+The local path is what makes the admin usable today: edit a post, hit Save, and
+the file on disk changes — the public page reflects it on the next request.
+
+Note that saving recalculates `readingTime` from the actual body at ~200 words
+per minute, so the seeded values from the design are replaced with real counts
+the first time a post is edited.
+
 ## How it fits together
 
 - `auth.ts` — Google provider, JWT session (no database), single-email allowlist

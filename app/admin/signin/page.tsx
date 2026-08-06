@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { signIn, isAdmin } from '@/auth'
+import { signIn, isAdmin, isDevBypassEnabled } from '@/auth'
 import { LogIn, ShieldAlert } from 'lucide-react'
 
 export const metadata = {
@@ -52,6 +52,26 @@ export default async function AdminSignInPage({
             Continue with Google
           </button>
         </form>
+
+        {isDevBypassEnabled ? (
+          <form
+            action={async () => {
+              'use server'
+              await signIn('dev', { redirectTo: '/admin' })
+            }}
+            className="flex flex-col gap-2 border-t border-admin-border pt-6"
+          >
+            <button
+              type="submit"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-admin-border px-4 py-2.5 text-sm font-medium text-admin-text-secondary transition-colors hover:bg-admin-bg"
+            >
+              Continue without Google (dev)
+            </button>
+            <span className="text-[11px] text-admin-text-tertiary">
+              Local development only. This provider is not registered in a production build.
+            </span>
+          </form>
+        ) : null}
       </div>
     </div>
   )
