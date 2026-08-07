@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter, Geist, Geist_Mono } from 'next/font/google'
 import { getSettings } from '@/lib/site'
+import { themeBootstrapScript } from '@/lib/theme'
 import './globals.css'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
@@ -12,15 +13,6 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: settings.seo.title, description: settings.seo.description }
 }
 
-const themeScript = `
-(function(){
-  try {
-    var stored = localStorage.getItem('theme');
-    var theme = stored || (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
-    if (theme === 'light') document.documentElement.classList.add('light');
-  } catch (e) {}
-})();
-`
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -34,7 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       suppressHydrationWarning
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+        <script dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} />
       </head>
       <body className="antialiased">{children}</body>
     </html>

@@ -17,9 +17,14 @@ import {
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import { PageIntro } from '@/components/page-intro'
-import { GithubIcon, TwitterIcon, LinkedinIcon } from '@/components/brand-icons'
+import {
+  GithubIcon,
+  TwitterIcon,
+  LinkedinIcon,
+  InstagramIcon,
+} from '@/components/brand-icons'
 import { PAGE_GUTTER } from '@/components/layout'
-import { getSettings } from '@/lib/site'
+import { getSettings, socialUrl } from '@/lib/site'
 
 export const metadata: Metadata = {
   title: 'About | Sudi David',
@@ -95,12 +100,6 @@ const INTERESTS = [
   },
 ]
 
-const SOCIALS = [
-  { href: 'https://github.com/sudidavid', label: 'GitHub', Icon: GithubIcon },
-  { href: 'https://twitter.com/sudidavid', label: 'Twitter', Icon: TwitterIcon },
-  { href: 'https://linkedin.com/in/sudidavid', label: 'LinkedIn', Icon: LinkedinIcon },
-]
-
 /** Design: three separate "Divider Wrap" frames sit between the sections. */
 function Divider() {
   return (
@@ -123,6 +122,14 @@ function SectionHeading({ label, title }: { label: string; title: string }) {
 
 export default async function AboutPage() {
   const settings = await getSettings()
+  const socials = (
+    [
+      { kind: 'github' as const, label: 'GitHub', Icon: GithubIcon },
+      { kind: 'twitter' as const, label: 'X', Icon: TwitterIcon },
+      { kind: 'linkedin' as const, label: 'LinkedIn', Icon: LinkedinIcon },
+      { kind: 'instagram' as const, label: 'Instagram', Icon: InstagramIcon },
+    ] as const
+  ).filter(({ kind }) => Boolean(settings.social[kind]))
 
   return (
     <div className="flex min-h-screen flex-col bg-bg-primary">
@@ -299,10 +306,10 @@ export default async function AboutPage() {
             </a>
           </div>
           <div className="flex items-center gap-5">
-            {SOCIALS.map(({ href, label, Icon }) => (
+            {socials.map(({ kind, label, Icon }) => (
               <Link
                 key={label}
-                href={href}
+                href={socialUrl(kind, settings.social[kind] ?? '')}
                 aria-label={label}
                 className="flex size-10 items-center justify-center rounded-lg border border-border bg-bg-card text-text-secondary transition-colors hover:border-border-hover hover:text-text-primary"
               >

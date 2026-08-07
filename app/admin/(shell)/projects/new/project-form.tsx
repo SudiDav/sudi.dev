@@ -18,7 +18,7 @@ const TOGGLES = [
 ]
 
 const inputClass =
-  'rounded-lg border border-admin-border bg-white px-3.5 py-2.5 text-[13px] text-admin-text placeholder:text-admin-text-tertiary focus:border-accent focus:outline-none'
+  'rounded-lg border border-admin-border bg-admin-input px-3.5 py-2.5 text-[13px] text-admin-text placeholder:text-admin-text-tertiary focus:border-accent focus:outline-none'
 
 function Field({
   label,
@@ -212,7 +212,7 @@ export function ProjectForm({
 
             <div className="flex flex-col gap-1.5">
               <span className="text-xs font-medium text-admin-text-secondary">Tech Stack</span>
-              <div className="flex flex-wrap items-center gap-2 rounded-lg border border-admin-border bg-white p-2.5">
+              <div className="flex flex-wrap items-center gap-2 rounded-lg border border-admin-border bg-admin-input p-2.5">
                 {tech.map((item) => (
                   <span
                     key={item}
@@ -298,7 +298,7 @@ export function ProjectForm({
                   <span className="text-[11px] text-admin-text-tertiary">{hint}</span>
                 </div>
                 <span className="flex h-6 w-11 items-center justify-end rounded-xl bg-accent p-[3px]">
-                  <span className="size-[18px] rounded-full bg-white" />
+                  <span className="size-[18px] rounded-full bg-admin-knob" />
                 </span>
               </div>
             ))}

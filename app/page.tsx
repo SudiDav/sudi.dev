@@ -1,14 +1,19 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
-import { GithubIcon, TwitterIcon, LinkedinIcon } from '@/components/brand-icons'
+import {
+  GithubIcon,
+  TwitterIcon,
+  LinkedinIcon,
+  InstagramIcon,
+} from '@/components/brand-icons'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import { ProjectCard } from '@/components/project-card'
 import { ArticleItem } from '@/components/article-item'
 import { TechBadge } from '@/components/tech-badge'
 import { getPosts, getProjects } from '@/lib/content'
-import { getSettings } from '@/lib/site'
+import { getSettings, socialUrl } from '@/lib/site'
 
 /** Design: Hero → "Code Snippet", two absolutely-positioned offset cards. */
 const CODE_LINES = [
@@ -44,18 +49,20 @@ const TECH_ROWS = [
   ['PostgreSQL', 'Redis'],
 ]
 
-const SOCIALS = [
-  { href: 'https://github.com/sudidavid', label: 'GitHub', Icon: GithubIcon },
-  { href: 'https://twitter.com/sudidavid', label: 'Twitter', Icon: TwitterIcon },
-  { href: 'https://linkedin.com/in/sudidavid', label: 'LinkedIn', Icon: LinkedinIcon },
-]
-
 export default async function HomePage() {
   const [posts, projects, settings] = await Promise.all([
     getPosts(),
     getProjects(),
     getSettings(),
   ])
+  const socials = (
+    [
+      { kind: 'github' as const, label: 'GitHub', Icon: GithubIcon },
+      { kind: 'twitter' as const, label: 'X', Icon: TwitterIcon },
+      { kind: 'linkedin' as const, label: 'LinkedIn', Icon: LinkedinIcon },
+      { kind: 'instagram' as const, label: 'Instagram', Icon: InstagramIcon },
+    ] as const
+  ).filter(({ kind }) => Boolean(settings.social[kind]))
   const featuredProjects = projects.slice(0, 3)
   const latestPosts = posts.slice(0, 4)
 
@@ -135,10 +142,10 @@ export default async function HomePage() {
             </div>
 
             <div className="flex gap-4">
-              {SOCIALS.map(({ href, label, Icon }) => (
+              {socials.map(({ kind, label, Icon }) => (
                 <Link
                   key={label}
-                  href={href}
+                  href={socialUrl(kind, settings.social[kind] ?? '')}
                   aria-label={label}
                   className="flex size-9 items-center justify-center rounded-lg border border-border bg-bg-card text-text-secondary transition-colors hover:border-border-hover hover:text-text-primary"
                 >

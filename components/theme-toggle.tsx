@@ -2,6 +2,7 @@
 
 import { useCallback, useSyncExternalStore } from 'react'
 import { Sun, Moon } from 'lucide-react'
+import { applyPreference, LIGHT_CLASS } from '@/lib/theme'
 
 /**
  * The theme lives on `<html>`, applied by the inline bootstrap script in the
@@ -20,30 +21,23 @@ const subscribe = (onStoreChange: () => void) => {
   return () => observer.disconnect()
 }
 
-const getSnapshot = () => document.documentElement.classList.contains('light')
+const getSnapshot = () => document.documentElement.classList.contains(LIGHT_CLASS)
 const getServerSnapshot = () => false
 
 /**
  * Design: "Theme Toggle" — padding [6,8], gap 6, fill $bg-card, 1px $border,
  * cornerRadius 9999. A segmented pill holding BOTH icons at 14px: in dark the
  * moon is $accent and the sun is $text-tertiary; light inverts that.
+ *
+ * The design draws two states, so this stays a two-state control and sets an
+ * explicit preference. The third option — following the OS — lives in the
+ * admin's Appearance settings, where there is room to name it.
  */
 export function ThemeToggle() {
   const isLight = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
 
   const toggle = useCallback(() => {
-    const root = document.documentElement
-    const next = !root.classList.contains('light')
-
-    // Suppress transitions for the swap itself; see `.theme-switching` in
-    // globals.css. Two rAFs so the new colours are committed before
-    // transitions come back, otherwise they animate from the old values.
-    root.classList.add('theme-switching')
-    root.classList.toggle('light', next)
-    localStorage.setItem('theme', next ? 'light' : 'dark')
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => root.classList.remove('theme-switching'))
-    })
+    applyPreference(document.documentElement.classList.contains(LIGHT_CLASS) ? 'dark' : 'light')
   }, [])
 
   return (

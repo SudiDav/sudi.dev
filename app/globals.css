@@ -28,6 +28,37 @@
   --admin-success: #10B981;
   --admin-warning: #F59E0B;
   --admin-danger: #EF4444;
+  /* Form fields and the subtle fills the design uses for table headers and
+     the editor toolbar (#F9FAFB / #FAFBFC), tokenised so they can invert. */
+  --admin-input: #FFFFFF;
+  --admin-subtle: #F9FAFB;
+  --admin-knob: #FFFFFF;
+}
+
+/*
+ * Dark admin.
+ *
+ * The design has no dark admin frames — it only draws the light set — so these
+ * are derived rather than extracted. They reuse the public site's dark palette
+ * so the two halves feel like one product, and the status colours are kept
+ * because they already read correctly on a dark surface.
+ */
+.light-admin-dark-marker { /* documentation anchor, no styles */ }
+
+.dark-admin {
+  --admin-bg: #0B0B11;
+  --admin-sidebar: #13131B;
+  --admin-sidebar-hover: #22222E;
+  --admin-sidebar-text: #8B8B96;
+  --admin-sidebar-text-active: #EDEDF0;
+  --admin-card: #1A1A24;
+  --admin-border: #2A2A35;
+  --admin-text: #EDEDF0;
+  --admin-text-secondary: #8B8B96;
+  --admin-text-tertiary: #5C5C66;
+  --admin-input: #13131B;
+  --admin-subtle: #13131B;
+  --admin-knob: #EDEDF0;
 }
 
 .light {
@@ -70,6 +101,9 @@
   --color-admin-success: var(--admin-success);
   --color-admin-warning: var(--admin-warning);
   --color-admin-danger: var(--admin-danger);
+  --color-admin-input: var(--admin-input);
+  --color-admin-subtle: var(--admin-subtle);
+  --color-admin-knob: var(--admin-knob);
 
   --font-sans: var(--font-inter);
   --font-display: var(--font-geist);

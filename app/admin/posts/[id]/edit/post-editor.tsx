@@ -111,7 +111,7 @@ export function PostEditor({ post, canPublish }: { post?: Post; canPublish: bool
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-white">
+    <div className="flex min-h-screen flex-col bg-admin-card">
       {/* Editor Top Bar — ROW, padding [12,24], 1px bottom border */}
       <header className="flex flex-wrap items-center justify-between gap-4 border-b border-admin-border px-6 py-3">
         <div className="flex items-center gap-4">
@@ -187,7 +187,7 @@ export function PostEditor({ post, canPublish }: { post?: Post; canPublish: bool
       <div className="flex flex-1 flex-col xl:flex-row">
         <div className="flex flex-1 flex-col">
           {/* Toolbar — ROW, padding [8,24], gap 4, #FAFBFC, 1px bottom border */}
-          <div className="flex flex-wrap items-center gap-1 border-b border-admin-border bg-[#FAFBFC] px-6 py-2">
+          <div className="flex flex-wrap items-center gap-1 border-b border-admin-border bg-admin-subtle px-6 py-2">
             {[TEXT_FORMAT, INLINE_FORMAT, BLOCK_FORMAT].map((group, groupIndex) => (
               <div key={groupIndex} className="flex items-center gap-0.5">
                 {groupIndex > 0 ? <span className="mx-2 h-4 w-px bg-admin-border" /> : null}
@@ -258,7 +258,7 @@ export function PostEditor({ post, canPublish }: { post?: Post; canPublish: bool
             <select
               value={status}
               onChange={(event) => setStatus(event.target.value as Post['status'])}
-              className="rounded-lg border border-admin-border bg-white px-3 py-2 text-[13px] text-admin-text focus:border-accent focus:outline-none"
+              className="rounded-lg border border-admin-border bg-admin-input px-3 py-2 text-[13px] text-admin-text focus:border-accent focus:outline-none"
             >
               {STATUSES.map((option) => (
                 <option key={option} value={option}>
@@ -272,7 +272,7 @@ export function PostEditor({ post, canPublish }: { post?: Post; canPublish: bool
             <select
               value={category}
               onChange={(event) => setCategory(event.target.value)}
-              className="rounded-lg border border-admin-border bg-white px-3 py-2 text-[13px] text-admin-text focus:border-accent focus:outline-none"
+              className="rounded-lg border border-admin-border bg-admin-input px-3 py-2 text-[13px] text-admin-text focus:border-accent focus:outline-none"
             >
               {['Development', 'DevOps', 'Architecture', 'Open Source'].map((option) => (
                 <option key={option} value={option}>
@@ -352,7 +352,7 @@ export function PostEditor({ post, canPublish }: { post?: Post; canPublish: bool
                 post?.featured ? 'justify-end bg-accent' : 'bg-admin-border'
               }`}
             >
-              <span className="size-4 rounded-full bg-white" />
+              <span className="size-4 rounded-full bg-admin-knob" />
             </span>
           </div>
         </aside>

@@ -81,7 +81,7 @@ export default async function AdminPostsPage({
       <div className="overflow-x-auto rounded-xl border border-admin-border bg-admin-card">
         <table className="w-full min-w-[860px] border-collapse text-left">
           <thead>
-            <tr className="bg-[#F9FAFB]">
+            <tr className="bg-admin-subtle">
               <th scope="col" className="w-10 px-5 py-3">
                 <span className="sr-only">Select</span>
                 <span className="block size-4 rounded border-[1.5px] border-admin-border" />

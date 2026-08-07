@@ -16,7 +16,7 @@ export type SiteSettings = {
   bio: string
   location: string
   website: string
-  social: { github: string; twitter: string; linkedin: string }
+  social: { github: string; twitter: string; linkedin: string; instagram?: string }
   seo: { title: string; description: string }
 }
 
@@ -30,8 +30,9 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   website: 'sudidavid.dev',
   social: {
     github: 'github.com/sudidavid',
-    twitter: '@sudidavid',
+    twitter: '@Sudi_Dav',
     linkedin: 'linkedin.com/in/sudidavid',
+    instagram: '@sudi_dav',
   },
   seo: {
     title: 'Sudi David — Developer Portfolio',
@@ -61,6 +62,11 @@ export async function getSettings(): Promise<SiteSettings> {
 export function socialUrl(kind: keyof SiteSettings['social'], value: string): string {
   const handle = value.replace(/^@/, '').replace(/^https?:\/\//, '')
   if (handle.includes('/')) return `https://${handle}`
-  const host = { github: 'github.com', twitter: 'twitter.com', linkedin: 'linkedin.com/in' }[kind]
+  const host = {
+    github: 'github.com',
+    twitter: 'x.com',
+    linkedin: 'linkedin.com/in',
+    instagram: 'instagram.com',
+  }[kind]
   return `https://${host}/${handle}`
 }

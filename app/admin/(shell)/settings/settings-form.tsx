@@ -4,13 +4,19 @@ import { useState, useTransition } from 'react'
 import Image from 'next/image'
 import { LogOut, Upload, Check, TriangleAlert } from 'lucide-react'
 import { AdminCard } from '@/components/admin/admin-ui'
-import { GithubIcon, TwitterIcon, LinkedinIcon } from '@/components/brand-icons'
+import {
+  GithubIcon,
+  TwitterIcon,
+  LinkedinIcon,
+  InstagramIcon,
+} from '@/components/brand-icons'
 import { updateSettings } from '@/app/admin/actions'
 import { signOutAction } from './actions'
+import { ThemePicker } from '@/components/theme-picker'
 import type { SiteSettings } from '@/lib/site'
 
 const inputClass =
-  'w-full rounded-lg border border-admin-border bg-white px-3.5 py-2.5 text-[13px] text-admin-text focus:border-accent focus:outline-none'
+  'w-full rounded-lg border border-admin-border bg-admin-input px-3.5 py-2.5 text-[13px] text-admin-text focus:border-accent focus:outline-none'
 
 function Field({
   label,
@@ -49,8 +55,18 @@ function Field({
   )
 }
 
-const SOCIAL_ICONS = { github: GithubIcon, twitter: TwitterIcon, linkedin: LinkedinIcon }
-const SOCIAL_LABELS = { github: 'GitHub', twitter: 'Twitter / X', linkedin: 'LinkedIn' }
+const SOCIAL_ICONS = {
+  github: GithubIcon,
+  twitter: TwitterIcon,
+  linkedin: LinkedinIcon,
+  instagram: InstagramIcon,
+}
+const SOCIAL_LABELS = {
+  github: 'GitHub',
+  twitter: 'Twitter / X',
+  linkedin: 'LinkedIn',
+  instagram: 'Instagram',
+}
 
 /**
  * Design: "Admin — Settings". Every field now writes to content/site.json,
@@ -194,7 +210,7 @@ export function SettingsForm({
                   <Icon size={18} className="shrink-0 text-admin-text-secondary" />
                   <input
                     aria-label={SOCIAL_LABELS[kind]}
-                    value={settings.social[kind]}
+                    value={settings.social[kind] ?? ''}
                     onChange={(event) =>
                       set('social', { ...settings.social, [kind]: event.target.value })
                     }
@@ -207,6 +223,15 @@ export function SettingsForm({
         </div>
 
         <div className="flex w-full flex-col gap-6 xl:w-[360px]">
+          <AdminCard title="Appearance">
+            <p className="text-[13px] leading-[1.5] text-admin-text-secondary">
+              Applies to the admin and the public site. This is a per-device
+              preference, so it is stored in your browser rather than saved with
+              the settings above.
+            </p>
+            <ThemePicker />
+          </AdminCard>
+
           <AdminCard title="SEO & Metadata">
             <Field
               label="Site Title"

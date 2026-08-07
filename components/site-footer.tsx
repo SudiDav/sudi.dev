@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { GithubIcon, TwitterIcon, LinkedinIcon } from './brand-icons'
+import { GithubIcon, TwitterIcon, LinkedinIcon, InstagramIcon } from './brand-icons'
 import { getSettings, socialUrl } from '@/lib/site'
 
 const LINKS = [
@@ -14,11 +14,15 @@ const LINKS = [
  */
 export async function SiteFooter() {
   const settings = await getSettings()
-  const socials = [
-    { kind: 'github' as const, label: 'GitHub', Icon: GithubIcon },
-    { kind: 'twitter' as const, label: 'Twitter', Icon: TwitterIcon },
-    { kind: 'linkedin' as const, label: 'LinkedIn', Icon: LinkedinIcon },
-  ]
+  // Instagram is not in the design's footer row; it renders only when set.
+  const socials = (
+    [
+      { kind: 'github' as const, label: 'GitHub', Icon: GithubIcon },
+      { kind: 'twitter' as const, label: 'X', Icon: TwitterIcon },
+      { kind: 'linkedin' as const, label: 'LinkedIn', Icon: LinkedinIcon },
+      { kind: 'instagram' as const, label: 'Instagram', Icon: InstagramIcon },
+    ] as const
+  ).filter(({ kind }) => Boolean(settings.social[kind]))
 
   return (
     <footer className="border-t border-border">
@@ -40,7 +44,7 @@ export async function SiteFooter() {
             {socials.map(({ kind, label, Icon }) => (
               <Link
                 key={label}
-                href={socialUrl(kind, settings.social[kind])}
+                href={socialUrl(kind, settings.social[kind] ?? '')}
                 aria-label={label}
                 className="text-text-tertiary transition-colors hover:text-text-primary"
               >
