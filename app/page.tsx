@@ -44,9 +44,9 @@ function CodeSnippet({ className }: { className: string }) {
 
 /** Design: Sidebar → "Tech Stack", three rows of badges. */
 const TECH_ROWS = [
-  ['React', 'TypeScript'],
-  ['Node.js', 'Go', 'Docker'],
-  ['PostgreSQL', 'Redis'],
+  ['C#', '.NET', 'TypeScript'],
+  ['React', 'NestJS', 'Vue'],
+  ['PostgreSQL', 'Docker', 'RabbitMQ'],
 ]
 
 export default async function HomePage() {
@@ -83,7 +83,7 @@ export default async function HomePage() {
           </h1>
 
           <p className="text-lg leading-[1.4] text-text-secondary lg:text-xl">
-            Full-Stack Developer &amp; Open Source Enthusiast
+            Full-Stack Engineer — .NET, TypeScript &amp; distributed systems
           </p>
 
           <div className="flex flex-wrap items-center gap-4">
@@ -129,10 +129,7 @@ export default async function HomePage() {
               <span className="font-mono text-xs text-text-tertiary">Available for work</span>
             </div>
 
-            <p className="text-sm leading-[1.6] text-text-secondary">
-              Building things for the web. Passionate about developer tools, performance, and clean
-              architecture.
-            </p>
+            <p className="text-sm leading-[1.6] text-text-secondary">{settings.bio}</p>
 
             <div className="flex flex-col gap-3">
               <h2 className="font-mono text-[11px] font-semibold tracking-[1.5px] text-text-tertiary">

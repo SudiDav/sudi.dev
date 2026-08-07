@@ -1,0 +1,17 @@
+---
+title: Auction Car
+year: "2025"
+shortDescription: A microservices auction platform built to practise the patterns end to end.
+description: A .NET microservices auction platform — service-to-service messaging over RabbitMQ, containerised with Docker and orchestrated on Kubernetes.
+tech: [.NET, RabbitMQ, Docker, Kubernetes]
+category: Web Apps
+cover: /images/generated-1784965528336.png
+links:
+  github: https://github.com/sudidavid
+---
+
+A car auction platform built as a way to work through microservices patterns properly rather than reading about them.
+
+Services communicate asynchronously over RabbitMQ rather than calling each other directly, so a slow or failed service degrades the system instead of breaking it. Each service is containerised with Docker and the whole thing runs on Kubernetes.
+
+The interesting part was not the auction logic — it was everything around it: how services find each other, what happens to a bid when a consumer is down, and how to keep the data consistent when there is no single database to lean on.

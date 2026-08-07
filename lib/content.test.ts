@@ -1,9 +1,20 @@
+import { readdir } from 'node:fs/promises'
+import { join } from 'node:path'
 import { describe, it, expect } from 'vitest'
 import { getPosts, getPost, getProjects, getProject } from './content'
 
+/**
+ * Counts come from the content directory rather than a literal, so adding a
+ * post or project does not fail an unrelated assertion. The point of these
+ * tests is that the loader surfaces everything on disk, not that the seed
+ * happens to be a particular size.
+ */
+const countMdx = async (dir: string) =>
+  (await readdir(join(process.cwd(), 'content', dir))).filter((f) => f.endsWith('.mdx')).length
+
 describe('getPosts', () => {
   it('returns every post in the content directory', async () => {
-    expect((await getPosts()).length).toBe(7)
+    expect((await getPosts()).length).toBe(await countMdx('posts'))
   })
 
   it('sorts newest first', async () => {
@@ -40,7 +51,7 @@ describe('getPost', () => {
 
 describe('getProjects', () => {
   it('returns every project', async () => {
-    expect((await getProjects()).length).toBe(6)
+    expect((await getProjects()).length).toBe(await countMdx('projects'))
   })
 
   it('sorts by year descending', async () => {

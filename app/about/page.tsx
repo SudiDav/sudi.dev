@@ -3,10 +3,10 @@ import Image from 'next/image'
 import Link from 'next/link'
 import {
   MapPin,
-  Mountain,
-  BookOpen,
-  Camera,
-  Music,
+  GraduationCap,
+  Trophy,
+  Languages,
+  Boxes,
   Mail,
   Calendar,
   Code2,
@@ -28,75 +28,87 @@ import { getSettings, socialUrl } from '@/lib/site'
 
 export const metadata: Metadata = {
   title: 'About | Sudi David',
-  description: "I build tools that make developers' lives easier.",
+  description: 'Full-stack engineer in Kigali building school management and fintech systems.',
 }
 
 /** Design: "Experience Section" → Timeline. Newest first. */
 const TIMELINE = [
   {
-    role: 'Founder & Lead Developer',
-    period: '2024 — Present',
-    company: 'Nexus Tools',
+    role: 'Full-Stack Engineer',
+    period: 'Feb 2024 — Present',
+    company: 'IST Africa · Kigali (Remote)',
     description:
-      'Building open-source developer tools including Nexus CLI, Syncboard, and Datapipe. Focused on Rust, WebAssembly, and real-time collaboration.',
+      'Leading the redevelopment of a school management system for Danish schools, starting with the Absence module. Working across distributed teams spanning several regions.',
   },
   {
-    role: 'Senior Infrastructure Engineer',
-    period: '2021 — 2024',
-    company: 'Vercel',
+    role: 'Full-Stack Engineer',
+    period: 'Feb 2021 — Jan 2024',
+    company: 'Altech Group · Kigali (Hybrid)',
     description:
-      'Scaled edge infrastructure to handle 30B+ requests/month. Led the migration from legacy deployment pipeline to a new Kubernetes-based architecture.',
+      'Managed a team of four and shipped a loan asset management system. Integrated Spark Energy and Omnivoltaic into the business process, and the Xero and Telerivet APIs to cut the finance team’s manual workload.',
   },
   {
-    role: 'Software Engineer',
-    period: '2019 — 2021',
-    company: 'Stripe',
+    role: 'Full-Stack Engineer',
+    period: 'Apr 2018 — Dec 2019',
+    company: 'Fintech International · Kigali',
     description:
-      'Built internal developer tools for the payments team. Designed and shipped a real-time monitoring dashboard used by 200+ engineers daily.',
+      'Built a reporting system for AB Bank on top of CHEQUEPOINT that cut user-side paperwork by 70%. Automated file generation into NCBA’s core banking system and replaced manual reconciliation with a balance-checking web service.',
   },
   {
-    role: 'Junior Developer',
-    period: '2018 — 2019',
-    company: 'Freelance',
+    role: 'Full-Stack Engineer',
+    period: 'Feb 2017 — Mar 2018',
+    company: 'Fintech International · Kampala',
     description:
-      'Built web applications for startups and small businesses. Focused on React, Node.js, and PostgreSQL.',
+      'Connected local banks to the central bank through CHEQUEPOINT. Migrated a legacy banking system to MSSQL and ASP.NET, reducing user-facing errors by 85%.',
   },
 ]
 
 /** Design: "Skills Section" → Skills Grid, four cards. */
 const SKILLS = [
-  { Icon: Code2, title: 'Languages', items: ['Rust', 'TypeScript', 'Go', 'Python'] },
-  { Icon: Layout, title: 'Frontend', items: ['React', 'Next.js', 'Svelte', 'Tailwind'] },
-  { Icon: Server, title: 'Backend', items: ['Node.js', 'PostgreSQL', 'Redis', 'Kafka'] },
+  { Icon: Code2, title: 'Languages', items: ['C#', 'TypeScript', 'JavaScript', 'SQL'] },
+  {
+    Icon: Server,
+    title: 'Backend',
+    items: ['.NET / ASP.NET Core', 'NestJS', 'Node.js', 'Entity Framework Core'],
+  },
+  { Icon: Layout, title: 'Frontend', items: ['React', 'Vue', 'Next.js', 'Tailwind'] },
   {
     Icon: Container,
-    title: 'DevOps',
-    items: ['Docker', 'Kubernetes', 'Terraform', 'GitHub Actions'],
+    title: 'Data & Infra',
+    items: ['SQL Server · PostgreSQL', 'MongoDB · RabbitMQ', 'Docker · Kubernetes', 'AWS · Cloudflare'],
   },
 ]
 
-/** Design: "Beyond Code" → Beyond Right, four cards. */
+/**
+ * Design: "Beyond Code" → Beyond Right, four cards.
+ *
+ * The design fills these with hobbies. They carry education, languages, an
+ * award and current focus instead — the same card layout, but facts rather
+ * than invented personal detail on a page that carries a real name and face.
+ */
 const INTERESTS = [
   {
-    Icon: Mountain,
-    title: 'Trail Running',
-    description: '50K ultramarathon finisher. I think best when moving.',
-  },
-  {
-    Icon: BookOpen,
-    title: 'Reading',
+    Icon: GraduationCap,
+    title: 'Education',
     description:
-      'Science fiction and systems thinking. Currently reading Designing Data-Intensive Applications.',
+      'BSc in Information Technology, Sikkim Manipal University (Kampala), 2013–2017. Graduated in the top 10% of my class.',
   },
   {
-    Icon: Camera,
-    title: 'Photography',
-    description: 'Street photography on film. Shooting on a Leica M6 with Portra 400.',
+    Icon: Trophy,
+    title: 'Facebook Developer Challenge, 2018',
+    description:
+      'Built JusticeBot — a chatbot that explains legal procedures in plain language and connects people to legal services for free.',
   },
   {
-    Icon: Music,
-    title: 'Music',
-    description: 'Amateur jazz pianist. Practicing standards and exploring improvisation.',
+    Icon: Languages,
+    title: 'Languages',
+    description: 'Swahili and French natively, English at C2.',
+  },
+  {
+    Icon: Boxes,
+    title: 'Currently',
+    description:
+      'Microservices in .NET with RabbitMQ, Docker and Kubernetes — most recently an auction platform built to practise the patterns end to end.',
   },
 ]
 
@@ -153,18 +165,19 @@ export default async function AboutPage() {
 
           <div className="flex flex-1 flex-col gap-6">
             <h2 className="font-display text-[28px] leading-[1.3] font-bold text-text-primary">
-              I build tools that make developers&apos; lives easier.
+              I build the systems institutions run on.
             </h2>
             <p className="text-[15px] leading-[1.7] text-text-secondary">
-              I&apos;m Sudi David — a full-stack developer based in San Francisco with a deep
-              interest in developer experience, performance engineering, and open source. I&apos;ve
-              spent the last 8 years building products at the intersection of infrastructure and
-              developer tooling.
+              I&apos;m Sudi David — a full-stack engineer in Kigali. For eight years I&apos;ve
+              worked on software that other people&apos;s work depends on: banking bridges,
+              loan management, and now school administration. The kind of system where a bug is
+              somebody&apos;s afternoon, not just a failed request.
             </p>
             <p className="text-[15px] leading-[1.7] text-text-secondary">
-              Currently, I&apos;m focused on building Nexus CLI and contributing to the Rust
-              ecosystem. Previously, I helped scale infrastructure at Vercel and built internal
-              tooling at Stripe.
+              Currently at IST Africa, rebuilding a school management platform for Danish schools.
+              Before that I led a team at Altech Group on loan asset management, and spent two
+              years at Fintech International connecting local banks to central bank
+              infrastructure across Rwanda and Uganda.
             </p>
             <div className="flex flex-wrap items-center gap-4">
               <span className="inline-flex items-center gap-2 rounded-full bg-accent-dim px-3.5 py-2 font-mono text-xs font-medium text-accent">
@@ -172,7 +185,7 @@ export default async function AboutPage() {
               </span>
               <span className="inline-flex items-center gap-2 rounded-full border border-border px-3.5 py-2 text-xs text-text-secondary">
                 <MapPin size={14} className="text-text-tertiary" />
-                San Francisco, CA
+                {settings.location}
               </span>
             </div>
           </div>
@@ -250,11 +263,11 @@ export default async function AboutPage() {
         <section className={`flex flex-col gap-14 py-12 lg:flex-row ${PAGE_GUTTER}`}>
           <div className="flex flex-1 flex-col gap-6">
             <div className="flex flex-col gap-2">
-              <SectionHeading label="BEYOND CODE" title="When I'm Not Coding" />
+              <SectionHeading label="BEYOND CODE" title="The Rest of It" />
             </div>
             <p className="text-[15px] leading-[1.7] text-text-secondary">
-              I believe great software comes from well-rounded thinking. Outside of work, I explore
-              other creative and physical outlets that keep me energized and inspired.
+              Eight years of it, mostly in places where the software has to work the first time —
+              banks, lenders, schools. Here is the rest of the picture.
             </p>
           </div>
           <div className="flex flex-1 flex-col gap-4">
@@ -291,7 +304,7 @@ export default async function AboutPage() {
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <a
-              href="mailto:sudi@sudidavid.dev"
+              href={`mailto:${settings.email}`}
               className="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
             >
               <Mail size={16} />
