@@ -23,7 +23,7 @@ export type SiteSettings = {
 /** Used when the file is missing or unreadable, so the site still renders. */
 export const DEFAULT_SETTINGS: SiteSettings = {
   displayName: 'Sudi David',
-  avatar: '/images/generated-1784965046774.png',
+  avatar: '/images/sudi.jpeg',
   email: 'sudi@sudidavid.dev',
   bio: 'Full-stack engineer specializing in real-time systems, distributed architectures, and developer tooling.',
   location: 'San Francisco, CA',
