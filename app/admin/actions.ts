@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { isAdmin } from '@/auth'
 import {
   savePost,
+  createPost,
   createProject,
   saveProject,
   saveSettings,
@@ -44,6 +45,54 @@ export async function updatePost(slug: string, changes: PostDraft): Promise<Acti
   revalidatePath('/blog')
   revalidatePath(`/blog/${slug}`)
   return { ok: true }
+}
+
+export type NewPost = {
+  title: string
+  excerpt: string
+  body: string
+  category: string
+  status: 'Published' | 'Draft' | 'Archived'
+  cover: string
+}
+
+/** Create a post from the editor's "new" route. Returns the slug it minted. */
+export async function addPost(input: NewPost): Promise<ActionResult & { slug?: string }> {
+  await requireAdmin()
+
+  const title = input.title.trim()
+  if (!title) return { ok: false, error: 'A title is required' }
+
+  const slug = slugify(title)
+  if (!slug) return { ok: false, error: 'The title must contain letters or numbers' }
+  // `new` is the editor's own create route; a post with that slug would shadow it.
+  if (slug === 'new') return { ok: false, error: 'That title is reserved — pick another' }
+
+  const words = input.body.trim().split(/\s+/).filter(Boolean).length
+
+  try {
+    await createPost(
+      slug,
+      {
+        title,
+        excerpt: input.excerpt.trim(),
+        date: new Date().toISOString().slice(0, 10),
+        readingTime: `${Math.max(1, Math.round(words / 200))} min read`,
+        category: input.category,
+        cover: input.cover.trim() || '/images/sudi.jpeg',
+        featured: false,
+        status: input.status,
+        body: input.body,
+      },
+      `content: add post ${slug}`,
+    )
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : 'Could not create post' }
+  }
+
+  revalidatePath('/admin/posts')
+  revalidatePath('/blog')
+  return { ok: true, slug }
 }
 
 export async function setPostStatus(

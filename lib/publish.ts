@@ -164,6 +164,29 @@ async function saveLocally(slug: string, changes: PostDraft) {
   )
 }
 
+/**
+ * Create a post. Like `createProject`, it refuses to overwrite: a title that
+ * slugs to an existing post is an error, not a silent replacement.
+ */
+export async function createPost(slug: string, draft: PostDraft, message: string) {
+  const target = publishTarget()
+  if (target === 'disabled') throw new Error(NOT_CONFIGURED)
+
+  const path = `content/posts/${slug}.mdx`
+  const { body, ...frontmatter } = draft
+  const contents = serialise(frontmatter as Record<string, unknown>, body ?? '')
+
+  if (target === 'local') {
+    const absolute = join(process.cwd(), path)
+    if (await exists(absolute)) throw new Error(`A post with the slug "${slug}" already exists.`)
+    await writeFile(absolute, contents, 'utf8')
+    return
+  }
+
+  if (await currentSha(path)) throw new Error(`A post with the slug "${slug}" already exists.`)
+  await commitFile(path, contents, message)
+}
+
 export type ProjectDraft = Omit<Project, 'slug' | 'body'> & { body?: string }
 
 /** Turns a project name into a filename-safe slug. */
