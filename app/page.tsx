@@ -110,12 +110,18 @@ export default async function HomePage() {
         <div className="flex flex-col gap-12 px-4 md:px-6 lg:flex-row lg:px-12">
           {/* Sidebar — COLUMN, 260w, gap 28, right border */}
           <aside className="flex w-full shrink-0 flex-col gap-7 py-8 lg:w-[260px] lg:border-r lg:border-border lg:pr-8">
+            {/*
+              The design draws this at 80px. Enlarged deliberately — with a real
+              portrait rather than a placeholder, 80px was too small to read as
+              a face at a glance.
+            */}
             <Image
               src={settings.avatar}
               alt={settings.displayName}
-              width={80}
-              height={80}
-              className="size-20 rounded-full border border-border object-cover"
+              width={128}
+              height={128}
+              priority
+              className="size-32 rounded-full border border-border object-cover"
             />
 
             <div className="flex items-center gap-2">
