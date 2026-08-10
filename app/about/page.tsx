@@ -310,13 +310,15 @@ export default async function AboutPage() {
               <Mail size={16} />
               Get in Touch
             </a>
-            <a
+            {/* TODO: cal.com/sudidavid is the design's placeholder — swap in the
+                real booking URL, or drop this button. */}
+            <OutboundLink
               href="https://cal.com/sudidavid"
               className="inline-flex items-center gap-2 rounded-lg border border-border px-6 py-3 text-sm font-medium text-text-primary transition-colors hover:border-border-hover"
             >
               <Calendar size={16} />
               Schedule a Call
-            </a>
+            </OutboundLink>
           </div>
           <div className="flex items-center gap-5">
             {socials.map(({ kind, label, Icon }) => (
