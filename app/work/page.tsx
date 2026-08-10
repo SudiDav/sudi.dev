@@ -7,6 +7,7 @@ import { FilterBar } from '@/components/filter-bar'
 import { WorkProjectCard } from '@/components/work-project-card'
 import { PAGE_GUTTER } from '@/components/layout'
 import { getProjects } from '@/lib/content'
+import type { Project } from '@/lib/content.types'
 import { filterProjects, PROJECT_FILTERS } from '@/lib/filters'
 
 export const metadata: Metadata = {
@@ -15,14 +16,29 @@ export const metadata: Metadata = {
 }
 
 /**
- * Design: Work Page → "Stats". These are the design's own figures, not counts
- * derived from the content — the frame reads 12 / 8 / 3 against six cards.
+ * Design: Work Page → "Stats", drawn as 12 / 8 / 3 against six cards.
+ *
+ * Those were the design's own figures. They are counted from the content
+ * instead — a portfolio that overstates its own size is worse than one that is
+ * simply small, and a hardcoded number goes stale the first time a project is
+ * added through the admin.
+ *
+ * "Years" replaces the design's "Open Source": most of this work is proprietary
+ * client software, so an open-source count would read as zero and mean nothing.
  */
-const STATS = [
-  { Icon: FolderCode, number: '12', label: 'Projects' },
-  { Icon: GitFork, number: '8', label: 'Open Source' },
-  { Icon: Activity, number: '3', label: 'Active' },
-]
+const CAREER_START = 2017
+
+function buildStats(projects: Project[], currentYear: number) {
+  return [
+    { Icon: FolderCode, number: String(projects.length), label: 'Projects' },
+    { Icon: Activity, number: `${currentYear - CAREER_START}+`, label: 'Years' },
+    {
+      Icon: GitFork,
+      number: String(new Set(projects.map((p) => p.category)).size),
+      label: 'Domains',
+    },
+  ]
+}
 
 export default async function WorkPage({
   searchParams,
@@ -34,7 +50,12 @@ export default async function WorkPage({
     ? (category as string)
     : 'All'
 
-  const projects = filterProjects(await getProjects(), active)
+  const allProjects = await getProjects()
+  const projects = filterProjects(allProjects, active)
+
+  // The stat row describes the whole portfolio, so it counts every project
+  // rather than the filtered view.
+  const stats = buildStats(allProjects, new Date().getFullYear())
 
   return (
     <div className="flex min-h-screen flex-col bg-bg-primary">
@@ -48,7 +69,7 @@ export default async function WorkPage({
         >
           {/* Stats — ROW, padding-top 20, 1px dividers between each */}
           <div className="flex flex-wrap items-center pt-5">
-            {STATS.map(({ Icon, number, label }, index) => (
+            {stats.map(({ Icon, number, label }, index) => (
               <div key={label} className="flex items-center">
                 {index > 0 ? <span className="h-12 w-px bg-border" aria-hidden /> : null}
                 <div className="flex flex-col items-center gap-2 px-7">

@@ -1,0 +1,25 @@
+---
+title: Chequepoint — Inter-Bank Payments
+year: "2019"
+shortDescription: Interbank cheque clearing and payments, now running in 60+ banks across eight countries.
+description: Fintech Group's interbank payment and cheque clearing system — connecting commercial banks to central bank infrastructure, with reporting and reconciliation built on top.
+tech: [ASP.NET, C#, MSSQL, Web Services]
+category: Fintech
+cover: /images/generated-1784965529350.png
+links:
+  live: https://fintech-group.com/cheque-clearing-system/
+---
+
+Chequepoint is Fintech Group's interbank payment and cheque clearing system — the layer that sits between commercial banks and the central bank and clears transactions between them. It now runs in more than 60 banks across Kenya, Uganda, Tanzania, Ethiopia, Malawi, Rwanda, Mauritius and Liberia. I worked on it for two years, first in Kampala and then in Kigali.
+
+Cheque clearing is one of those processes that looks archaic until you count what still runs on it. The system's job is to take work that was manual, slow and quietly vulnerable to fraud, and make it none of those things.
+
+**Connecting banks to the central bank.** The core of the work in Uganda was integration: bringing individual banks onto Chequepoint so their transactions could clear through central bank infrastructure. Each bank arrives with its own core banking system and its own idea of what a file should look like.
+
+**Migrating the legacy system.** The older stack was rebuilt onto MSSQL with ASP.NET and web services. User-facing errors dropped by around 85% — most of which came from removing the failure modes of the thing it replaced rather than from anything clever in the rewrite.
+
+**Reporting for AB Bank.** A reporting layer on top of Chequepoint that cut paperwork on the user's side by roughly 70%. The measure of it was not the feature list; it was how much less printing and re-keying the bank staff had to do.
+
+**Automation at NCBA.** File generation from Chequepoint into the core banking system, and a web service that checked account balances directly rather than having someone reconcile by hand.
+
+The theme across all of it: in banking the interesting problems are rarely the transactions. They are the seams between systems that each assume they are the system of record.

@@ -5,9 +5,9 @@ import type { Post, Project } from './content.types'
 const project = (slug: string, category: string) => ({ slug, category }) as Project
 
 const projects = [
-  project('nexus-cli', 'CLI Tools'),
-  project('syncboard', 'Web Apps'),
-  project('reacton', 'Libraries'),
+  project('chequepoint', 'Fintech'),
+  project('altech-paygo', 'Platforms'),
+  project('auction-car', 'Side Projects'),
 ]
 
 describe('filterProjects', () => {
@@ -16,7 +16,7 @@ describe('filterProjects', () => {
   })
 
   it('filters to a single category', () => {
-    expect(filterProjects(projects, 'Web Apps').map((p) => p.slug)).toEqual(['syncboard'])
+    expect(filterProjects(projects, 'Platforms').map((p) => p.slug)).toEqual(['altech-paygo'])
   })
 
   it('returns nothing for a category no project uses', () => {

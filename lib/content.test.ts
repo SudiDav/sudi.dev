@@ -60,7 +60,7 @@ describe('getProjects', () => {
   })
 
   it('parses tech as an array', async () => {
-    const project = await getProject('nexus-cli')
-    expect(project?.tech).toEqual(['Rust', 'CLI', 'WASM'])
+    const project = await getProject('auction-car')
+    expect(project?.tech).toEqual(['.NET', 'RabbitMQ', 'Docker', 'Kubernetes'])
   })
 })

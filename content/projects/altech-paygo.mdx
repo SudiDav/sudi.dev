@@ -1,0 +1,25 @@
+---
+title: Altech PAYGO Loan & Asset Management
+year: "2023"
+shortDescription: Loan and asset management for pay-as-you-go solar across 22 provinces of the DRC.
+description: The system Altech Group's solar distribution runs on — loan origination and approval, asset tracking, and the third-party integrations that connect field sales to finance.
+tech: [.NET, C#, SQL Server, Vue]
+category: Platforms
+cover: /images/generated-1784965527908.png
+links:
+  live: https://altech-rdc.com
+---
+
+Altech Group distributes solar home systems, lamps and clean cookstoves across the DRC, where around 90% of people have no grid electricity. Customers buy on installments through a pay-as-you-go model, which means the business is not really a retailer — it is a lender with a hardware problem.
+
+I led a team of four building the loan asset management system behind that, and it is live.
+
+The hard part was never the loan maths. It was that a sale starts with one of thousands of Solar Ambassadors somewhere across 22 provinces, and has to end up reconciled in the finance team's books. Between those two points sit the device, the customer, the repayment schedule, and several systems that were never designed to talk to each other.
+
+So most of the work was integration:
+
+- **Spark Energy and Omnivoltaic** for the devices themselves, tying hardware to the account paying it off
+- **Telerivet** for the messaging that reaches customers who are not going to log into a portal
+- **Xero** for the accounting, which removed a standing pile of manual work from the finance team
+
+That last one is the change I would point at. Reconciliation had been someone's recurring job. After the integration it was mostly the system's job, and the finance team got that time back.

@@ -1,7 +1,9 @@
 import type { Post, Project } from './content.types'
 
 /** Design: Work Page → "Filters". `All` is the no-filter option. */
-export const PROJECT_FILTERS = ['All', 'Web Apps', 'CLI Tools', 'Libraries', 'Open Source'] as const
+// The design's categories (CLI Tools, Libraries) describe a tooling portfolio.
+// These describe the actual work: fintech, operational platforms, side projects.
+export const PROJECT_FILTERS = ['All', 'Fintech', 'Platforms', 'Side Projects'] as const
 
 /** Design: Blog Page → "Category Filters". */
 export const POST_FILTERS = ['All', 'Development', 'DevOps', 'Architecture', 'Open Source'] as const
