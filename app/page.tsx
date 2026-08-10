@@ -7,6 +7,7 @@ import {
   LinkedinIcon,
   InstagramIcon,
 } from '@/components/brand-icons'
+import { OutboundLink } from '@/components/outbound-link'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import { ProjectCard } from '@/components/project-card'
@@ -146,14 +147,14 @@ export default async function HomePage() {
 
             <div className="flex gap-4">
               {socials.map(({ kind, label, Icon }) => (
-                <Link
+                <OutboundLink
                   key={label}
                   href={socialUrl(kind, settings.social[kind] ?? '')}
                   aria-label={label}
                   className="flex size-9 items-center justify-center rounded-lg border border-border bg-bg-card text-text-secondary transition-colors hover:border-border-hover hover:text-text-primary"
                 >
                   <Icon size={16} />
-                </Link>
+                </OutboundLink>
               ))}
             </div>
           </aside>

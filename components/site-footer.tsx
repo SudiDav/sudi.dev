@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { GithubIcon, TwitterIcon, LinkedinIcon, InstagramIcon } from './brand-icons'
 import { getSettings, socialUrl } from '@/lib/site'
+import { OutboundLink, isExternal } from './outbound-link'
 
 const LINKS = [
   { href: '/rss.xml', label: 'RSS' },
@@ -31,25 +32,30 @@ export async function SiteFooter() {
           © 2026 sudi.dev — Built with caffeine &amp; curiosity
         </p>
         <div className="flex items-center gap-6">
-          {[...LINKS, { href: socialUrl('github', settings.social.github), label: 'Source' }].map((link) => (
-            <Link
-              key={link.label}
-              href={link.href}
-              className="text-[13px] text-text-secondary transition-colors hover:text-text-primary"
-            >
-              {link.label}
-            </Link>
-          ))}
+          {[...LINKS, { href: socialUrl('github', settings.social.github), label: 'Source' }].map(
+            (link) => {
+              const Component = isExternal(link.href) ? OutboundLink : Link
+              return (
+                <Component
+                  key={link.label}
+                  href={link.href}
+                  className="text-[13px] text-text-secondary transition-colors hover:text-text-primary"
+                >
+                  {link.label}
+                </Component>
+              )
+            },
+          )}
           <div className="flex items-center gap-4">
             {socials.map(({ kind, label, Icon }) => (
-              <Link
+              <OutboundLink
                 key={label}
                 href={socialUrl(kind, settings.social[kind] ?? '')}
                 aria-label={label}
                 className="text-text-tertiary transition-colors hover:text-text-primary"
               >
                 <Icon size={16} />
-              </Link>
+              </OutboundLink>
             ))}
           </div>
         </div>

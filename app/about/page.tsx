@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
-import Link from 'next/link'
 import {
   MapPin,
   GraduationCap,
@@ -14,6 +13,7 @@ import {
   Server,
   Container,
 } from 'lucide-react'
+import { OutboundLink } from '@/components/outbound-link'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import { PageIntro } from '@/components/page-intro'
@@ -320,14 +320,14 @@ export default async function AboutPage() {
           </div>
           <div className="flex items-center gap-5">
             {socials.map(({ kind, label, Icon }) => (
-              <Link
+              <OutboundLink
                 key={label}
                 href={socialUrl(kind, settings.social[kind] ?? '')}
                 aria-label={label}
                 className="flex size-10 items-center justify-center rounded-lg border border-border bg-bg-card text-text-secondary transition-colors hover:border-border-hover hover:text-text-primary"
               >
                 <Icon size={16} />
-              </Link>
+              </OutboundLink>
             ))}
           </div>
         </section>

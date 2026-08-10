@@ -1,7 +1,7 @@
 import Image from 'next/image'
-import Link from 'next/link'
 import { ArrowUpRight, ExternalLink } from 'lucide-react'
 import { GithubIcon } from './brand-icons'
+import { OutboundLink } from './outbound-link'
 import { TechBadge } from './tech-badge'
 import type { Project } from '@/lib/content.types'
 
@@ -48,22 +48,22 @@ export function WorkProjectCard({ project }: { project: Project }) {
 
         <div className="flex flex-wrap gap-3">
           {project.links.github ? (
-            <Link
+            <OutboundLink
               href={project.links.github}
               className="inline-flex items-center gap-1.5 rounded-md border border-border px-3.5 py-2 text-xs font-medium text-text-secondary transition-colors hover:border-border-hover hover:text-text-primary"
             >
               <GithubIcon size={14} />
               Source
-            </Link>
+            </OutboundLink>
           ) : null}
           {project.links.live ? (
-            <Link
+            <OutboundLink
               href={project.links.live}
               className="inline-flex items-center gap-1.5 rounded-md border border-border px-3.5 py-2 text-xs font-medium text-text-secondary transition-colors hover:border-border-hover hover:text-text-primary"
             >
               <ExternalLink size={14} />
               Live Demo
-            </Link>
+            </OutboundLink>
           ) : null}
         </div>
       </div>
