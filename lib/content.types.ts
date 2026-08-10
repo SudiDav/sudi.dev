@@ -4,12 +4,15 @@ export type Post = {
   excerpt: string
   date: string // ISO 8601, e.g. "2026-07-15"
   readingTime: string // as displayed, e.g. "12 min read"
-  // Title Case, matching the Blog page's filter pills:
-  // "Development" | "DevOps" | "Architecture" | "Open Source".
+  // Matching the Blog page's filter pills: ".NET" | "DevOps" | "Craft".
   // The FeaturedBlogCard badge uppercases this in CSS — do not store it uppercased,
   // or category filtering silently matches nothing.
   category: string
   cover: string // path under /public
+  // Where the post was first published. These were migrated from the Hashnode
+  // blog at sudi.dev, and the original URLs still resolve — pointing search
+  // engines at one canonical copy avoids the two competing for the same terms.
+  canonical?: string
   featured: boolean
   // Editorial state, surfaced in the admin. Absent means Published, so existing
   // content needs no migration.

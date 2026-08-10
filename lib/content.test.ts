@@ -28,15 +28,16 @@ describe('getPosts', () => {
 
   it('parses frontmatter into every field', async () => {
     const post = (await getPosts()).find((p) => p.featured)!
-    expect(post.title).toBe('Building a Real-Time Collaboration Engine from Scratch')
-    expect(post.readingTime).toBe('12 min read')
+    expect(post.title).toBe('Observability 101: Stop Debugging in the Dark')
+    expect(post.readingTime).toBe('6 min read')
+    expect(post.canonical).toBe('https://sudi.dev/observability-101-stop-debugging-in-the-dark')
     expect(post.body.length).toBeGreaterThan(0)
   })
 })
 
 describe('getPost', () => {
   it('resolves a known slug', async () => {
-    const post = await getPost('building-a-real-time-collaboration-engine-from-scratch')
+    const post = await getPost('observability-101-stop-debugging-in-the-dark')
     expect(post?.featured).toBe(true)
   })
 

@@ -5,8 +5,14 @@ import type { Post, Project } from './content.types'
 // These describe the actual work: fintech, operational platforms, side projects.
 export const PROJECT_FILTERS = ['All', 'Fintech', 'Platforms', 'Side Projects'] as const
 
-/** Design: Blog Page → "Category Filters". */
-export const POST_FILTERS = ['All', 'Development', 'DevOps', 'Architecture', 'Open Source'] as const
+/**
+ * Design: Blog Page → "Category Filters".
+ *
+ * Renamed to match what the posts are actually about — .NET tutorials, an
+ * observability piece, and two on how the work gets done. The design's
+ * "Architecture" and "Open Source" pills had nothing behind them.
+ */
+export const POST_FILTERS = ['All', '.NET', 'DevOps', 'Craft'] as const
 
 export function filterProjects(projects: Project[], category: string): Project[] {
   if (category === 'All') return projects

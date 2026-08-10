@@ -5,13 +5,14 @@ import { notFound } from 'next/navigation'
 import { ArrowRight, Copy, AtSign } from 'lucide-react'
 import { GithubIcon } from '@/components/brand-icons'
 import { MDXRemote } from 'next-mdx-remote/rsc'
+import { isExternal, OutboundLink } from '@/components/outbound-link'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import { ArticleItem } from '@/components/article-item'
 import { ArticleComments } from '@/components/article-comments'
 import { TechBadge } from '@/components/tech-badge'
 import { getPost, getPosts } from '@/lib/content'
-import { getSettings } from '@/lib/site'
+import { getSettings, socialUrl } from '@/lib/site'
 import { formatPostDate } from '@/lib/format'
 
 export async function generateStaticParams() {
@@ -25,7 +26,13 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const post = await getPost((await params).slug)
   if (!post) return {}
-  return { title: `${post.title} | Sudi David`, description: post.excerpt }
+  return {
+    title: `${post.title} | Sudi David`,
+    description: post.excerpt,
+    // These posts still exist at their original Hashnode URLs. Without this,
+    // the two copies compete for the same search terms and neither wins.
+    ...(post.canonical ? { alternates: { canonical: post.canonical } } : {}),
+  }
 }
 
 /**
@@ -52,8 +59,15 @@ const mdxComponents = {
   ul: (props: React.ComponentProps<'ul'>) => (
     <ul className="list-disc pl-6 text-[17px] leading-[1.8] text-text-secondary" {...props} />
   ),
-  a: (props: React.ComponentProps<'a'>) => (
-    <a className="text-accent underline underline-offset-2" {...props} />
+  a: ({ href = '', ...props }: React.ComponentProps<'a'>) => (
+    // Migrated posts link out to docs and downloads; those should not replace
+    // the article the reader is in the middle of.
+    <a
+      href={href}
+      className="text-accent underline underline-offset-2"
+      {...(isExternal(href) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+      {...props}
+    />
   ),
   pre: ({ children }: React.ComponentProps<'pre'>) => {
     // Design: "Code Block" — padding 24, gap 2, a header row carrying the
@@ -205,25 +219,22 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
               <span className="text-sm font-semibold text-text-primary">
                 {settings.displayName}
               </span>
-              <p className="text-sm leading-[1.6] text-text-secondary">
-                Full-stack engineer specializing in real-time systems, distributed architectures,
-                and developer tooling. Currently building the future of collaborative software.
-              </p>
+              <p className="text-sm leading-[1.6] text-text-secondary">{settings.bio}</p>
               <div className="flex flex-wrap items-center gap-5">
-                <a
-                  href="https://twitter.com/sudidavid"
+                <OutboundLink
+                  href={socialUrl('twitter', settings.social.twitter)}
                   className="inline-flex items-center gap-1.5 font-mono text-xs text-accent hover:underline"
                 >
                   <AtSign size={14} />
-                  @sudidavid
-                </a>
-                <a
-                  href="https://github.com/sudidavid"
+                  {settings.social.twitter}
+                </OutboundLink>
+                <OutboundLink
+                  href={socialUrl('github', settings.social.github)}
                   className="inline-flex items-center gap-1.5 font-mono text-xs text-accent hover:underline"
                 >
                   <GithubIcon size={14} />
-                  github.com/sudidavid
-                </a>
+                  {settings.social.github}
+                </OutboundLink>
               </div>
             </div>
           </div>

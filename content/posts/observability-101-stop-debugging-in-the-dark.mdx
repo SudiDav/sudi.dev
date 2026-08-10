@@ -1,0 +1,140 @@
+---
+title: "Observability 101: Stop Debugging in the Dark"
+excerpt: "What observability actually means, and how traces, metrics and logs fit together. Part one of two — the concepts before the instrumentation."
+date: "2026-05-12"
+readingTime: 6 min read
+category: DevOps
+cover: /images/blog/055ce402f7b6.png
+featured: true
+tags: ["OpenTelemetry", "Observability", "Tracing"]
+canonical: https://sudi.dev/observability-101-stop-debugging-in-the-dark
+---
+> This is Part 1 of a two-part series on observability. Here, we build the conceptual foundation. In Part 2, we'll instrument a real .NET stack with OpenTelemetry, Docker, and Grafana.
+
+------------------------------------------------------------------------
+
+## The Problem with Invisible Systems
+
+Picture a logistics company at rush hour. Packages are flying between warehouses, trucks are crisscrossing the city, and customers are waiting. But there's one thing missing: nobody knows where anything is. No tracking numbers, no scan points, no delivery confirmations. When a customer calls asking why their package is late, you can only shrug and guess.
+
+Most software systems operate exactly this way.
+
+Every time a user clicks a button, a request is born. It travels through APIs, hops between services, queries databases, calls external systems, and eventually produces a response. The user sees the result. But what happened along the way? Where did it slow down? Which service hiccupped?
+
+Without observability, you're running a logistics network blind.
+
+------------------------------------------------------------------------
+
+## Debugging in the Dark
+
+When that customer calls -- "My package is late" -- this is what your day looks like. You phone the warehouse. You radio the driver. You try to reconstruct a journey you never recorded. Maybe you find the problem. Maybe you don't. Mostly, you guess.
+
+This is precisely what debugging looks like without observability. You grep through logs. You restart services. You form hypotheses with no data to test them against. Sometimes you get lucky. Often, you're wrong.
+
+The cost isn't just time. It's the erosion of confidence -- in your system, in your team, in your ability to fix things before users notice.
+
+------------------------------------------------------------------------
+
+## What Observability Actually Means
+
+Now imagine the opposite. Every package carries a tracking ID. Every movement leaves a record. Every delay is logged with a reason.
+
+You open a dashboard and see the full picture: where the package is, where it slowed down, and what caused the delay. Not yesterday's data. Not a sample. The actual truth, right now.
+
+That is observability.
+
+Not monitoring -- which tells you that something broke. Not logging -- which gives you fragments after the fact. Observability is the ability to understand your system's internal state by examining its outputs. It's the difference between "the site is slow" and "Service X took 400ms on this exact trace because the database connection pool was exhausted at 14:32:07."
+
+------------------------------------------------------------------------
+
+## The Infrastructure of Visibility
+
+Observability doesn't emerge naturally. It requires a deliberate system -- a shared language for describing behavior, and a pipeline for collecting and connecting the signals your system emits.
+
+This is where OpenTelemetry comes in.
+
+Think of it as the global standard that every factory, warehouse, and truck in your logistics network agrees to follow. Every package gets labeled the same way. Every movement gets recorded. Every step becomes traceable.
+
+Without this standard, each service speaks its own dialect. Traces break at service boundaries. Metrics use different dimensions. You end up with isolated fragments that don't tell a coherent story.
+
+With it, the entire journey becomes reconstructible.
+
+------------------------------------------------------------------------
+
+## Inside the Factory: The SDKs
+
+Inside each factory -- your actual services -- workers handle the ground-level work. They label packages as they arrive, record timestamps at each stage, and pass tracking information forward so the next worker can continue the chain.
+
+These workers are the OpenTelemetry SDKs. They operate silently, embedded in your code, doing their job without demanding attention. But without them, there is no tracking. No visibility. No way to follow a request from its first line of code to its last.
+
+------------------------------------------------------------------------
+
+## The Central Hub: The Collector
+
+In a large logistics network, you don't send every package's tracking data directly to its final destination. You route it through a central hub that receives, sorts, and forwards information efficiently.
+
+That's the OpenTelemetry Collector. It receives telemetry from all your services, processes it, enriches it, and routes it to the right backends. It doesn't create the data -- your application does that. But it makes a large-scale observability system actually manageable.
+
+------------------------------------------------------------------------
+
+## Where the Data Lives
+
+Different questions require different tools. Here's how the data flows:
+
+- Jaeger shows you the journey -- the complete path of a request through every service it touched.
+
+- Prometheus shows you the patterns -- traffic volume, error rates, latency trends over time.
+
+- Loki stores the details -- the raw events, error messages, and contextual logs.
+
+Used together, they answer every question you care about. Where did it go? How is the system behaving? What exactly happened at that moment?
+
+------------------------------------------------------------------------
+
+## Three Lenses on One System
+
+Every observable system tells its story through three signal types. Understanding the distinction is crucial.
+
+### Traces - The Journey
+
+"Where did this request go, and how long did each step take?"
+
+Traces capture causality. They show not just that Service A called Service B, but when, for how long, and whether that call triggered a cascade of downstream work. When you're hunting a latency spike or a partial failure, traces are your map.
+
+### Metrics - The Big Picture
+
+"How is the system behaving overall?"
+
+Metrics are your aggregates. Request rates, error percentages, percentile latencies, resource utilization. They excel at revealing trends, capacity limits, and the health of your system over time. Alerts fire on metrics. Dashboards are built from metrics.
+
+### Logs - The Details
+
+"What happened at this exact moment?"
+
+Logs are your narrative. They capture discrete events -- an error thrown, a user action, a state transition. When a trace tells you where the problem is and a metric tells you when it started, the log tells you why.
+
+These three signals aren't competing. They're complementary. The best observability strategies use all three, correlated and queryable together.
+
+------------------------------------------------------------------------
+
+## From Guessing to Knowing
+
+Let's come back to that late package.
+
+Without observability, you guess. You search blindly through log files. You waste hours reconstructing a timeline that should have been captured automatically.
+
+With observability, you see the route. You identify the exact service where time was lost. You find the root cause -- a slow database query, a timeout, a cascading failure -- and you fix it. Instantly.
+
+The difference isn't just speed. It's the shift from reactive firefighting to informed understanding. You stop treating symptoms and start diagnosing diseases.
+
+------------------------------------------------------------------------
+
+## The Bottom Line
+
+> A system you cannot see is a system you cannot control.
+
+Observability gives you sight. OpenTelemetry gives you the structure to make that sight possible at scale. Together, they transform how you build, debug, and improve software.
+
+In Part 2, we'll move from concept to implementation: instrumenting a .NET application, running the OpenTelemetry Collector in Docker, and wiring up Jaeger, Prometheus, Loki, and Grafana into a production-ready observability stack.
+
+------------------------------------------------------------------------
