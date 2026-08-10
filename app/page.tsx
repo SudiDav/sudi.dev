@@ -118,10 +118,10 @@ export default async function HomePage() {
             <Image
               src={settings.avatar}
               alt={settings.displayName}
-              width={128}
-              height={128}
+              width={192}
+              height={192}
               priority
-              className="size-32 rounded-full border border-border object-cover"
+              className="size-48 rounded-full border border-border object-cover"
             />
 
             <div className="flex items-center gap-2">
