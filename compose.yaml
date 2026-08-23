@@ -23,8 +23,8 @@ services:
     # Runtime secrets, read from .env on the host — never baked into the image.
     environment:
       AUTH_SECRET: ${AUTH_SECRET}
-      AUTH_GOOGLE_ID: ${AUTH_GOOGLE_ID}
-      AUTH_GOOGLE_SECRET: ${AUTH_GOOGLE_SECRET}
+      AUTH_GITHUB_ID: ${AUTH_GITHUB_ID}
+      AUTH_GITHUB_SECRET: ${AUTH_GITHUB_SECRET}
       AUTH_URL: ${AUTH_URL:-https://sudi.dev}
       ADMIN_EMAIL: ${ADMIN_EMAIL}
       GITHUB_TOKEN: ${GITHUB_TOKEN}

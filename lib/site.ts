@@ -25,8 +25,8 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   displayName: 'Sudi David',
   avatar: '/images/sudi.jpeg',
   email: 'contact@sudi.dev',
-  bio: 'Full-stack engineer. Eight years building the systems institutions run on — banking, lending, and school administration across Rwanda, Uganda and the DRC.',
-  location: 'Kigali, Rwanda',
+  bio: 'Full-stack engineer building the systems institutions run on — banking, lending, agriculture and school administration across the DRC, Rwanda and Uganda.',
+  location: 'Lubumbashi, DRC',
   website: 'sudi.dev',
   social: {
     github: 'github.com/SudiDav',
@@ -36,7 +36,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   },
   seo: {
     title: 'Sudi David — Full-Stack Engineer',
-    description: 'Full-stack engineer in Kigali building the systems institutions run on — banking, lending and school administration.',
+    description: 'Full-stack engineer in Lubumbashi building the systems institutions run on — banking, lending, agriculture and school administration.',
   },
 }
 

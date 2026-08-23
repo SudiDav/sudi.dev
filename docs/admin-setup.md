@@ -1,6 +1,6 @@
 # Admin setup
 
-The admin at `/admin` is gated by Google sign-in and restricted to a single
+The admin at `/admin` is gated by GitHub sign-in and restricted to a single
 email address. Publishing commits MDX back to this repository, which triggers a
 redeploy.
 
@@ -8,9 +8,9 @@ Two things must be configured. Neither can be done for you — both involve
 credentials that should only ever live in your `.env.local` (or your host's
 environment settings), never in the repo.
 
-## 1. Google sign-in
+## 1. GitHub sign-in
 
-1. Go to [Google Cloud Console](https://console.cloud.google.com/) → create or
+1. Go to GitHub → Settings → Developer settings → OAuth Apps → New OAuth App.
    pick a project.
 2. **APIs & Services → OAuth consent screen** → choose **External**, fill in the
    app name and your email. You can leave it in *Testing* mode — add your own
@@ -19,18 +19,18 @@ environment settings), never in the repo.
 3. **APIs & Services → Credentials → Create credentials → OAuth client ID**
    - Application type: **Web application**
    - Authorised redirect URIs:
-     - `http://localhost:3000/api/auth/callback/google`
-     - `https://YOUR-DOMAIN/api/auth/callback/google` (once deployed)
+     - `http://localhost:3000/api/auth/callback/github`
+     - `https://YOUR-DOMAIN/api/auth/callback/github` (once deployed)
 4. Copy the Client ID and Client Secret into `.env.local`:
 
 ```
 ADMIN_EMAIL=sudimayenge@gmail.com
-AUTH_GOOGLE_ID=...apps.googleusercontent.com
-AUTH_GOOGLE_SECRET=...
+AUTH_GITHUB_ID=...
+AUTH_GITHUB_SECRET=...
 AUTH_SECRET=            # openssl rand -base64 32
 ```
 
-`ADMIN_EMAIL` is the whole authorisation model: any other Google account that
+`ADMIN_EMAIL` is the whole authorisation model: any other GitHub account that
 completes sign-in is rejected before a session is issued, and the address is
 re-checked on every request.
 
@@ -54,7 +54,7 @@ disabled, and it says so rather than failing at the API call.
 ## Working locally without any credentials
 
 `.env.local` sets `AUTH_DEV_BYPASS=true`, which adds a **Continue without
-Google (dev)** button to the sign-in page. It is gated on two conditions that
+GitHub (dev)** button to the sign-in page. It is gated on two conditions that
 must BOTH hold: `NODE_ENV` is not production, and the flag is exactly `"true"`.
 `next build` sets `NODE_ENV=production`, so in a deployed build the provider is
 not merely hidden — it is never registered and there is no route to reach it.

@@ -27,17 +27,24 @@ import { getSettings, socialUrl } from '@/lib/site'
 
 export const metadata: Metadata = {
   title: 'About | Sudi David',
-  description: 'Full-stack engineer in Kigali building school management and fintech systems.',
+  description: 'Full-stack engineer in Lubumbashi building banking, lending, agriculture and school systems.',
 }
 
 /** Design: "Experience Section" → Timeline. Newest first. */
 const TIMELINE = [
   {
-    role: 'Full-Stack Engineer',
-    period: 'Feb 2024 — Present',
-    company: 'IST Africa · Kigali (Remote)',
+    role: 'Consultant & Entrepreneur',
+    period: 'Apr 2026 — Present',
+    company: 'Almafrica · Lubumbashi',
     description:
-      'Leading the redevelopment of a school management system for Danish schools, starting with the Absence module. Working across distributed teams spanning several regions.',
+      'Building software for inclusive agricultural value chains — the systems that connect smallholder farmers to the buyers, financing and logistics further up the chain. Consulting alongside it.',
+  },
+  {
+    role: 'Full-Stack Engineer',
+    period: 'Feb 2024 — Apr 2026',
+    company: 'IST Africa · Remote',
+    description:
+      'Led the redevelopment of a school management system for Danish schools, starting with the Absence module. Worked across distributed teams spanning several regions.',
   },
   {
     role: 'Full-Stack Engineer',
@@ -107,7 +114,7 @@ const INTERESTS = [
     Icon: Boxes,
     title: 'Currently',
     description:
-      'Microservices in .NET with RabbitMQ, Docker and Kubernetes — most recently an auction platform built to practise the patterns end to end.',
+      'Building at Almafrica and consulting. Still writing microservices in my own time — most recently an auction platform, to work the patterns end to end rather than read about them.',
   },
 ]
 
@@ -167,16 +174,16 @@ export default async function AboutPage() {
               I build the systems institutions run on.
             </h2>
             <p className="text-[15px] leading-[1.7] text-text-secondary">
-              I&apos;m Sudi David — a full-stack engineer in Kigali. For eight years I&apos;ve
-              worked on software that other people&apos;s work depends on: banking bridges,
-              loan management, and now school administration. The kind of system where a bug is
-              somebody&apos;s afternoon, not just a failed request.
+              I&apos;m Sudi David — a full-stack engineer in Lubumbashi. I work on software
+              other people&apos;s work depends on: banking bridges, loan management, school
+              administration, and now agricultural value chains. The kind of system where a bug
+              is somebody&apos;s afternoon, not just a failed request.
             </p>
             <p className="text-[15px] leading-[1.7] text-text-secondary">
-              Currently at IST Africa, rebuilding a school management platform for Danish schools.
-              Before that I led a team at Altech Group on loan asset management, and spent two
-              years at Fintech International connecting local banks to central bank
-              infrastructure across Rwanda and Uganda.
+              Currently building at Almafrica, and consulting. Before that I rebuilt a school
+              management platform for Danish schools at IST Africa, led a team at Altech Group on
+              loan asset management, and connected local banks to central bank infrastructure at
+              Fintech International across Rwanda and Uganda.
             </p>
             <div className="flex flex-wrap items-center gap-4">
               <span className="inline-flex items-center gap-2 rounded-full bg-accent-dim px-3.5 py-2 font-mono text-xs font-medium text-accent">
@@ -265,8 +272,8 @@ export default async function AboutPage() {
               <SectionHeading label="BEYOND CODE" title="The Rest of It" />
             </div>
             <p className="text-[15px] leading-[1.7] text-text-secondary">
-              Eight years of it, mostly in places where the software has to work the first time —
-              banks, lenders, schools. Here is the rest of the picture.
+              Mostly in places where the software has to work the first time — banks, lenders,
+              schools. Here is the rest of the picture.
             </p>
           </div>
           <div className="flex flex-1 flex-col gap-4">

@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { signIn, isAdmin, isDevBypassEnabled } from '@/auth'
-import { LogIn, ShieldAlert } from 'lucide-react'
+import { ShieldAlert } from 'lucide-react'
+import { GithubIcon } from '@/components/brand-icons'
 
 export const metadata = {
   title: 'Sign in | Sudi David',
@@ -27,7 +28,7 @@ export default async function AdminSignInPage({
         <div className="flex flex-col gap-2">
           <h1 className="font-display text-2xl font-bold text-admin-text">Admin</h1>
           <p className="text-[13px] text-admin-text-secondary">
-            Sign in with the site owner&apos;s Google account to manage content.
+            Sign in with the site owner&apos;s GitHub account to manage content.
           </p>
         </div>
 
@@ -41,15 +42,15 @@ export default async function AdminSignInPage({
         <form
           action={async () => {
             'use server'
-            await signIn('google', { redirectTo: '/admin' })
+            await signIn('github', { redirectTo: '/admin' })
           }}
         >
           <button
             type="submit"
             className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
           >
-            <LogIn size={16} />
-            Continue with Google
+            <GithubIcon size={16} />
+            Continue with GitHub
           </button>
         </form>
 
@@ -65,7 +66,7 @@ export default async function AdminSignInPage({
               type="submit"
               className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-admin-border px-4 py-2.5 text-sm font-medium text-admin-text-secondary transition-colors hover:bg-admin-bg"
             >
-              Continue without Google (dev)
+              Continue without GitHub (dev)
             </button>
             <span className="text-[11px] text-admin-text-tertiary">
               Local development only. This provider is not registered in a production build.
