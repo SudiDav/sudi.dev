@@ -1,0 +1,67 @@
+name: CI
+
+# Runs on every PR, and on pushes to the long-lived branches. `develop` is
+# where work lands day to day; `main` is what Vercel deploys to production, so
+# nothing should reach it that has not passed here first.
+on:
+  pull_request:
+  push:
+    branches: [main, develop]
+
+# A newer push to the same branch makes the previous run irrelevant.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: typecheck · lint · test · build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Build
+        run: pnpm build
+        env:
+          # NEXT_PUBLIC_* values are inlined at build time. They are not secret
+          # — they identify a public repo and discussion category — so they live
+          # here rather than in Actions secrets, and the build exercises the
+          # same code path production does.
+          NEXT_PUBLIC_GISCUS_REPO: SudiDav/sudi.dev
+          NEXT_PUBLIC_GISCUS_REPO_ID: R_kgDOUBlxDQ
+          NEXT_PUBLIC_GISCUS_CATEGORY: Announcements
+          NEXT_PUBLIC_GISCUS_CATEGORY_ID: DIC_kwDOUBlxDc4DEBBp
+
+      # The outbound-link tests read the rendered HTML of every page, so they
+      # need something serving it. Without this they skip themselves and the
+      # rule they protect goes unchecked in CI.
+      - name: Start the built app
+        run: |
+          pnpm start &
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:3000 >/dev/null && exit 0
+            sleep 2
+          done
+          echo "server did not become ready" >&2
+          exit 1
+
+      - name: Test
+        run: pnpm test
