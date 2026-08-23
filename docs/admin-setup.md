@@ -44,7 +44,7 @@ Create a **fine-grained personal access token** at
 
 ```
 GITHUB_TOKEN=github_pat_...
-GITHUB_REPO=sudidavid/sudi.dev
+GITHUB_REPO=SudiDav/sudi.dev
 GITHUB_BRANCH=main
 ```
 

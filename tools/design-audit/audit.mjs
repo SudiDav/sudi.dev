@@ -1,3 +1,9 @@
+// Design-audit helper: dumps a rendered frame's text nodes and computed styles
+// so an implementation can be diffed against the design.
+//
+// Lives here rather than in public/ — these files were being served at
+// /_audit-*.json, which published the admin's internal layout to anyone who
+// guessed the URL and added 180KB of dead weight to every deploy.
 /**
  * Fidelity auditor — development tool, not part of the site.
  *
