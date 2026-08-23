@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
 import {
-  MapPin,
   GraduationCap,
   Trophy,
   Languages,
@@ -12,6 +11,7 @@ import {
   Server,
   Container,
 } from 'lucide-react'
+import { LocationBadge } from '@/components/location-badge'
 import { OutboundLink } from '@/components/outbound-link'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
@@ -171,28 +171,28 @@ export default async function AboutPage() {
 
           <div className="flex flex-1 flex-col gap-6">
             <h2 className="font-display text-[28px] leading-[1.3] font-bold text-text-primary">
-              I build the systems institutions run on.
+              Refusing the official explanation.
             </h2>
             <p className="text-[15px] leading-[1.7] text-text-secondary">
-              I&apos;m Sudi David — a full-stack engineer in Lubumbashi. I work on software
-              other people&apos;s work depends on: banking bridges, loan management, school
-              administration, and now agricultural value chains. The kind of system where a bug
-              is somebody&apos;s afternoon, not just a failed request.
+              Philosophy and conspiracy theories got there before software did. Both start from
+              the same refusal — that the surface account of how something works is the whole
+              account — and both go looking for the mechanism underneath. One of them taught me
+              to ask what would have to be true. The other taught me what happens when nobody
+              checks.
             </p>
             <p className="text-[15px] leading-[1.7] text-text-secondary">
-              Currently building at Almafrica, and consulting. Before that I rebuilt a school
-              management platform for Danish schools at IST Africa, led a team at Altech Group on
-              loan asset management, and connected local banks to central bank infrastructure at
-              Fintech International across Rwanda and Uganda.
+              Debugging is that instinct with a laboratory attached. The system insists it is
+              fine; the logs say otherwise; you get to find out who is right. I&apos;m Sudi
+              David, a full-stack engineer in Lubumbashi, and I do it on software other
+              people&apos;s work depends on — banking bridges, loan management, school
+              administration, agricultural value chains. The kind of system where a bug is
+              somebody&apos;s afternoon, not just a failed request.
             </p>
             <div className="flex flex-wrap items-center gap-4">
               <span className="inline-flex items-center gap-2 rounded-full bg-accent-dim px-3.5 py-2 font-mono text-xs font-medium text-accent">
                 Available for work
               </span>
-              <span className="inline-flex items-center gap-2 rounded-full border border-border px-3.5 py-2 text-xs text-text-secondary">
-                <MapPin size={14} className="text-text-tertiary" />
-                {settings.location}
-              </span>
+              <LocationBadge location={settings.location} />
             </div>
           </div>
         </section>

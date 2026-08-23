@@ -105,7 +105,13 @@ export default async function PrivacyPage() {
               <strong className="text-text-primary">The host</strong> keeps ordinary server logs —
               IP address, page requested, timestamp — as every web server does.
             </P>
-            <P>Nothing is sold, and nothing is shared beyond those two.</P>
+            <P>
+              <strong className="text-text-primary">OpenStreetMap and CARTO</strong> serve the map
+              tiles behind the location on the About page. Opening that map requests images from
+              CARTO&apos;s servers; nothing about you is sent beyond what any image request
+              carries, and the map is not loaded at all unless you ask for it.
+            </P>
+            <P>Nothing is sold, and nothing is shared beyond those.</P>
           </Section>
 
           <Section title="Having it removed">

@@ -83,8 +83,20 @@ export default async function HomePage() {
             Hi, I&apos;m Sudi David
           </h1>
 
-          <p className="text-lg leading-[1.4] text-text-secondary lg:text-xl">
-            Full-Stack Engineer — banking, lending &amp; school systems
+          {/*
+            The design puts a one-line job title here. It says nothing a hundred
+            other portfolios do not, so it carries an actual position instead —
+            the same shape as the frame, more words, one idea.
+          */}
+          <p className="max-w-[46ch] text-lg leading-[1.5] text-text-secondary lg:text-xl">
+            I&apos;m drawn to philosophy and conspiracy theories. Why admit that on a portfolio?
+            Because both begin where debugging begins —{' '}
+            <span className="text-text-primary">refusing the official explanation</span> — and only
+            one of them lets you run the experiment.
+          </p>
+
+          <p className="max-w-[46ch] text-[15px] leading-[1.6] text-text-tertiary">
+            I build the systems institutions run on: banking, lending, agriculture, schools.
           </p>
 
           <div className="flex flex-wrap items-center gap-4">
