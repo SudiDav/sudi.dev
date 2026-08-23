@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, FileText, FolderKanban, MessageCircle, Settings } from 'lucide-react'
+import { LayoutDashboard, FileText, FolderKanban, Settings } from 'lucide-react'
 
 /**
  * Design: Admin frames → "Sidebar" — COLUMN, 260 wide, padding [24,20],
@@ -19,7 +19,6 @@ const NAV = [
   { href: '/admin', label: 'Dashboard', Icon: LayoutDashboard },
   { href: '/admin/posts', label: 'Posts', Icon: FileText },
   { href: '/admin/projects', label: 'Projects', Icon: FolderKanban },
-  { href: '/admin/comments', label: 'Comments', Icon: MessageCircle },
   { href: '/admin/settings', label: 'Settings', Icon: Settings },
 ]
 

@@ -42,3 +42,9 @@ next-env.d.ts
 
 # superpowers
 .superpowers/
+
+# Personal data must never enter the repository — it is public so that GitHub
+# Discussions can back the comments. Subscribers live in the Resend audience;
+# comments live in Discussions.
+content/subscribers.json
+content/comments.json

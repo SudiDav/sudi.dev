@@ -30,16 +30,42 @@ async function send(subject: string, text: string): Promise<SendResult> {
   }
 }
 
-/** Tells you someone signed up, and how big the list is now. */
-export function notifyNewSubscriber(address: string, total: number) {
+/** Tells you someone signed up. */
+export function notifyNewSubscriber(address: string) {
   return send(
     `New subscriber: ${address}`,
     [
       `${address} just subscribed to the sudi.dev newsletter.`,
       '',
-      `That makes ${total} subscriber${total === 1 ? '' : 's'}.`,
-      '',
-      'The full list lives in content/subscribers.json.',
+      'The list lives in your Resend audience — not in the repo, so that',
+      'subscriber addresses are never published alongside the source.',
     ].join('\n'),
   )
+}
+
+/**
+ * Add the address to the Resend audience.
+ *
+ * This replaces writing subscribers into the repository. The repo is public so
+ * that GitHub Discussions can back the comments, which makes it the wrong place
+ * for anyone's email address.
+ *
+ * Like sending, this is a no-op when unconfigured — reported, never thrown.
+ */
+export async function addToAudience(address: string): Promise<SendResult> {
+  const key = process.env.RESEND_API_KEY
+  const audienceId = process.env.RESEND_AUDIENCE_ID
+  if (!key) return { sent: false, reason: 'RESEND_API_KEY not set' }
+  if (!audienceId) return { sent: false, reason: 'RESEND_AUDIENCE_ID not set' }
+
+  try {
+    const { error } = await new Resend(key).contacts.create({
+      email: address,
+      audienceId,
+      unsubscribed: false,
+    })
+    return error ? { sent: false, reason: error.message } : { sent: true }
+  } catch (error) {
+    return { sent: false, reason: error instanceof Error ? error.message : 'contact create failed' }
+  }
 }

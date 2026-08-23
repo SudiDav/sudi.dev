@@ -1,12 +1,14 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { emailConfigured, notifyNewSubscriber } from './email'
+import { addToAudience, emailConfigured, notifyNewSubscriber } from './email'
 
 // `emails` is an instance property, so it cannot be spied on via the prototype.
 // The module is mocked instead, which also keeps these tests off the network.
 const sendMock = vi.fn()
+const contactMock = vi.fn()
 vi.mock('resend', () => ({
   Resend: class {
     emails = { send: (...args: unknown[]) => sendMock(...args) }
+    contacts = { create: (...args: unknown[]) => contactMock(...args) }
   },
 }))
 
@@ -22,6 +24,7 @@ describe('email', () => {
     process.env = { ...env }
     vi.restoreAllMocks()
     sendMock.mockReset()
+    contactMock.mockReset()
   })
 
   it('reports itself unconfigured without an API key', () => {
@@ -31,7 +34,7 @@ describe('email', () => {
 
   it('does not throw when no API key is set', async () => {
     delete process.env.RESEND_API_KEY
-    const result = await notifyNewSubscriber('reader@example.com', 3)
+    const result = await notifyNewSubscriber('reader@example.com')
     expect(result.sent).toBe(false)
     expect(result.reason).toMatch(/RESEND_API_KEY/)
   })
@@ -40,7 +43,7 @@ describe('email', () => {
     process.env.RESEND_API_KEY = 're_test_key'
     delete process.env.CONTACT_EMAIL
     delete process.env.ADMIN_EMAIL
-    const result = await notifyNewSubscriber('reader@example.com', 3)
+    const result = await notifyNewSubscriber('reader@example.com')
     expect(result.sent).toBe(false)
     expect(result.reason).toMatch(/CONTACT_EMAIL/)
   })
@@ -50,7 +53,7 @@ describe('email', () => {
     process.env.CONTACT_EMAIL = 'contact@sudi.dev'
     sendMock.mockRejectedValueOnce(new Error('network down'))
 
-    const result = await notifyNewSubscriber('reader@example.com', 1)
+    const result = await notifyNewSubscriber('reader@example.com')
     expect(result.sent).toBe(false)
     expect(result.reason).toBe('network down')
   })
@@ -60,21 +63,49 @@ describe('email', () => {
     process.env.CONTACT_EMAIL = 'contact@sudi.dev'
     sendMock.mockResolvedValueOnce({ error: { message: 'domain not verified' } })
 
-    const result = await notifyNewSubscriber('reader@example.com', 1)
+    const result = await notifyNewSubscriber('reader@example.com')
     expect(result.sent).toBe(false)
     expect(result.reason).toBe('domain not verified')
   })
 
-  it('sends to CONTACT_EMAIL with the subscriber and list size', async () => {
+  it('sends to CONTACT_EMAIL naming the subscriber', async () => {
     process.env.RESEND_API_KEY = 're_test_key'
     process.env.CONTACT_EMAIL = 'contact@sudi.dev'
     sendMock.mockResolvedValueOnce({ error: null })
 
-    const result = await notifyNewSubscriber('reader@example.com', 42)
+    const result = await notifyNewSubscriber('reader@example.com')
     expect(result.sent).toBe(true)
     const payload = sendMock.mock.calls.at(-1)![0] as Record<string, string>
     expect(payload.to).toBe('contact@sudi.dev')
     expect(payload.subject).toContain('reader@example.com')
-    expect(payload.text).toContain('42 subscribers')
+  })
+
+  it('does not throw adding to the audience when unconfigured', async () => {
+    delete process.env.RESEND_API_KEY
+    const result = await addToAudience('reader@example.com')
+    expect(result.sent).toBe(false)
+    expect(result.reason).toMatch(/RESEND_API_KEY/)
+  })
+
+  it('reports a missing audience id rather than throwing', async () => {
+    process.env.RESEND_API_KEY = 're_test_key'
+    delete process.env.RESEND_AUDIENCE_ID
+    const result = await addToAudience('reader@example.com')
+    expect(result.sent).toBe(false)
+    expect(result.reason).toMatch(/RESEND_AUDIENCE_ID/)
+  })
+
+  it('adds a contact to the configured audience', async () => {
+    process.env.RESEND_API_KEY = 're_test_key'
+    process.env.RESEND_AUDIENCE_ID = 'aud_123'
+    contactMock.mockResolvedValueOnce({ error: null })
+
+    const result = await addToAudience('reader@example.com')
+    expect(result.sent).toBe(true)
+    expect(contactMock.mock.calls.at(-1)![0]).toMatchObject({
+      email: 'reader@example.com',
+      audienceId: 'aud_123',
+      unsubscribed: false,
+    })
   })
 })

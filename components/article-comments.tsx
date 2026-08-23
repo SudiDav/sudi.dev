@@ -1,66 +1,34 @@
-import { MessageSquarePlus } from 'lucide-react'
-import { getApprovedComments, relativeTime } from '@/lib/comments'
-import { CommentForm } from './comment-form'
+import { GiscusComments } from './giscus-comments'
 
 /**
  * Design: Article Page → "Comment Section" — COLUMN, padding [48,0], gap 32,
- * with a 720px inner column.
+ * with a 720px inner column. The design's own thread and form are replaced by
+ * the giscus embed; the section framing around it is kept.
  *
- * The thread is real: only approved comments render, and the form below stores
- * new ones as pending for moderation in the admin.
+ * Renders nothing at all when giscus is unconfigured, so a half-built comment
+ * section never ships — see .env.example for the four values it needs.
  */
-export async function ArticleComments({ postSlug }: { postSlug: string }) {
-  const comments = await getApprovedComments(postSlug)
+export function ArticleComments() {
+  // Read on the server so an unconfigured section costs nothing on the client.
+  // NEXT_PUBLIC_* values must be referenced literally to be inlined at build.
+  const configured =
+    process.env.NEXT_PUBLIC_GISCUS_REPO &&
+    process.env.NEXT_PUBLIC_GISCUS_REPO_ID &&
+    process.env.NEXT_PUBLIC_GISCUS_CATEGORY &&
+    process.env.NEXT_PUBLIC_GISCUS_CATEGORY_ID
+  if (!configured) return null
 
   return (
     <section className="flex flex-col items-center px-4 py-12 md:px-8">
       <div className="flex w-full max-w-[720px] flex-col gap-8">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <h2 className="font-display text-[22px] font-semibold text-text-primary">
-            Comments ({comments.length})
-          </h2>
-          <a
-            href="#comment-form"
-            className="inline-flex items-center gap-2 rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
-          >
-            <MessageSquarePlus size={16} />
-            Write a comment
-          </a>
-        </div>
-
-        <div id="comment-form">
-          <CommentForm postSlug={postSlug} />
-        </div>
-
-        {comments.length === 0 ? (
-          <p className="text-sm text-text-tertiary">
-            No comments yet — be the first to say something.
+        <div className="flex flex-col gap-2">
+          <h2 className="font-display text-[22px] font-semibold text-text-primary">Comments</h2>
+          <p className="text-[13px] leading-[1.6] text-text-secondary">
+            Signed in with GitHub. Comments live in this site&apos;s{' '}
+            <span className="text-text-primary">Discussions</span>, so you can reply from there too.
           </p>
-        ) : (
-          <div className="flex flex-col">
-            {comments.map((comment, index) => (
-              <article
-                key={comment.id}
-                className={`flex gap-4 py-6 ${
-                  index < comments.length - 1 ? 'border-b border-border' : ''
-                }`}
-              >
-                <div className="flex flex-1 flex-col gap-2">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm font-semibold text-text-primary">
-                      {comment.author}
-                    </span>
-                    <span className="text-sm text-text-tertiary">·</span>
-                    <span className="text-[13px] text-text-tertiary">
-                      {relativeTime(comment.createdAt)}
-                    </span>
-                  </div>
-                  <p className="text-sm leading-[1.6] text-text-secondary">{comment.body}</p>
-                </div>
-              </article>
-            ))}
-          </div>
-        )}
+        </div>
+        <GiscusComments />
       </div>
     </section>
   )

@@ -54,15 +54,17 @@ export default async function PrivacyPage() {
           <Section title="What I collect">
             <P>
               <strong className="text-text-primary">If you subscribe</strong> — your email address,
-              and nothing else. It is stored with the site&apos;s own content, used to let me know
-              you signed up and to send you new posts. No name, no profile, no tracking attached to
+              and nothing else. It is held in my mailing list at Resend and used to tell me you
+              signed up and to send you new posts. It is deliberately not stored in this
+              site&apos;s repository, which is public. No name, no profile, no tracking attached to
               it.
             </P>
             <P>
-              <strong className="text-text-primary">If you comment</strong> — your name, your email
-              address, and what you wrote. The name and the comment appear on the post once
-              I&apos;ve approved it. Your email address is never published; it exists so I can
-              reply to you.
+              <strong className="text-text-primary">If you comment</strong> — nothing reaches me
+              directly. Comments run on GitHub Discussions, so you sign in with your GitHub
+              account and your comment lives in this site&apos;s repository, publicly, under your
+              GitHub username. I never see your email address, and there is nothing for me to
+              store.
             </P>
             <P>That is the whole list.</P>
           </Section>
@@ -73,8 +75,9 @@ export default async function PrivacyPage() {
               know who visits this site or how many of you there are.
             </P>
             <P>
-              No cookies are set for visitors. The only cookie this site issues is a sign-in
-              session for me, on admin pages you cannot reach.
+              This site sets no cookies for visitors. The only cookie it issues is a sign-in
+              session for me, on admin pages you cannot reach. If you sign in to comment, that is
+              GitHub&apos;s session, under GitHub&apos;s terms rather than mine.
             </P>
             <P>
               Fonts are served from this site rather than fetched from Google, so opening a page
@@ -88,8 +91,15 @@ export default async function PrivacyPage() {
 
           <Section title="Who else touches it">
             <P>
-              <strong className="text-text-primary">Resend</strong> delivers the notification email
-              when someone subscribes, so a subscription address passes through them.
+              <strong className="text-text-primary">Resend</strong> holds the mailing list and
+              delivers its email, so a subscription address lives with them.
+            </P>
+            <P>
+              <strong className="text-text-primary">giscus and GitHub</strong> power the comments.
+              The comment box is an embedded frame served by giscus.app, and posting through it
+              means authorising the giscus app against your GitHub account. Loading a post with
+              comments therefore contacts giscus.app. Neither the frame nor I set any tracking
+              cookie, and giscus states that it has no tracking and no ads.
             </P>
             <P>
               <strong className="text-text-primary">The host</strong> keeps ordinary server logs —

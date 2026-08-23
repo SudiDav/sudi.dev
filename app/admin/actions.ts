@@ -1,7 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { notifyNewSubscriber } from '@/lib/email'
+import { addToAudience, notifyNewSubscriber } from '@/lib/email'
 import { isAdmin } from '@/auth'
 import {
   savePost,
@@ -10,12 +10,9 @@ import {
   saveProject,
   saveSettings,
   slugify,
-  writeJson,
   type PostDraft,
 } from '@/lib/publish'
 import type { SiteSettings } from '@/lib/site'
-import { addComment, moderateComment, deleteComment } from '@/lib/comments-write'
-import { getSubscribers } from '@/lib/subscribers'
 
 /**
  * Every action re-checks authorisation itself.
@@ -207,72 +204,17 @@ export async function updateSettings(settings: SiteSettings): Promise<ActionResu
   return { ok: true }
 }
 
-export async function moderate(
-  id: string,
-  status: 'pending' | 'approved' | 'spam',
-): Promise<ActionResult> {
-  await requireAdmin()
-  try {
-    await moderateComment(id, status)
-  } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message : 'Could not update comment' }
-  }
-  revalidatePath('/admin/comments')
-  revalidatePath('/blog', 'layout')
-  return { ok: true }
-}
-
-export async function removeComment(id: string): Promise<ActionResult> {
-  await requireAdmin()
-  try {
-    await deleteComment(id)
-  } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message : 'Could not delete comment' }
-  }
-  revalidatePath('/admin/comments')
-  revalidatePath('/blog', 'layout')
-  return { ok: true }
-}
-
-/**
- * Public: anyone reading an article can leave a comment. It is stored as
- * pending and never appears on the site until it is approved in the admin,
- * so this action deliberately does NOT require an admin session.
- */
-export async function submitComment(input: {
-  postSlug: string
-  author: string
-  email: string
-  body: string
-}): Promise<ActionResult> {
-  const author = input.author.trim()
-  const email = input.email.trim()
-  const body = input.body.trim()
-
-  if (!author) return { ok: false, error: 'Please add your name' }
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return { ok: false, error: 'Please add a valid email' }
-  if (body.length < 2) return { ok: false, error: 'Please write a comment' }
-  if (body.length > 2000) return { ok: false, error: 'Comment is too long (2000 characters max)' }
-
-  try {
-    await addComment({ postSlug: input.postSlug, author, email, body })
-  } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message : 'Could not post comment' }
-  }
-  revalidatePath('/admin/comments')
-  return { ok: true }
-}
-
 /**
  * Public: newsletter sign-up.
  *
- * Stores the address in content/subscribers.json — a list you own rather than a
- * mailing integration — and notifies CONTACT_EMAIL so sign-ups are not
- * something you have to remember to go and look for.
+ * The address goes to the Resend audience and a notification goes to
+ * CONTACT_EMAIL. It is deliberately NOT written into the repository: the repo
+ * is public so GitHub Discussions can back the comments, and subscriber
+ * addresses have no business being published with the source.
  *
- * The notification is deliberately not awaited into the result: the subscriber
- * is already saved by that point, so a mail provider being down must not show
- * them an error or tempt them into submitting again.
+ * Neither call is allowed to fail the sign-up. Resend being down is not the
+ * subscriber's problem, and showing them an error only invites a second submit;
+ * the failure is logged for you instead.
  */
 export async function subscribe(email: string): Promise<ActionResult> {
   const address = email.trim().toLowerCase()
@@ -280,19 +222,13 @@ export async function subscribe(email: string): Promise<ActionResult> {
     return { ok: false, error: 'Please enter a valid email address' }
   }
 
-  try {
-    const existing = await getSubscribers()
-    if (existing.some((entry) => entry.email === address)) return { ok: true }
-    const updated = [...existing, { email: address, subscribedAt: new Date().toISOString() }]
-    await writeJson('content/subscribers.json', updated, 'content: new subscriber')
+  const [stored, notified] = await Promise.all([
+    addToAudience(address),
+    notifyNewSubscriber(address),
+  ])
 
-    const notified = await notifyNewSubscriber(address, updated.length)
-    if (!notified.sent) {
-      // Visible in server logs without ever reaching the subscriber.
-      console.warn(`[newsletter] saved ${address} but no notification: ${notified.reason}`)
-    }
-  } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message : 'Could not subscribe' }
-  }
+  if (!stored.sent) console.warn(`[newsletter] ${address} not added to audience: ${stored.reason}`)
+  if (!notified.sent) console.warn(`[newsletter] no notification sent: ${notified.reason}`)
+
   return { ok: true }
 }
