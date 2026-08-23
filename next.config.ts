@@ -23,10 +23,14 @@ function migratedPostRedirects() {
 }
 
 const nextConfig: NextConfig = {
-  // Emit a self-contained server bundle with only the dependencies actually
-  // reached. The container then needs neither node_modules nor a package
-  // manager, which takes the image from ~1GB to a couple of hundred MB.
-  output: 'standalone',
+  // Standalone output produces a self-contained server bundle for the
+  // container build — no node_modules, no package manager in the image.
+  //
+  // It must NOT be set on Vercel. Vercel runs its own trace step after the
+  // build and reads `.next/*.nft.json`, which standalone mode relocates; the
+  // deploy fails with ENOENT on next-server.js.nft.json. Vercel sets VERCEL=1
+  // during builds, so the setting applies only everywhere else.
+  output: process.env.VERCEL ? undefined : 'standalone',
 
   async redirects() {
     return migratedPostRedirects()
