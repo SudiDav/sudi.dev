@@ -257,13 +257,13 @@ export function ProjectForm({
               label="GitHub Repository"
               value={githubUrl}
               onChange={setGithubUrl}
-              placeholder="https://github.com/sudidavid/..."
+              placeholder="https://github.com/SudiDav/..."
             />
             <Field
               label="Case Study / Blog Post"
               value={caseStudy}
               onChange={setCaseStudy}
-              placeholder="https://sudidavid.dev/blog/..."
+              placeholder="https://sudi.dev/blog/..."
             />
           </AdminCard>
         </div>

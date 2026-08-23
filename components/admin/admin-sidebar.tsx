@@ -22,7 +22,7 @@ const NAV = [
   { href: '/admin/settings', label: 'Settings', Icon: Settings },
 ]
 
-export function AdminSidebar() {
+export function AdminSidebar({ name, email }: { name: string; email: string }) {
   const pathname = usePathname()
 
   return (
@@ -64,8 +64,8 @@ export function AdminSidebar() {
       <div className="flex items-center gap-3 border-t border-admin-sidebar-hover pt-4">
         <span className="size-9 shrink-0 rounded-full bg-accent" />
         <div className="flex flex-col gap-0.5">
-          <span className="text-[13px] font-medium text-admin-sidebar-text-active">Sudi David</span>
-          <span className="text-[11px] text-admin-sidebar-text">sudi@sudidavid.dev</span>
+          <span className="text-[13px] font-medium text-admin-sidebar-text-active">{name}</span>
+          <span className="text-[11px] text-admin-sidebar-text">{email}</span>
         </div>
       </div>
     </aside>

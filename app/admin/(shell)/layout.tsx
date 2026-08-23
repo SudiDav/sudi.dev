@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation'
 import { isAdmin } from '@/auth'
 import { AdminSidebar } from '@/components/admin/admin-sidebar'
+import { getSettings } from '@/lib/site'
 
 /**
  * The admin shell — sidebar plus the main column of padding [32,40], gap 32,
@@ -17,9 +18,11 @@ import { AdminSidebar } from '@/components/admin/admin-sidebar'
 export default async function AdminShellLayout({ children }: { children: React.ReactNode }) {
   if (!(await isAdmin())) redirect('/admin/signin')
 
+  const settings = await getSettings()
+
   return (
     <div className="flex min-h-screen flex-col bg-admin-bg lg:flex-row">
-      <AdminSidebar />
+      <AdminSidebar name={settings.displayName} email={settings.email} />
       <main className="flex flex-1 flex-col gap-8 px-6 py-8 lg:px-10">{children}</main>
     </div>
   )

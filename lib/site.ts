@@ -24,19 +24,19 @@ export type SiteSettings = {
 export const DEFAULT_SETTINGS: SiteSettings = {
   displayName: 'Sudi David',
   avatar: '/images/sudi.jpeg',
-  email: 'sudi@sudidavid.dev',
-  bio: 'Full-stack engineer specializing in real-time systems, distributed architectures, and developer tooling.',
-  location: 'San Francisco, CA',
-  website: 'sudidavid.dev',
+  email: 'contact@sudi.dev',
+  bio: 'Full-stack engineer building school management and fintech systems. Eight years across .NET, TypeScript and distributed architectures.',
+  location: 'Kigali, Rwanda',
+  website: 'sudi.dev',
   social: {
-    github: 'github.com/sudidavid',
+    github: 'github.com/SudiDav',
     twitter: '@Sudi_Dav',
     linkedin: 'linkedin.com/in/sudidavid',
     instagram: '@sudi_dav',
   },
   seo: {
-    title: 'Sudi David — Developer Portfolio',
-    description: 'Full-stack engineer building real-time systems and developer tools.',
+    title: 'Sudi David — Full-Stack Engineer',
+    description: 'Full-stack engineer in Kigali building school management and fintech systems with .NET, TypeScript and distributed architectures.',
   },
 }
 
