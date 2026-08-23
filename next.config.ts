@@ -23,6 +23,11 @@ function migratedPostRedirects() {
 }
 
 const nextConfig: NextConfig = {
+  // Emit a self-contained server bundle with only the dependencies actually
+  // reached. The container then needs neither node_modules nor a package
+  // manager, which takes the image from ~1GB to a couple of hundred MB.
+  output: 'standalone',
+
   async redirects() {
     return migratedPostRedirects()
   },
