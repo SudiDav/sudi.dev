@@ -1,5 +1,5 @@
 import NextAuth from 'next-auth'
-import Google from 'next-auth/providers/google'
+import GitHub from 'next-auth/providers/github'
 import Credentials from 'next-auth/providers/credentials'
 
 /**
@@ -7,12 +7,16 @@ import Credentials from 'next-auth/providers/credentials'
  *
  * This is the whole authorisation model: there is one author, so rather than a
  * user table there is one address, checked on every sign-in. Anyone else who
- * completes Google's flow is rejected before a session is ever issued.
+ * completes GitHub's flow is rejected before a session is ever issued.
+ *
+ * GitHub rather than Google because everything else here already runs through
+ * it — comments are GitHub Discussions, publishing commits to the repo — so
+ * this adds no new account, and no second place for access to be revoked.
  */
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL?.toLowerCase().trim()
 
 /**
- * A development-only sign-in that skips Google entirely.
+ * A development-only sign-in that skips GitHub entirely.
  *
  * This exists so the admin is usable before OAuth credentials are set up. It is
  * gated on TWO conditions that both have to hold: NODE_ENV must not be
@@ -20,7 +24,7 @@ const ADMIN_EMAIL = process.env.ADMIN_EMAIL?.toLowerCase().trim()
  * NODE_ENV=production, so the provider is not merely hidden in a deployed
  * build — it is not registered at all, and there is no route to reach it.
  *
- * Delete this block once Google sign-in is configured.
+ * Delete this block once GitHub sign-in is configured.
  */
 const devBypassEnabled =
   process.env.NODE_ENV !== 'production' && process.env.AUTH_DEV_BYPASS === 'true'
@@ -36,15 +40,18 @@ const devBypass = Credentials({
 export const isDevBypassEnabled = devBypassEnabled
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  providers: devBypassEnabled ? [Google, devBypass] : [Google],
+  providers: devBypassEnabled ? [GitHub, devBypass] : [GitHub],
   session: { strategy: 'jwt' },
   pages: { signIn: '/admin/signin', error: '/admin/signin' },
   callbacks: {
     /**
      * Returning false here aborts the sign-in — no session, no cookie.
      *
-     * `email_verified` matters: without it, an unverified Google account
-     * claiming the admin address would be let in.
+     * GitHub does not return an `email_verified` claim the way Google does; it
+     * returns the account's primary email, which GitHub itself has verified.
+     * The address must match ADMIN_EMAIL exactly, so ADMIN_EMAIL has to be
+     * whichever address GitHub reports as primary — not necessarily the one on
+     * the public site.
      */
     signIn({ account, profile, user }) {
       if (!ADMIN_EMAIL) return false
@@ -55,7 +62,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         return devBypassEnabled && user?.email?.toLowerCase() === ADMIN_EMAIL
       }
 
-      return profile?.email?.toLowerCase() === ADMIN_EMAIL && profile.email_verified === true
+      return typeof profile?.email === 'string' && profile.email.toLowerCase() === ADMIN_EMAIL
     },
     /**
      * Re-check on every request. If ADMIN_EMAIL is later changed, existing

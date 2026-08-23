@@ -36,12 +36,14 @@ discussion category.
 | Variable | Where it comes from |
 | --- | --- |
 | `AUTH_SECRET` | `openssl rand -base64 32` |
-| `AUTH_GOOGLE_ID` | Google Cloud Console → OAuth client |
-| `AUTH_GOOGLE_SECRET` | same client |
-| `ADMIN_EMAIL` | the Google account allowed to sign in |
+| `AUTH_GITHUB_ID` | GitHub → Settings → Developer settings → OAuth Apps |
+| `AUTH_GITHUB_SECRET` | same OAuth App |
+| `ADMIN_EMAIL` | the GitHub account's **primary** email — must match exactly |
 
-The OAuth client needs `https://sudi.dev/api/auth/callback/google` as an
-authorised redirect URI. Never set `AUTH_DEV_BYPASS` in production.
+The OAuth App's Authorization callback URL must be
+`https://sudi.dev/api/auth/callback/github`. GitHub allows one callback URL per
+app, so previews and local development need their own app (or use the dev
+bypass locally). Never set `AUTH_DEV_BYPASS` in production.
 
 ### Publishing from the admin — required to save anything
 
