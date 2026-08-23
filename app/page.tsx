@@ -84,7 +84,7 @@ export default async function HomePage() {
           </h1>
 
           <p className="text-lg leading-[1.4] text-text-secondary lg:text-xl">
-            Full-Stack Engineer — .NET, TypeScript &amp; distributed systems
+            Full-Stack Engineer — banking, lending &amp; school systems
           </p>
 
           <div className="flex flex-wrap items-center gap-4">
