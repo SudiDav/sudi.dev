@@ -31,7 +31,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   social: {
     github: 'github.com/SudiDav',
     twitter: '@Sudi_Dav',
-    linkedin: 'linkedin.com/in/sudidavid',
+    linkedin: 'linkedin.com/in/sudidav',
     instagram: '@sudi_dav',
   },
   seo: {
