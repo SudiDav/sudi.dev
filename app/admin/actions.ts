@@ -1,6 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
+import { notifyNewSubscriber } from '@/lib/email'
 import { isAdmin } from '@/auth'
 import {
   savePost,
@@ -265,9 +266,13 @@ export async function submitComment(input: {
 /**
  * Public: newsletter sign-up.
  *
- * Stores the address in content/subscribers.json. This is a list you own, not
- * a mailing integration — sending actually requires an email provider. Storing
- * addresses now means none are lost before that exists.
+ * Stores the address in content/subscribers.json — a list you own rather than a
+ * mailing integration — and notifies CONTACT_EMAIL so sign-ups are not
+ * something you have to remember to go and look for.
+ *
+ * The notification is deliberately not awaited into the result: the subscriber
+ * is already saved by that point, so a mail provider being down must not show
+ * them an error or tempt them into submitting again.
  */
 export async function subscribe(email: string): Promise<ActionResult> {
   const address = email.trim().toLowerCase()
@@ -278,11 +283,14 @@ export async function subscribe(email: string): Promise<ActionResult> {
   try {
     const existing = await getSubscribers()
     if (existing.some((entry) => entry.email === address)) return { ok: true }
-    await writeJson(
-      'content/subscribers.json',
-      [...existing, { email: address, subscribedAt: new Date().toISOString() }],
-      'content: new subscriber',
-    )
+    const updated = [...existing, { email: address, subscribedAt: new Date().toISOString() }]
+    await writeJson('content/subscribers.json', updated, 'content: new subscriber')
+
+    const notified = await notifyNewSubscriber(address, updated.length)
+    if (!notified.sent) {
+      // Visible in server logs without ever reaching the subscriber.
+      console.warn(`[newsletter] saved ${address} but no notification: ${notified.reason}`)
+    }
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : 'Could not subscribe' }
   }
