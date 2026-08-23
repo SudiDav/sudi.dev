@@ -30,7 +30,6 @@ describe('getPosts', () => {
     const post = (await getPosts()).find((p) => p.featured)!
     expect(post.title).toBe('Observability 101: Stop Debugging in the Dark')
     expect(post.readingTime).toBe('6 min read')
-    expect(post.canonical).toBe('https://sudi.dev/observability-101-stop-debugging-in-the-dark')
     expect(post.body.length).toBeGreaterThan(0)
   })
 })

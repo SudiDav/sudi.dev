@@ -29,9 +29,6 @@ export async function generateMetadata({
   return {
     title: `${post.title} | Sudi David`,
     description: post.excerpt,
-    // These posts still exist at their original Hashnode URLs. Without this,
-    // the two copies compete for the same search terms and neither wins.
-    ...(post.canonical ? { alternates: { canonical: post.canonical } } : {}),
   }
 }
 

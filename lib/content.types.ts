@@ -9,10 +9,6 @@ export type Post = {
   // or category filtering silently matches nothing.
   category: string
   cover: string // path under /public
-  // Where the post was first published. These were migrated from the Hashnode
-  // blog at sudi.dev, and the original URLs still resolve — pointing search
-  // engines at one canonical copy avoids the two competing for the same terms.
-  canonical?: string
   featured: boolean
   // Editorial state, surfaced in the admin. Absent means Published, so existing
   // content needs no migration.
