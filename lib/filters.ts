@@ -9,10 +9,11 @@ export const PROJECT_FILTERS = ['All', 'Fintech', 'Platforms', 'Side Projects'] 
  * Design: Blog Page → "Category Filters".
  *
  * Renamed to match what the posts are actually about — .NET tutorials, an
- * observability piece, and two on how the work gets done. The design's
- * "Architecture" and "Open Source" pills had nothing behind them.
+ * observability piece, two on how the work gets done, and one that is not about
+ * software at all. The design's "Architecture" and "Open Source" pills had
+ * nothing behind them.
  */
-export const POST_FILTERS = ['All', '.NET', 'DevOps', 'Craft'] as const
+export const POST_FILTERS = ['All', '.NET', 'DevOps', 'Craft', 'Life'] as const
 
 export function filterProjects(projects: Project[], category: string): Project[] {
   if (category === 'All') return projects

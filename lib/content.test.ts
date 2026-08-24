@@ -28,15 +28,15 @@ describe('getPosts', () => {
 
   it('parses frontmatter into every field', async () => {
     const post = (await getPosts()).find((p) => p.featured)!
-    expect(post.title).toBe('Observability 101: Stop Debugging in the Dark')
-    expect(post.readingTime).toBe('6 min read')
+    expect(post.title).toBe('Maybe Love Is the Now')
+    expect(post.readingTime).toBe('5 min read')
     expect(post.body.length).toBeGreaterThan(0)
   })
 })
 
 describe('getPost', () => {
   it('resolves a known slug', async () => {
-    const post = await getPost('observability-101-stop-debugging-in-the-dark')
+    const post = await getPost('maybe-love-is-the-now')
     expect(post?.featured).toBe(true)
   })
 
