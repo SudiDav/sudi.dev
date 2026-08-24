@@ -11,7 +11,7 @@ import type { Project } from '@/lib/content.types'
 import { filterProjects, PROJECT_FILTERS } from '@/lib/filters'
 
 export const metadata: Metadata = {
-  title: 'Work | Sudi David',
+  title: 'Work | Sudi M. David',
   description: "A selection of projects I've built, contributed to, or am currently working on.",
 }
 

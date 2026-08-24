@@ -4,7 +4,7 @@ import { ShieldAlert } from 'lucide-react'
 import { GithubIcon } from '@/components/brand-icons'
 
 export const metadata = {
-  title: 'Sign in | Sudi David',
+  title: 'Sign in | Sudi M. David',
   robots: { index: false, follow: false },
 }
 

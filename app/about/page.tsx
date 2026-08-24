@@ -26,7 +26,7 @@ import { PAGE_GUTTER } from '@/components/layout'
 import { getSettings, socialUrl } from '@/lib/site'
 
 export const metadata: Metadata = {
-  title: 'About | Sudi David',
+  title: 'About | Sudi M. David',
   description: 'Full-stack engineer in Lubumbashi building banking, lending, agriculture and school systems.',
 }
 

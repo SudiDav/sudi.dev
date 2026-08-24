@@ -14,7 +14,7 @@ import { getPosts } from '@/lib/content'
 import { filterPostsByCategory, searchPosts, POST_FILTERS } from '@/lib/filters'
 
 export const metadata: Metadata = {
-  title: 'Blog | Sudi David',
+  title: 'Blog | Sudi M. David',
   description: 'Thoughts on software engineering, developer tooling, and building for the web.',
 }
 

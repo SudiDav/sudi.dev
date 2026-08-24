@@ -80,7 +80,7 @@ export default async function HomePage() {
           </div>
 
           <h1 className="font-display text-4xl leading-[1.1] font-bold text-text-primary sm:text-5xl lg:text-[52px]">
-            Hi, I&apos;m Sudi David
+            Hi, I&apos;m {settings.displayName}
           </h1>
 
           {/*

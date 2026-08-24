@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
-  title: 'Admin | Sudi David',
+  title: 'Admin | Sudi M. David',
   // UI-only with no authentication — keep it out of search results.
   robots: { index: false, follow: false },
 }

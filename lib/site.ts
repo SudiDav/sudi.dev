@@ -35,7 +35,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     instagram: '@sudi_dav',
   },
   seo: {
-    title: 'Sudi David — Full-Stack Engineer',
+    title: 'Sudi M. David — Full-Stack Engineer',
     description: 'Full-stack engineer building the systems institutions run on — banking, lending, agriculture and school administration, with teams around the world.',
   },
 }
