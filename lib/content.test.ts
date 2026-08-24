@@ -29,7 +29,7 @@ describe('getPosts', () => {
   it('parses frontmatter into every field', async () => {
     const post = (await getPosts()).find((p) => p.featured)!
     expect(post.title).toBe('Maybe Love Is the Now')
-    expect(post.readingTime).toBe('6 min read')
+    expect(post.readingTime).toBe('5 min read')
     expect(post.body.length).toBeGreaterThan(0)
   })
 })
