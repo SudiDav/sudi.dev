@@ -33,3 +33,14 @@ export function searchPosts(posts: Post[], query: string): Post[] {
       post.title.toLowerCase().includes(needle) || post.excerpt.toLowerCase().includes(needle),
   )
 }
+
+/**
+ * The same lists without "All", for the admin's category dropdowns.
+ *
+ * Derived rather than repeated: when these were two separate literals the
+ * editor went on offering "Web Apps" and "Development" long after the site had
+ * stopped filtering on them, so a saved project could land in a category no
+ * page would ever show.
+ */
+export const PROJECT_CATEGORIES = PROJECT_FILTERS.filter((c) => c !== 'All')
+export const POST_CATEGORIES = POST_FILTERS.filter((c) => c !== 'All')

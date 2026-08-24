@@ -1,5 +1,6 @@
 'use client'
 
+import { POST_CATEGORIES } from '@/lib/filters'
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import {
@@ -65,7 +66,7 @@ export function PostEditor({ post, canPublish }: { post?: Post; canPublish: bool
   const [excerpt, setExcerpt] = useState(post?.excerpt ?? '')
   const [body, setBody] = useState(post?.body ?? '')
   const [status, setStatus] = useState<Post['status']>(post?.status ?? 'Draft')
-  const [category, setCategory] = useState(post?.category ?? 'Development')
+  const [category, setCategory] = useState(post?.category ?? POST_CATEGORIES[0])
   const [cover, setCover] = useState(post?.cover ?? '')
   const [saved, setSaved] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -274,7 +275,7 @@ export function PostEditor({ post, canPublish }: { post?: Post; canPublish: bool
               onChange={(event) => setCategory(event.target.value)}
               className="rounded-lg border border-admin-border bg-admin-input px-3 py-2 text-[13px] text-admin-text focus:border-accent focus:outline-none"
             >
-              {['Development', 'DevOps', 'Architecture', 'Open Source'].map((option) => (
+              {POST_CATEGORIES.map((option) => (
                 <option key={option} value={option}>
                   {option}
                 </option>

@@ -132,16 +132,3 @@ body {
 .theme-switching *::after {
   transition: none !important;
 }
-
-/*
- * The sentence currently being read aloud.
- *
- * ::highlight() paints ranges registered through the CSS Custom Highlight API,
- * so the article's markup is never touched to show it. Only background and
- * colour are permitted here — layout properties are ignored by design, which is
- * exactly why the text does not reflow as the highlight moves.
- */
-::highlight(reading) {
-  background-color: var(--accent-dim);
-  color: var(--text-primary);
-}

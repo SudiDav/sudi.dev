@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { filterProjects, filterPostsByCategory, searchPosts } from './filters'
+import { filterProjects, filterPostsByCategory, searchPosts, PROJECT_CATEGORIES, POST_CATEGORIES, PROJECT_FILTERS, POST_FILTERS } from './filters'
 import type { Post, Project } from './content.types'
 
 const project = (slug: string, category: string) => ({ slug, category }) as Project
@@ -61,5 +61,20 @@ describe('searchPosts', () => {
 
   it('ignores surrounding whitespace', () => {
     expect(searchPosts(posts, '  trpc  ').map((p) => p.slug)).toEqual(['trpc'])
+  })
+})
+
+describe('admin category lists', () => {
+  // These feed the admin's dropdowns. When they were separate literals the
+  // editor offered "Web Apps" and "Development" long after the site had stopped
+  // filtering on them, so a saved item landed in a category no page displayed.
+  it('offer exactly the filters, minus All', () => {
+    expect(PROJECT_CATEGORIES).toEqual(PROJECT_FILTERS.filter((c) => c !== 'All'))
+    expect(POST_CATEGORIES).toEqual(POST_FILTERS.filter((c) => c !== 'All'))
+  })
+
+  it('never offer All as something to save', () => {
+    expect(PROJECT_CATEGORIES).not.toContain('All')
+    expect(POST_CATEGORIES).not.toContain('All')
   })
 })

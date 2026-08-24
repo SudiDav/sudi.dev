@@ -1,5 +1,6 @@
 'use client'
 
+import { PROJECT_CATEGORIES } from '@/lib/filters'
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
@@ -9,7 +10,7 @@ import { addProject, editProject } from '@/app/admin/actions'
 import type { Project } from '@/lib/content.types'
 
 /** Design: Work Page → "Filters". `All` is the no-filter option. */
-const CATEGORIES = ['Web Apps', 'CLI Tools', 'Libraries', 'Open Source']
+
 
 /** Design: "Display Settings" — two toggles, both on. */
 const TOGGLES = [
@@ -79,7 +80,7 @@ export function ProjectForm({
   const [name, setName] = useState(project?.title ?? '')
   const [description, setDescription] = useState(project?.description ?? '')
   const [year, setYear] = useState(project?.year ?? '2026')
-  const [category, setCategory] = useState(project?.category ?? CATEGORIES[0])
+  const [category, setCategory] = useState(project?.category ?? PROJECT_CATEGORIES[0])
   const [cover, setCover] = useState(project?.cover ?? '')
   const [tech, setTech] = useState<string[]>(project?.tech ?? [])
   const [techDraft, setTechDraft] = useState('')
@@ -201,7 +202,7 @@ export function ProjectForm({
                   onChange={(event) => setCategory(event.target.value)}
                   className={inputClass}
                 >
-                  {CATEGORIES.map((option) => (
+                  {PROJECT_CATEGORIES.map((option) => (
                     <option key={option} value={option}>
                       {option}
                     </option>
