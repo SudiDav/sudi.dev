@@ -71,8 +71,15 @@ export default async function PrivacyPage() {
 
           <Section title="What I don't collect">
             <P>
-              No analytics, no tracking pixels, no advertising, no profiling. I genuinely do not
-              know who visits this site or how many of you there are.
+              No advertising, no tracking pixels, no profiling, and nothing that follows you
+              anywhere else.
+            </P>
+            <P>
+              I do count page views, through Vercel Web Analytics. It sets no cookie and stores no
+              personal data: visitors are identified by a hash of the request that resets every
+              day, so the same person cannot be recognised tomorrow, or on any other site. What I
+              see is aggregate — which pages get read, roughly where in the world from, which
+              browsers. Never who.
             </P>
             <P>
               This site sets no cookies for visitors. The only cookie it issues is a sign-in
@@ -102,8 +109,9 @@ export default async function PrivacyPage() {
               cookie, and giscus states that it has no tracking and no ads.
             </P>
             <P>
-              <strong className="text-text-primary">The host</strong> keeps ordinary server logs —
-              IP address, page requested, timestamp — as every web server does.
+              <strong className="text-text-primary">Vercel</strong> hosts the site, keeps ordinary
+              server logs — IP address, page requested, timestamp — as every web server does, and
+              runs the analytics described above.
             </P>
             <P>
               <strong className="text-text-primary">OpenStreetMap and CARTO</strong> serve the map
