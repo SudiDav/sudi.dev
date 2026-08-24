@@ -1,8 +1,8 @@
 # sudi.dev
 
 Personal portfolio and publishing site for Sudi M. David, a full-stack engineer
-working on banking, lending, agriculture, school administration, and other
-systems that organizations depend on.
+working in the fintech industry and on lending, agriculture, school administration,
+and other systems that organizations depend on.
 
 The site is both a public portfolio and a small Git-backed CMS:
 
