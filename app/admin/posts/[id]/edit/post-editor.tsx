@@ -329,7 +329,7 @@ export function PostEditor({ post, canPublish }: { post?: Post; canPublish: bool
             </div>
             <div className="flex flex-col gap-1">
               <span className="text-[11px] font-medium text-admin-text-secondary">Meta Title</span>
-              <span className="text-xs text-admin-text">{title} | Sudi David</span>
+              <span className="text-xs text-admin-text">{title} | Sudi M. David</span>
             </div>
             <div className="flex flex-col gap-1">
               <span className="text-[11px] font-medium text-admin-text-secondary">
