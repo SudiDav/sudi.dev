@@ -1,5 +1,7 @@
 import Link from 'next/link'
 import { Plus, Folder, Star, Pencil, ExternalLink, Ellipsis } from 'lucide-react'
+import { Suspense } from 'react'
+import { PublishNotice } from '@/components/admin/publish-notice'
 import { AdminTopBar } from '@/components/admin/admin-ui'
 import { type AdminProjectStatus } from '@/lib/admin-fixtures'
 import { getAdminProjects } from '@/lib/admin-data'
@@ -23,6 +25,9 @@ export default async function AdminProjectsPage() {
 
   return (
     <>
+      <Suspense fallback={null}>
+        <PublishNotice />
+      </Suspense>
       <AdminTopBar title="Projects">
         <Link
           href="/admin/projects/new"

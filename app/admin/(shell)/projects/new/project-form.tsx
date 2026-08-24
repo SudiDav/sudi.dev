@@ -116,7 +116,8 @@ export function ProjectForm({
       const result = project
         ? await editProject(project.slug, input)
         : await addProject(input)
-      if (result.ok) router.push('/admin/projects')
+      // Carries the name through so the list can confirm the publish.
+      if (result.ok) router.push(`/admin/projects?published=${encodeURIComponent(name)}`)
       else setError(result.error)
     })
   }
