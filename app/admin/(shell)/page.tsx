@@ -11,6 +11,8 @@ import {
   Pencil,
 } from 'lucide-react'
 import { AdminTopBar, StatCard, AdminCard } from '@/components/admin/admin-ui'
+import { getPosts, getProjects } from '@/lib/content'
+import type { Post, Project } from '@/lib/content.types'
 import { getAdminStats } from '@/lib/admin-data'
 
 /**
@@ -46,45 +48,44 @@ function stats(counts: { posts: string; projects: string }) {
 /**
  * Design: "Recent Activity" — six rows of padding [14,0], gap 14, each with a
  * tinted icon wrap of padding 8 / radius 8.
+ *
+ * The design fills these with invented events — comments on posts that do not
+ * exist, view milestones for a site with no analytics. They are built from the
+ * real content instead: what was published, and when. A dashboard that invents
+ * its own history is worse than one that admits it is quiet.
  */
-const ACTIVITY = [
-  {
-    Icon: FileText,
-    tint: 'bg-accent-dim text-accent',
-    text: 'Published "Building a Real-Time Collaboration Engine"',
-    time: '2 hours ago',
-  },
-  {
-    Icon: MessageCircle,
-    tint: 'bg-[#8B5CF610] text-[#8B5CF6]',
-    text: 'New comment on "Optimizing React Renders at Scale"',
-    time: '5 hours ago',
-  },
-  {
-    Icon: Eye,
-    tint: 'bg-[#10B98115] text-admin-success',
-    text: '"Type-Safe API Layers" reached 1,000 views',
-    time: '1 day ago',
-  },
-  {
-    Icon: FolderKanban,
-    tint: 'bg-[#F59E0B15] text-admin-warning',
-    text: 'Updated project "CollabSync" status to featured',
-    time: '2 days ago',
-  },
-  {
-    Icon: MessageCircle,
-    tint: 'bg-[#8B5CF610] text-[#8B5CF6]',
-    text: 'New comment on "From Monolith to Microservices"',
-    time: '3 days ago',
-  },
-  {
-    Icon: FileText,
-    tint: 'bg-accent-dim text-accent',
-    text: 'Draft saved: "Event Sourcing in Practice"',
-    time: '4 days ago',
-  },
-]
+function buildActivity(posts: Post[], projects: Project[]) {
+  const entries = [
+    ...posts.map((post) => ({
+      Icon: FileText,
+      tint: 'bg-accent-dim text-accent',
+      text: `Published "${post.title}"`,
+      at: post.date,
+    })),
+    ...projects.map((project) => ({
+      Icon: FolderKanban,
+      tint: 'bg-[#F59E0B15] text-admin-warning',
+      text: `Added project "${project.title}"`,
+      // Projects carry a year rather than a date; sort them from its start.
+      at: `${project.year}-01-01`,
+    })),
+  ]
+
+  return entries
+    .sort((a, b) => b.at.localeCompare(a.at))
+    .slice(0, 6)
+    .map(({ at, ...rest }) => ({ ...rest, time: relativeDate(at) }))
+}
+
+/** "3 days ago" for anything recent, an absolute date once that stops helping. */
+function relativeDate(iso: string) {
+  const then = new Date(iso).getTime()
+  const days = Math.floor((Date.now() - then) / 86_400_000)
+  if (days < 1) return 'today'
+  if (days === 1) return 'yesterday'
+  if (days < 30) return `${days} days ago`
+  return new Date(iso).toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })
+}
 
 /** Design: "Quick Actions" — a 320-wide card of four rows. */
 const ACTIONS = [
@@ -115,8 +116,13 @@ const ACTIONS = [
 ]
 
 export default async function AdminDashboardPage() {
-  const counts = await getAdminStats()
+  const [counts, posts, projects] = await Promise.all([
+    getAdminStats(),
+    getPosts(),
+    getProjects(),
+  ])
   const STATS = stats(counts)
+  const activity = buildActivity(posts, projects)
 
   return (
     <>
@@ -139,11 +145,11 @@ export default async function AdminDashboardPage() {
           }
         >
           <div className="flex flex-col">
-            {ACTIVITY.map((item, index) => (
+            {activity.map((item, index) => (
               <div
                 key={item.text}
                 className={`flex items-center gap-3.5 py-3.5 ${
-                  index < ACTIVITY.length - 1 ? 'border-b border-admin-border' : ''
+                  index < activity.length - 1 ? 'border-b border-admin-border' : ''
                 }`}
               >
                 <span className={`rounded-lg p-2 ${item.tint}`}>
