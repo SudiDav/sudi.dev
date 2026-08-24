@@ -117,7 +117,13 @@ export function ProjectForm({
         ? await editProject(project.slug, input)
         : await addProject(input)
       // Carries the name through so the list can confirm the publish.
-      if (result.ok) router.push(`/admin/projects?published=${encodeURIComponent(name)}`)
+      if (result.ok) {
+        const params = new URLSearchParams({ published: name })
+        if (result.publish?.sha) params.set('sha', result.publish.sha)
+        if (result.publish?.branch) params.set('branch', result.publish.branch)
+        if (result.publish?.commitUrl) params.set('commitUrl', result.publish.commitUrl)
+        router.push(`/admin/projects?${params.toString()}`)
+      }
       else setError(result.error)
     })
   }

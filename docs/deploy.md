@@ -58,6 +58,16 @@ Without these the admin still renders in production, but every save fails:
 locally and pushing is a perfectly good alternative — just know which one you
 have chosen.
 
+### Deployment status — recommended
+
+The admin can poll Vercel after a GitHub commit so you can see when the change
+is live:
+
+| Variable | Value |
+| --- | --- |
+| `VERCEL_TOKEN` | Vercel token with deployment read access |
+| `VERCEL_PROJECT_ID` | Vercel → Project Settings → General → Project ID |
+
 ### Newsletter — optional
 
 | Variable | Value |
@@ -67,9 +77,11 @@ have chosen.
 | `CONTACT_EMAIL` | `contact@sudi.dev` |
 | `EMAIL_FROM` | `sudi.dev <onboarding@resend.dev>` until the domain is verified |
 
-Left unset, sign-ups fail softly: the visitor still sees a confirmation, and the
-reason is written to the server log. Nothing breaks, but nothing is recorded
-either.
+`RESEND_API_KEY` and `RESEND_AUDIENCE_ID` are required to save a subscription.
+`CONTACT_EMAIL` is only needed for the owner notification. If that notification
+fails, the visitor still sees that the subscription was saved and the admin log
+records the provider reason. The `sudi.dev` sending domain also needs valid
+SPF/MX records before Resend can deliver owner notices.
 
 ## 3. The domain
 

@@ -7,13 +7,13 @@ import { subscribe } from '@/app/admin/actions'
 /**
  * Design: Blog Sidebar → "Newsletter" — padding 24, gap 16, radius 8.
  *
- * Addresses are stored in content/subscribers.json. Actually sending anything
- * needs an email provider; keeping the list means no sign-ups are lost before
- * one is wired up.
+ * Addresses are stored in the configured Resend audience, never in the public
+ * repository. A provider notification is helpful but not required for signup.
  */
 export function NewsletterForm() {
   const [email, setEmail] = useState('')
   const [done, setDone] = useState(false)
+  const [warning, setWarning] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
 
@@ -23,6 +23,7 @@ export function NewsletterForm() {
       const result = await subscribe(email)
       if (result.ok) {
         setDone(true)
+        setWarning(result.warning ?? null)
         setEmail('')
       } else {
         setError(result.error)
@@ -39,10 +40,13 @@ export function NewsletterForm() {
       </p>
 
       {done ? (
-        <p className="flex items-center gap-2 text-[13px] text-accent">
-          <Check size={14} />
-          You&apos;re on the list.
-        </p>
+        <div className="flex flex-col gap-2 text-[13px]">
+          <p className="flex items-center gap-2 text-accent">
+            <Check size={14} />
+            You&apos;re on the list.
+          </p>
+          {warning ? <p className="text-xs text-text-secondary">{warning}</p> : null}
+        </div>
       ) : (
         <>
           <input

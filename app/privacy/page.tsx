@@ -14,7 +14,7 @@ export const metadata: Metadata = {
  * Written against what the site actually does rather than from a template.
  * Every claim below is checkable in the codebase:
  *
- *   newsletter  → subscribe() in app/admin/actions.ts, content/subscribers.json
+ *   newsletter  → subscribe() in app/admin/actions.ts, Resend audience
  *   comments    → components/comment-form.tsx, content/comments.json
  *   no analytics → no tracking dependency in package.json
  *   self-hosted fonts → next/font/google inlines them at build time

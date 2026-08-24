@@ -51,6 +51,20 @@ GITHUB_BRANCH=main
 Until these are set the admin still loads and reads content; only saving is
 disabled, and it says so rather than failing at the API call.
 
+### Deployment status in the admin
+
+Every GitHub save to `main` triggers Vercel. To show whether that deployment is
+queued, building, ready, or failed, add these production variables as well:
+
+```
+VERCEL_TOKEN=vercel_...
+VERCEL_PROJECT_ID=prj_...
+```
+
+Create a Vercel token with deployment read access and copy the project ID from
+Vercel → Project Settings → General. The token is only used by the protected
+admin status endpoint; it is never sent to the browser.
+
 ## Working locally without any credentials
 
 `.env.local` sets `AUTH_DEV_BYPASS=true`, which adds a **Continue without
@@ -95,7 +109,7 @@ Public side:
 | Feature | What works |
 | --- | --- |
 | Article comments | Anyone can post. Held as pending; only approved comments render. |
-| Newsletter | Validates and stores to `content/subscribers.json` |
+| Newsletter | Validates and stores to the configured Resend audience |
 | Work / Blog filters, search | Client-side, synced to the URL, shareable |
 | Theme toggle | Persists, no flash on reload |
 
@@ -106,7 +120,7 @@ All of it is files in `content/`, on one persistence model:
 - `posts/*.mdx`, `projects/*.mdx` — content
 - `site.json` — profile, socials, SEO, avatar
 - `comments.json` — moderation queue
-- `subscribers.json` — newsletter list
+- Resend audience — newsletter list (kept out of the public repository)
 
 In development these write to your working copy. With a GitHub token they
 become commits. Comment volume is the one thing to watch: every write
@@ -116,7 +130,8 @@ serialises the whole file, which suits a personal blog, not a busy forum.
 
 - **Image upload** — the dropzones render but there is no asset store. Cover
   and avatar fields take a path to something already in `/public`.
-- **Sending newsletters** — addresses are collected; sending needs a provider.
+- **Resend delivery** — the audience write works when Resend is configured; the
+  sending domain must have valid SPF/MX records before owner notices can send.
 - **View counts** — no analytics, so they show "—" rather than invented numbers.
 
 Settings feed the site: the `<title>` and meta description come from
@@ -139,7 +154,9 @@ not cover what the site needs:
 - `app/admin/actions.ts` — every server action re-checks authorisation itself,
   because actions are reachable as POST endpoints regardless of which page
   rendered the form
-- `lib/publish.ts` — commits MDX through the GitHub Contents API
+- `lib/publish.ts` — commits MDX through the GitHub Contents API and returns the
+  commit SHA used to track the Vercel deployment
+- `lib/vercel-deployments.ts` — checks Vercel for that commit's deployment
 
 ## Deploying
 

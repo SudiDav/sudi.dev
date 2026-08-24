@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { CheckCircle2, X } from 'lucide-react'
+import { DeploymentStatus } from './deployment-status'
+import type { PublishResult } from '@/lib/publish'
 
 /**
  * Confirms that a save actually published.
@@ -17,13 +19,22 @@ export function PublishNotice() {
   const params = useSearchParams()
   const published = params.get('published')
   if (!published) return null
+  const sha = params.get('sha')
+  const publish: PublishResult | undefined = sha
+    ? {
+        target: 'github',
+        sha,
+        branch: params.get('branch') ?? undefined,
+        commitUrl: params.get('commitUrl') ?? undefined,
+      }
+    : undefined
 
   // Keyed on the slug so a later save mounts a fresh notice rather than
   // resetting state from an effect.
-  return <Notice key={published} published={published} />
+  return <Notice key={`${published}-${sha ?? ''}`} published={published} publish={publish} />
 }
 
-function Notice({ published }: { published: string }) {
+function Notice({ published, publish }: { published: string; publish?: PublishResult }) {
   const [dismissed, setDismissed] = useState(false)
   if (dismissed) return null
 
@@ -35,9 +46,9 @@ function Notice({ published }: { published: string }) {
           Published “{published}” to the live site
         </span>
         <span className="text-[12px] text-admin-text-secondary">
-          Committed to main. The site rebuilds from that commit, so give it about a minute before
-          the change appears on sudi.dev.
+          Committed to {publish?.branch ?? 'main'}. The site rebuilds from that commit.
         </span>
+        <DeploymentStatus publish={publish} />
       </div>
       <button
         type="button"

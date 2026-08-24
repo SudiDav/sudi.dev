@@ -62,7 +62,20 @@ async function currentSha(path: string): Promise<string | undefined> {
   return body.sha
 }
 
-async function commitFile(path: string, contents: string | Buffer, message: string) {
+export type PublishTarget = 'github' | 'local' | 'disabled'
+
+export type PublishResult = {
+  target: Exclude<PublishTarget, 'disabled'>
+  branch?: string
+  sha?: string
+  commitUrl?: string
+}
+
+async function commitFile(
+  path: string,
+  contents: string | Buffer,
+  message: string,
+): Promise<Pick<PublishResult, 'sha' | 'commitUrl'>> {
   const { repo, branch } = config()
   const sha = await currentSha(path)
 
@@ -85,6 +98,12 @@ async function commitFile(path: string, contents: string | Buffer, message: stri
     const detail = await response.text()
     throw new Error(`GitHub write failed (${response.status}): ${detail.slice(0, 200)}`)
   }
+
+  const body = (await response.json()) as {
+    commit?: { sha?: string; html_url?: string }
+  }
+  if (!body.commit?.sha) throw new Error('GitHub write succeeded without commit metadata.')
+  return { sha: body.commit.sha, commitUrl: body.commit.html_url }
 }
 
 /** Frontmatter keys that must round-trip as quoted strings, not YAML scalars. */
@@ -120,7 +139,7 @@ export type PostDraft = Partial<Omit<Post, 'slug' | 'body'>> & { body?: string }
  * write is based on what is actually in the repo — the local checkout may be
  * behind, and on a deployed instance there is no checkout at all.
  */
-export async function savePost(slug: string, changes: PostDraft, message: string) {
+export async function savePost(slug: string, changes: PostDraft, message: string): Promise<PublishResult> {
   const target = publishTarget()
   if (target === 'disabled') {
     throw new Error(NOT_CONFIGURED)
@@ -138,7 +157,11 @@ export async function savePost(slug: string, changes: PostDraft, message: string
   const { body, ...frontmatterChanges } = changes
   const merged = { ...existing.data, ...frontmatterChanges }
 
-  await commitFile(path, serialise(merged, body ?? existing.content), message)
+  return {
+    target: 'github',
+    branch,
+    ...(await commitFile(path, serialise(merged, body ?? existing.content), message)),
+  }
 }
 
 /**
@@ -150,14 +173,12 @@ export async function savePost(slug: string, changes: PostDraft, message: string
  * so the admin is genuinely usable before any tokens exist. In production with
  * no token, saving is refused rather than silently discarded.
  */
-export type PublishTarget = 'github' | 'local' | 'disabled'
-
 export function publishTarget(): PublishTarget {
   if (process.env.GITHUB_TOKEN && process.env.GITHUB_REPO) return 'github'
   return process.env.NODE_ENV === 'production' ? 'disabled' : 'local'
 }
 
-async function saveLocally(slug: string, changes: PostDraft) {
+async function saveLocally(slug: string, changes: PostDraft): Promise<PublishResult> {
   const path = join(process.cwd(), 'content', 'posts', `${slug}.mdx`)
   const existing = matter(await readFile(path, 'utf8'))
   const { body, ...frontmatterChanges } = changes
@@ -166,13 +187,14 @@ async function saveLocally(slug: string, changes: PostDraft) {
     serialise({ ...existing.data, ...frontmatterChanges }, body ?? existing.content),
     'utf8',
   )
+  return { target: 'local' }
 }
 
 /**
  * Create a post. Like `createProject`, it refuses to overwrite: a title that
  * slugs to an existing post is an error, not a silent replacement.
  */
-export async function createPost(slug: string, draft: PostDraft, message: string) {
+export async function createPost(slug: string, draft: PostDraft, message: string): Promise<PublishResult> {
   const target = publishTarget()
   if (target === 'disabled') throw new Error(NOT_CONFIGURED)
 
@@ -184,11 +206,15 @@ export async function createPost(slug: string, draft: PostDraft, message: string
     const absolute = join(process.cwd(), path)
     if (await exists(absolute)) throw new Error(`A post with the slug "${slug}" already exists.`)
     await writeFile(absolute, contents, 'utf8')
-    return
+    return { target: 'local' }
   }
 
   if (await currentSha(path)) throw new Error(`A post with the slug "${slug}" already exists.`)
-  await commitFile(path, contents, message)
+  return {
+    target: 'github',
+    branch: config().branch,
+    ...(await commitFile(path, contents, message)),
+  }
 }
 
 export type ProjectDraft = Omit<Project, 'slug' | 'body'> & { body?: string }
@@ -206,7 +232,11 @@ export function slugify(name: string): string {
  * Create a project. Refuses to overwrite: a name that collides with an existing
  * project is an error rather than a silent replacement of someone's work.
  */
-export async function createProject(slug: string, draft: ProjectDraft, message: string) {
+export async function createProject(
+  slug: string,
+  draft: ProjectDraft,
+  message: string,
+): Promise<PublishResult> {
   const target = publishTarget()
   if (target === 'disabled') {
     throw new Error(NOT_CONFIGURED)
@@ -223,11 +253,15 @@ export async function createProject(slug: string, draft: ProjectDraft, message: 
     const absolute = join(process.cwd(), path)
     if (await exists(absolute)) throw new Error(`A project called "${slug}" already exists.`)
     await writeFile(absolute, contents, 'utf8')
-    return
+    return { target: 'local' }
   }
 
   if (await currentSha(path)) throw new Error(`A project called "${slug}" already exists.`)
-  await commitFile(path, contents, message)
+  return {
+    target: 'github',
+    branch: config().branch,
+    ...(await commitFile(path, contents, message)),
+  }
 }
 
 async function exists(path: string): Promise<boolean> {
@@ -244,7 +278,11 @@ async function exists(path: string): Promise<boolean> {
  * exist — a missing slug means the caller is editing something that was renamed
  * or deleted, which should surface rather than quietly create a new project.
  */
-export async function saveProject(slug: string, changes: ProjectDraft, message: string) {
+export async function saveProject(
+  slug: string,
+  changes: ProjectDraft,
+  message: string,
+): Promise<PublishResult> {
   const target = publishTarget()
   if (target === 'disabled') throw new Error(NOT_CONFIGURED)
 
@@ -262,7 +300,7 @@ export async function saveProject(slug: string, changes: ProjectDraft, message: 
       ),
       'utf8',
     )
-    return
+    return { target: 'local' }
   }
 
   const { repo, branch } = config()
@@ -271,31 +309,40 @@ export async function saveProject(slug: string, changes: ProjectDraft, message: 
   const file = (await response.json()) as { content: string }
   const existing = matter(Buffer.from(file.content, 'base64').toString('utf8'))
 
-  await commitFile(
-    path,
-    serialise(
-      { ...existing.data, ...(frontmatter as Record<string, unknown>) },
-      body ?? existing.content,
-    ),
-    message,
-  )
+  return {
+    target: 'github',
+    branch,
+    ...(await commitFile(
+      path,
+      serialise(
+        { ...existing.data, ...(frontmatter as Record<string, unknown>) },
+        body ?? existing.content,
+      ),
+      message,
+    )),
+  }
 }
 
 /** Write any JSON file in the repo through the configured target. */
-export async function writeJson(path: string, data: unknown, message: string) {
+export async function writeJson(
+  path: string,
+  data: unknown,
+  message: string,
+): Promise<PublishResult> {
   const target = publishTarget()
   if (target === 'disabled') throw new Error(NOT_CONFIGURED)
 
   const contents = `${JSON.stringify(data, null, 2)}\n`
   if (target === 'local') {
     await writeFile(join(process.cwd(), path), contents, 'utf8')
-    return
+    return { target: 'local' }
   }
-  await commitFile(path, contents, message)
+  const { branch } = config()
+  return { target: 'github', branch, ...(await commitFile(path, contents, message)) }
 }
 
 /** Site settings live in content/site.json, written the same way as content. */
-export async function saveSettings(settings: SiteSettings, message: string) {
+export async function saveSettings(settings: SiteSettings, message: string): Promise<PublishResult> {
   const target = publishTarget()
   if (target === 'disabled') throw new Error(NOT_CONFIGURED)
 
@@ -304,9 +351,10 @@ export async function saveSettings(settings: SiteSettings, message: string) {
 
   if (target === 'local') {
     await writeFile(join(process.cwd(), path), contents, 'utf8')
-    return
+    return { target: 'local' }
   }
-  await commitFile(path, contents, message)
+  const { branch } = config()
+  return { target: 'github', branch, ...(await commitFile(path, contents, message)) }
 }
 
 /** True when saving will actually persist somewhere. */

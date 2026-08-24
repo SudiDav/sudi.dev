@@ -14,6 +14,8 @@ import { updateSettings } from '@/app/admin/actions'
 import { signOutAction } from './actions'
 import { ThemePicker } from '@/components/theme-picker'
 import type { SiteSettings } from '@/lib/site'
+import type { PublishResult } from '@/lib/publish'
+import { DeploymentStatus } from '@/components/admin/deployment-status'
 
 const inputClass =
   'w-full rounded-lg border border-admin-border bg-admin-input px-3.5 py-2.5 text-[13px] text-admin-text focus:border-accent focus:outline-none'
@@ -81,6 +83,7 @@ export function SettingsForm({
 }) {
   const [settings, setSettings] = useState(initial)
   const [saved, setSaved] = useState(false)
+  const [publish, setPublish] = useState<PublishResult | null>(null)
   const [editingAvatar, setEditingAvatar] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
@@ -88,13 +91,17 @@ export function SettingsForm({
   const set = <K extends keyof SiteSettings>(key: K, value: SiteSettings[K]) => {
     setSettings((current) => ({ ...current, [key]: value }))
     setSaved(false)
+    setPublish(null)
   }
 
   const save = () => {
     setError(null)
     startTransition(async () => {
       const result = await updateSettings(settings)
-      if (result.ok) setSaved(true)
+      if (result.ok) {
+        setSaved(true)
+        setPublish(result.publish ?? null)
+      }
       else setError(result.error)
     })
   }
@@ -133,6 +140,8 @@ export function SettingsForm({
           Saved to content/site.json
         </p>
       ) : null}
+
+      {publish ? <DeploymentStatus publish={publish} /> : null}
 
       <div className="flex flex-col gap-8 xl:flex-row">
         <div className="flex flex-1 flex-col gap-6">
