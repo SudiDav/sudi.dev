@@ -3,15 +3,13 @@
 import { revalidatePath } from 'next/cache'
 import { addToAudience, notifyNewSubscriber } from '@/lib/email'
 import { isAdmin } from '@/auth'
-import {
-  savePost,
+import { savePost,
   createPost,
   createProject,
   saveProject,
   saveSettings,
   slugify,
-  type PostDraft,
-} from '@/lib/publish'
+  type PostDraft, uploadImage } from '@/lib/publish'
 import type { SiteSettings } from '@/lib/site'
 
 /**
@@ -231,4 +229,27 @@ export async function subscribe(email: string): Promise<ActionResult> {
   if (!notified.sent) console.warn(`[newsletter] no notification sent: ${notified.reason}`)
 
   return { ok: true }
+}
+
+/**
+ * Admin: upload a cover image.
+ *
+ * Takes FormData rather than a File argument because that is what a file input
+ * gives a server action without any client-side encoding.
+ */
+export async function uploadCoverImage(
+  form: FormData,
+): Promise<{ ok: true; path: string } | { ok: false; error: string }> {
+  await requireAdmin()
+
+  const file = form.get('file')
+  if (!(file instanceof File) || file.size === 0) {
+    return { ok: false, error: 'No file was received' }
+  }
+
+  try {
+    return { ok: true, path: await uploadImage(file) }
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : 'Upload failed' }
+  }
 }

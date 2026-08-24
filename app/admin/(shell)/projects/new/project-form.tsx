@@ -1,10 +1,11 @@
 'use client'
 
+import { CoverUpload } from '@/components/admin/cover-upload'
 import { PROJECT_CATEGORIES } from '@/lib/filters'
 import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Upload, X, TriangleAlert } from 'lucide-react'
+import { X, TriangleAlert } from 'lucide-react'
 import { AdminCard } from '@/components/admin/admin-ui'
 import { addProject, editProject } from '@/app/admin/actions'
 import type { Project } from '@/lib/content.types'
@@ -271,18 +272,9 @@ export function ProjectForm({
 
         <div className="flex w-full flex-col gap-5 xl:w-[360px]">
           <AdminCard title="Cover Image">
-            <div className="flex flex-col items-center gap-2 rounded-lg border border-dashed border-admin-border px-4 py-10 text-center">
-              <Upload size={22} className="text-admin-text-tertiary" />
-              <span className="text-[13px] text-admin-text-secondary">
-                Drop image here or click to upload
-              </span>
-              <span className="text-[11px] text-admin-text-tertiary">PNG, JPG, WebP · Max 5MB</span>
-            </div>
-            {/*
-              Uploading needs somewhere to put the file; this site has no asset
-              store yet. Until it does, the field takes a path to an image
-              already in /public so the card renders correctly.
-            */}
+            <CoverUpload value={cover} onChange={setCover} />
+            {/* Still editable, so an image already in the repo can be reused
+                by path without uploading a second copy of it. */}
             <Field
               label="Cover path"
               value={cover}
