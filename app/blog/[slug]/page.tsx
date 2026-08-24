@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 import { ArrowRight, Copy, AtSign } from 'lucide-react'
 import { GithubIcon } from '@/components/brand-icons'
 import { MDXRemote } from 'next-mdx-remote/rsc'
+import { ListenButton } from '@/components/listen-button'
 import { isExternal, OutboundLink } from '@/components/outbound-link'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
@@ -182,7 +183,12 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
         {/* Article Body — COLUMN, padding [48,360], gap 28 */}
         <div className="flex flex-col gap-7 px-4 py-12 md:px-8 lg:px-40 xl:px-90">
-          <MDXRemote source={post.body} components={mdxComponents} />
+          <ListenButton targetId="article-body" />
+
+          {/* Read aloud from here, so the audio and the highlight share a source. */}
+          <div id="article-body" className="flex flex-col gap-7">
+            <MDXRemote source={post.body} components={mdxComponents} />
+          </div>
 
           {post.tags?.length ? (
             <>
