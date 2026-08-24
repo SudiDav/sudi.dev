@@ -1,4 +1,5 @@
 import 'server-only'
+import { randomUUID } from 'node:crypto'
 import { readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import matter from 'gray-matter'
@@ -61,7 +62,7 @@ async function currentSha(path: string): Promise<string | undefined> {
   return body.sha
 }
 
-async function commitFile(path: string, contents: string, message: string) {
+async function commitFile(path: string, contents: string | Buffer, message: string) {
   const { repo, branch } = config()
   const sha = await currentSha(path)
 
@@ -69,7 +70,10 @@ async function commitFile(path: string, contents: string, message: string) {
     method: 'PUT',
     body: JSON.stringify({
       message,
-      content: Buffer.from(contents, 'utf8').toString('base64'),
+      // Text arrives as a string, images as a Buffer; both go up base64.
+      content: Buffer.isBuffer(contents)
+        ? contents.toString('base64')
+        : Buffer.from(contents, 'utf8').toString('base64'),
       branch,
       // Omitting sha creates; including it updates. Sending a stale sha makes
       // GitHub reject the write rather than silently clobbering a newer commit.
@@ -308,4 +312,68 @@ export async function saveSettings(settings: SiteSettings, message: string) {
 /** True when saving will actually persist somewhere. */
 export function isPublishingConfigured(): boolean {
   return publishTarget() !== 'disabled'
+}
+
+/** What an upload is allowed to be. */
+const IMAGE_TYPES: Record<string, string> = {
+  'image/png': 'png',
+  'image/jpeg': 'jpg',
+  'image/webp': 'webp',
+  'image/avif': 'avif',
+}
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024
+
+/**
+ * Commit an uploaded image into `public/images/` and return its public path.
+ *
+ * The repo is the asset store. It already holds the content and already has a
+ * write path through the GitHub API, so an image needs no new service, no
+ * bucket and no second set of credentials — and it deploys with the post that
+ * references it rather than arriving separately.
+ *
+ * The trade-off is that images are permanent in git history, so this refuses
+ * anything large and anything that is not an image.
+ */
+export async function uploadImage(file: File): Promise<string> {
+  const target = publishTarget()
+  if (target === 'disabled') throw new Error(NOT_CONFIGURED)
+
+  const extension = IMAGE_TYPES[file.type]
+  if (!extension) {
+    throw new Error(`${file.type || 'That file'} is not a supported image (PNG, JPG, WebP, AVIF)`)
+  }
+  if (file.size > MAX_IMAGE_BYTES) {
+    throw new Error(`Image is ${(file.size / 1024 / 1024).toFixed(1)}MB; the limit is 5MB`)
+  }
+
+  const bytes = Buffer.from(await file.arrayBuffer())
+  const path = `public/images/${imageName(file.name, extension)}`
+
+  if (target === 'local') {
+    await writeFile(join(process.cwd(), path), bytes)
+  } else {
+    await commitFile(path, bytes, `content: upload ${path}`)
+  }
+
+  // The public URL, which is the path minus the `public` prefix.
+  return path.replace(/^public/, '')
+}
+
+/**
+ * A safe, unique filename.
+ *
+ * The original name is kept in readable form so the repo stays browsable, with
+ * a short random suffix so re-uploading a file called `cover.png` never
+ * silently overwrites a different post's cover.
+ */
+function imageName(original: string, extension: string): string {
+  const base = original
+    .replace(/\.[^.]+$/, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 40)
+
+  const suffix = randomUUID().slice(0, 8)
+  return `${base || 'image'}-${suffix}.${extension}`
 }

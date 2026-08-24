@@ -1,7 +1,7 @@
 import { readdir } from 'node:fs/promises'
 import { join } from 'node:path'
 import { describe, it, expect } from 'vitest'
-import { getPosts, getPost, getProjects, getProject } from './content'
+import { getPosts, getPost, getProjects } from './content'
 
 /**
  * Counts come from the content directory rather than a literal, so adding a
@@ -26,18 +26,25 @@ describe('getPosts', () => {
     expect((await getPosts()).filter((p) => p.featured)).toHaveLength(1)
   })
 
-  it('parses frontmatter into every field', async () => {
-    const post = (await getPosts()).find((p) => p.featured)!
-    expect(post.title).toBe('Maybe Love Is the Now')
-    expect(post.readingTime).toBe('5 min read')
-    expect(post.body.length).toBeGreaterThan(0)
+  it('parses frontmatter into every field the page renders', async () => {
+    // Shape, not values — editing a post through the admin must not fail CI.
+    for (const post of await getPosts()) {
+      expect(post.title.trim()).not.toBe('')
+      expect(post.excerpt.trim()).not.toBe('')
+      expect(post.date).toMatch(/^\d{4}-\d{2}-\d{2}$/)
+      expect(post.readingTime).toMatch(/^\d+ min read$/)
+      expect(post.category.trim()).not.toBe('')
+      expect(post.cover.startsWith('/')).toBe(true)
+      expect(post.body.length).toBeGreaterThan(0)
+    }
   })
 })
 
 describe('getPost', () => {
   it('resolves a known slug', async () => {
-    const post = await getPost('maybe-love-is-the-now')
-    expect(post?.featured).toBe(true)
+    const [first] = await getPosts()
+    const post = await getPost(first.slug)
+    expect(post?.slug).toBe(first.slug)
   })
 
   it('returns null for an unknown slug', async () => {
@@ -59,8 +66,25 @@ describe('getProjects', () => {
     expect([...years].sort().reverse()).toEqual(years)
   })
 
-  it('parses tech as an array', async () => {
-    const project = await getProject('auction-car')
-    expect(project?.tech).toEqual(['.NET', 'RabbitMQ', 'Docker', 'Kubernetes'])
+  it('parses tech as an array of non-empty strings', async () => {
+    // Asserts the shape, never the contents. Pinning the exact list meant that
+    // editing a project's tech stack through the admin failed CI — the tests
+    // are here to catch broken parsing, not to freeze the content.
+    for (const project of await getProjects()) {
+      expect(Array.isArray(project.tech)).toBe(true)
+      for (const entry of project.tech) {
+        expect(typeof entry).toBe('string')
+        expect(entry.trim()).not.toBe('')
+      }
+    }
+  })
+
+  it('gives every project the fields the cards render', async () => {
+    for (const project of await getProjects()) {
+      expect(project.title.trim()).not.toBe('')
+      expect(project.year).toMatch(/^\d{4}$/)
+      expect(project.category.trim()).not.toBe('')
+      expect(project.cover.startsWith('/')).toBe(true)
+    }
   })
 })
