@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter, Geist, Geist_Mono } from 'next/font/google'
 import { getSettings } from '@/lib/site'
+import { Analytics } from '@vercel/analytics/next'
 import { themeBootstrapScript } from '@/lib/theme'
 import './globals.css'
 
@@ -28,7 +29,16 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeBootstrapScript }} />
       </head>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        {children}
+        {/*
+          Vercel Web Analytics. Cookieless: visitors are identified by a hash of
+          the request that resets daily, so nobody is followed between days or
+          across sites. It is the only measurement on the site, and the privacy
+          page says so.
+        */}
+        <Analytics />
+      </body>
     </html>
   )
 }

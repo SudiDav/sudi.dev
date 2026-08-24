@@ -11,6 +11,7 @@ import { TechBadge } from '@/components/tech-badge'
 import { NewsletterForm } from '@/components/newsletter-form'
 import { PAGE_GUTTER } from '@/components/layout'
 import { getPosts } from '@/lib/content'
+import type { Post } from '@/lib/content.types'
 import { filterPostsByCategory, searchPosts, POST_FILTERS } from '@/lib/filters'
 
 export const metadata: Metadata = {
@@ -18,18 +19,57 @@ export const metadata: Metadata = {
   description: 'Thoughts on software engineering, developer tooling, and building for the web.',
 }
 
-/** Design: Blog Sidebar → "Topics", two rows of three. */
-const TOPIC_ROWS = [
-  ['React', 'TypeScript', 'DevOps'],
-  ['Architecture', 'Rust', 'Go'],
-]
+/**
+ * Design: Blog Sidebar → "Topics", two rows of three.
+ *
+ * The design lists React, Rust, Go and Architecture — none of which anything
+ * here is written about. Taken from the posts' own tags instead, most frequent
+ * first, so the sidebar can only ever advertise writing that exists.
+ */
+function buildTopicRows(posts: Post[]) {
+  const counts = new Map<string, number>()
+  for (const tag of posts.flatMap((post) => post.tags ?? [])) {
+    counts.set(tag, (counts.get(tag) ?? 0) + 1)
+  }
 
-/** Design: Blog Sidebar → "Reading Stats". The frame's own figures. */
-const BLOG_STATS = [
-  { Icon: FileText, label: 'Articles', value: '24' },
-  { Icon: Timer, label: 'Avg. Read', value: '7 min' },
-  { Icon: Eye, label: 'Total Views', value: '48.2K' },
-]
+  const top = [...counts.entries()]
+    .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+    .slice(0, 6)
+    .map(([tag]) => tag)
+
+  return [top.slice(0, 3), top.slice(3, 6)].filter((row) => row.length > 0)
+}
+
+/**
+ * Design: Blog Sidebar → "Reading Stats", drawn as 24 articles / 7 min / 48.2K
+ * views.
+ *
+ * Those were the frame's own figures and every one of them was false here: the
+ * article count was wrong, and there is no analytics on this site at all, so
+ * the view total was a number with nothing behind it. Publishing an invented
+ * audience size is worse than publishing none.
+ *
+ * Articles and average read time are computed from the posts. "Topics" replaces
+ * views because it is something the site can actually know.
+ */
+function buildBlogStats(posts: Post[]) {
+  const minutes = posts
+    .map((post) => Number.parseInt(post.readingTime, 10))
+    .filter((n) => Number.isFinite(n))
+  const average = minutes.length
+    ? Math.round(minutes.reduce((sum, n) => sum + n, 0) / minutes.length)
+    : 0
+
+  return [
+    { Icon: FileText, label: 'Articles', value: String(posts.length) },
+    { Icon: Timer, label: 'Avg. Read', value: `${average} min` },
+    {
+      Icon: Eye,
+      label: 'Topics',
+      value: String(new Set(posts.map((post) => post.category)).size),
+    },
+  ]
+}
 
 export default async function BlogPage({
   searchParams,
@@ -42,6 +82,9 @@ export default async function BlogPage({
     : 'All'
 
   const posts = await getPosts()
+  // Describes the whole blog, so it counts every post rather than the filtered view.
+  const blogStats = buildBlogStats(posts)
+  const topicRows = buildTopicRows(posts)
   const featured = posts.find((post) => post.featured)
   const listed = searchPosts(
     filterPostsByCategory(
@@ -107,7 +150,7 @@ export default async function BlogPage({
               <h2 className="font-mono text-[11px] font-semibold tracking-[1.5px] text-text-tertiary">
                 TOPICS
               </h2>
-              {TOPIC_ROWS.map((row) => (
+              {topicRows.map((row) => (
                 <div key={row.join()} className="flex flex-wrap gap-2">
                   {row.map((topic) => (
                     <TechBadge key={topic} label={topic} />
@@ -120,7 +163,7 @@ export default async function BlogPage({
               <h2 className="font-mono text-[11px] font-semibold tracking-[1.5px] text-text-tertiary">
                 THIS BLOG
               </h2>
-              {BLOG_STATS.map(({ Icon, label, value }) => (
+              {blogStats.map(({ Icon, label, value }) => (
                 <div key={label} className="flex items-center justify-between gap-2.5">
                   <span className="flex items-center gap-2.5 text-[13px] text-text-secondary">
                     <Icon size={14} className="text-text-tertiary" />
