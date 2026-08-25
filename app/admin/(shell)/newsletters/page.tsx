@@ -3,6 +3,7 @@ import { NewsletterList } from '@/components/admin/newsletter-list'
 import { listNewsletters } from '@/app/admin/actions'
 
 export const metadata = { robots: { index: false, follow: false } }
+export const dynamic = 'force-dynamic'
 
 export default async function AdminNewslettersPage() {
   const result = await listNewsletters()
