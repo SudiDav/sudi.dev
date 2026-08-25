@@ -69,6 +69,13 @@ export type PublishResult = {
   branch?: string
   sha?: string
   commitUrl?: string
+  previousStatus?: Post['status']
+  status?: Post['status']
+  post?: Post
+}
+
+function normaliseStatus(value: unknown): Post['status'] {
+  return value === 'Draft' || value === 'Archived' ? value : 'Published'
 }
 
 async function commitFile(
@@ -156,10 +163,16 @@ export async function savePost(slug: string, changes: PostDraft, message: string
 
   const { body, ...frontmatterChanges } = changes
   const merged = { ...existing.data, ...frontmatterChanges }
+  const nextBody = body ?? existing.content
+  const previousStatus = normaliseStatus(existing.data.status)
+  const status = normaliseStatus(merged.status)
 
   return {
     target: 'github',
     branch,
+    previousStatus,
+    status,
+    post: { ...merged, slug, body: nextBody, status } as Post,
     ...(await commitFile(path, serialise(merged, body ?? existing.content), message)),
   }
 }
@@ -201,18 +214,22 @@ export async function createPost(slug: string, draft: PostDraft, message: string
   const path = `content/posts/${slug}.mdx`
   const { body, ...frontmatter } = draft
   const contents = serialise(frontmatter as Record<string, unknown>, body ?? '')
+  const status = normaliseStatus(frontmatter.status)
+  const post = { ...frontmatter, slug, body: body ?? '', status } as Post
 
   if (target === 'local') {
     const absolute = join(process.cwd(), path)
     if (await exists(absolute)) throw new Error(`A post with the slug "${slug}" already exists.`)
     await writeFile(absolute, contents, 'utf8')
-    return { target: 'local' }
+    return { target: 'local', status, post }
   }
 
   if (await currentSha(path)) throw new Error(`A post with the slug "${slug}" already exists.`)
   return {
     target: 'github',
     branch: config().branch,
+    status,
+    post,
     ...(await commitFile(path, contents, message)),
   }
 }

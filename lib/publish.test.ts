@@ -54,6 +54,19 @@ describe('publishing metadata', () => {
     expect(result).toEqual({
       target: 'github',
       branch: 'main',
+      status: 'Draft',
+      post: {
+        slug: 'publish-metadata-test',
+        title: 'Publish metadata test',
+        excerpt: 'A test post',
+        date: '2026-08-24',
+        readingTime: '1 min read',
+        category: 'Craft',
+        cover: '/images/sudi.jpeg',
+        featured: false,
+        status: 'Draft',
+        body: 'Test body',
+      },
       sha: 'abc123',
       commitUrl: 'https://github.com/SudiDav/sudi.dev/commit/abc123',
     })

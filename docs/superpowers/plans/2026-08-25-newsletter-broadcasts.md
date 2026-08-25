@@ -32,7 +32,7 @@
 - Consumes: `Post` from `lib/content.types.ts`, `SITE_URL` from `lib/site.ts`, and `RESEND_*` environment variables.
 - Produces: `createPostBroadcast(post, commitSha)`, `listNewsletterBroadcasts()`, and `sendNewsletterBroadcast(id)` with typed soft outcomes.
 
-- [ ] **Step 1: Write failing tests for the email payload and safe provider outcomes**
+- [x] **Step 1: Write failing tests for the email payload and safe provider outcomes**
 
 Add a mocked `resend` module and tests with these exact expectations:
 
@@ -75,13 +75,13 @@ it('refuses to send a broadcast that is not still a draft', async () => {
 })
 ```
 
-- [ ] **Step 2: Run the focused tests and verify they fail**
+- [x] **Step 2: Run the focused tests and verify they fail**
 
 Run: `pnpm exec vitest run lib/newsletter.test.ts`
 
 Expected: FAIL because the newsletter service and mocked methods do not exist yet.
 
-- [ ] **Step 3: Implement `lib/newsletter.ts`**
+- [x] **Step 3: Implement `lib/newsletter.ts`**
 
 Define:
 
@@ -99,13 +99,13 @@ Use `new Resend(process.env.RESEND_API_KEY).broadcasts.create` with `send: false
 
 For duplicate-safe retry, use the idempotency key on creation. `listNewsletterBroadcasts` should call `broadcasts.list({ limit: 100 })`, filter names beginning with `sudi.dev post:`, and return the fields needed by the admin list. `sendNewsletterBroadcast` should call `broadcasts.get(id)`, reject any status other than `draft`, then call `broadcasts.send(id)`.
 
-- [ ] **Step 4: Run the focused tests and verify they pass**
+- [x] **Step 4: Run the focused tests and verify they pass**
 
 Run: `pnpm exec vitest run lib/newsletter.test.ts`
 
 Expected: PASS.
 
-- [ ] **Step 5: Commit the service and tests**
+- [x] **Step 5: Commit the service and tests**
 
 ```bash
 git add lib/newsletter.ts lib/newsletter.test.ts

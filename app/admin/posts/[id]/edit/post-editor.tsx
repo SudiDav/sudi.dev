@@ -29,6 +29,8 @@ import { useRouter } from 'next/navigation'
 import { updatePost, addPost } from '@/app/admin/actions'
 import { DeploymentStatus } from '@/components/admin/deployment-status'
 import type { PublishResult } from '@/lib/publish'
+import type { NewsletterOutcome } from '@/lib/newsletter'
+import { NewsletterStatus } from '@/components/admin/newsletter-status'
 
 /**
  * Design: "Admin — Post Editor". The chrome is unchanged from the frame; the
@@ -65,10 +67,12 @@ export function PostEditor({
   post,
   canPublish,
   initialPublish,
+  initialNewsletter,
 }: {
   post?: Post
   canPublish: boolean
   initialPublish?: PublishResult
+  initialNewsletter?: NewsletterOutcome
 }) {
   const creating = !post
   const router = useRouter()
@@ -80,6 +84,7 @@ export function PostEditor({
   const [cover, setCover] = useState(post?.cover ?? '')
   const [saved, setSaved] = useState<string | null>(null)
   const [publish, setPublish] = useState<PublishResult | null>(initialPublish ?? null)
+  const [newsletter, setNewsletter] = useState<NewsletterOutcome | null>(initialNewsletter ?? null)
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
 
@@ -105,6 +110,10 @@ export function PostEditor({
           if (result.publish?.sha) params.set('sha', result.publish.sha)
           if (result.publish?.branch) params.set('branch', result.publish.branch)
           if (result.publish?.commitUrl) params.set('commitUrl', result.publish.commitUrl)
+          if (result.newsletter?.ok) {
+            params.set('newsletterId', result.newsletter.id)
+            params.set('newsletterName', result.newsletter.name)
+          }
           router.replace(
             `/admin/posts/${result.slug}/edit${params.toString() ? `?${params.toString()}` : ''}`,
           )
@@ -123,6 +132,7 @@ export function PostEditor({
       })
       if (result.ok) {
         setPublish(result.publish ?? null)
+        setNewsletter(result.newsletter ?? null)
         if (nextStatus) setStatus(nextStatus)
         setSaved(new Date().toLocaleTimeString())
       } else {
@@ -208,6 +218,7 @@ export function PostEditor({
       {publish ? (
         <div className="border-b border-admin-border px-6 py-2.5">
           <DeploymentStatus publish={publish} />
+          <NewsletterStatus newsletter={newsletter} />
         </div>
       ) : null}
 

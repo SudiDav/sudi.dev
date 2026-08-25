@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache'
 import { addToAudience, notifyNewSubscriber, subscriptionOutcome } from '@/lib/email'
+import { createPostBroadcast, listNewsletterBroadcasts, sendNewsletterBroadcast } from '@/lib/newsletter'
 import { isAdmin } from '@/auth'
 import { savePost,
   createPost,
@@ -24,8 +25,14 @@ async function requireAdmin() {
 }
 
 export type ActionResult =
-  | { ok: true; publish?: PublishResult; warning?: string }
+  | { ok: true; publish?: PublishResult; newsletter?: Awaited<ReturnType<typeof createPostBroadcast>>; warning?: string }
   | { ok: false; error: string }
+
+async function newsletterForPublish(publish: PublishResult) {
+  if (!publish.sha || !publish.post || publish.status !== 'Published') return undefined
+  if (publish.previousStatus === 'Published') return undefined
+  return createPostBroadcast(publish.post, publish.sha)
+}
 
 export async function updatePost(slug: string, changes: PostDraft): Promise<ActionResult> {
   await requireAdmin()
@@ -35,10 +42,11 @@ export async function updatePost(slug: string, changes: PostDraft): Promise<Acti
 
   try {
     const publish = await savePost(slug, changes, `content: update ${slug}`)
+    const newsletter = await newsletterForPublish(publish)
     revalidatePath('/admin/posts')
     revalidatePath('/blog')
     revalidatePath(`/blog/${slug}`)
-    return { ok: true, publish }
+    return { ok: true, publish, newsletter }
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : 'Publish failed' }
   }
@@ -84,9 +92,10 @@ export async function addPost(input: NewPost): Promise<ActionResult & { slug?: s
       },
       `content: add post ${slug}`,
     )
+    const newsletter = await newsletterForPublish(publish)
     revalidatePath('/admin/posts')
     revalidatePath('/blog')
-    return { ok: true, slug, publish }
+    return { ok: true, slug, publish, newsletter }
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : 'Could not create post' }
   }
