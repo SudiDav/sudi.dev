@@ -164,6 +164,9 @@ export async function sendNewsletterBroadcast(id: string): Promise<NewsletterSen
     if (current.data.status !== 'draft') {
       return { ok: false, error: 'This newsletter has already been sent.' }
     }
+    if (!current.data.name.startsWith(BROADCAST_PREFIX)) {
+      return { ok: false, error: 'This newsletter does not belong to sudi.dev.' }
+    }
 
     const { data, error } = await resend.broadcasts.send(id)
     if (error) return { ok: false, error: error.message }

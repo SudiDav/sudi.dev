@@ -146,10 +146,27 @@ describe('newsletter broadcasts', () => {
 
   it('sends a draft after confirming it is still sendable', async () => {
     process.env.RESEND_API_KEY = 're_test_key'
-    broadcastGetMock.mockResolvedValueOnce({ data: { id: 'br_123', status: 'draft' }, error: null })
+    broadcastGetMock.mockResolvedValueOnce({
+      data: { id: 'br_123', name: 'sudi.dev post: observability-101 · sha_123', status: 'draft' },
+      error: null,
+    })
     broadcastSendMock.mockResolvedValueOnce({ data: { id: 'br_123' }, error: null })
 
     await expect(sendNewsletterBroadcast('br_123')).resolves.toEqual({ ok: true, id: 'br_123' })
     expect(broadcastSendMock).toHaveBeenCalledWith('br_123')
+  })
+
+  it('refuses to send a broadcast that does not belong to sudi.dev', async () => {
+    process.env.RESEND_API_KEY = 're_test_key'
+    broadcastGetMock.mockResolvedValueOnce({
+      data: { id: 'br_other', name: 'Other campaign', status: 'draft' },
+      error: null,
+    })
+
+    await expect(sendNewsletterBroadcast('br_other')).resolves.toEqual({
+      ok: false,
+      error: 'This newsletter does not belong to sudi.dev.',
+    })
+    expect(broadcastSendMock).not.toHaveBeenCalled()
   })
 })
