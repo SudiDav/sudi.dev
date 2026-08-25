@@ -2,6 +2,7 @@ import { describe, it, expect, vi, afterEach } from 'vitest'
 import {
   addToAudience,
   emailConfigured,
+  listAudienceContacts,
   notifyNewSubscriber,
   subscriptionOutcome,
 } from './email'
@@ -10,10 +11,14 @@ import {
 // The module is mocked instead, which also keeps these tests off the network.
 const sendMock = vi.fn()
 const contactMock = vi.fn()
+const contactListMock = vi.fn()
 vi.mock('resend', () => ({
   Resend: class {
     emails = { send: (...args: unknown[]) => sendMock(...args) }
-    contacts = { create: (...args: unknown[]) => contactMock(...args) }
+    contacts = {
+      create: (...args: unknown[]) => contactMock(...args),
+      list: (...args: unknown[]) => contactListMock(...args),
+    }
   },
 }))
 
@@ -30,6 +35,7 @@ describe('email', () => {
     vi.restoreAllMocks()
     sendMock.mockReset()
     contactMock.mockReset()
+    contactListMock.mockReset()
   })
 
   it('reports itself unconfigured without an API key', () => {
@@ -112,6 +118,53 @@ describe('email', () => {
       audienceId: 'aud_123',
       unsubscribed: false,
     })
+  })
+
+  it('lists contacts from the configured audience', async () => {
+    process.env.RESEND_API_KEY = 're_test_key'
+    process.env.RESEND_AUDIENCE_ID = 'aud_123'
+    contactListMock.mockResolvedValueOnce({
+      data: {
+        data: [
+          {
+            id: 'ct_123',
+            email: 'reader@example.com',
+            first_name: null,
+            last_name: null,
+            created_at: '2026-08-25T12:00:00.000Z',
+            unsubscribed: false,
+          },
+        ],
+        has_more: true,
+      },
+      error: null,
+    })
+
+    const result = await listAudienceContacts()
+
+    expect(result).toEqual({
+      ok: true,
+      contacts: [
+        {
+          id: 'ct_123',
+          email: 'reader@example.com',
+          createdAt: '2026-08-25T12:00:00.000Z',
+          unsubscribed: false,
+        },
+      ],
+      hasMore: true,
+    })
+    expect(contactListMock).toHaveBeenCalledWith({ audienceId: 'aud_123', limit: 100 })
+  })
+
+  it('reports a missing audience id when listing contacts', async () => {
+    process.env.RESEND_API_KEY = 're_test_key'
+    delete process.env.RESEND_AUDIENCE_ID
+
+    const result = await listAudienceContacts()
+
+    expect(result).toEqual({ ok: false, error: 'RESEND_AUDIENCE_ID not set' })
+    expect(contactListMock).not.toHaveBeenCalled()
   })
 
   it('fails the subscription when audience storage fails', () => {

@@ -20,6 +20,17 @@ export type SubscriptionOutcome =
   | { ok: true; warning?: string }
   | { ok: false; error: string }
 
+export type AudienceContactSummary = {
+  id: string
+  email: string
+  createdAt: string
+  unsubscribed: boolean
+}
+
+export type AudienceContactsOutcome =
+  | { ok: true; contacts: AudienceContactSummary[]; hasMore: boolean }
+  | { ok: false; error: string }
+
 export function subscriptionOutcome(stored: SendResult, notified: SendResult): SubscriptionOutcome {
   if (!stored.sent) {
     return {
@@ -87,5 +98,30 @@ export async function addToAudience(address: string): Promise<SendResult> {
     return error ? { sent: false, reason: error.message } : { sent: true }
   } catch (error) {
     return { sent: false, reason: error instanceof Error ? error.message : 'contact create failed' }
+  }
+}
+
+/** List the configured audience for the protected admin UI. */
+export async function listAudienceContacts(): Promise<AudienceContactsOutcome> {
+  const key = process.env.RESEND_API_KEY
+  const audienceId = process.env.RESEND_AUDIENCE_ID
+  if (!key) return { ok: false, error: 'RESEND_API_KEY not set' }
+  if (!audienceId) return { ok: false, error: 'RESEND_AUDIENCE_ID not set' }
+
+  try {
+    const { data, error } = await new Resend(key).contacts.list({ audienceId, limit: 100 })
+    if (error) return { ok: false, error: error.message }
+    return {
+      ok: true,
+      contacts: (data?.data ?? []).map((contact) => ({
+        id: contact.id,
+        email: contact.email,
+        createdAt: contact.created_at,
+        unsubscribed: contact.unsubscribed,
+      })),
+      hasMore: data?.has_more ?? false,
+    }
+  } catch (error) {
+    return { ok: false, error: error instanceof Error ? error.message : 'contact list failed' }
   }
 }

@@ -8,6 +8,7 @@ const {
   newsletterMock,
   listMock,
   sendMock,
+  audienceListMock,
   revalidatePathMock,
 } = vi.hoisted(() => ({
   isAdminMock: vi.fn(),
@@ -16,11 +17,18 @@ const {
   newsletterMock: vi.fn(),
   listMock: vi.fn(),
   sendMock: vi.fn(),
+  audienceListMock: vi.fn(),
   revalidatePathMock: vi.fn(),
 }))
 
 vi.mock('@/auth', () => ({ isAdmin: isAdminMock }))
 vi.mock('next/cache', () => ({ revalidatePath: revalidatePathMock }))
+vi.mock('@/lib/email', () => ({
+  addToAudience: vi.fn(),
+  notifyNewSubscriber: vi.fn(),
+  subscriptionOutcome: vi.fn(),
+  listAudienceContacts: (...args: unknown[]) => audienceListMock(...args),
+}))
 vi.mock('@/lib/publish', () => ({
   createPost: (...args: unknown[]) => createPostMock(...args),
   savePost: (...args: unknown[]) => savePostMock(...args),
@@ -36,7 +44,7 @@ vi.mock('@/lib/newsletter', () => ({
   sendNewsletterBroadcast: (...args: unknown[]) => sendMock(...args),
 }))
 
-import { addPost, listNewsletters, sendNewsletter, updatePost } from './actions'
+import { addPost, listNewsletters, listSubscribers, sendNewsletter, updatePost } from './actions'
 
 const postFixture: Post = {
   slug: 'hello',
@@ -146,6 +154,42 @@ describe('post newsletter integration', () => {
 
     await expect(listNewsletters()).resolves.toEqual({ ok: true, broadcasts: [] })
     expect(listMock).toHaveBeenCalledOnce()
+  })
+
+  it('rejects subscriber listing for a non-admin', async () => {
+    isAdminMock.mockResolvedValueOnce(false)
+
+    await expect(listSubscribers()).rejects.toThrow('Not authorised')
+    expect(audienceListMock).not.toHaveBeenCalled()
+  })
+
+  it('lists subscribers for an authenticated admin', async () => {
+    audienceListMock.mockResolvedValueOnce({
+      ok: true,
+      contacts: [
+        {
+          id: 'ct_123',
+          email: 'reader@example.com',
+          createdAt: '2026-08-25T12:00:00.000Z',
+          unsubscribed: false,
+        },
+      ],
+      hasMore: false,
+    })
+
+    await expect(listSubscribers()).resolves.toEqual({
+      ok: true,
+      contacts: [
+        {
+          id: 'ct_123',
+          email: 'reader@example.com',
+          createdAt: '2026-08-25T12:00:00.000Z',
+          unsubscribed: false,
+        },
+      ],
+      hasMore: false,
+    })
+    expect(audienceListMock).toHaveBeenCalledOnce()
   })
 
   it('sends a newsletter and revalidates the admin page', async () => {
