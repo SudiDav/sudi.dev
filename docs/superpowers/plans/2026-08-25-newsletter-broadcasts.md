@@ -266,11 +266,11 @@ git commit -m "feat: add protected newsletter sending controls"
 - Modify: `docs/deploy.md`
 - Test: `lib/newsletter.test.ts`, `app/admin/actions.test.ts`
 
-- [ ] **Step 1: Update configuration documentation**
+- [x] **Step 1: Update configuration documentation**
 
 Document that `EMAIL_FROM` must be an address on the verified `sudi.dev` domain, `RESEND_AUDIENCE_ID` is the target audience, and broadcast creation is draft-only until an admin sends it. Keep `RESEND_API_KEY` marked secret and `EMAIL_FROM` marked config.
 
-- [ ] **Step 2: Run targeted verification**
+- [x] **Step 2: Run targeted verification**
 
 Run:
 
@@ -282,7 +282,7 @@ pnpm run lint
 
 Expected: all targeted tests pass, typecheck succeeds, and lint reports no new errors.
 
-- [ ] **Step 3: Inspect the final diff and commit documentation**
+- [x] **Step 3: Inspect the final diff and commit documentation**
 
 Run: `git diff --check`, `git status --short`, and `git diff HEAD~1 --stat`.
 
