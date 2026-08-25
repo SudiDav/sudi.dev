@@ -12,7 +12,7 @@ import { NewsletterForm } from '@/components/newsletter-form'
 import { PAGE_GUTTER } from '@/components/layout'
 import { getPosts } from '@/lib/content'
 import type { Post } from '@/lib/content.types'
-import { filterPostsByCategory, searchPosts, POST_FILTERS } from '@/lib/filters'
+import { listBlogPosts, POST_FILTERS } from '@/lib/filters'
 
 export const metadata: Metadata = {
   title: 'Blog | Sudi M. David',
@@ -86,13 +86,7 @@ export default async function BlogPage({
   const blogStats = buildBlogStats(posts)
   const topicRows = buildTopicRows(posts)
   const featured = posts.find((post) => post.featured)
-  const listed = searchPosts(
-    filterPostsByCategory(
-      posts.filter((post) => !post.featured),
-      active,
-    ),
-    q,
-  )
+  const listed = listBlogPosts(posts, active, q)
 
   // The pinned post is the design's featured slot; it is hidden once the reader
   // narrows the list, since it would otherwise ignore their filter.
