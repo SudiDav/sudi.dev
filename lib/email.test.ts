@@ -1,5 +1,10 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { addToAudience, emailConfigured, notifyNewSubscriber } from './email'
+import {
+  addToAudience,
+  emailConfigured,
+  notifyNewSubscriber,
+  subscriptionOutcome,
+} from './email'
 
 // `emails` is an instance property, so it cannot be spied on via the prototype.
 // The module is mocked instead, which also keeps these tests off the network.
@@ -107,5 +112,23 @@ describe('email', () => {
       audienceId: 'aud_123',
       unsubscribed: false,
     })
+  })
+
+  it('fails the subscription when audience storage fails', () => {
+    expect(subscriptionOutcome({ sent: false, reason: 'audience unavailable' }, { sent: true })).toEqual({
+      ok: false,
+      error: 'We could not save your subscription right now. Please try again.',
+    })
+  })
+
+  it('keeps a saved subscription successful when the owner notification fails', () => {
+    expect(subscriptionOutcome({ sent: true }, { sent: false, reason: 'domain not verified' })).toEqual({
+      ok: true,
+      warning: 'Subscription saved, but the owner notification could not be sent.',
+    })
+  })
+
+  it('returns a clean success when both audience and notification succeed', () => {
+    expect(subscriptionOutcome({ sent: true }, { sent: true })).toEqual({ ok: true })
   })
 })

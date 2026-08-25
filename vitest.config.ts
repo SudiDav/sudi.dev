@@ -3,5 +3,9 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 
 export default defineConfig({
   plugins: [tsconfigPaths()],
-  test: { environment: 'node', include: ['lib/**/*.test.ts'], passWithNoTests: true },
+  test: {
+    environment: 'node',
+    include: ['lib/**/*.test.ts', 'app/**/*.test.ts'],
+    passWithNoTests: true,
+  },
 })

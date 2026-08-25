@@ -58,6 +58,16 @@ Without these the admin still renders in production, but every save fails:
 locally and pushing is a perfectly good alternative — just know which one you
 have chosen.
 
+### Deployment status — recommended
+
+The admin can poll Vercel after a GitHub commit so you can see when the change
+is live:
+
+| Variable | Value |
+| --- | --- |
+| `VERCEL_TOKEN` | Vercel token with deployment read access |
+| `VERCEL_PROJECT_ID` | Vercel → Project Settings → General → Project ID |
+
 ### Newsletter — optional
 
 | Variable | Value |
@@ -65,11 +75,20 @@ have chosen.
 | `RESEND_API_KEY` | resend.com → API Keys |
 | `RESEND_AUDIENCE_ID` | resend.com → Audiences |
 | `CONTACT_EMAIL` | `contact@sudi.dev` |
-| `EMAIL_FROM` | `sudi.dev <onboarding@resend.dev>` until the domain is verified |
+| `EMAIL_FROM` | `contact@sudi.dev` after the `sudi.dev` domain is verified |
 
-Left unset, sign-ups fail softly: the visitor still sees a confirmation, and the
-reason is written to the server log. Nothing breaks, but nothing is recorded
-either.
+`RESEND_API_KEY` and `RESEND_AUDIENCE_ID` are required to save a subscription
+and prepare a post announcement draft. `CONTACT_EMAIL` is only needed for the
+owner notification. If that notification fails, the visitor still sees that
+the subscription was saved and the admin log records the provider reason. The
+`sudi.dev` sending domain also needs valid SPF/MX records before Resend can
+deliver owner notices or broadcasts.
+
+When an admin publishes a post with status `Published`, the site creates a
+branded Resend broadcast draft for the audience. It never sends automatically.
+Review and send drafts from Admin → Newsletters after the Vercel deployment is
+ready. Broadcasts include Resend's unsubscribe placeholder so contacts can opt
+out.
 
 ## 3. The domain
 

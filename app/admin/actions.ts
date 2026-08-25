@@ -1,7 +1,8 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { addToAudience, notifyNewSubscriber } from '@/lib/email'
+import { addToAudience, notifyNewSubscriber, subscriptionOutcome } from '@/lib/email'
+import { createPostBroadcast, listNewsletterBroadcasts, sendNewsletterBroadcast } from '@/lib/newsletter'
 import { isAdmin } from '@/auth'
 import { savePost,
   createPost,
@@ -9,7 +10,7 @@ import { savePost,
   saveProject,
   saveSettings,
   slugify,
-  type PostDraft, uploadImage } from '@/lib/publish'
+  type PostDraft, type PublishResult, uploadImage } from '@/lib/publish'
 import type { SiteSettings } from '@/lib/site'
 
 /**
@@ -23,7 +24,15 @@ async function requireAdmin() {
   if (!(await isAdmin())) throw new Error('Not authorised')
 }
 
-export type ActionResult = { ok: true } | { ok: false; error: string }
+export type ActionResult =
+  | { ok: true; publish?: PublishResult; newsletter?: Awaited<ReturnType<typeof createPostBroadcast>>; warning?: string }
+  | { ok: false; error: string }
+
+async function newsletterForPublish(publish: PublishResult) {
+  if (!publish.sha || !publish.post || publish.status !== 'Published') return undefined
+  if (publish.previousStatus === 'Published') return undefined
+  return createPostBroadcast(publish.post, publish.sha)
+}
 
 export async function updatePost(slug: string, changes: PostDraft): Promise<ActionResult> {
   await requireAdmin()
@@ -32,15 +41,16 @@ export async function updatePost(slug: string, changes: PostDraft): Promise<Acti
   if (!/^[a-z0-9-]+$/.test(slug)) return { ok: false, error: 'Invalid slug' }
 
   try {
-    await savePost(slug, changes, `content: update ${slug}`)
+    const publish = await savePost(slug, changes, `content: update ${slug}`)
+    const newsletter = await newsletterForPublish(publish)
+    revalidatePath('/admin/posts')
+    revalidatePath('/blog')
+    revalidatePath(`/blog/${slug}`)
+    return { ok: true, publish, newsletter }
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : 'Publish failed' }
   }
 
-  revalidatePath('/admin/posts')
-  revalidatePath('/blog')
-  revalidatePath(`/blog/${slug}`)
-  return { ok: true }
 }
 
 export type NewPost = {
@@ -67,7 +77,7 @@ export async function addPost(input: NewPost): Promise<ActionResult & { slug?: s
   const words = input.body.trim().split(/\s+/).filter(Boolean).length
 
   try {
-    await createPost(
+    const publish = await createPost(
       slug,
       {
         title,
@@ -82,13 +92,14 @@ export async function addPost(input: NewPost): Promise<ActionResult & { slug?: s
       },
       `content: add post ${slug}`,
     )
+    const newsletter = await newsletterForPublish(publish)
+    revalidatePath('/admin/posts')
+    revalidatePath('/blog')
+    return { ok: true, slug, publish, newsletter }
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : 'Could not create post' }
   }
 
-  revalidatePath('/admin/posts')
-  revalidatePath('/blog')
-  return { ok: true, slug }
 }
 
 export async function setPostStatus(
@@ -124,7 +135,7 @@ export async function addProject(
   if (!slug) return { ok: false, error: 'Project name must contain letters or numbers' }
 
   try {
-    await createProject(
+    const publish = await createProject(
       slug,
       {
         title: name,
@@ -138,14 +149,14 @@ export async function addProject(
       },
       `content: add project ${slug}`,
     )
+    revalidatePath('/admin/projects')
+    revalidatePath('/work')
+    revalidatePath('/')
+    return { ok: true, slug, publish }
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : 'Could not save project' }
   }
 
-  revalidatePath('/admin/projects')
-  revalidatePath('/work')
-  revalidatePath('/')
-  return { ok: true, slug }
 }
 
 export async function editProject(
@@ -161,7 +172,7 @@ export async function editProject(
   if (!description) return { ok: false, error: 'Description is required' }
 
   try {
-    await saveProject(
+    const publish = await saveProject(
       slug,
       {
         title: name,
@@ -175,14 +186,14 @@ export async function editProject(
       },
       `content: update project ${slug}`,
     )
+    revalidatePath('/admin/projects')
+    revalidatePath('/work')
+    revalidatePath('/')
+    return { ok: true, publish }
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : 'Could not save project' }
   }
 
-  revalidatePath('/admin/projects')
-  revalidatePath('/work')
-  revalidatePath('/')
-  return { ok: true }
 }
 
 export async function updateSettings(settings: SiteSettings): Promise<ActionResult> {
@@ -192,14 +203,28 @@ export async function updateSettings(settings: SiteSettings): Promise<ActionResu
   if (!settings.seo.title.trim()) return { ok: false, error: 'Site title is required' }
 
   try {
-    await saveSettings(settings, 'content: update site settings')
+    const publish = await saveSettings(settings, 'content: update site settings')
+    // Settings feed the layout metadata and the footer, so revalidate broadly.
+    revalidatePath('/', 'layout')
+    return { ok: true, publish }
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : 'Could not save settings' }
   }
 
-  // Settings feed the layout metadata and the footer, so revalidate broadly.
-  revalidatePath('/', 'layout')
-  return { ok: true }
+}
+
+/** Admin: list the Resend newsletter broadcasts created by this site. */
+export async function listNewsletters() {
+  await requireAdmin()
+  return listNewsletterBroadcasts()
+}
+
+/** Admin: send one reviewed Resend broadcast. */
+export async function sendNewsletter(id: string) {
+  await requireAdmin()
+  const result = await sendNewsletterBroadcast(id)
+  if (result.ok) revalidatePath('/admin/newsletters')
+  return result
 }
 
 /**
@@ -210,9 +235,8 @@ export async function updateSettings(settings: SiteSettings): Promise<ActionResu
  * is public so GitHub Discussions can back the comments, and subscriber
  * addresses have no business being published with the source.
  *
- * Neither call is allowed to fail the sign-up. Resend being down is not the
- * subscriber's problem, and showing them an error only invites a second submit;
- * the failure is logged for you instead.
+ * The audience write is the source of truth. A notification failure is a
+ * warning, but a storage failure must be shown so the subscriber can retry.
  */
 export async function subscribe(email: string): Promise<ActionResult> {
   const address = email.trim().toLowerCase()
@@ -228,7 +252,7 @@ export async function subscribe(email: string): Promise<ActionResult> {
   if (!stored.sent) console.warn(`[newsletter] ${address} not added to audience: ${stored.reason}`)
   if (!notified.sent) console.warn(`[newsletter] no notification sent: ${notified.reason}`)
 
-  return { ok: true }
+  return subscriptionOutcome(stored, notified)
 }
 
 /**

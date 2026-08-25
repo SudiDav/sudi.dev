@@ -27,6 +27,10 @@ import {
 import type { Post } from '@/lib/content.types'
 import { useRouter } from 'next/navigation'
 import { updatePost, addPost } from '@/app/admin/actions'
+import { DeploymentStatus } from '@/components/admin/deployment-status'
+import type { PublishResult } from '@/lib/publish'
+import type { NewsletterOutcome } from '@/lib/newsletter'
+import { NewsletterStatus } from '@/components/admin/newsletter-status'
 
 /**
  * Design: "Admin — Post Editor". The chrome is unchanged from the frame; the
@@ -59,7 +63,17 @@ const wordCount = (text: string) => text.trim().split(/\s+/).filter(Boolean).len
  * one: the slug is minted from the title on save, so a draft never needs a
  * placeholder file on disk before it has a name.
  */
-export function PostEditor({ post, canPublish }: { post?: Post; canPublish: boolean }) {
+export function PostEditor({
+  post,
+  canPublish,
+  initialPublish,
+  initialNewsletter,
+}: {
+  post?: Post
+  canPublish: boolean
+  initialPublish?: PublishResult
+  initialNewsletter?: NewsletterOutcome
+}) {
   const creating = !post
   const router = useRouter()
   const [title, setTitle] = useState(post?.title ?? '')
@@ -69,6 +83,8 @@ export function PostEditor({ post, canPublish }: { post?: Post; canPublish: bool
   const [category, setCategory] = useState(post?.category ?? POST_CATEGORIES[0])
   const [cover, setCover] = useState(post?.cover ?? '')
   const [saved, setSaved] = useState<string | null>(null)
+  const [publish, setPublish] = useState<PublishResult | null>(initialPublish ?? null)
+  const [newsletter, setNewsletter] = useState<NewsletterOutcome | null>(initialNewsletter ?? null)
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
 
@@ -89,7 +105,19 @@ export function PostEditor({ post, canPublish }: { post?: Post; canPublish: bool
           status: nextStatus ?? status ?? 'Draft',
           cover,
         })
-        if (result.ok && result.slug) router.replace(`/admin/posts/${result.slug}/edit`)
+        if (result.ok && result.slug) {
+          const params = new URLSearchParams()
+          if (result.publish?.sha) params.set('sha', result.publish.sha)
+          if (result.publish?.branch) params.set('branch', result.publish.branch)
+          if (result.publish?.commitUrl) params.set('commitUrl', result.publish.commitUrl)
+          if (result.newsletter?.ok) {
+            params.set('newsletterId', result.newsletter.id)
+            params.set('newsletterName', result.newsletter.name)
+          }
+          router.replace(
+            `/admin/posts/${result.slug}/edit${params.toString() ? `?${params.toString()}` : ''}`,
+          )
+        }
         else if (!result.ok) setError(result.error)
         return
       }
@@ -103,6 +131,8 @@ export function PostEditor({ post, canPublish }: { post?: Post; canPublish: bool
         readingTime: `${minutes} min read`,
       })
       if (result.ok) {
+        setPublish(result.publish ?? null)
+        setNewsletter(result.newsletter ?? null)
         if (nextStatus) setStatus(nextStatus)
         setSaved(new Date().toLocaleTimeString())
       } else {
@@ -183,6 +213,13 @@ export function PostEditor({ post, canPublish }: { post?: Post; canPublish: bool
           <Check size={14} />
           Saved to content/posts/{post?.slug}.mdx
         </p>
+      ) : null}
+
+      {publish ? (
+        <div className="border-b border-admin-border px-6 py-2.5">
+          <DeploymentStatus publish={publish} />
+          <NewsletterStatus newsletter={newsletter} />
+        </div>
       ) : null}
 
       <div className="flex flex-1 flex-col xl:flex-row">

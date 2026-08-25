@@ -3,6 +3,8 @@ import { isAdmin } from '@/auth'
 import { getPost } from '@/lib/content'
 import { isPublishingConfigured } from '@/lib/publish'
 import { PostEditor } from './post-editor'
+import type { PublishResult } from '@/lib/publish'
+import type { NewsletterOutcome } from '@/lib/newsletter'
 
 export const metadata = { robots: { index: false, follow: false } }
 
@@ -16,16 +18,43 @@ export const metadata = { robots: { index: false, follow: false } }
  */
 export default async function AdminPostEditorPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>
+  searchParams?: Promise<{
+    sha?: string
+    branch?: string
+    commitUrl?: string
+    newsletterId?: string
+    newsletterName?: string
+  }>
 }) {
   if (!(await isAdmin())) redirect('/admin/signin')
 
   const { id } = await params
+  const query = searchParams ? await searchParams : undefined
+  const initialPublish: PublishResult | undefined = query?.sha
+    ? { target: 'github', sha: query.sha, branch: query.branch, commitUrl: query.commitUrl }
+    : undefined
+  const initialNewsletter: NewsletterOutcome | undefined = query?.newsletterId
+    ? {
+        ok: true,
+        id: query.newsletterId,
+        name: query.newsletterName ?? 'sudi.dev newsletter draft',
+        created: true,
+      }
+    : undefined
   if (id === 'new') return <PostEditor canPublish={isPublishingConfigured()} />
 
   const post = await getPost(id)
   if (!post) notFound()
 
-  return <PostEditor post={post} canPublish={isPublishingConfigured()} />
+  return (
+    <PostEditor
+      post={post}
+      canPublish={isPublishingConfigured()}
+      initialPublish={initialPublish}
+      initialNewsletter={initialNewsletter}
+    />
+  )
 }

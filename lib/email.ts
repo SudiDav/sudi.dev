@@ -3,10 +3,10 @@ import { Resend } from 'resend'
 /**
  * Outbound email.
  *
- * Every function here is a no-op when RESEND_API_KEY is unset, so the site runs
- * unchanged locally and in any environment where email is not configured. That
- * matters most for the newsletter: a notification failing must never cost a
- * subscriber, since the address is already saved by the time we get here.
+ * Every function here reports a soft provider result when RESEND_API_KEY is
+ * unset, so the site runs unchanged locally and in any environment where email
+ * is not configured. Newsletter storage and owner notification are tracked
+ * separately so a notification failure never costs a saved subscriber.
  */
 const FROM = process.env.EMAIL_FROM ?? 'sudi.dev <onboarding@resend.dev>'
 
@@ -15,6 +15,26 @@ export function emailConfigured() {
 }
 
 type SendResult = { sent: boolean; reason?: string }
+
+export type SubscriptionOutcome =
+  | { ok: true; warning?: string }
+  | { ok: false; error: string }
+
+export function subscriptionOutcome(stored: SendResult, notified: SendResult): SubscriptionOutcome {
+  if (!stored.sent) {
+    return {
+      ok: false,
+      error: 'We could not save your subscription right now. Please try again.',
+    }
+  }
+  if (!notified.sent) {
+    return {
+      ok: true,
+      warning: 'Subscription saved, but the owner notification could not be sent.',
+    }
+  }
+  return { ok: true }
+}
 
 async function send(subject: string, text: string): Promise<SendResult> {
   const key = process.env.RESEND_API_KEY
