@@ -4,7 +4,9 @@ import { useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { CheckCircle2, X } from 'lucide-react'
 import { DeploymentStatus } from './deployment-status'
+import { NewsletterStatus } from './newsletter-status'
 import type { PublishResult } from '@/lib/publish'
+import type { NewsletterOutcome } from '@/lib/newsletter'
 
 /**
  * Confirms that a save actually published.
@@ -28,13 +30,36 @@ export function PublishNotice() {
         commitUrl: params.get('commitUrl') ?? undefined,
       }
     : undefined
+  const newsletter: NewsletterOutcome | undefined = params.get('newsletterId')
+    ? {
+        ok: true,
+        id: params.get('newsletterId')!,
+        name: params.get('newsletterName') ?? 'sudi.dev newsletter draft',
+        created: true,
+      }
+    : undefined
 
   // Keyed on the slug so a later save mounts a fresh notice rather than
   // resetting state from an effect.
-  return <Notice key={`${published}-${sha ?? ''}`} published={published} publish={publish} />
+  return (
+    <Notice
+      key={`${published}-${sha ?? ''}`}
+      published={published}
+      publish={publish}
+      newsletter={newsletter}
+    />
+  )
 }
 
-function Notice({ published, publish }: { published: string; publish?: PublishResult }) {
+function Notice({
+  published,
+  publish,
+  newsletter,
+}: {
+  published: string
+  publish?: PublishResult
+  newsletter?: NewsletterOutcome
+}) {
   const [dismissed, setDismissed] = useState(false)
   if (dismissed) return null
 
@@ -49,6 +74,7 @@ function Notice({ published, publish }: { published: string; publish?: PublishRe
           Committed to {publish?.branch ?? 'main'}. The site rebuilds from that commit.
         </span>
         <DeploymentStatus publish={publish} />
+        <NewsletterStatus newsletter={newsletter} />
       </div>
       <button
         type="button"

@@ -126,7 +126,7 @@ git commit -m "feat: add branded newsletter broadcast service"
 - Consumes: `createPostBroadcast` and `NewsletterOutcome` from Task 1.
 - Produces: `ActionResult.newsletter` for the post editor and `PublishResult.previousStatus/status` for transition detection.
 
-- [ ] **Step 1: Write failing tests for transition gating and soft failures**
+- [x] **Step 1: Write failing tests for transition gating and soft failures**
 
 Cover these cases with mocked `savePost`, `createPost`, and `createPostBroadcast`:
 
@@ -164,35 +164,35 @@ it('keeps the post publish successful when Resend draft creation fails', async (
 })
 ```
 
-- [ ] **Step 2: Run the focused action tests and verify they fail**
+- [x] **Step 2: Run the focused action tests and verify they fail**
 
 Run: `pnpm exec vitest run app/admin/actions.test.ts`
 
 Expected: FAIL because the action result does not yet expose newsletter outcomes.
 
-- [ ] **Step 3: Include server-action tests in Vitest**
+- [x] **Step 3: Include server-action tests in Vitest**
 
 Update `vitest.config.ts` so its `include` list is exactly `['lib/**/*.test.ts', 'app/**/*.test.ts']`. Keep the existing Node environment and path plugin unchanged.
 
-- [ ] **Step 4: Return post status metadata from GitHub publishing**
+- [x] **Step 4: Return post status metadata from GitHub publishing**
 
 Extend `PublishResult` with optional `previousStatus`, `status`, and `post` fields. In `savePost`, treat absent legacy status as `Published`, compute the merged status, build the complete merged `Post`, and return all three values. In `createPost`, build and return the complete created `Post` plus its status. Do not change the GitHub commit protocol.
 
-- [ ] **Step 5: Compose newsletter draft creation in post actions**
+- [x] **Step 5: Compose newsletter draft creation in post actions**
 
 After a successful GitHub publish, call `createPostBroadcast` only when a new post has `status === 'Published'` or an existing post has `previousStatus !== 'Published'` and `status === 'Published'`. Pass a complete `Post` payload and the returned commit SHA. Return `{ ok: true, publish, newsletter }` even when the newsletter outcome is soft-failed. Keep `setPostStatus` using the same transition-aware path.
 
-- [ ] **Step 6: Carry draft metadata through the editor**
+- [x] **Step 6: Carry draft metadata through the editor**
 
 Extend the post editor query payload and local state to preserve the returned newsletter ID/name after creating a new post, and render a compact status beside `DeploymentStatus`. Existing post edits should update state directly. A failed draft should show a warning without changing the successful publish message.
 
-- [ ] **Step 7: Run action and existing email tests**
+- [x] **Step 7: Run action and existing email tests**
 
 Run: `pnpm exec vitest run app/admin/actions.test.ts lib/email.test.ts lib/newsletter.test.ts`
 
 Expected: PASS.
 
-- [ ] **Step 8: Commit the publish integration**
+- [x] **Step 8: Commit the publish integration**
 
 ```bash
 git add lib/publish.ts app/admin/actions.ts app/admin/posts/[id]/edit/page.tsx app/admin/posts/[id]/edit/post-editor.tsx app/admin/actions.test.ts
@@ -213,7 +213,7 @@ git commit -m "feat: create newsletter drafts for published posts"
 - Consumes: `listNewsletterBroadcasts` and `sendNewsletterBroadcast` from Task 1.
 - Produces: authenticated list rendering and an explicit send control that revalidates the page after success.
 
-- [ ] **Step 1: Write failing tests for protected list/send behavior**
+- [x] **Step 1: Write failing tests for protected list/send behavior**
 
 Add these cases to `app/admin/actions.test.ts` with `@/auth`, `next/cache`, and `@/lib/newsletter` mocked:
 
@@ -232,27 +232,27 @@ it('sends a draft and revalidates the newsletters page', async () => {
 })
 ```
 
-- [ ] **Step 2: Run the focused tests and verify they fail**
+- [x] **Step 2: Run the focused tests and verify they fail**
 
 Run: `pnpm exec vitest run app/admin/actions.test.ts`
 
 Expected: FAIL because the new server actions and page do not exist.
 
-- [ ] **Step 3: Add server actions and the admin page**
+- [x] **Step 3: Add server actions and the admin page**
 
 Add `listNewsletters(): Promise<NewsletterListOutcome>` and `sendNewsletter(id: string): Promise<NewsletterSendOutcome>` to `app/admin/actions.ts`, each beginning with `await requireAdmin()`. Revalidate `/admin/newsletters` after a successful send. The page should render a loading-safe empty state, draft/sent/queued badges, broadcast name, created date, and a link to the Resend broadcasts dashboard. The client list should use `useTransition`, show a confirmation dialog before sending, and surface provider errors inline.
 
-- [ ] **Step 4: Add navigation and publish-notice links**
+- [x] **Step 4: Add navigation and publish-notice links**
 
 Add a `Newsletters` sidebar item. Extend `PublishNotice` with a newsletter draft status and links to `/admin/newsletters`; do not alter the existing project notice behavior when no newsletter data is present.
 
-- [ ] **Step 5: Run the focused tests and typecheck**
+- [x] **Step 5: Run the focused tests and typecheck**
 
 Run: `pnpm exec vitest run app/admin/actions.test.ts lib/newsletter.test.ts` and `pnpm run typecheck`.
 
 Expected: PASS with no TypeScript errors.
 
-- [ ] **Step 6: Commit the admin workflow**
+- [x] **Step 6: Commit the admin workflow**
 
 ```bash
 git add app/admin/actions.ts app/admin/'(shell)'/newsletters/page.tsx components/admin/newsletter-list.tsx components/admin/admin-sidebar.tsx components/admin/publish-notice.tsx app/admin/actions.test.ts

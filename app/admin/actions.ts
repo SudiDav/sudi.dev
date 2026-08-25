@@ -213,6 +213,20 @@ export async function updateSettings(settings: SiteSettings): Promise<ActionResu
 
 }
 
+/** Admin: list the Resend newsletter broadcasts created by this site. */
+export async function listNewsletters() {
+  await requireAdmin()
+  return listNewsletterBroadcasts()
+}
+
+/** Admin: send one reviewed Resend broadcast. */
+export async function sendNewsletter(id: string) {
+  await requireAdmin()
+  const result = await sendNewsletterBroadcast(id)
+  if (result.ok) revalidatePath('/admin/newsletters')
+  return result
+}
+
 /**
  * Public: newsletter sign-up.
  *

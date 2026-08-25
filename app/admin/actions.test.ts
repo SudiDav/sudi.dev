@@ -1,15 +1,26 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Post } from '@/lib/content.types'
 
-const { isAdminMock, createPostMock, savePostMock, newsletterMock } = vi.hoisted(() => ({
+const {
+  isAdminMock,
+  createPostMock,
+  savePostMock,
+  newsletterMock,
+  listMock,
+  sendMock,
+  revalidatePathMock,
+} = vi.hoisted(() => ({
   isAdminMock: vi.fn(),
   createPostMock: vi.fn(),
   savePostMock: vi.fn(),
   newsletterMock: vi.fn(),
+  listMock: vi.fn(),
+  sendMock: vi.fn(),
+  revalidatePathMock: vi.fn(),
 }))
 
 vi.mock('@/auth', () => ({ isAdmin: isAdminMock }))
-vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
+vi.mock('next/cache', () => ({ revalidatePath: revalidatePathMock }))
 vi.mock('@/lib/publish', () => ({
   createPost: (...args: unknown[]) => createPostMock(...args),
   savePost: (...args: unknown[]) => savePostMock(...args),
@@ -21,9 +32,11 @@ vi.mock('@/lib/publish', () => ({
 }))
 vi.mock('@/lib/newsletter', () => ({
   createPostBroadcast: (...args: unknown[]) => newsletterMock(...args),
+  listNewsletterBroadcasts: (...args: unknown[]) => listMock(...args),
+  sendNewsletterBroadcast: (...args: unknown[]) => sendMock(...args),
 }))
 
-import { addPost, updatePost } from './actions'
+import { addPost, listNewsletters, sendNewsletter, updatePost } from './actions'
 
 const postFixture: Post = {
   slug: 'hello',
@@ -119,5 +132,27 @@ describe('post newsletter integration', () => {
 
     expect(result).toMatchObject({ ok: true, publish: { sha: 'sha_123' } })
     expect(result).toMatchObject({ newsletter: { ok: false, error: 'domain invalid' } })
+  })
+
+  it('rejects newsletter listing for a non-admin', async () => {
+    isAdminMock.mockResolvedValueOnce(false)
+
+    await expect(listNewsletters()).rejects.toThrow('Not authorised')
+    expect(listMock).not.toHaveBeenCalled()
+  })
+
+  it('lists newsletters for an authenticated admin', async () => {
+    listMock.mockResolvedValueOnce({ ok: true, broadcasts: [] })
+
+    await expect(listNewsletters()).resolves.toEqual({ ok: true, broadcasts: [] })
+    expect(listMock).toHaveBeenCalledOnce()
+  })
+
+  it('sends a newsletter and revalidates the admin page', async () => {
+    sendMock.mockResolvedValueOnce({ ok: true, id: 'br_123' })
+
+    await expect(sendNewsletter('br_123')).resolves.toEqual({ ok: true, id: 'br_123' })
+    expect(sendMock).toHaveBeenCalledWith('br_123')
+    expect(revalidatePathMock).toHaveBeenCalledWith('/admin/newsletters')
   })
 })
