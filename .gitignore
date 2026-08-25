@@ -46,6 +46,9 @@ next-env.d.ts
 # superpowers
 .superpowers/
 
+# local browser automation logs
+.playwright-mcp/
+
 # Personal data must never enter the repository — it is public so that GitHub
 # Discussions can back the comments. Subscribers live in the Resend audience;
 # comments live in Discussions.

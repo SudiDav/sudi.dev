@@ -35,6 +35,16 @@ export function searchPosts(posts: Post[], query: string): Post[] {
 }
 
 /**
+ * Build the article list for the blog page without hiding a featured post
+ * when the reader selects its category. The featured post is only reserved
+ * for the pinned slot on the unfiltered, empty-search view.
+ */
+export function listBlogPosts(posts: Post[], category: string, query: string): Post[] {
+  const candidates = category === 'All' && !query.trim() ? posts.filter((post) => !post.featured) : posts
+  return searchPosts(filterPostsByCategory(candidates, category), query)
+}
+
+/**
  * The same lists without "All", for the admin's category dropdowns.
  *
  * Derived rather than repeated: when these were two separate literals the

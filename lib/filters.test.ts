@@ -1,5 +1,14 @@
 import { describe, it, expect } from 'vitest'
-import { filterProjects, filterPostsByCategory, searchPosts, PROJECT_CATEGORIES, POST_CATEGORIES, PROJECT_FILTERS, POST_FILTERS } from './filters'
+import {
+  filterProjects,
+  filterPostsByCategory,
+  listBlogPosts,
+  searchPosts,
+  PROJECT_CATEGORIES,
+  POST_CATEGORIES,
+  PROJECT_FILTERS,
+  POST_FILTERS,
+} from './filters'
 import type { Post, Project } from './content.types'
 
 const project = (slug: string, category: string) => ({ slug, category }) as Project
@@ -32,6 +41,11 @@ const posts = [
   post('events', 'Event Sourcing in Practice', 'Lessons learned in fintech', 'Architecture'),
 ]
 
+const blogPosts = [
+  { ...post('now', 'Maybe Love Is the Now', 'A reflection on presence', 'Life'), featured: true },
+  { ...post('observability', 'Observability 101', 'A practical guide', 'DevOps'), featured: false },
+]
+
 describe('filterPostsByCategory', () => {
   it('returns everything for All', () => {
     expect(filterPostsByCategory(posts, 'All')).toHaveLength(2)
@@ -43,6 +57,16 @@ describe('filterPostsByCategory', () => {
 
   it('does not match on differing case, which is why content stores Title Case', () => {
     expect(filterPostsByCategory(posts, 'ARCHITECTURE')).toHaveLength(0)
+  })
+})
+
+describe('listBlogPosts', () => {
+  it('includes the featured post when a category is selected', () => {
+    expect(listBlogPosts(blogPosts, 'Life', '')).toEqual([blogPosts[0]])
+  })
+
+  it('keeps the featured post out of the unfiltered pinned list', () => {
+    expect(listBlogPosts(blogPosts, 'All', '')).toEqual([blogPosts[1]])
   })
 })
 
