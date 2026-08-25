@@ -1,15 +1,16 @@
 import { getPosts, getProjects } from './content'
 import { formatPostDate } from './format'
 import type { AdminPost, AdminProject, AdminProjectStatus } from './admin-fixtures'
+import { getAdminCommentCount } from './admin-comments'
 
 /**
  * Adapts the real MDX content into the shapes the admin screens render.
  *
  * The admin now reflects what is actually on the site rather than the design's
- * sample data. Two figures the design shows have no source in a static site and
- * are rendered as "—" rather than invented: per-post view counts and comment
- * counts, both of which need analytics and a comment store this site does not
- * have yet.
+ * sample data. Per-post view and comment counts remain "—" because the post
+ * table does not load analytics or discussion replies. The dashboard and the
+ * Comments page read the public GitHub Discussions that power the site's
+ * giscus embed.
  */
 export async function getAdminPosts(): Promise<AdminPost[]> {
   const posts = await getPosts()
@@ -53,10 +54,16 @@ export async function getAdminProjects(): Promise<AdminProject[]> {
 }
 
 export async function getAdminStats() {
-  const [posts, projects] = await Promise.all([getAdminPosts(), getProjects()])
+  const [posts, projects, commentResult] = await Promise.all([
+    getAdminPosts(),
+    getProjects(),
+    getAdminCommentCount(),
+  ])
   return {
     posts: String(posts.filter((p) => p.status === 'Published').length),
     drafts: posts.filter((p) => p.status === 'Draft').map((p) => p.title),
     projects: String(projects.length),
+    comments: commentResult.error ? '—' : String(commentResult.count),
+    commentsPeriod: commentResult.error ? 'comments unavailable' : 'GitHub Discussions',
   }
 }
