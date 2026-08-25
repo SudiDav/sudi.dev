@@ -13,35 +13,9 @@ import { SiteFooter } from '@/components/site-footer'
 import { ProjectCard } from '@/components/project-card'
 import { ArticleItem } from '@/components/article-item'
 import { TechBadge } from '@/components/tech-badge'
+import { HeroConstellation } from '@/components/hero-constellation'
 import { getPosts, getProjects } from '@/lib/content'
 import { getSettings, socialUrl } from '@/lib/site'
-
-/** Design: Hero → "Code Snippet", two absolutely-positioned offset cards. */
-const CODE_LINES = [
-  { text: 'const dev = {', accent: false },
-  { text: '  name: "Sudi",', accent: true },
-  { text: '  loves: "clean code",', accent: true },
-  { text: '  coffee: true,', accent: true },
-  { text: '};', accent: false },
-]
-
-function CodeSnippet({ className }: { className: string }) {
-  return (
-    <div
-      aria-hidden
-      className={`pointer-events-none absolute hidden flex-col gap-1.5 rounded-lg border border-border bg-bg-card px-5 py-4 opacity-50 shadow-[0_4px_16px_#00000020] xl:flex ${className}`}
-    >
-      {CODE_LINES.map((line) => (
-        <span
-          key={line.text}
-          className={`whitespace-pre font-mono text-xs ${line.accent ? 'text-accent' : 'text-text-secondary'}`}
-        >
-          {line.text}
-        </span>
-      ))}
-    </div>
-  )
-}
 
 /** Design: Sidebar → "Tech Stack", three rows of badges. */
 const TECH_ROWS = [
@@ -115,8 +89,7 @@ export default async function HomePage() {
             </Link>
           </div>
 
-          <CodeSnippet className="top-10 left-[920px]" />
-          <CodeSnippet className="top-[203px] left-[1019px]" />
+          <HeroConstellation />
         </section>
 
         {/* Content Area — ROW, padding [0,48], gap 48 */}

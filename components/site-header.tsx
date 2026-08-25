@@ -39,8 +39,10 @@ export function SiteHeader() {
                   key={item.href}
                   href={item.href}
                   aria-current={active ? 'page' : undefined}
-                  className={`text-sm font-medium transition-colors hover:text-text-primary ${
-                    active ? 'text-accent' : 'text-text-secondary'
+                  className={`rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
+                    active
+                      ? 'bg-accent-dim text-accent'
+                      : 'text-text-secondary hover:bg-bg-card hover:text-text-primary'
                   }`}
                 >
                   {item.label}
