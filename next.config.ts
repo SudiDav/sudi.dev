@@ -32,6 +32,14 @@ const nextConfig: NextConfig = {
   // during builds, so the setting applies only everywhere else.
   output: process.env.VERCEL ? undefined : 'standalone',
 
+  // CoverUpload accepts images up to 5 MB. Leave room for multipart request
+  // overhead while keeping the Server Action body bounded.
+  experimental: {
+    serverActions: {
+      bodySizeLimit: '6mb',
+    },
+  },
+
   async redirects() {
     return migratedPostRedirects()
   },
