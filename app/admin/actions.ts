@@ -1,7 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { addToAudience, notifyNewSubscriber, subscriptionOutcome } from '@/lib/email'
+import { addToAudience, listAudienceContacts, notifyNewSubscriber, subscriptionOutcome } from '@/lib/email'
 import { createPostBroadcast, listNewsletterBroadcasts, sendNewsletterBroadcast } from '@/lib/newsletter'
 import { isAdmin } from '@/auth'
 import { savePost,
@@ -217,6 +217,12 @@ export async function updateSettings(settings: SiteSettings): Promise<ActionResu
 export async function listNewsletters() {
   await requireAdmin()
   return listNewsletterBroadcasts()
+}
+
+/** Admin: list contacts in the configured Resend audience. */
+export async function listSubscribers() {
+  await requireAdmin()
+  return listAudienceContacts()
 }
 
 /** Admin: send one reviewed Resend broadcast. */

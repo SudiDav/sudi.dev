@@ -87,8 +87,9 @@ deliver owner notices or broadcasts.
 When an admin publishes a post with status `Published`, the site creates a
 branded Resend broadcast draft for the audience. It never sends automatically.
 Review and send drafts from Admin → Newsletters after the Vercel deployment is
-ready. Broadcasts include Resend's unsubscribe placeholder so contacts can opt
-out.
+ready. The same page also shows the first 100 contacts in the configured
+audience, including their subscription status and signup date. Broadcasts
+include Resend's unsubscribe placeholder so contacts can opt out.
 
 ## 3. The domain
 
