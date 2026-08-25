@@ -54,7 +54,7 @@ it('creates a draft with the verified sender, audience, content, and unsubscribe
       html: expect.stringContaining('{{{RESEND_UNSUBSCRIBE_URL}}}'),
       text: expect.stringContaining('Read the post'),
     }),
-    expect.objectContaining({ idempotencyKey: expect.stringContaining('sha_123') }),
+      { headers: { 'Idempotency-Key': 'sudi-post-newsletter-sha_123' } },
   )
 })
 
@@ -95,7 +95,7 @@ export async function listNewsletterBroadcasts(): Promise<NewsletterListOutcome>
 export async function sendNewsletterBroadcast(id: string): Promise<NewsletterSendOutcome>
 ```
 
-Use `new Resend(process.env.RESEND_API_KEY).broadcasts.create` with `send: false`, the configured audience, a deterministic name containing the slug and commit SHA, and an idempotency key such as `sudi-post-newsletter-${commitSha}`. Render conservative table-based HTML with inline styles from the six site tokens, use an absolute cover URL only when `cover` already starts with `http://` or `https://`, and always render the unsubscribe placeholder. Return soft errors for missing configuration, provider errors, thrown errors, and missing response IDs.
+Use `new Resend(process.env.RESEND_API_KEY).broadcasts.create` with `send: false`, the configured audience, a deterministic name containing the slug and commit SHA, and an `Idempotency-Key` header such as `sudi-post-newsletter-${commitSha}`. Render conservative table-based HTML with inline styles from the six site tokens, use an absolute cover URL only when `cover` already starts with `http://` or `https://`, and always render the unsubscribe placeholder. Return soft errors for missing configuration, provider errors, thrown errors, and missing response IDs.
 
 For duplicate-safe retry, use the idempotency key on creation. `listNewsletterBroadcasts` should call `broadcasts.list({ limit: 100 })`, filter names beginning with `sudi.dev post:`, and return the fields needed by the admin list. `sendNewsletterBroadcast` should call `broadcasts.get(id)`, reject any status other than `draft`, then call `broadcasts.send(id)`.
 
