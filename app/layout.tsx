@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Inter, Geist, Geist_Mono } from 'next/font/google'
 import { getSettings } from '@/lib/site'
+import { buildSiteMetadata } from '@/lib/seo'
 import { Analytics } from '@vercel/analytics/next'
 import { themeBootstrapScript } from '@/lib/theme'
 import './globals.css'
@@ -11,7 +12,7 @@ const geistMono = Geist_Mono({ subsets: ['latin'], variable: '--font-geist-mono'
 
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSettings()
-  return { title: settings.seo.title, description: settings.seo.description }
+  return buildSiteMetadata(settings)
 }
 
 

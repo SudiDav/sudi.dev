@@ -28,6 +28,13 @@ import { getSettings, socialUrl } from '@/lib/site'
 export const metadata: Metadata = {
   title: 'About | Sudi M. David',
   description: 'Full-stack engineer in Lubumbashi building banking, lending, agriculture and school systems.',
+  alternates: { canonical: '/about' },
+  openGraph: {
+    type: 'website',
+    url: '/about',
+    title: 'About | Sudi M. David',
+    description: 'Full-stack engineer in Lubumbashi building banking, lending, agriculture and school systems.',
+  },
 }
 
 /** Design: "Experience Section" → Timeline. Newest first. */

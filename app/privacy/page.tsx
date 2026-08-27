@@ -8,6 +8,7 @@ import { getSettings } from '@/lib/site'
 export const metadata: Metadata = {
   title: 'Privacy | Sudi M. David',
   description: 'What this site collects, what it does not, and how to have it removed.',
+  alternates: { canonical: '/privacy' },
 }
 
 /**
