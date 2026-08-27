@@ -7,6 +7,7 @@ export default function robots(): MetadataRoute.Robots {
       { userAgent: '*', allow: '/' },
       // The admin is behind auth, but keep it out of crawlers regardless.
       { userAgent: '*', disallow: '/admin' },
+      { userAgent: '*', disallow: '/api/' },
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,
   }

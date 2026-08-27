@@ -17,6 +17,13 @@ import { listBlogPosts, POST_FILTERS } from '@/lib/filters'
 export const metadata: Metadata = {
   title: 'Blog | Sudi M. David',
   description: 'Thoughts on software engineering, developer tooling, and building for the web.',
+  alternates: { canonical: '/blog' },
+  openGraph: {
+    type: 'website',
+    url: '/blog',
+    title: 'Blog | Sudi M. David',
+    description: 'Thoughts on software engineering, developer tooling, and building for the web.',
+  },
 }
 
 /**

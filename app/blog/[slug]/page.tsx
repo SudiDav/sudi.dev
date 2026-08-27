@@ -26,9 +26,27 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const post = await getPost((await params).slug)
   if (!post) return {}
+  const canonical = `/blog/${post.slug}`
   return {
-    title: `${post.title} | Sudi M. David`,
+    title: post.title,
     description: post.excerpt,
+    alternates: { canonical },
+    openGraph: {
+      type: 'article',
+      url: canonical,
+      title: post.title,
+      description: post.excerpt,
+      publishedTime: new Date(`${post.date}T00:00:00Z`).toISOString(),
+      authors: ['https://sudi.dev'],
+      tags: post.tags,
+      images: [{ url: post.cover, alt: post.title }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: post.title,
+      description: post.excerpt,
+      images: [post.cover],
+    },
   }
 }
 

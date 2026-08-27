@@ -13,6 +13,13 @@ import { filterProjects, PROJECT_FILTERS } from '@/lib/filters'
 export const metadata: Metadata = {
   title: 'Work | Sudi M. David',
   description: "A selection of projects I've built, contributed to, or am currently working on.",
+  alternates: { canonical: '/work' },
+  openGraph: {
+    type: 'website',
+    url: '/work',
+    title: 'Work | Sudi M. David',
+    description: "A selection of projects I've built, contributed to, or am currently working on.",
+  },
 }
 
 /**
