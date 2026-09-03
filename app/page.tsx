@@ -70,7 +70,8 @@ export default async function HomePage() {
           </p>
 
           <p className="max-w-[46ch] text-[15px] leading-[1.6] text-text-tertiary">
-            I build the systems institutions run on: banking, lending, agriculture, schools.
+            I build software that helps institutions operate—from fintech and lending platforms to
+            agricultural value-chain tools and school administration systems.
           </p>
 
           <div className="flex flex-wrap items-center gap-4">
