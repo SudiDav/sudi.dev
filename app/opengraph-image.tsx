@@ -44,7 +44,7 @@ export default function OpenGraphImage() {
           <span style={{ fontSize: 66, fontWeight: 700 }}>Sudi M. David</span>
           <span style={{ fontSize: 32, color: '#a9abb8' }}>Full-Stack Engineer</span>
           <span style={{ fontSize: 22, color: '#607ebc' }}>
-            Building the systems institutions run on.
+            Building software that helps institutions operate.
           </span>
         </div>
 

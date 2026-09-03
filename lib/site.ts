@@ -25,7 +25,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   displayName: 'Sudi M. David',
   avatar: '/images/sudi.jpeg',
   email: 'contact@sudi.dev',
-  bio: 'Full-stack engineer building the systems institutions run on — banking, lending, agriculture and school administration — with teams around the world.',
+  bio: 'Full-stack engineer building software that helps institutions operate across fintech, lending, agriculture and school administration, with teams around the world.',
   location: 'Lubumbashi, DRC',
   website: 'sudi.dev',
   social: {
@@ -36,7 +36,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   },
   seo: {
     title: 'Sudi M. David — Full-Stack Engineer',
-    description: 'Full-stack engineer building the systems institutions run on — banking, lending, agriculture and school administration, with teams around the world.',
+    description: 'Full-stack engineer building software that helps institutions operate across fintech, lending, agriculture and school administration, with teams around the world.',
   },
 }
 
