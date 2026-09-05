@@ -1,0 +1,18 @@
+.philosophical-identity { position: relative; padding: 4px 0 0; }
+/* A quiet terminal introduction, with space reserved while it types. */
+.identity-terminal { display: flex; align-items: center; gap: 9px; margin-bottom: 25px; font: 14px/1.5 var(--font-mono); }
+.identity-prompt { color: var(--accent); }
+.identity-command { display: inline-flex; align-items: center; min-width: 8ch; height: 1.5em; color: var(--text-secondary); }
+.identity-sequence[data-phase='pending'] .identity-command-text, .identity-sequence[data-phase='pending'] .identity-name-text { visibility: hidden; }
+.identity-caret { width: 7px; height: 1em; margin-left: 3px; background: var(--accent); }
+.identity-name { margin: 0; color: var(--text-primary); font: 700 clamp(36px, 3.65vw, 54px)/1.14 var(--font-display); letter-spacing: -2px; }
+.identity-name > span { display: block; }
+@media (max-width: 899px) { .identity-name { font-size: clamp(36px, 6.8vw, 54px); } }
+
+.identity-name > .identity-name-line { display: grid; }
+.identity-name-line > span { grid-area: 1 / 1; }
+.identity-name-reserve { visibility: hidden; }
+.identity-name-caret { display: inline-block; width: 2px; height: .8em; margin-left: 3px; background: var(--accent); }
+
+.identity-tag { color: var(--accent); font-weight: 400; }
+@media (max-width: 899px) { .identity-name-line { font-size: clamp(28px, 7.2vw, 49px); letter-spacing: -1.5px; } }

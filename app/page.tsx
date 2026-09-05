@@ -13,7 +13,8 @@ import { SiteFooter } from '@/components/site-footer'
 import { ProjectCard } from '@/components/project-card'
 import { ArticleItem } from '@/components/article-item'
 import { TechBadge } from '@/components/tech-badge'
-import { HeroConstellation } from '@/components/hero-constellation'
+import { PortfolioWorld } from '@/components/world/portfolio-world'
+import { PhilosophicalIdentity } from '@/components/philosophical-identity'
 import { getPosts, getProjects } from '@/lib/content'
 import { getSettings, socialUrl } from '@/lib/site'
 
@@ -46,55 +47,38 @@ export default async function HomePage() {
       <SiteHeader />
 
       <main className="mx-auto w-full max-w-[1440px] flex-1">
-        {/* Hero — COLUMN, padding [80,48,64,48], gap 24 */}
-        <section className="relative flex flex-col gap-6 px-4 pt-20 pb-16 md:px-6 lg:px-12">
-          <div className="flex items-center gap-2 font-mono text-sm">
-            <span className="text-accent">~$</span>
-            <span className="text-text-tertiary">whoami</span>
+        <section className="home-world-hero px-4 md:px-6 lg:px-12">
+          <div className="home-world-intro">
+            <PhilosophicalIdentity name={settings.displayName} />
+
+            <p className="max-w-[46ch] text-base leading-[1.7] text-text-secondary">
+              I build software that makes complex things feel simple.
+              Somewhere between logic and intuition, I find the balance
+              between code that works and experiences that feel human.
+            </p>
+
+            <div className="flex flex-wrap items-center gap-4">
+              <Link
+                href="/work"
+                className="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+              >
+                View My Work
+                <ArrowRight size={16} />
+              </Link>
+              <Link
+                href="/blog"
+                className="inline-flex items-center px-2 py-3 text-sm text-text-secondary transition-colors hover:text-text-primary"
+              >
+                Read Blog
+              </Link>
+            </div>
+
           </div>
-
-          <h1 className="font-display text-4xl leading-[1.1] font-bold text-text-primary sm:text-5xl lg:text-[52px]">
-            Hi, I&apos;m {settings.displayName}
-          </h1>
-
-          {/*
-            The design puts a one-line job title here. It says nothing a hundred
-            other portfolios do not, so it carries an actual position instead —
-            the same shape as the frame, more words, one idea.
-          */}
-          <p className="max-w-[46ch] text-lg leading-[1.5] text-text-secondary lg:text-xl">
-            I&apos;m drawn to philosophy and conspiracy theories. Why admit that on a portfolio?
-            Because both begin where debugging begins —{' '}
-            <span className="text-text-primary">refusing the official explanation</span> — and only
-            one of them lets you run the experiment.
-          </p>
-
-          <p className="max-w-[46ch] text-[15px] leading-[1.6] text-text-tertiary">
-            I build software that helps institutions operate—from fintech and lending platforms to
-            agricultural value-chain tools and school administration systems.
-          </p>
-
-          <div className="flex flex-wrap items-center gap-4">
-            <Link
-              href="/work"
-              className="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
-            >
-              View My Work
-              <ArrowRight size={16} />
-            </Link>
-            <Link
-              href="/blog"
-              className="inline-flex items-center gap-2 rounded-lg border border-border px-6 py-3 text-sm font-medium text-text-primary transition-colors hover:border-border-hover"
-            >
-              Read Blog
-            </Link>
-          </div>
-
-          <HeroConstellation />
+          <PortfolioWorld />
         </section>
 
         {/* Content Area — ROW, padding [0,48], gap 48 */}
-        <div className="flex flex-col gap-12 px-4 md:px-6 lg:flex-row lg:px-12">
+        <div id="portfolio" className="flex scroll-mt-8 flex-col gap-12 px-4 md:px-6 lg:flex-row lg:px-12">
           {/* Sidebar — COLUMN, 260w, gap 28, right border */}
           <aside className="flex w-full shrink-0 flex-col gap-7 py-8 lg:w-[260px] lg:border-r lg:border-border lg:pr-8">
             {/*
