@@ -1,0 +1,28 @@
+.philosophical-identity { position: relative; padding: 4px 0 0; }
+/* A quiet terminal introduction, with space reserved while it types. */
+.identity-terminal { display: flex; align-items: center; gap: 9px; margin-bottom: 25px; font: 14px/1.5 var(--font-mono); }
+.identity-prompt { color: var(--accent); }
+.identity-command { display: inline-flex; align-items: center; min-width: 8ch; height: 1.5em; color: var(--text-secondary); }
+.identity-terminal[data-phase='pending'] .identity-command-text { visibility: hidden; }
+.identity-caret { width: 7px; height: 1em; margin-left: 3px; background: var(--accent); }
+.identity-name { margin: 0 0 28px; color: var(--text-primary); font: 700 clamp(36px, 3.65vw, 54px)/1.14 var(--font-display); letter-spacing: -2px; }
+.identity-name > span { display: block; }
+.identity-perspectives { display: flex; align-items: center; gap: 13px; min-height: 32px; }
+.identity-perspectives button { font: 12px/1.5 var(--font-mono); color: var(--text-secondary); padding: 5px 0; cursor: pointer; }
+.identity-perspectives button[aria-pressed='true'] { color: var(--text-primary); }
+.identity-perspectives button[aria-pressed='true']::after { content: ''; display: block; width: 13px; height: 2px; background: var(--accent); margin-top: 3px; }
+.identity-perspectives button:focus-visible { outline: 2px solid var(--accent); outline-offset: 5px; border-radius: 2px; }
+.identity-balance { width: 33px; height: 17px; display: flex; align-items: center; position: relative; }
+.identity-balance i { display: block; width: 17px; height: 17px; border-radius: 50%; position: absolute; }
+.identity-balance i:first-child { background: var(--text-primary); left: 0; }
+.identity-balance i:last-child { background: var(--accent); right: 0; }
+.identity-invitation { margin-left: 6px; display: inline-flex; align-items: center; gap: 4px; color: var(--text-secondary); font: italic 12px/1.4 Georgia, serif; }
+.identity-thought { min-height: 44px; max-width: 40ch; margin-top: 13px; color: var(--text-secondary); font-size: 14px; line-height: 1.6; }
+.identity-thought strong { color: var(--text-primary); font-weight: 500; }
+[data-perspective='intuition'] .identity-balance i:first-child { transform: translateX(16px); }
+[data-perspective='intuition'] .identity-balance i:last-child { transform: translateX(-16px); }
+@media (prefers-reduced-motion: no-preference) {
+  .identity-balance i { transition: transform 450ms cubic-bezier(.34,1.56,.64,1); }
+}
+@media (max-width: 899px) { .identity-name { font-size: clamp(36px, 6.8vw, 54px); } }
+@media (max-width: 380px) { .identity-invitation { display: none; } }
