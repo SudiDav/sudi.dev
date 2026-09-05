@@ -1,8 +1,7 @@
 'use client'
 
-import Link from 'next/link'
 import { useEffect, useRef, useState } from 'react'
-import { ArrowDown, ArrowLeft, ArrowRight, ArrowUp, Check, Gamepad2, Globe2, Pause, Play, RotateCcw, Sparkles } from 'lucide-react'
+import { Pause, Play } from 'lucide-react'
 import { WORLD_SECTORS, type SectorId } from './world-data'
 import type { WorldEngine } from './world-engine'
 import './world.css'
@@ -10,13 +9,27 @@ import './world.css'
 export function PortfolioWorld() {
   const canvas = useRef<HTMLCanvasElement>(null)
   const engine = useRef<WorldEngine | null>(null)
+  const labels = useRef(new Map<SectorId, HTMLButtonElement>())
+  const leaders = useRef(new Map<SectorId, SVGLineElement>())
+  const dismissTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const [status, setStatus] = useState<'loading' | 'ready' | 'unavailable'>('loading')
-  const [mode, setMode] = useState<'explore' | 'play'>('explore')
   const [selected, setSelected] = useState<SectorId | null>(null)
-  const [collected, setCollected] = useState<string[]>([])
   const [paused, setPaused] = useState(false)
-  const sector = WORLD_SECTORS.find(item => item.id === selected)
-  const complete = collected.length === WORLD_SECTORS.length
+  const [explained, setExplained] = useState<SectorId | null>(null)
+
+  useEffect(() => {
+    if (!explained) return
+    function dismiss(event: PointerEvent) {
+      if (event.target instanceof Node && !labels.current.get(explained!)?.contains(event.target)) setExplained(null)
+    }
+    function escape(event: KeyboardEvent) { if (event.key === 'Escape') setExplained(null) }
+    document.addEventListener('pointerdown', dismiss)
+    document.addEventListener('keydown', escape)
+    return () => {
+      document.removeEventListener('pointerdown', dismiss)
+      document.removeEventListener('keydown', escape)
+    }
+  }, [explained])
 
   useEffect(() => {
     let disposed = false
@@ -27,13 +40,47 @@ export function PortfolioWorld() {
       if (disposed || !canvas.current) return
       try {
         engine.current = createWorldEngine(canvas.current, {
-          onSelect: setSelected,
-          onCollect: setCollected,
+          onProject: points => {
+            const width = canvas.current?.clientWidth ?? 0
+            const height = canvas.current?.clientHeight ?? 0
+            for (const side of [-1, 1]) {
+              const group = points.filter(point => (point.x < 0.5 ? -1 : 1) === side).sort((a, b) => a.y - b.y)
+              let previousY = 30
+              for (const point of group) {
+                const label = labels.current.get(point.id)
+                if (!label) continue
+                const px = point.x * width
+                const py = point.y * height
+                const half = label.offsetWidth / 2
+                const desiredX = side < 0 ? Math.min(px - 48, width * 0.22) : Math.max(px + 48, width * 0.78)
+                const x = Math.max(half + 10, Math.min(width - half - 10, desiredX))
+                const y = Math.min(height - 25, Math.max(previousY + 36, py - 8))
+                previousY = y
+                label.dataset.side = side < 0 ? 'left' : 'right'
+                label.style.left = `${x}px`
+                label.style.top = `${y}px`
+                const line = leaders.current.get(point.id)
+                line?.setAttribute('x1', String(px))
+                line?.setAttribute('y1', String(py))
+                line?.setAttribute('x2', String(x - side * half))
+                line?.setAttribute('y2', String(y))
+              }
+            }
+          },
+          onHover: id => {
+            clearTimeout(dismissTimer.current)
+            if (id) setExplained(id)
+            else dismissTimer.current = setTimeout(() => {
+              const reading = [...labels.current.values()].some(label => label.querySelector('.world-explanation:not([hidden]):hover'))
+              if (!reading) setExplained(null)
+            }, 250)
+          },
+          onSelect: id => { clearTimeout(dismissTimer.current); setSelected(id); setExplained(id) },
+          onCollect: () => {},
           onUnavailable: () => {
             engine.current?.dispose()
             engine.current = null
             setStatus('unavailable')
-            setMode('explore')
           },
         })
         setPaused(motion.matches)
@@ -44,19 +91,12 @@ export function PortfolioWorld() {
     }).catch(() => { if (!disposed) setStatus('unavailable') })
     return () => {
       disposed = true
+      clearTimeout(dismissTimer.current)
       engine.current?.dispose()
       engine.current = null
       motion.removeEventListener('change', motionChanged)
     }
   }, [])
-
-  function switchMode(next: 'explore' | 'play') {
-    setMode(next)
-    setCollected([])
-    setSelected(null)
-    engine.current?.setMode(next)
-    if (next === 'play') canvas.current?.focus({ preventScroll: true })
-  }
 
   function select(id: SectorId) {
     setSelected(id)
@@ -64,15 +104,7 @@ export function PortfolioWorld() {
   }
 
   return (
-    <div className="portfolio-world" data-mode={mode} data-ready={status === 'ready'}>
-      <div className="world-toolbar">
-        <div className="world-identity"><span className="world-status-dot" />the inner world<span className="world-version">yin / yang</span></div>
-        <div className="world-mode" role="group" aria-label="World mode">
-          <button type="button" aria-pressed={mode === 'explore'} onClick={() => switchMode('explore')}><Globe2 size={14} />Explore</button>
-          <button type="button" aria-pressed={mode === 'play'} disabled={status !== 'ready'} onClick={() => switchMode('play')}><Gamepad2 size={15} />Play</button>
-        </div>
-      </div>
-
+    <div className="portfolio-world" data-ready={status === 'ready'}>
       <div className="world-viewport">
         <div className="world-atmosphere" aria-hidden="true" />
         {status !== 'ready' && (
@@ -81,67 +113,33 @@ export function PortfolioWorld() {
           </div>
         )}
         <canvas ref={canvas} className="world-canvas" tabIndex={status === 'ready' ? 0 : -1}
-          aria-label={mode === 'play' ? 'Yin and yang exploration game. Use arrow keys or W A S D to guide a spark to five reflections. Tab to reflection buttons for automatic navigation.' : '3D yin and yang symbol surrounded by Emotion, Energy, Vibration, Frequency, and Reality. Drag to rotate, or choose a reflection above.'}
+          aria-label="3D yin and yang symbol. Drag to rotate. Tap the symbol or press Space to bounce."
           aria-describedby="world-instructions" />
-
-        <div className="world-scene-caption" aria-hidden="true">
-          <span>{mode === 'play' ? 'A journey toward balance' : 'Opposites. In conversation.'}</span>
-          <span>{mode === 'play' ? `${collected.length} / ${WORLD_SECTORS.length} reflections` : 'Stillness meets motion'}</span>
-        </div>
-
         {status === 'ready' && (
-          <div className="world-view-controls">
-            <button type="button" aria-label="Bounce the yin and yang" title="Bounce the yin and yang" onClick={() => engine.current?.pulse()}><Sparkles size={15} /></button>
-            <button type="button" aria-label="Reset camera" title="Reset camera" onClick={() => engine.current?.resetView()}><RotateCcw size={15} /></button>
-            <button type="button" aria-label={paused ? 'Resume ambient motion' : 'Pause ambient motion'} title={paused ? 'Resume ambient motion' : 'Pause ambient motion'} aria-pressed={paused}
-              onClick={() => { engine.current?.setPaused(!paused); setPaused(!paused) }}>{paused ? <Play size={14} /> : <Pause size={14} />}</button>
-          </div>
+          <button className="world-motion-toggle" type="button" aria-label={paused ? 'Resume ambient motion' : 'Pause ambient motion'} title={paused ? 'Resume ambient motion' : 'Pause ambient motion'} aria-pressed={paused}
+            onClick={() => { engine.current?.setPaused(!paused); setPaused(!paused) }}>{paused ? <Play size={14} /> : <Pause size={14} />}</button>
         )}
-
-        {mode === 'play' && !complete && (
-          <div className="world-dpad" role="group" aria-label="Spark direction controls">
-            {[
-              { key: 'ArrowUp', label: 'Move forward', Icon: ArrowUp },
-              { key: 'ArrowLeft', label: 'Move left', Icon: ArrowLeft },
-              { key: 'ArrowDown', label: 'Move backward', Icon: ArrowDown },
-              { key: 'ArrowRight', label: 'Move right', Icon: ArrowRight },
-            ].map(({ key, label, Icon }) => (
-              <button key={key} type="button" aria-label={label} data-direction={key}
-                onPointerDown={event => { event.preventDefault(); event.currentTarget.setPointerCapture(event.pointerId); engine.current?.setDirection(key, true) }}
-                onPointerUp={() => engine.current?.setDirection(key, false)}
-                onPointerCancel={() => engine.current?.setDirection(key, false)}
-                onLostPointerCapture={() => engine.current?.setDirection(key, false)}
-                onKeyDown={event => { if (event.key === ' ' || event.key === 'Enter') { event.preventDefault(); engine.current?.setDirection(key, true) } }}
-                onKeyUp={() => engine.current?.setDirection(key, false)}
-                onBlur={() => engine.current?.setDirection(key, false)}><Icon size={16} /></button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className="world-sector-list" role="group" aria-label={mode === 'play' ? 'Journey through five reflections' : 'Emotion to reality: a personal philosophy'}>
+        <svg className="world-label-leaders" aria-hidden="true">
+          {WORLD_SECTORS.map(item => <line key={item.id} ref={node => { if (node) leaders.current.set(item.id, node); else leaders.current.delete(item.id) }} />)}
+        </svg>
+      <div className="world-sector-list" role="group" aria-label="Emotion to reality: a personal philosophy">
         {WORLD_SECTORS.map(item => (
-          <button type="button" key={item.id} aria-pressed={selected === item.id} onClick={() => select(item.id)}
-            className={collected.includes(item.id) ? 'is-collected' : ''}>
-            <span className="world-sector-indicator">{collected.includes(item.id) ? <Check size={12} /> : <span />}</span>
+          <button type="button" key={item.id} ref={node => { if (node) labels.current.set(item.id, node); else labels.current.delete(item.id) }} aria-label={item.label} aria-describedby={`reflection-${item.id}`} aria-pressed={selected === item.id}
+            onFocus={event => { if (event.currentTarget.matches(':focus-visible')) { clearTimeout(dismissTimer.current); setExplained(item.id) } }}
+            onBlur={() => setExplained(null)}
+            onKeyDown={event => { if (event.key === 'Escape') { event.stopPropagation(); setExplained(null) } }}
+            onClick={() => { select(item.id); setExplained(item.id) }}>
             {item.label}
-            {item.id !== 'reality' && <ArrowRight className="world-path-arrow" size={12} aria-hidden="true" />}
+            <span id={`reflection-${item.id}`} role="tooltip" className="world-explanation" hidden={explained !== item.id}
+              onPointerEnter={() => clearTimeout(dismissTimer.current)} onPointerLeave={() => setExplained(null)}>
+              {item.description}
+            </span>
           </button>
         ))}
       </div>
-
-      <div className="world-detail" aria-live="polite" aria-atomic="true">
-        {complete ? (
-          <><div><span className="world-detail-label">{WORLD_SECTORS.length} / {WORLD_SECTORS.length} reflections discovered</span><h2>A moment of balance.</h2><p>Light and shadow, feeling and intention. Carry a little of that awareness into what you create next.</p></div>
-            <div className="world-complete-actions"><Link href="/work">View my work <ArrowRight size={14} /></Link><button type="button" onClick={() => switchMode('play')}>Play again <RotateCcw size={13} /></button></div></>
-        ) : sector ? (
-          <><div><span className="world-detail-label">{mode === 'play' ? (collected.includes(sector.id) ? 'Reflection discovered' : 'Following the spark') : sector.label}</span><h2>{sector.title}</h2><p>{sector.description}</p></div><span className="world-detail-code" aria-hidden="true">{sector.symbol}/0{WORLD_SECTORS.length}</span></>
-        ) : (
-          <><div><span className="world-detail-label">{mode === 'play' ? 'Follow your curiosity' : 'Yin & yang'}</span><h2>{mode === 'play' ? 'Five reflections. Find your balance.' : 'A little light within the shadow.'}</h2><p>{mode === 'play' ? 'Guide the spark to each reflection, or choose a stage and let it lead you there. There is no clock to race.' : 'A little shadow within the light. For me, balance means making room for both feeling and intention.'}</p></div><span className="world-detail-code" aria-hidden="true">{'☯'}</span></>
-        )}
       </div>
-      <p id="world-instructions" className="world-instructions">
-        {status === 'loading' ? 'Preparing your world…' : status === 'unavailable' ? '3D is unavailable in this browser. You can still explore each reflection above.' : mode === 'play' ? <><span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or arrow keys when the world is focused</span><span>Tap a reflection to follow it</span></> : <><span>Drag to orbit</span><span>Tap yin & yang to bounce</span><span>Press Play to follow the spark.</span></>}
+      <p id="world-instructions" className="sr-only">
+        {status === 'unavailable' ? 'A static yin and yang symbol is shown because 3D is unavailable.' : 'Drag to orbit. Tap yin and yang or press Space to bounce. Hover an orbiting world to read its reflection, or focus a label with the keyboard.'}
       </p>
     </div>
   )

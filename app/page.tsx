@@ -52,16 +52,9 @@ export default async function HomePage() {
             <PhilosophicalIdentity name={settings.displayName} />
 
             <p className="max-w-[46ch] text-base leading-[1.7] text-text-secondary">
-              I&apos;m drawn to the space between logic and intuition, where code
-              meets creativity. Building software means working with both: clear
-              logic for the computer, thoughtful experiences for the person behind
-              the screen. Yin and yang is my reminder to balance precision with
-              imagination, and bring both to what I build.
-            </p>
-
-            <p className="max-w-[46ch] text-[15px] leading-[1.6] text-text-tertiary">
-              I build software that helps institutions operate—from fintech and lending platforms to
-              agricultural value-chain tools and school administration systems.
+              I build software that makes complex things feel simple.
+              Somewhere between logic and intuition, I find the balance
+              between code that works and experiences that feel human.
             </p>
 
             <div className="flex flex-wrap items-center gap-4">
@@ -74,32 +67,15 @@ export default async function HomePage() {
               </Link>
               <Link
                 href="/blog"
-                className="inline-flex items-center gap-2 rounded-lg border border-border px-6 py-3 text-sm font-medium text-text-primary transition-colors hover:border-border-hover"
+                className="inline-flex items-center px-2 py-3 text-sm text-text-secondary transition-colors hover:text-text-primary"
               >
                 Read Blog
               </Link>
             </div>
 
-            <div className="home-world-signature">
-              <span className="home-world-signature-line" />
-              <q>Emotion is energy in motion. Feel it. Move with it.</q>
-            </div>
           </div>
           <PortfolioWorld />
         </section>
-
-        <figure className="philosophy-statement mx-4 md:mx-6 lg:mx-12">
-          <figcaption>A personal philosophy</figcaption>
-          <blockquote>
-            <p>Your emotions are the architects of your reality.</p>
-            <p className="philosophy-intention">Feel consciously. Create intentionally.</p>
-          </blockquote>
-        </figure>
-
-        <div className="home-world-divider mx-4 md:mx-6 lg:mx-12">
-          <a href="#portfolio">Continue to the portfolio <span aria-hidden="true">↓</span></a>
-          <span>Reflect. Find balance. Build with intention.</span>
-        </div>
 
         {/* Content Area — ROW, padding [0,48], gap 48 */}
         <div id="portfolio" className="flex scroll-mt-8 flex-col gap-12 px-4 md:px-6 lg:flex-row lg:px-12">

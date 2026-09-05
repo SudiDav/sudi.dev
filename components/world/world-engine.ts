@@ -6,6 +6,8 @@ import { WORLD_SECTORS, type SectorId } from './world-data'
 import { buildWorld } from './world-model'
 
 type Options = {
+  onProject?: (points: { id: SectorId; x: number; y: number }[]) => void
+  onHover?: (id: SectorId | null) => void
   onSelect: (id: SectorId) => void
   onCollect: (ids: string[]) => void
   onUnavailable: () => void
@@ -64,7 +66,15 @@ export function createWorldEngine(canvas: HTMLCanvasElement, options: Options) {
   let restTurn = 0
 
   function render() {
-    if (!disposed) renderer.render(scene, camera)
+    if (disposed) return
+    renderer.render(scene, camera)
+    if (options.onProject) {
+      const point = new THREE.Vector3()
+      options.onProject([...model.beacons].map(([id, beacon]) => {
+        beacon.getWorldPosition(point).project(camera)
+        return { id, x: (point.x + 1) / 2, y: (1 - point.y) / 2 }
+      }))
+    }
   }
 
   function moving() {
@@ -244,10 +254,18 @@ export function createWorldEngine(canvas: HTMLCanvasElement, options: Options) {
     if (event.buttons && Math.hypot(event.clientX - down.x, event.clientY - down.y) > 6) dragged = true
     pointer.set(hover.x, -hover.y)
     raycaster.setFromCamera(pointer, camera)
-    canvas.style.cursor = raycaster.intersectObject(model.processor, true).length ? 'pointer' : 'grab'
+    const symbolHit = raycaster.intersectObject(model.processor, true)[0]
+    const targetHit = raycaster.intersectObjects(model.targets)[0]
+    const worldHit = targetHit && (!symbolHit || targetHit.distance < symbolHit.distance) ? targetHit : null
+    canvas.style.cursor = symbolHit || worldHit ? 'pointer' : 'grab'
+    if (event.pointerType !== 'touch') options.onHover?.(!event.buttons && worldHit ? worldHit.object.userData.sector as SectorId : null)
   }
 
-  function pointerLeave() { hover.x = 0; hover.y = 0 }
+  function pointerLeave(event: PointerEvent) {
+    hover.x = 0
+    hover.y = 0
+    if (event.pointerType !== 'touch') options.onHover?.(null)
+  }
 
   function normalizeKey(key: string) { return key.length === 1 ? key.toLowerCase() : key }
   const movementKeys = ['w', 'a', 's', 'd', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']

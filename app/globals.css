@@ -911,30 +911,16 @@ body {
   grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.15fr);
   align-items: center;
   gap: 48px;
-  padding-top: 48px;
-  padding-bottom: 44px;
+  padding-top: 64px;
+  padding-bottom: 72px;
 }
-.home-world-intro { display: flex; flex-direction: column; gap: 25px; padding-bottom: 28px; }
-.home-world-signature { display: flex; align-items: center; gap: 12px; color: var(--text-secondary); font: 10px/1.5 var(--font-mono); margin-top: 24px; }
-.home-world-signature-line { width: 30px; height: 1px; background: var(--accent); }
-.home-world-divider { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 20px 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); color: var(--text-secondary); font: 10px/1.6 var(--font-mono); }
-.home-world-divider a { display: inline-flex; align-items: center; gap: 16px; color: var(--text-primary); }
-.home-world-divider a:hover { color: var(--accent); }
+.home-world-intro { display: flex; flex-direction: column; gap: 28px; padding-bottom: 0; }
 @media (max-width: 1100px) { .home-world-hero { gap: 28px; } }
 @media (max-width: 899px) {
   .home-world-hero { grid-template-columns: 1fr; gap: 36px; padding-top: 42px; }
   .home-world-intro { max-width: 560px; padding-bottom: 0; gap: 22px; }
-  .home-world-signature { margin-top: 0; }
-  .home-world-divider > span { display: none; }
 }
 @media (prefers-reduced-motion: no-preference) {
   .home-world-intro { animation: world-intro-in 700ms ease-out both; }
   @keyframes world-intro-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 }
-
-.home-world-signature q { max-width: 34ch; font: italic 15px/1.7 Georgia, serif; color: var(--text-secondary); }
-.philosophy-statement { text-align: center; padding: 36px 20px 52px; }
-.philosophy-statement figcaption { font: 11px/1.6 var(--font-mono); color: var(--text-secondary); margin-bottom: 18px; }
-.philosophy-statement blockquote { font: 550 clamp(23px, 2.3vw, 34px)/1.4 var(--font-display); letter-spacing: -.8px; }
-.philosophy-intention { color: var(--accent); }
-@media (max-width: 600px) { .philosophy-statement { padding: 24px 0 38px; } }
