@@ -59,11 +59,20 @@ queued, building, ready, or failed, add these production variables as well:
 ```
 VERCEL_TOKEN=vercel_...
 VERCEL_PROJECT_ID=prj_...
+# For team-owned Vercel projects, add one of these:
+VERCEL_TEAM_ID=team_...
+# VERCEL_TEAM_SLUG=your-team-slug
 ```
 
-Create a Vercel token with deployment read access and copy the project ID from
-Vercel → Project Settings → General. The token is only used by the protected
-admin status endpoint; it is never sent to the browser.
+Create a Vercel access token with read access to deployments and Web Analytics,
+then copy the project ID from Vercel → Project Settings → General. The token
+is only used by protected admin server calls; it is never sent to the browser.
+
+The same `VERCEL_TOKEN` and `VERCEL_PROJECT_ID` power per-post view counts in
+the admin. The editor queries Web Analytics for each exact `/blog/<slug>` path
+and shows lifetime production page views. Team-owned projects also need
+`VERCEL_TEAM_ID` or `VERCEL_TEAM_SLUG`. If Web Analytics or these credentials
+are unavailable, the admin keeps showing `—` instead of an invented number.
 
 ## Working locally without any credentials
 
