@@ -13,7 +13,7 @@ export const PROJECT_FILTERS = ['All', 'Fintech', 'Platforms', 'Side Projects'] 
  * software at all. The design's "Architecture" and "Open Source" pills had
  * nothing behind them.
  */
-export const POST_FILTERS = ['All', '.NET', 'DevOps', 'Craft', 'Life'] as const
+export const POST_FILTERS = ['All', '.NET', 'DevOps', 'Craft', 'Life', 'Philosophy'] as const
 
 export function filterProjects(projects: Project[], category: string): Project[] {
   if (category === 'All') return projects
