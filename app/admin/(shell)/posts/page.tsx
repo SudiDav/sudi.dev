@@ -30,7 +30,8 @@ export default async function AdminPostsPage({
 }) {
   const { tab } = await searchParams
   const activeTab = (TABS as readonly string[]).includes(tab ?? '') ? (tab as string) : 'All Posts'
-  const [allPosts, counts] = await Promise.all([getAdminPosts(), getAdminPostCounts()])
+  const allPosts = await getAdminPosts()
+  const counts = await getAdminPostCounts(allPosts)
   const wanted = TAB_STATUS[activeTab]
   const posts = wanted ? allPosts.filter((post) => post.status === wanted) : allPosts
 

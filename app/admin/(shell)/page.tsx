@@ -20,18 +20,20 @@ export const dynamic = 'force-dynamic'
 /**
  * Design: "Stats Row" — four cards, gap 20.
  *
- * Published posts and projects are counted from the real content. Views stay
- * "—" because no analytics provider is connected; comments come from the
- * GitHub Discussions that power the site's giscus embed.
+ * Published posts and projects are counted from the real content. Views come
+ * from Vercel Web Analytics when configured; comments come from the GitHub
+ * Discussions that power the site's giscus embed.
  */
 function stats(counts: {
+  views: string
+  viewsPeriod: string
   posts: string
   projects: string
   comments: string
   commentsPeriod: string
 }) {
   return [
-    { label: 'Total Views', value: '—', trend: '', period: 'no analytics connected', Icon: Eye },
+    { label: 'Total Views', value: counts.views, trend: '', period: counts.viewsPeriod, Icon: Eye },
     {
       label: 'Published Posts',
       value: counts.posts,
