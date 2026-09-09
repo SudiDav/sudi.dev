@@ -142,13 +142,13 @@ export default async function AdminDashboardPage() {
     <>
       <AdminTopBar title="Dashboard" subtitle="Welcome back, Sudi. Here's what's happening." />
 
-      <div className="flex flex-col gap-5 lg:flex-row">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {STATS.map((stat) => (
           <StatCard key={stat.label} {...stat} />
         ))}
       </div>
 
-      <div className="flex flex-col gap-5 lg:flex-row">
+      <div className="grid min-w-0 gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
         <AdminCard
           title="Recent Activity"
           className="flex-1"
@@ -169,8 +169,8 @@ export default async function AdminDashboardPage() {
                 <span className={`rounded-lg p-2 ${item.tint}`}>
                   <item.Icon size={16} />
                 </span>
-                <div className="flex flex-1 flex-col gap-0.5">
-                  <span className="text-[13px] text-admin-text">{item.text}</span>
+                <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+                  <span className="break-words text-[13px] text-admin-text">{item.text}</span>
                   <span className="text-[11px] text-admin-text-tertiary">{item.time}</span>
                 </div>
               </div>
@@ -178,7 +178,7 @@ export default async function AdminDashboardPage() {
           </div>
         </AdminCard>
 
-        <AdminCard title="Quick Actions" className="w-full lg:w-[320px]">
+        <AdminCard title="Quick Actions" className="w-full">
           <div className="flex flex-col gap-4">
             {ACTIONS.map(({ Icon, label, description, href }) => (
               <Link

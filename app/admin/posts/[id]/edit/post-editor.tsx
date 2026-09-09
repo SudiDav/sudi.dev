@@ -144,16 +144,16 @@ export function PostEditor({
   return (
     <div className="flex min-h-screen flex-col bg-admin-card">
       {/* Editor Top Bar — ROW, padding [12,24], 1px bottom border */}
-      <header className="flex flex-wrap items-center justify-between gap-4 border-b border-admin-border px-6 py-3">
-        <div className="flex items-center gap-4">
+      <header className="flex flex-wrap items-center justify-between gap-3 border-b border-admin-border px-4 py-3 sm:gap-4 sm:px-6">
+        <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-4">
           <Link
             href="/admin/posts"
-            className="inline-flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[13px] text-admin-text-secondary hover:bg-admin-bg"
+            className="inline-flex min-h-11 items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[13px] text-admin-text-secondary hover:bg-admin-bg"
           >
             <ArrowLeft size={16} />
             Posts
           </Link>
-          <span className="text-xs text-admin-text-tertiary">
+          <span className="min-w-0 text-xs text-admin-text-tertiary">
             {pending
               ? 'Saving…'
               : creating
@@ -164,11 +164,11 @@ export function PostEditor({
           </span>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex w-full flex-wrap items-center justify-end gap-2.5 sm:w-auto">
           {post ? (
             <Link
               href={`/blog/${post.slug}`}
-              className="inline-flex items-center gap-1.5 rounded-[7px] border border-admin-border px-3.5 py-1.5 text-[13px] text-admin-text-secondary hover:bg-admin-bg"
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-[7px] border border-admin-border px-3.5 py-1.5 text-[13px] text-admin-text-secondary hover:bg-admin-bg"
             >
               <Eye size={14} />
               Preview
@@ -178,7 +178,7 @@ export function PostEditor({
             type="button"
             onClick={() => save()}
             disabled={pending || !canPublish || !title.trim()}
-            className="inline-flex items-center gap-1.5 rounded-[7px] border border-admin-border px-3.5 py-1.5 text-[13px] text-admin-text-secondary hover:bg-admin-bg disabled:opacity-50"
+            className="inline-flex min-h-11 items-center gap-1.5 rounded-[7px] border border-admin-border px-3.5 py-1.5 text-[13px] text-admin-text-secondary hover:bg-admin-bg disabled:opacity-50"
           >
             {creating ? 'Create' : 'Save'}
           </button>
@@ -186,7 +186,7 @@ export function PostEditor({
             type="button"
             onClick={() => save(status === 'Published' ? 'Draft' : 'Published')}
             disabled={pending || !canPublish || !title.trim()}
-            className="inline-flex items-center gap-1.5 rounded-[7px] bg-accent px-4 py-1.5 text-[13px] font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="inline-flex min-h-11 items-center gap-1.5 rounded-[7px] bg-accent px-4 py-1.5 text-[13px] font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             <Send size={14} />
             {creating ? 'Create & Publish' : status === 'Published' ? 'Unpublish' : 'Publish'}
@@ -195,28 +195,28 @@ export function PostEditor({
       </header>
 
       {!canPublish ? (
-        <p className="flex items-center gap-2 border-b border-admin-border bg-[#F59E0B15] px-6 py-2.5 text-[13px] text-admin-warning">
+        <p className="flex items-start gap-2 border-b border-admin-border bg-[#F59E0B15] px-4 py-2.5 text-[13px] text-admin-warning sm:items-center sm:px-6">
           <TriangleAlert size={14} />
           Saving is disabled — set GITHUB_TOKEN and GITHUB_REPO to publish from a deployed site.
         </p>
       ) : null}
 
       {error ? (
-        <p className="flex items-center gap-2 border-b border-admin-border bg-[#EF444415] px-6 py-2.5 text-[13px] text-admin-danger">
+        <p className="flex items-start gap-2 border-b border-admin-border bg-[#EF444415] px-4 py-2.5 text-[13px] text-admin-danger sm:items-center sm:px-6">
           <TriangleAlert size={14} />
           {error}
         </p>
       ) : null}
 
       {saved && !pending && !error ? (
-        <p className="flex items-center gap-2 border-b border-admin-border bg-[#10B98115] px-6 py-2.5 text-[13px] text-admin-success">
+        <p className="flex items-start gap-2 border-b border-admin-border bg-[#10B98115] px-4 py-2.5 text-[13px] text-admin-success sm:items-center sm:px-6">
           <Check size={14} />
           Saved to content/posts/{post?.slug}.mdx
         </p>
       ) : null}
 
       {publish ? (
-        <div className="border-b border-admin-border px-6 py-2.5">
+        <div className="border-b border-admin-border px-4 py-2.5 sm:px-6">
           <DeploymentStatus publish={publish} />
           <NewsletterStatus newsletter={newsletter} />
         </div>
@@ -225,7 +225,7 @@ export function PostEditor({
       <div className="flex flex-1 flex-col xl:flex-row">
         <div className="flex flex-1 flex-col">
           {/* Toolbar — ROW, padding [8,24], gap 4, #FAFBFC, 1px bottom border */}
-          <div className="flex flex-wrap items-center gap-1 border-b border-admin-border bg-admin-subtle px-6 py-2">
+          <div className="flex flex-wrap items-center gap-1 border-b border-admin-border bg-admin-subtle px-4 py-2 sm:px-6">
             {[TEXT_FORMAT, INLINE_FORMAT, BLOCK_FORMAT].map((group, groupIndex) => (
               <div key={groupIndex} className="flex items-center gap-0.5">
                 {groupIndex > 0 ? <span className="mx-2 h-4 w-px bg-admin-border" /> : null}
@@ -241,8 +241,8 @@ export function PostEditor({
             </span>
           </div>
 
-          <div className="mx-auto flex w-full max-w-[720px] flex-col gap-6 px-6 py-8">
-            <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-admin-border px-6 py-8 text-center">
+          <div className="mx-auto flex w-full max-w-[720px] flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8">
+            <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-admin-border px-4 py-6 text-center sm:px-6 sm:py-8">
               <ImageIcon size={22} className="text-admin-text-tertiary" />
               <span className="text-sm text-admin-text-tertiary">
                 {cover || 'Click to add a cover image'}
@@ -268,7 +268,7 @@ export function PostEditor({
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               rows={2}
-              className="resize-none border-0 font-display text-[36px] leading-[1.3] font-bold text-admin-text focus:outline-none"
+              className="resize-none border-0 font-display text-[32px] leading-[1.3] font-bold text-admin-text focus:outline-none sm:text-[36px]"
             />
 
             <textarea
@@ -289,7 +289,7 @@ export function PostEditor({
           </div>
         </div>
 
-        <aside className="flex w-full shrink-0 flex-col gap-5 border-admin-border p-6 xl:w-[320px] xl:border-l">
+        <aside className="flex w-full shrink-0 flex-col gap-5 border-admin-border p-4 sm:p-6 xl:w-[320px] xl:border-l">
           <h2 className="font-display text-[15px] font-semibold text-admin-text">Post Settings</h2>
 
           <SidebarField label="Status">

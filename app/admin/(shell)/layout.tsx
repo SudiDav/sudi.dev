@@ -23,7 +23,9 @@ export default async function AdminShellLayout({ children }: { children: React.R
   return (
     <div className="flex min-h-screen flex-col bg-admin-bg lg:flex-row">
       <AdminSidebar name={settings.displayName} email={settings.email} />
-      <main className="flex flex-1 flex-col gap-8 px-6 py-8 lg:px-10">{children}</main>
+      <main className="flex min-w-0 flex-1 flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8 lg:gap-8 lg:px-8 xl:px-10">
+        {children}
+      </main>
     </div>
   )
 }
