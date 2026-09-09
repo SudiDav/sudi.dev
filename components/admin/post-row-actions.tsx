@@ -50,7 +50,7 @@ export function PostRowActions({
         onClick={toggle}
         disabled={pending}
         title={`Mark "${title}" as ${next}`}
-        className="rounded-md border border-admin-border px-2 py-1 text-[11px] font-medium text-admin-text-secondary transition-colors hover:bg-admin-bg disabled:opacity-50"
+        className="min-h-11 rounded-md border border-admin-border px-3 py-1 text-[11px] font-medium text-admin-text-secondary transition-colors hover:bg-admin-bg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:opacity-50"
       >
         {pending ? '…' : next}
       </button>
@@ -58,7 +58,7 @@ export function PostRowActions({
       <Link
         href={`/blog/${slug}`}
         aria-label={`View ${title} on the site`}
-        className="text-admin-text-tertiary hover:text-admin-text"
+        className="flex size-11 items-center justify-center rounded-md text-admin-text-tertiary hover:bg-admin-bg hover:text-admin-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
       >
         <Eye size={16} />
       </Link>
@@ -66,7 +66,7 @@ export function PostRowActions({
       <Link
         href={`/admin/posts/${slug}/edit`}
         aria-label={`Edit ${title}`}
-        className="text-admin-text-tertiary hover:text-admin-text"
+        className="flex size-11 items-center justify-center rounded-md text-admin-text-tertiary hover:bg-admin-bg hover:text-admin-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
       >
         <Pencil size={16} />
       </Link>
