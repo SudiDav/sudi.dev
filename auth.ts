@@ -1,17 +1,16 @@
 import NextAuth from 'next-auth'
 import GitHub from 'next-auth/providers/github'
+import Google from 'next-auth/providers/google'
 import Credentials from 'next-auth/providers/credentials'
+import { canSignIn, commentIdentityFromAccount, isAdminEmail } from '@/lib/auth-policy'
 
 /**
  * The single account allowed into the admin.
  *
- * This is the whole authorisation model: there is one author, so rather than a
- * user table there is one address, checked on every sign-in. Anyone else who
- * completes GitHub's flow is rejected before a session is ever issued.
- *
- * GitHub rather than Google because everything else here already runs through
- * it — comments are GitHub Discussions, publishing commits to the repo — so
- * this adds no new account, and no second place for access to be revoked.
+ * This is the whole admin authorisation model: there is one author, so rather
+ * than a user table there is one address, checked at every protected boundary.
+ * Other Google and GitHub identities may hold reader sessions for comments,
+ * but those sessions never satisfy the admin check below.
  */
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL?.toLowerCase().trim()
 
@@ -40,29 +39,42 @@ const devBypass = Credentials({
 export const isDevBypassEnabled = devBypassEnabled
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  providers: devBypassEnabled ? [GitHub, devBypass] : [GitHub],
+  providers: devBypassEnabled ? [Google, GitHub, devBypass] : [Google, GitHub],
   session: { strategy: 'jwt' },
   pages: { signIn: '/admin/signin', error: '/admin/signin' },
   callbacks: {
     /**
-     * Returning false here aborts the sign-in — no session, no cookie.
-     *
-     * GitHub does not return an `email_verified` claim the way Google does; it
-     * returns the account's primary email, which GitHub itself has verified.
-     * The address must match ADMIN_EMAIL exactly, so ADMIN_EMAIL has to be
-     * whichever address GitHub reports as primary — not necessarily the one on
-     * the public site.
+     * Google readers must have a verified address. GitHub identities are valid
+     * readers even when they keep their email private; admin access remains a
+     * separate exact match against whichever primary email GitHub reports.
      */
     signIn({ account, profile, user }) {
-      if (!ADMIN_EMAIL) return false
-
-      // The dev bypass mints the admin identity itself; it only exists when
-      // both guards above allow it.
-      if (account?.provider === 'dev') {
-        return devBypassEnabled && user?.email?.toLowerCase() === ADMIN_EMAIL
+      return canSignIn({
+        provider: account?.provider,
+        profile: profile ?? undefined,
+        userEmail: user.email,
+        adminEmail: ADMIN_EMAIL,
+        devBypassEnabled,
+      })
+    },
+    jwt({ token, account }) {
+      if (account) {
+        const identity = commentIdentityFromAccount(account.provider, account.providerAccountId)
+        token.commentProvider = identity?.provider
+        token.commentSubject = identity?.subject
       }
-
-      return typeof profile?.email === 'string' && profile.email.toLowerCase() === ADMIN_EMAIL
+      return token
+    },
+    session({ session, token }) {
+      if (
+        session.user &&
+        (token.commentProvider === 'google' || token.commentProvider === 'github') &&
+        typeof token.commentSubject === 'string'
+      ) {
+        session.user.provider = token.commentProvider
+        session.user.commenterId = token.commentSubject
+      }
+      return session
     },
     /**
      * Re-check on every request. If ADMIN_EMAIL is later changed, existing
@@ -70,7 +82,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
      * than lingering until they expire.
      */
     authorized({ auth: session }) {
-      return session?.user?.email?.toLowerCase() === ADMIN_EMAIL
+      return isAdminEmail(session?.user?.email, ADMIN_EMAIL)
     },
   },
 })
@@ -80,7 +92,6 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
  * calls this — the proxy is a redirect convenience, not the security boundary.
  */
 export async function isAdmin(): Promise<boolean> {
-  if (!ADMIN_EMAIL) return false
   const session = await auth()
-  return session?.user?.email?.toLowerCase() === ADMIN_EMAIL
+  return isAdminEmail(session?.user?.email, ADMIN_EMAIL)
 }
