@@ -1,22 +1,33 @@
-import { GiscusComments } from './giscus-comments'
+import { auth } from '@/auth'
+import { getPublishedComments } from '@/lib/comments/service'
+import { neonCommentStore } from '@/lib/comments/store'
+import type { PublicComment } from '@/lib/comments/types'
+import { CommentAuthButtons, type CommentViewer } from './comment-auth-buttons'
+import { CommentSection } from './comment-section'
 
 /**
  * Design: Article Page → "Comment Section" — COLUMN, padding [48,0], gap 32,
- * with a 720px inner column. The design's own thread and form are replaced by
- * the giscus embed; the section framing around it is kept.
- *
- * Renders nothing at all when giscus is unconfigured, so a half-built comment
- * section never ships — see .env.example for the four values it needs.
+ * with a 720px inner column. Replies use a quiet accent rail so the discussion
+ * reads like notes in the margin without competing with the essay.
  */
-export function ArticleComments() {
-  // Read on the server so an unconfigured section costs nothing on the client.
-  // NEXT_PUBLIC_* values must be referenced literally to be inlined at build.
-  const configured =
-    process.env.NEXT_PUBLIC_GISCUS_REPO &&
-    process.env.NEXT_PUBLIC_GISCUS_REPO_ID &&
-    process.env.NEXT_PUBLIC_GISCUS_CATEGORY &&
-    process.env.NEXT_PUBLIC_GISCUS_CATEGORY_ID
-  if (!configured) return null
+export async function ArticleComments({ slug }: { slug: string }) {
+  const session = await auth()
+  const viewer: CommentViewer | null =
+    session?.user?.provider && session.user.commenterId
+      ? {
+          name: session.user.name?.trim() || 'Reader',
+          image: session.user.image ?? null,
+          provider: session.user.provider,
+        }
+      : null
+
+  let unavailable = false
+  let comments: PublicComment[] = []
+  try {
+    comments = await getPublishedComments(neonCommentStore, slug)
+  } catch {
+    unavailable = true
+  }
 
   return (
     <section className="flex flex-col items-center px-4 py-12 md:px-8">
@@ -24,11 +35,16 @@ export function ArticleComments() {
         <div className="flex flex-col gap-2">
           <h2 className="font-display text-[22px] font-semibold text-text-primary">Comments</h2>
           <p className="text-[13px] leading-[1.6] text-text-secondary">
-            Signed in with GitHub. Comments live in this site&apos;s{' '}
-            <span className="text-text-primary">Discussions</span>, so you can reply from there too.
+            A place to question, extend, or challenge the ideas in this essay.
           </p>
         </div>
-        <GiscusComments />
+        <CommentSection
+          articleSlug={slug}
+          initialComments={comments}
+          viewer={viewer}
+          unavailable={unavailable}
+          auth={<CommentAuthButtons slug={slug} viewer={viewer} />}
+        />
       </div>
     </section>
   )
