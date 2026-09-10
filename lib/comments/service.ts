@@ -56,7 +56,7 @@ export async function submitComment(
     authorType: command.identity.type,
     authorKey: authenticated ? command.actorKey : null,
     authorName: authenticated ? command.identity.name.trim() || 'Reader' : guestName,
-    authorAvatarUrl: authenticated ? command.identity.avatarUrl : null,
+    authorAvatarUrl: command.identity.type === 'guest' ? null : command.identity.avatarUrl,
     body,
     status,
     actorKey: command.actorKey,
