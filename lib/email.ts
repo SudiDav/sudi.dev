@@ -77,9 +77,8 @@ export function notifyNewSubscriber(address: string) {
 /**
  * Add the address to the Resend audience.
  *
- * This replaces writing subscribers into the repository. The repo is public so
- * that GitHub Discussions can back the comments, which makes it the wrong place
- * for anyone's email address.
+ * This replaces writing subscribers into the repository. A public repository
+ * is the wrong place for anyone's email address.
  *
  * Like sending, this is a no-op when unconfigured — reported, never thrown.
  */

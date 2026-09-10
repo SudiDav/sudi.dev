@@ -8,9 +8,8 @@ out
 .env.local
 .env.*.local
 
-# Local-only data. Subscribers live in Resend, comments in GitHub Discussions.
+# Local-only newsletter data lives in Resend.
 content/subscribers.json
-content/comments.json
 
 # Not needed at runtime.
 .git

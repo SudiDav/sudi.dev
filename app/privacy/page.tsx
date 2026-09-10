@@ -16,13 +16,13 @@ export const metadata: Metadata = {
  * Every claim below is checkable in the codebase:
  *
  *   newsletter  → subscribe() in app/admin/actions.ts, Resend audience
- *   comments    → components/comment-form.tsx, content/comments.json
+ *   comments    → lib/comments, Neon Postgres
  *   no analytics → no tracking dependency in package.json
  *   self-hosted fonts → next/font/google inlines them at build time
  *
  * If any of those change, this page has to change with it.
  */
-const UPDATED = '23 August 2026'
+const UPDATED = '10 September 2026'
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -61,11 +61,10 @@ export default async function PrivacyPage() {
               it.
             </P>
             <P>
-              <strong className="text-text-primary">If you comment</strong> — nothing reaches me
-              directly. Comments run on GitHub Discussions, so you sign in with your GitHub
-              account and your comment lives in this site&apos;s repository, publicly, under your
-              GitHub username. I never see your email address, and there is nothing for me to
-              store.
+              <strong className="text-text-primary">If you comment</strong> — the name, comment
+              text, sign-in provider, and optional profile image shown beside it are stored in
+              Neon. Google and GitHub readers publish immediately. Guests provide only a name and
+              comment, without an email address, and their comments wait for review.
             </P>
             <P>That is the whole list.</P>
           </Section>
@@ -83,9 +82,14 @@ export default async function PrivacyPage() {
               browsers. Never who.
             </P>
             <P>
-              This site sets no cookies for visitors. The only cookie it issues is a sign-in
-              session for me, on admin pages you cannot reach. If you sign in to comment, that is
-              GitHub&apos;s session, under GitHub&apos;s terms rather than mine.
+              This site sets a session cookie only when you choose to sign in. It stores the
+              minimum identity needed to recognise your Google or GitHub session; OAuth access
+              tokens and commenter email addresses are not stored in the comments database.
+            </P>
+            <P>
+              To slow automated posting, the server turns a signed-in account identifier or a
+              guest request address into a keyed, non-reversible identifier. Raw IP addresses are
+              not stored, and the identifier is used only for comment throttling.
             </P>
             <P>
               Fonts are served from this site rather than fetched from Google, so opening a page
@@ -103,11 +107,10 @@ export default async function PrivacyPage() {
               delivers its email, so a subscription address lives with them.
             </P>
             <P>
-              <strong className="text-text-primary">giscus and GitHub</strong> power the comments.
-              The comment box is an embedded frame served by giscus.app, and posting through it
-              means authorising the giscus app against your GitHub account. Loading a post with
-              comments therefore contacts giscus.app. Neither the frame nor I set any tracking
-              cookie, and giscus states that it has no tracking and no ads.
+              <strong className="text-text-primary">Neon</strong> stores comment text and the
+              public identity details described above. If you choose social sign-in, Google or
+              GitHub handles that authentication under its own terms. Simply reading comments
+              does not load an embedded comment service.
             </P>
             <P>
               <strong className="text-text-primary">Vercel</strong> hosts the site, keeps ordinary

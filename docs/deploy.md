@@ -15,21 +15,27 @@ change on that screen.
 Set these in Vercel under Settings → Environment Variables, for **Production**
 (and Preview, if you want previews to behave the same).
 
-### Comments — required, or the section silently disappears
+### Comments — Neon free plan
 
-`NEXT_PUBLIC_*` values are inlined at **build** time, not read at runtime. If
-they are missing when Vercel builds, the comment section renders nothing and
-there is no error to notice. Adding them later requires a redeploy.
+Create a Neon database through the Vercel Marketplace and link it to this
+project. Keep the free plan selected and do not enable paid add-ons. The
+integration supplies `DATABASE_URL`; check Neon's Usage page occasionally so
+storage and compute remain inside the free allowance.
 
-| Variable | Value |
+Open the Neon SQL Editor, paste `db/migrations/0001_comments.sql`, and run it
+once. The comment section reports a temporary unavailable state until both the
+connection and migration exist.
+
+| Variable | Where it comes from |
 | --- | --- |
-| `NEXT_PUBLIC_GISCUS_REPO` | `SudiDav/sudi.dev` |
-| `NEXT_PUBLIC_GISCUS_REPO_ID` | `R_kgDOUBlxDQ` |
-| `NEXT_PUBLIC_GISCUS_CATEGORY` | `Announcements` |
-| `NEXT_PUBLIC_GISCUS_CATEGORY_ID` | `DIC_kwDOUBlxDc4DEBBp` |
+| `DATABASE_URL` | Vercel's Neon integration |
+| `COMMENT_HMAC_SECRET` | `openssl rand -base64 32` |
+| `AUTH_GOOGLE_ID` | Google Cloud OAuth client |
+| `AUTH_GOOGLE_SECRET` | same OAuth client |
 
-None of these are secrets — they identify a public repository and a public
-discussion category.
+The Google OAuth client must allow
+`https://sudi.dev/api/auth/callback/google`. Add the stable Vercel preview URL
+as a second authorised redirect URI if preview sign-in should work too.
 
 ### Admin sign-in — required for the admin to work at all
 
@@ -103,8 +109,16 @@ This cuts Hashnode off, which is the intended outcome. The old flat post URLs
 
 ## 4. After it is live
 
-- Open a post and confirm the comment box renders. If it is missing, the giscus
-  variables were not set at build time — add them and redeploy.
-- Comment once yourself. giscus creates the discussion on first comment, so
-  until then the Discussions tab is legitimately empty.
+- Open a post and confirm the comment form renders without an unavailable notice.
+- Submit a guest comment and confirm it appears under Admin → Comments → Pending.
+- Publish that comment and confirm it appears on the article.
+- Sign in with Google, return to the article, and confirm an authenticated comment
+  appears immediately.
 - Subscribe with your own address and check the notification arrives.
+
+Before merging a deployment change, verify it locally:
+
+```bash
+pnpm typecheck
+pnpm test
+```

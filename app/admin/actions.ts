@@ -238,8 +238,8 @@ export async function sendNewsletter(id: string) {
  *
  * The address goes to the Resend audience and a notification goes to
  * CONTACT_EMAIL. It is deliberately NOT written into the repository: the repo
- * is public so GitHub Discussions can back the comments, and subscriber
- * addresses have no business being published with the source.
+ * is public, and subscriber addresses have no business being published with
+ * the source.
  *
  * The audience write is the source of truth. A notification failure is a
  * warning, but a storage failure must be shown so the subscriber can retry.

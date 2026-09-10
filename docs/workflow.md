@@ -41,13 +41,12 @@ is there to stop mistakes, not to be unbypassable.
 ## CI
 
 `.github/workflows/ci.yml` runs on every PR and on pushes to `develop` and
-`main`. It builds with the giscus variables set, then starts the built app and
-runs the tests against it — the outbound-link tests read rendered HTML, and skip
+`main`. It builds the production app, then starts it and runs the tests against
+it — the outbound-link tests read rendered HTML, and skip
 themselves if nothing is serving. Without that step they would pass silently
 while checking nothing.
 
 ## Environment variables
 
-Vercel holds them per environment. Note that `NEXT_PUBLIC_*` values are inlined
-at **build** time: adding one later requires a redeploy, not a restart, and a
-missing one fails silently rather than loudly.
+Vercel holds them per environment. Runtime integrations such as comments stay
+unavailable until their variables are configured; see `docs/deploy.md`.

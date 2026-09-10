@@ -11,8 +11,8 @@ The site is both a public portfolio and a small Git-backed CMS:
 - An authenticated admin area for editing posts, projects, and site settings.
 - GitHub-backed publishing: production edits are committed to the repository,
   which lets the normal deployment pipeline publish them.
-- Resend newsletter subscriptions, giscus/GitHub Discussions comments, and
-  Vercel Web Analytics.
+- Resend newsletter subscriptions, native reader comments, and Vercel Web
+  Analytics.
 - Light and dark themes, responsive layouts, and Docker deployment support.
 
 ## Stack
@@ -20,9 +20,9 @@ The site is both a public portfolio and a small Git-backed CMS:
 - Next.js 16 App Router, React 19, and TypeScript
 - Tailwind CSS 4
 - MDX via `next-mdx-remote` with frontmatter from `gray-matter`
-- NextAuth/Auth.js with GitHub OAuth
+- NextAuth/Auth.js with Google and GitHub OAuth
+- Neon Postgres for reader comments and moderation
 - Resend for newsletter contacts and email notifications
-- giscus for GitHub Discussions-backed comments
 - Leaflet and OpenStreetMap/CARTO tiles for the location map
 - Vitest, ESLint, and the Next.js type checker
 
@@ -99,8 +99,10 @@ configured saves write to the local working copy. In production, saves require
 commits the changed MDX or image file. The resulting deployment makes the
 change public.
 
-`NEXT_PUBLIC_GISCUS_*` values are build-time client configuration. Set them
-before building if comments should be included in the deployment.
+Comments use Neon Postgres. Apply `db/migrations/0001_comments.sql`, then set
+`DATABASE_URL` and `COMMENT_HMAC_SECRET`. Google sign-in additionally needs
+`AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET`; guests can comment without an
+account and enter the moderation queue.
 
 ## Deployment
 
@@ -127,7 +129,7 @@ host.
 
 - Vercel Web Analytics measures aggregate page usage.
 - Resend stores newsletter contacts when configured.
-- giscus embeds GitHub Discussions for article comments.
+- Neon stores article comments; Google and GitHub provide optional reader sign-in.
 - The About page can request map tiles from CARTO/OpenStreetMap.
 
 See the [privacy page](app/privacy/page.tsx) and [`docs/deploy.md`](docs/deploy.md)

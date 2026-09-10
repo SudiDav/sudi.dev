@@ -10,13 +10,6 @@ services:
   web:
     build:
       context: .
-      args:
-        # Build-time, not runtime — see the note in the Dockerfile. Changing
-        # any of these requires a rebuild, not just a restart.
-        NEXT_PUBLIC_GISCUS_REPO: ${NEXT_PUBLIC_GISCUS_REPO}
-        NEXT_PUBLIC_GISCUS_REPO_ID: ${NEXT_PUBLIC_GISCUS_REPO_ID}
-        NEXT_PUBLIC_GISCUS_CATEGORY: ${NEXT_PUBLIC_GISCUS_CATEGORY}
-        NEXT_PUBLIC_GISCUS_CATEGORY_ID: ${NEXT_PUBLIC_GISCUS_CATEGORY_ID}
     image: sudi-dev:latest
     restart: unless-stopped
 
@@ -25,8 +18,12 @@ services:
       AUTH_SECRET: ${AUTH_SECRET}
       AUTH_GITHUB_ID: ${AUTH_GITHUB_ID}
       AUTH_GITHUB_SECRET: ${AUTH_GITHUB_SECRET}
+      AUTH_GOOGLE_ID: ${AUTH_GOOGLE_ID}
+      AUTH_GOOGLE_SECRET: ${AUTH_GOOGLE_SECRET}
       AUTH_URL: ${AUTH_URL:-https://sudi.dev}
       ADMIN_EMAIL: ${ADMIN_EMAIL}
+      DATABASE_URL: ${DATABASE_URL}
+      COMMENT_HMAC_SECRET: ${COMMENT_HMAC_SECRET}
       GITHUB_TOKEN: ${GITHUB_TOKEN}
       GITHUB_REPO: ${GITHUB_REPO}
       GITHUB_BRANCH: ${GITHUB_BRANCH:-main}

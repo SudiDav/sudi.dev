@@ -24,19 +24,6 @@ RUN corepack enable
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# NEXT_PUBLIC_* values are inlined into the client bundle at BUILD time, not
-# read from the environment at runtime. They must be present here or the
-# features that depend on them are silently absent from the image — which is
-# how a comment section goes missing with no error to show for it.
-ARG NEXT_PUBLIC_GISCUS_REPO
-ARG NEXT_PUBLIC_GISCUS_REPO_ID
-ARG NEXT_PUBLIC_GISCUS_CATEGORY
-ARG NEXT_PUBLIC_GISCUS_CATEGORY_ID
-ENV NEXT_PUBLIC_GISCUS_REPO=$NEXT_PUBLIC_GISCUS_REPO \
-    NEXT_PUBLIC_GISCUS_REPO_ID=$NEXT_PUBLIC_GISCUS_REPO_ID \
-    NEXT_PUBLIC_GISCUS_CATEGORY=$NEXT_PUBLIC_GISCUS_CATEGORY \
-    NEXT_PUBLIC_GISCUS_CATEGORY_ID=$NEXT_PUBLIC_GISCUS_CATEGORY_ID
-
 ENV NEXT_TELEMETRY_DISABLED=1
 RUN pnpm build
 

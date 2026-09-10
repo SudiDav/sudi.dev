@@ -1,38 +1,41 @@
 # Admin setup
 
-The admin at `/admin` is gated by GitHub sign-in and restricted to a single
-email address. Publishing commits MDX back to this repository, which triggers a
-redeploy.
+The admin sign-in screen uses GitHub and is restricted to a single email
+address. Publishing commits MDX back to this repository, which triggers a
+redeploy. Google and GitHub reader sessions can comment but never pass the
+admin email check unless their email is the configured owner address.
 
-Two things must be configured. Neither can be done for you — both involve
-credentials that should only ever live in your `.env.local` (or your host's
-environment settings), never in the repo.
+Credentials must live only in `.env.local` or the host&apos;s environment settings,
+never in the repository.
 
-## 1. GitHub sign-in
+## 1. OAuth sign-in
 
-1. Go to GitHub → Settings → Developer settings → OAuth Apps → New OAuth App.
-   pick a project.
-2. **APIs & Services → OAuth consent screen** → choose **External**, fill in the
-   app name and your email. You can leave it in *Testing* mode — add your own
-   Gmail as a test user. There is no need to publish or get verified for a
-   single-user admin.
-3. **APIs & Services → Credentials → Create credentials → OAuth client ID**
-   - Application type: **Web application**
-   - Authorised redirect URIs:
-     - `http://localhost:3000/api/auth/callback/github`
-     - `https://YOUR-DOMAIN/api/auth/callback/github` (once deployed)
-4. Copy the Client ID and Client Secret into `.env.local`:
+For GitHub, create an OAuth App under GitHub → Settings → Developer settings →
+OAuth Apps. Use `http://localhost:3000/api/auth/callback/github` locally and
+`https://YOUR-DOMAIN/api/auth/callback/github` for the deployed app.
+
+For Google, create a project in Google Cloud, configure an External OAuth
+consent screen, then create a Web application OAuth client. Add these authorised
+redirect URIs:
+
+- `http://localhost:3000/api/auth/callback/google`
+- `https://YOUR-DOMAIN/api/auth/callback/google`
+- the stable Vercel preview callback, if reader sign-in should work on previews
+
+Copy the client credentials into `.env.local`:
 
 ```
-ADMIN_EMAIL=sudimayenge@gmail.com
+ADMIN_EMAIL=owner@example.com
 AUTH_GITHUB_ID=...
 AUTH_GITHUB_SECRET=...
+AUTH_GOOGLE_ID=...
+AUTH_GOOGLE_SECRET=...
 AUTH_SECRET=            # openssl rand -base64 32
 ```
 
-`ADMIN_EMAIL` is the whole authorisation model: any other GitHub account that
-completes sign-in is rejected before a session is issued, and the address is
-re-checked on every request.
+`ADMIN_EMAIL` is the whole admin authorisation model and is re-checked on every
+protected request. Other verified Google users and GitHub users may receive a
+reader session only for commenting.
 
 ## 2. Publishing
 
@@ -76,13 +79,13 @@ are unavailable, the admin keeps showing `—` instead of an invented number.
 
 ## Working locally without any credentials
 
-`.env.local` sets `AUTH_DEV_BYPASS=true`, which adds a **Continue without
+`.env.local` can set `AUTH_DEV_BYPASS=true`, which adds a **Continue without
 GitHub (dev)** button to the sign-in page. It is gated on two conditions that
 must BOTH hold: `NODE_ENV` is not production, and the flag is exactly `"true"`.
 `next build` sets `NODE_ENV=production`, so in a deployed build the provider is
 not merely hidden — it is never registered and there is no route to reach it.
 
-Delete the flag once Google sign-in is configured.
+Delete the flag once social sign-in is configured.
 
 ## Where saves go
 
@@ -105,35 +108,36 @@ Everything below is wired end to end — no screen is a mock-up.
 
 | Screen | What works |
 | --- | --- |
-| Dashboard | Real counts, real draft list. Views/comments read "—": no analytics source. |
+| Dashboard | Real content and comment counts; views show `—` when analytics is unavailable. |
 | Posts | Tabs filter by status. Row actions toggle Published/Draft. |
 | Post Editor | Edit title, excerpt, body, category. Save, Publish/Unpublish. Live word count. |
 | Add Project | Creates `content/projects/<slug>.mdx`. Refuses to overwrite an existing slug. |
 | Edit Project | Same form in update mode, at `/admin/projects/<slug>/edit` |
-| Comments | Approve / Reject (spam) / Delete, with tab filtering. Writes `content/comments.json`. |
+| Comments | Publish / Reject / Spam / Delete, with status filtering. Writes to Neon. |
 | Settings | Writes `content/site.json`. Log Out really signs out. |
 
 Public side:
 
 | Feature | What works |
 | --- | --- |
-| Article comments | Anyone can post. Held as pending; only approved comments render. |
+| Article comments | Google/GitHub comments publish immediately; guest comments wait for review. |
 | Newsletter | Validates and stores to the configured Resend audience |
 | Work / Blog filters, search | Client-side, synced to the URL, shareable |
 | Theme toggle | Persists, no flash on reload |
 
-### Storage
+### Comment storage
 
-All of it is files in `content/`, on one persistence model:
+Create a free Neon database, connect it to Vercel, and apply
+`db/migrations/0001_comments.sql` in the Neon SQL Editor. Configure:
 
-- `posts/*.mdx`, `projects/*.mdx` — content
-- `site.json` — profile, socials, SEO, avatar
-- `comments.json` — moderation queue
-- Resend audience — newsletter list (kept out of the public repository)
+```text
+DATABASE_URL=postgresql://...
+COMMENT_HMAC_SECRET=       # openssl rand -base64 32
+```
 
-In development these write to your working copy. With a GitHub token they
-become commits. Comment volume is the one thing to watch: every write
-serialises the whole file, which suits a personal blog, not a busy forum.
+Posts, projects, and settings remain files in `content/`; comments live in
+Neon, and newsletter contacts live in Resend. Check the Neon Usage page rather
+than enabling a paid add-on while the site is small.
 
 ### Still not real
 
@@ -141,7 +145,7 @@ serialises the whole file, which suits a personal blog, not a busy forum.
   and avatar fields take a path to something already in `/public`.
 - **Resend delivery** — the audience write works when Resend is configured; the
   sending domain must have valid SPF/MX records before owner notices can send.
-- **View counts** — no analytics, so they show "—" rather than invented numbers.
+- **View counts** — when analytics credentials are missing, they show "—" rather than invented numbers.
 
 Settings feed the site: the `<title>` and meta description come from
 `content/site.json`, as do the RSS channel details and the footer's social
@@ -157,7 +161,7 @@ not cover what the site needs:
 
 ## How it fits together
 
-- `auth.ts` — Google provider, JWT session (no database), single-email allowlist
+- `auth.ts` — Google/GitHub providers, JWT session, single-email admin allowlist
 - `proxy.ts` — redirects signed-out visitors away from `/admin` (convenience)
 - `app/admin/(shell)/layout.tsx` — the real gate, checked server-side
 - `app/admin/actions.ts` — every server action re-checks authorisation itself,
@@ -166,9 +170,10 @@ not cover what the site needs:
 - `lib/publish.ts` — commits MDX through the GitHub Contents API and returns the
   commit SHA used to track the Vercel deployment
 - `lib/vercel-deployments.ts` — checks Vercel for that commit's deployment
+- `lib/comments/` — validates, stores, throttles, and moderates article comments
 
 ## Deploying
 
-Set the same variables in your host's environment, and add the production
-callback URL to the Google OAuth client. `AUTH_SECRET` must be set in
-production or sessions cannot be signed.
+Set the same variables in your host's environment, apply the Neon migration,
+and add the production callback URLs to both OAuth clients. `AUTH_SECRET` must
+be set in production or sessions cannot be signed.
