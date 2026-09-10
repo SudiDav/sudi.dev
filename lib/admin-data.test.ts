@@ -47,4 +47,24 @@ describe('admin analytics data', () => {
     const { getAdminStats } = await import('./admin-data')
     await expect(getAdminStats()).resolves.toMatchObject({ views: '1,234', viewsPeriod: 'all published posts' })
   })
+
+  it('reports all stored comments on the dashboard', async () => {
+    getAdminCommentCount.mockResolvedValue({ count: 14, error: null })
+    const { getAdminStats } = await import('./admin-data')
+
+    await expect(getAdminStats()).resolves.toMatchObject({
+      comments: '14',
+      commentsPeriod: 'all stored comments',
+    })
+  })
+
+  it('shows an unavailable comment state without inventing a zero', async () => {
+    getAdminCommentCount.mockResolvedValue({ count: 0, error: 'Comments are unavailable' })
+    const { getAdminStats } = await import('./admin-data')
+
+    await expect(getAdminStats()).resolves.toMatchObject({
+      comments: '—',
+      commentsPeriod: 'comments unavailable',
+    })
+  })
 })

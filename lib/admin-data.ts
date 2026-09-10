@@ -8,11 +8,10 @@ import { formatViewCount, getPostViewCounts } from './vercel-analytics'
  * Adapts the real MDX content into the shapes the admin screens render.
  *
  * The admin now reflects what is actually on the site rather than the design's
- * sample data. Comments remain "—" because the post table does not load
- * discussion replies. View counts come from Vercel Web Analytics and remain
- * "—" when that protected API is not configured. The dashboard and the
- * Comments page read the public GitHub Discussions that power the site's
- * giscus embed.
+ * sample data. Comments remain "—" because the post table does not load a
+ * per-article count. View counts come from Vercel Web Analytics and remain
+ * "—" when that protected API is not configured. The dashboard count comes
+ * from the same Neon store as the moderation queue.
  */
 function toAdminPosts(posts: Awaited<ReturnType<typeof getPosts>>, views: Record<string, number>): AdminPost[] {
   return posts.map((post) => ({
@@ -80,6 +79,6 @@ export async function getAdminStats() {
     drafts: adminPosts.filter((p) => p.status === 'Draft').map((p) => p.title),
     projects: String(projects.length),
     comments: commentResult.error ? '—' : String(commentResult.count),
-    commentsPeriod: commentResult.error ? 'comments unavailable' : 'GitHub Discussions',
+    commentsPeriod: commentResult.error ? 'comments unavailable' : 'all stored comments',
   }
 }

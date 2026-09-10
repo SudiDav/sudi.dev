@@ -21,8 +21,8 @@ export const dynamic = 'force-dynamic'
  * Design: "Stats Row" — four cards, gap 20.
  *
  * Published posts and projects are counted from the real content. Views come
- * from Vercel Web Analytics when configured; comments come from the GitHub
- * Discussions that power the site's giscus embed.
+ * from Vercel Web Analytics when configured; comments come from the native
+ * moderation store.
  */
 function stats(counts: {
   views: string
