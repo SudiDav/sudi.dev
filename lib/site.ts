@@ -13,6 +13,7 @@ export type SiteSettings = {
   /** The larger About-page portrait. Falls back to `avatar` when unset. */
   portrait?: string
   email: string
+  phone: string
   bio: string
   location: string
   website: string
@@ -25,7 +26,8 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   displayName: 'Sudi M. David',
   avatar: '/images/sudi.jpeg',
   email: 'contact@sudi.dev',
-  bio: 'I build software that helps institutions operate—from fintech and lending platforms to agricultural value-chain tools and school administration systems.',
+  phone: '+243 817 334 881',
+  bio: 'Software engineer specializing in DevOps and cloud systems for fintech, lending, agriculture and school administration.',
   location: 'Lubumbashi, DRC',
   website: 'sudi.dev',
   social: {
@@ -35,8 +37,8 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     instagram: '@sudi_dav',
   },
   seo: {
-    title: 'Sudi M. David — Full-Stack Engineer',
-    description: 'I build software that helps institutions operate—from fintech and lending platforms to agricultural value-chain tools and school administration systems.',
+    title: 'Sudi M. David — Software Engineer | DevOps & Cloud',
+    description: 'Software engineer in Lubumbashi specializing in DevOps and cloud systems for fintech, lending, agriculture and school administration.',
   },
 }
 

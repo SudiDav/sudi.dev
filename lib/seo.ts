@@ -18,7 +18,8 @@ export function buildSiteMetadata(settings: SiteSettings): Metadata {
     keywords: [
       'Sudi M. David',
       'Sudi David',
-      'full-stack engineer',
+      'cloud engineer',
+      'DevOps engineer',
       'software engineer',
       'fintech',
       'DRC developer',

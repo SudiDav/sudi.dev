@@ -8,7 +8,7 @@ describe('buildSiteMetadata', () => {
 
     expect(metadata.metadataBase?.toString()).toBe('https://sudi.dev/')
     expect(metadata.title).toEqual({
-      default: 'Sudi M. David — Full-Stack Engineer',
+      default: 'Sudi M. David — Software Engineer | DevOps & Cloud',
       template: '%s | Sudi M. David',
     })
     expect(metadata.alternates?.canonical).toBe('/')
