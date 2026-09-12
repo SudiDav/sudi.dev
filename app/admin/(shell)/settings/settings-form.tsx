@@ -199,10 +199,18 @@ export function SettingsForm({
 
             <div className="flex flex-col gap-4 sm:flex-row">
               <Field
+                label="Phone Number"
+                value={settings.phone}
+                onChange={(value) => set('phone', value)}
+              />
+              <Field
                 label="Location"
                 value={settings.location}
                 onChange={(value) => set('location', value)}
               />
+            </div>
+
+            <div className="flex flex-col gap-4 sm:flex-row">
               <Field
                 label="Website"
                 value={settings.website}
