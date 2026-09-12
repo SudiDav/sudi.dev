@@ -18,19 +18,25 @@ export function AdminTopBar({
   children?: React.ReactNode
 }) {
   return (
-    <div className="flex flex-wrap items-center justify-between gap-4">
+    <div className="flex flex-col items-stretch justify-between gap-4 sm:flex-row sm:items-center">
       <div className="flex flex-col gap-1">
-        <h1 className="font-display text-[26px] font-bold text-admin-text">{title}</h1>
+        <h1 className="font-display text-2xl font-bold text-admin-text sm:text-[26px]">{title}</h1>
         {subtitle ? <p className="text-sm text-admin-text-secondary">{subtitle}</p> : null}
       </div>
-      <div className="flex items-center gap-3">
+      <div
+        className={
+          children
+            ? 'flex w-full flex-col gap-3 min-[480px]:flex-row sm:w-auto sm:items-center'
+            : 'flex items-center gap-3 self-end sm:self-auto'
+        }
+      >
         {children ?? (
           <>
-            <div className="flex items-center gap-2 rounded-lg border border-admin-border bg-admin-card px-3.5 py-2">
+            <div className="flex min-h-11 items-center gap-2 rounded-lg border border-admin-border bg-admin-card px-3.5 py-2">
               <Search size={16} className="text-admin-text-tertiary" />
               <span className="text-[13px] text-admin-text-tertiary">Search...</span>
             </div>
-            <span className="rounded-lg border border-admin-border bg-admin-card p-2">
+            <span className="flex size-11 items-center justify-center rounded-lg border border-admin-border bg-admin-card">
               <Bell size={18} className="text-admin-text-secondary" />
             </span>
           </>
@@ -61,7 +67,7 @@ export function StatCard({
   trendTone?: 'success' | 'accent'
 }) {
   return (
-    <div className="flex flex-1 flex-col gap-3 rounded-xl border border-admin-border bg-admin-card p-6">
+    <div className="flex min-w-0 flex-col gap-3 rounded-xl border border-admin-border bg-admin-card p-5 sm:p-6">
       <div className="flex items-center justify-between">
         <span className="text-[13px] text-admin-text-secondary">{label}</span>
         <Icon size={18} className="text-admin-text-tertiary" />
@@ -119,10 +125,10 @@ export function AdminCard({
 }) {
   return (
     <section
-      className={`flex flex-col gap-5 rounded-xl border border-admin-border bg-admin-card p-6 ${className}`}
+      className={`flex min-w-0 flex-col gap-5 rounded-xl border border-admin-border bg-admin-card p-4 sm:p-6 ${className}`}
     >
       {title ? (
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-3">
           <h2 className="font-display text-base font-semibold text-admin-text">{title}</h2>
           {action}
         </div>

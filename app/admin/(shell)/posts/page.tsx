@@ -44,7 +44,7 @@ export default async function AdminPostsPage({
         </div>
         <Link
           href="/admin/posts/new/edit"
-          className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-[13px] font-medium text-white transition-opacity hover:opacity-90"
+          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2 text-[13px] font-medium text-white transition-opacity hover:opacity-90"
         >
           <Plus size={16} />
           New Post
@@ -52,7 +52,10 @@ export default async function AdminPostsPage({
       </AdminTopBar>
 
       {/* Filter Row — tabs on a shared bottom rule; the active tab carries a 2px accent underline */}
-      <div className="flex flex-wrap border-b border-admin-border">
+      <div
+        className="flex overflow-x-auto border-b border-admin-border [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        aria-label="Post filters"
+      >
         {counts.map((tab) => {
           const active = tab.label === activeTab
           return (
@@ -60,7 +63,7 @@ export default async function AdminPostsPage({
               key={tab.label}
               href={tab.label === 'All Posts' ? '/admin/posts' : `/admin/posts?tab=${encodeURIComponent(tab.label)}`}
               aria-current={active ? 'page' : undefined}
-              className={`-mb-px flex items-center gap-1.5 px-4 py-2.5 text-[13px] ${
+              className={`-mb-px flex min-h-11 shrink-0 items-center gap-1.5 px-4 py-2.5 text-[13px] ${
                 active
                   ? 'border-b-2 border-accent font-semibold text-accent'
                   : 'text-admin-text-secondary hover:text-admin-text'
@@ -79,8 +82,55 @@ export default async function AdminPostsPage({
         })}
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-admin-border bg-admin-card">
-        <table className="w-full min-w-[860px] border-collapse text-left">
+      <div className="grid gap-3 lg:hidden" aria-label="Posts on small screens">
+        {posts.length === 0 ? (
+          <div className="rounded-xl border border-admin-border bg-admin-card px-4 py-10 text-center text-[13px] text-admin-text-secondary">
+            No {activeTab === 'All Posts' ? 'posts' : activeTab.toLowerCase()} yet.
+          </div>
+        ) : null}
+        {posts.map((post) => (
+          <article key={post.id} className="rounded-xl border border-admin-border bg-admin-card p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <Link
+                  href={`/admin/posts/${post.id}/edit`}
+                  className="break-words text-sm font-semibold text-admin-text hover:text-accent"
+                >
+                  {post.title}
+                </Link>
+                <p className="mt-1 text-xs text-admin-text-secondary">{post.category}</p>
+              </div>
+              <StatusBadge status={post.status} />
+            </div>
+
+            <dl className="mt-4 grid grid-cols-3 gap-3 border-y border-admin-border py-3 text-xs">
+              <div className="min-w-0">
+                <dt className="text-admin-text-secondary">Published</dt>
+                <dd className="mt-1 break-words text-admin-text-secondary">{post.date}</dd>
+              </div>
+              <div>
+                <dt className="text-admin-text-secondary">Views</dt>
+                <dd className="mt-1 text-admin-text-secondary">
+                  {post.views === '—' ? post.views : `${post.views} views`}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-admin-text-secondary">Comments</dt>
+                <dd className="mt-1 text-admin-text-secondary">
+                  {post.comments === '—' ? post.comments : `${post.comments} comments`}
+                </dd>
+              </div>
+            </dl>
+
+            <div className="mt-3">
+              <PostRowActions slug={post.id} title={post.title} status={post.status} />
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div className="hidden overflow-x-auto rounded-xl border border-admin-border bg-admin-card lg:block">
+        <table className="w-full min-w-[680px] border-collapse text-left">
           <thead>
             <tr className="bg-admin-subtle">
               <th scope="col" className="w-10 px-5 py-3">
@@ -91,7 +141,9 @@ export default async function AdminPostsPage({
                 <th
                   key={heading}
                   scope="col"
-                  className="px-5 py-3 text-xs font-semibold tracking-[1px] text-admin-text-secondary"
+                  className={`px-3 py-3 text-xs font-semibold tracking-[1px] text-admin-text-secondary xl:px-5 ${
+                    heading === 'VIEWS' || heading === 'COMMENTS' ? 'hidden xl:table-cell' : ''
+                  }`}
                 >
                   {heading}
                 </th>
@@ -111,10 +163,10 @@ export default async function AdminPostsPage({
             ) : null}
             {posts.map((post) => (
               <tr key={post.id} className="border-t border-admin-border">
-                <td className="px-5 py-4">
+                <td className="px-3 py-4 xl:px-5">
                   <span className="block size-4 rounded border-[1.5px] border-admin-border" />
                 </td>
-                <td className="px-5 py-4">
+                <td className="px-3 py-4 xl:px-5">
                   <div className="flex flex-col gap-0.5">
                     <Link
                       href={`/admin/posts/${post.id}/edit`}
@@ -125,13 +177,13 @@ export default async function AdminPostsPage({
                     <span className="text-[11px] text-admin-text-tertiary">{post.category}</span>
                   </div>
                 </td>
-                <td className="px-5 py-4">
+                <td className="px-3 py-4 xl:px-5">
                   <StatusBadge status={post.status} />
                 </td>
-                <td className="px-5 py-4 text-[13px] text-admin-text-secondary">{post.date}</td>
-                <td className="px-5 py-4 text-[13px] text-admin-text-secondary">{post.views}</td>
-                <td className="px-5 py-4 text-[13px] text-admin-text-secondary">{post.comments}</td>
-                <td className="px-5 py-4">
+                <td className="px-3 py-4 text-[13px] text-admin-text-secondary xl:px-5">{post.date}</td>
+                <td className="hidden px-5 py-4 text-[13px] text-admin-text-secondary xl:table-cell">{post.views}</td>
+                <td className="hidden px-5 py-4 text-[13px] text-admin-text-secondary xl:table-cell">{post.comments}</td>
+                <td className="px-3 py-4 xl:px-5">
                   <PostRowActions slug={post.id} title={post.title} status={post.status} />
                 </td>
               </tr>
