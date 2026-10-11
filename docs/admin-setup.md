@@ -111,7 +111,7 @@ Everything below is wired end to end — no screen is a mock-up.
 | Add Project | Creates `content/projects/<slug>.mdx`. Refuses to overwrite an existing slug. |
 | Edit Project | Same form in update mode, at `/admin/projects/<slug>/edit` |
 | Comments | Approve / Reject (spam) / Delete, with tab filtering. Writes `content/comments.json`. |
-| Settings | Writes `content/site.json`. Log Out really signs out. |
+| Settings | Writes `content/site.json`, including the weekly article writing profile. Log Out really signs out. |
 
 Public side:
 
@@ -146,6 +146,12 @@ serialises the whole file, which suits a personal blog, not a busy forum.
 Settings feed the site: the `<title>` and meta description come from
 `content/site.json`, as do the RSS channel details and the footer's social
 links. Changing your GitHub handle in Settings changes where the footer points.
+
+The Writing Profile settings guide weekly article drafts. They are saved in the
+public GitHub repository in `content/site.json`; only enter topics, interests,
+and style guidance that are safe to publish. The weekly job uses these details
+and recent published posts to create a draft. It emails the owner a link to the
+admin editor, but you review and publish each article manually.
 
 Two fields on Add Project are not in the design, because the design's form does
 not cover what the site needs:
