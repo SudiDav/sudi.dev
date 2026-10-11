@@ -229,6 +229,29 @@ export function SettingsForm({
               )
             })}
           </AdminCard>
+
+          <AdminCard title="Writing Profile">
+            <p className="text-[13px] leading-[1.5] text-admin-text-secondary">
+              These details guide weekly article drafts. They are saved in the public GitHub repository,
+              so do not include secrets or private information.
+            </p>
+            <Field
+              label="Topics and interests"
+              textarea
+              value={settings.writingProfile.interests}
+              onChange={(value) =>
+                set('writingProfile', { ...settings.writingProfile, interests: value })
+              }
+            />
+            <Field
+              label="Writing style guidance"
+              textarea
+              value={settings.writingProfile.styleGuidance}
+              onChange={(value) =>
+                set('writingProfile', { ...settings.writingProfile, styleGuidance: value })
+              }
+            />
+          </AdminCard>
         </div>
 
         <div className="flex w-full flex-col gap-6 xl:w-[360px]">

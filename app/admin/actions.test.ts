@@ -9,6 +9,7 @@ const {
   listMock,
   sendMock,
   audienceListMock,
+  saveSettingsMock,
   revalidatePathMock,
 } = vi.hoisted(() => ({
   isAdminMock: vi.fn(),
@@ -18,6 +19,7 @@ const {
   listMock: vi.fn(),
   sendMock: vi.fn(),
   audienceListMock: vi.fn(),
+  saveSettingsMock: vi.fn(),
   revalidatePathMock: vi.fn(),
 }))
 
@@ -34,7 +36,7 @@ vi.mock('@/lib/publish', () => ({
   savePost: (...args: unknown[]) => savePostMock(...args),
   createProject: vi.fn(),
   saveProject: vi.fn(),
-  saveSettings: vi.fn(),
+  saveSettings: (...args: unknown[]) => saveSettingsMock(...args),
   slugify: (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
   uploadImage: vi.fn(),
 }))
@@ -44,7 +46,7 @@ vi.mock('@/lib/newsletter', () => ({
   sendNewsletterBroadcast: (...args: unknown[]) => sendMock(...args),
 }))
 
-import { addPost, listNewsletters, listSubscribers, sendNewsletter, updatePost } from './actions'
+import { addPost, listNewsletters, listSubscribers, sendNewsletter, updatePost, updateSettings } from './actions'
 
 const postFixture: Post = {
   slug: 'hello',
@@ -198,5 +200,33 @@ describe('post newsletter integration', () => {
     await expect(sendNewsletter('br_123')).resolves.toEqual({ ok: true, id: 'br_123' })
     expect(sendMock).toHaveBeenCalledWith('br_123')
     expect(revalidatePathMock).toHaveBeenCalledWith('/admin/newsletters')
+  })
+})
+
+describe('updateSettings', () => {
+  beforeEach(() => {
+    isAdminMock.mockResolvedValue(true)
+  })
+
+  afterEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('passes the writing profile unchanged to the settings publisher', async () => {
+    const settings = {
+      displayName: 'Sudi',
+      avatar: '/images/sudi.jpeg',
+      email: 'sudi@example.com',
+      bio: 'Engineer',
+      location: 'Lubumbashi',
+      website: 'sudi.dev',
+      social: { github: 'github.com/SudiDav', twitter: '', linkedin: '', instagram: '' },
+      seo: { title: 'Sudi', description: 'Engineer' },
+      writingProfile: { interests: 'Public services', styleGuidance: 'Clear and practical' },
+    }
+    saveSettingsMock.mockResolvedValueOnce({ target: 'github', sha: 'settings_sha', branch: 'main' })
+
+    await expect(updateSettings(settings)).resolves.toMatchObject({ ok: true })
+    expect(saveSettingsMock).toHaveBeenCalledWith(settings, 'content: update site settings')
   })
 })
