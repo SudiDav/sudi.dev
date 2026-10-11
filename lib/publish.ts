@@ -115,7 +115,7 @@ async function commitFile(
 }
 
 /** Frontmatter keys that must round-trip as quoted strings, not YAML scalars. */
-const QUOTED = new Set(['date', 'year'])
+const QUOTED = new Set(['date', 'year', 'title', 'excerpt'])
 
 function serialise(data: Record<string, unknown>, body: string): string {
   // gray-matter's stringify would unquote dates into YAML timestamps, which the
@@ -132,7 +132,7 @@ function serialise(data: Record<string, unknown>, body: string): string {
         if (nested.length === 0) return null
         return `${key}:\n${nested.join('\n')}`
       }
-      if (QUOTED.has(key)) return `${key}: "${value}"`
+      if (QUOTED.has(key)) return `${key}: ${JSON.stringify(String(value))}`
       return `${key}: ${value}`
     })
   return `---\n${lines.filter(Boolean).join('\n')}\n---\n\n${body.trim()}\n`

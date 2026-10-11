@@ -1,9 +1,9 @@
-import { getPosts } from '@/lib/content'
+import { getPublishedPosts } from '@/lib/content'
 import { SITE_URL, getSettings } from '@/lib/site'
 
 /** The design's footer links to RSS, so the feed is a real route. */
 export async function GET() {
-  const [posts, settings] = await Promise.all([getPosts(), getSettings()])
+  const [posts, settings] = await Promise.all([getPublishedPosts(), getSettings()])
 
   const items = posts
     .map(

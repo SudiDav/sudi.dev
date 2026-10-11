@@ -1,9 +1,9 @@
 import type { MetadataRoute } from 'next'
-import { getPosts } from '@/lib/content'
+import { getPublishedPosts } from '@/lib/content'
 import { SITE_URL } from '@/lib/site'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const posts = await getPosts()
+  const posts = await getPublishedPosts()
 
   return [
     { url: SITE_URL, changeFrequency: 'weekly', priority: 1 },

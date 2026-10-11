@@ -15,7 +15,7 @@ import { ArticleItem } from '@/components/article-item'
 import { TechBadge } from '@/components/tech-badge'
 import { PortfolioWorld } from '@/components/world/portfolio-world'
 import { PhilosophicalIdentity } from '@/components/philosophical-identity'
-import { getPosts, getProjects } from '@/lib/content'
+import { getPublishedPosts, getProjects } from '@/lib/content'
 import { getSettings, socialUrl } from '@/lib/site'
 
 /** Design: Sidebar → "Tech Stack", three rows of badges. */
@@ -27,7 +27,7 @@ const TECH_ROWS = [
 
 export default async function HomePage() {
   const [posts, projects, settings] = await Promise.all([
-    getPosts(),
+    getPublishedPosts(),
     getProjects(),
     getSettings(),
   ])

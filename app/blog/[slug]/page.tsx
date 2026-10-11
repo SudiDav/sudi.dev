@@ -11,12 +11,12 @@ import { SiteFooter } from '@/components/site-footer'
 import { ArticleItem } from '@/components/article-item'
 import { ArticleComments } from '@/components/article-comments'
 import { TechBadge } from '@/components/tech-badge'
-import { getPost, getPosts } from '@/lib/content'
+import { getPublishedPost, getPublishedPosts } from '@/lib/content'
 import { getSettings, socialUrl } from '@/lib/site'
 import { formatPostDate } from '@/lib/format'
 
 export async function generateStaticParams() {
-  return (await getPosts()).map((post) => ({ slug: post.slug }))
+  return (await getPublishedPosts()).map((post) => ({ slug: post.slug }))
 }
 
 export async function generateMetadata({
@@ -24,7 +24,7 @@ export async function generateMetadata({
 }: {
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
-  const post = await getPost((await params).slug)
+  const post = await getPublishedPost((await params).slug)
   if (!post) return {}
   const canonical = `/blog/${post.slug}`
   return {
@@ -125,11 +125,11 @@ const mdxComponents = {
 
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const post = await getPost(slug)
+  const post = await getPublishedPost(slug)
   if (!post) notFound()
 
   const [related, settings] = await Promise.all([
-    getPosts().then((all) => all.filter((other) => other.slug !== post.slug).slice(0, 2)),
+    getPublishedPosts().then((all) => all.filter((other) => other.slug !== post.slug).slice(0, 2)),
     getSettings(),
   ])
 

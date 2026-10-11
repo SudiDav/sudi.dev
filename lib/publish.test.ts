@@ -1,8 +1,12 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { unlink, writeFile } from 'node:fs/promises'
+import { readFile, unlink, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
+import matter from 'gray-matter'
 
 vi.mock('server-only', () => ({}))
+
+const { getPostsMock } = vi.hoisted(() => ({ getPostsMock: vi.fn() }))
+vi.mock('./content', () => ({ getPosts: (...args: unknown[]) => getPostsMock(...args) }))
 
 import { createPost, findPostByGeneratedWeek } from './publish'
 
@@ -12,6 +16,7 @@ describe('publishing metadata', () => {
   afterEach(() => {
     process.env = { ...originalEnv }
     vi.unstubAllGlobals()
+    getPostsMock.mockReset()
   })
 
   it('returns the GitHub commit metadata for a production publish', async () => {
@@ -74,22 +79,62 @@ describe('publishing metadata', () => {
     })
   })
 
+  it('serializes generated titles and excerpts as valid YAML strings', async () => {
+    vi.stubEnv('NODE_ENV', 'development')
+    vi.stubEnv('GITHUB_TOKEN', '')
+    vi.stubEnv('GITHUB_REPO', '')
+    const slug = `weekly-frontmatter-${Date.now()}`
+    const path = join(process.cwd(), 'content', 'posts', `${slug}.mdx`)
+    const title = 'Building services: "lessons" from the field'
+    const excerpt = 'A practical note: "start small", then learn.'
+    try {
+      await createPost(slug, {
+        title,
+        excerpt,
+        date: '2026-10-12',
+        readingTime: '1 min read',
+        category: 'Craft',
+        cover: '/images/sudi.jpeg',
+        featured: false,
+        status: 'Draft',
+        generatedWeek: '2026-W42',
+        body: 'A short generated article.',
+      }, 'test: generated article YAML')
+
+      const parsed = matter(await readFile(path, 'utf8'))
+      expect(parsed.data.title).toBe(title)
+      expect(parsed.data.excerpt).toBe(excerpt)
+      expect(parsed.data.date).toBe('2026-10-12')
+      expect(parsed.data.generatedWeek).toBe('2026-W42')
+    } finally {
+      await unlink(path).catch(() => {})
+    }
+  })
+
   it('finds a generated week from local post content', async () => {
     vi.stubEnv('NODE_ENV', 'development')
     vi.stubEnv('GITHUB_TOKEN', '')
     vi.stubEnv('GITHUB_REPO', '')
     const slug = `weekly-2026-w07-local-${Date.now()}`
-    const path = join(process.cwd(), 'content', 'posts', `${slug}.mdx`)
-    await writeFile(path, `---\ntitle: Local weekly draft\nexcerpt: Draft\ndate: "2026-02-10"\nreadingTime: 1 min read\ncategory: Craft\ncover: /images/sudi.jpeg\nfeatured: false\nstatus: Draft\ngeneratedWeek: 2026-W07\n---\n\nBody.\n`)
-    try {
-      await expect(findPostByGeneratedWeek('2026-W07')).resolves.toMatchObject({
-        slug,
-        generatedWeek: '2026-W07',
-        status: 'Draft',
-      })
-    } finally {
-      await unlink(path)
-    }
+    getPostsMock.mockResolvedValueOnce([{
+      slug,
+      title: 'Local weekly draft',
+      excerpt: 'Draft',
+      date: '2026-02-10',
+      readingTime: '1 min read',
+      category: 'Craft',
+      cover: '/images/sudi.jpeg',
+      featured: false,
+      status: 'Draft',
+      generatedWeek: '2026-W07',
+      body: 'Body.',
+    }])
+
+    await expect(findPostByGeneratedWeek('2026-W07')).resolves.toMatchObject({
+      slug,
+      generatedWeek: '2026-W07',
+      status: 'Draft',
+    })
   })
 
   it('checks only matching GitHub filenames and verifies their generated week frontmatter', async () => {
