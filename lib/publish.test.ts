@@ -1,8 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { unlink, writeFile } from 'node:fs/promises'
+import { join } from 'node:path'
 
 vi.mock('server-only', () => ({}))
 
-import { createPost } from './publish'
+import { createPost, findPostByGeneratedWeek } from './publish'
 
 describe('publishing metadata', () => {
   const originalEnv = { ...process.env }
@@ -70,5 +72,72 @@ describe('publishing metadata', () => {
       sha: 'abc123',
       commitUrl: 'https://github.com/SudiDav/sudi.dev/commit/abc123',
     })
+  })
+
+  it('finds a generated week from local post content', async () => {
+    vi.stubEnv('NODE_ENV', 'development')
+    vi.stubEnv('GITHUB_TOKEN', '')
+    vi.stubEnv('GITHUB_REPO', '')
+    const slug = `weekly-2026-w07-local-${Date.now()}`
+    const path = join(process.cwd(), 'content', 'posts', `${slug}.mdx`)
+    await writeFile(path, `---\ntitle: Local weekly draft\nexcerpt: Draft\ndate: "2026-02-10"\nreadingTime: 1 min read\ncategory: Craft\ncover: /images/sudi.jpeg\nfeatured: false\nstatus: Draft\ngeneratedWeek: 2026-W07\n---\n\nBody.\n`)
+    try {
+      await expect(findPostByGeneratedWeek('2026-W07')).resolves.toMatchObject({
+        slug,
+        generatedWeek: '2026-W07',
+        status: 'Draft',
+      })
+    } finally {
+      await unlink(path)
+    }
+  })
+
+  it('checks only matching GitHub filenames and verifies their generated week frontmatter', async () => {
+    vi.stubEnv('NODE_ENV', 'production')
+    vi.stubEnv('GITHUB_TOKEN', 'github-test-token')
+    vi.stubEnv('GITHUB_REPO', 'SudiDav/sudi.dev')
+    vi.stubEnv('GITHUB_BRANCH', 'main')
+    const fetchMock = vi.fn()
+    vi.stubGlobal('fetch', fetchMock)
+    fetchMock
+      .mockResolvedValueOnce(Response.json([
+        { name: 'weekly-2026-w07-old-week.mdx', type: 'file' },
+        { name: 'weekly-2026-w07-current.mdx', type: 'file' },
+        { name: 'unrelated-article.mdx', type: 'file' },
+        { name: 'weekly-2026-w08-next-week.mdx', type: 'file' },
+      ]))
+      .mockResolvedValueOnce(Response.json({
+        content: Buffer.from('---\ntitle: Previous key\ngeneratedWeek: 2026-W06\n---\nOld body').toString('base64'),
+      }))
+      .mockResolvedValueOnce(Response.json({
+        content: Buffer.from('---\ntitle: Weekly draft\nexcerpt: A draft\ndate: "2026-02-10"\nreadingTime: 1 min read\ncategory: Craft\ncover: /images/sudi.jpeg\nfeatured: false\nstatus: Draft\ngeneratedWeek: 2026-W07\n---\nBody').toString('base64'),
+      }))
+
+    await expect(findPostByGeneratedWeek('2026-W07')).resolves.toMatchObject({
+      slug: 'weekly-2026-w07-current',
+      title: 'Weekly draft',
+      generatedWeek: '2026-W07',
+    })
+
+    expect(fetchMock).toHaveBeenCalledTimes(3)
+    expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
+      'https://api.github.com/repos/SudiDav/sudi.dev/contents/content/posts?ref=main',
+      'https://api.github.com/repos/SudiDav/sudi.dev/contents/content/posts/weekly-2026-w07-old-week.mdx?ref=main',
+      'https://api.github.com/repos/SudiDav/sudi.dev/contents/content/posts/weekly-2026-w07-current.mdx?ref=main',
+    ])
+  })
+
+  it('returns null without reading unrelated or different-week posts', async () => {
+    vi.stubEnv('NODE_ENV', 'production')
+    vi.stubEnv('GITHUB_TOKEN', 'github-test-token')
+    vi.stubEnv('GITHUB_REPO', 'SudiDav/sudi.dev')
+    const fetchMock = vi.fn().mockResolvedValueOnce(Response.json([
+      { name: 'weekly-2026-w08-next-week.mdx', type: 'file' },
+      { name: 'unrelated-article.mdx', type: 'file' },
+    ]))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await expect(findPostByGeneratedWeek('2026-W07')).resolves.toBeNull()
+    expect(fetchMock).toHaveBeenCalledOnce()
   })
 })

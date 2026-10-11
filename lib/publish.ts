@@ -4,6 +4,7 @@ import { readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import matter from 'gray-matter'
 import type { Post, Project } from './content.types'
+import { getPosts } from './content'
 import type { SiteSettings } from './site'
 
 /**
@@ -232,6 +233,50 @@ export async function createPost(slug: string, draft: PostDraft, message: string
     post,
     ...(await commitFile(path, contents, message)),
   }
+}
+
+/** Find the article already generated for an ISO week, locally or in GitHub. */
+export async function findPostByGeneratedWeek(week: string): Promise<Post | null> {
+  if (publishTarget() === 'local') {
+    return (await getPosts()).find((post) => post.generatedWeek === week) ?? null
+  }
+  if (publishTarget() === 'disabled') throw new Error(NOT_CONFIGURED)
+
+  const { repo, branch } = config()
+  const response = await gh(`/repos/${repo}/contents/content/posts?ref=${branch}`)
+  if (!response.ok) throw new Error(`GitHub post listing failed (${response.status}).`)
+  const files = (await response.json()) as Array<{ name?: string; type?: string }>
+  const prefix = `weekly-${week.toLowerCase()}-`
+
+  for (const file of files) {
+    if (file.type !== 'file' || !file.name?.endsWith('.mdx') || !file.name.startsWith(prefix)) continue
+    const path = `content/posts/${file.name}`
+    const postResponse = await gh(`/repos/${repo}/contents/${encodeURI(path)}?ref=${branch}`)
+    if (!postResponse.ok) throw new Error(`GitHub post read failed (${postResponse.status}).`)
+    const payload = (await postResponse.json()) as { content?: string }
+    if (typeof payload.content !== 'string') continue
+    const { data, content } = matter(Buffer.from(payload.content, 'base64').toString('utf8'))
+    if (data.generatedWeek !== week) continue
+    return {
+      slug: file.name.slice(0, -'.mdx'.length),
+      title: String(data.title ?? ''),
+      excerpt: String(data.excerpt ?? ''),
+      date: String(data.date ?? ''),
+      readingTime: String(data.readingTime ?? ''),
+      category: String(data.category ?? ''),
+      cover: String(data.cover ?? '/images/sudi.jpeg'),
+      featured: Boolean(data.featured),
+      status: data.status === 'Draft' || data.status === 'Archived' ? data.status : 'Published',
+      generatedWeek: String(data.generatedWeek),
+      subtitle: data.subtitle,
+      breadcrumb: data.breadcrumb,
+      tags: data.tags,
+      home: data.home,
+      body: content,
+    }
+  }
+
+  return null
 }
 
 export type ProjectDraft = Omit<Project, 'slug' | 'body'> & { body?: string }
