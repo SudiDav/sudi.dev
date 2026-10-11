@@ -6,6 +6,15 @@ import { generateCompletion } from './ai-provider'
 
 const API_KEY = 'sk-test-secret-that-must-not-leak'
 
+async function captureError(promise: Promise<unknown>): Promise<Error> {
+  try {
+    await promise
+  } catch (error) {
+    if (error instanceof Error) return error
+  }
+  throw new Error('Expected the operation to fail.')
+}
+
 describe('generateCompletion', () => {
   const fetchMock = vi.fn()
 
@@ -68,7 +77,7 @@ describe('generateCompletion', () => {
   it('returns a bounded error without exposing a key when the provider rejects the request', async () => {
     fetchMock.mockResolvedValueOnce(new Response(API_KEY, { status: 429 }))
 
-    const error = await generateCompletion({ system: 's', user: 'u' }).catch((caught: Error) => caught)
+    const error = await captureError(generateCompletion({ system: 's', user: 'u' }))
 
     expect(error).toBeInstanceOf(Error)
     expect(error.message).toMatch(/429/)
@@ -86,7 +95,7 @@ describe('generateCompletion', () => {
   it('converts a request timeout into a sanitized error', async () => {
     fetchMock.mockRejectedValueOnce(new DOMException(API_KEY, 'TimeoutError'))
 
-    const error = await generateCompletion({ system: 's', user: 'u' }).catch((caught: Error) => caught)
+    const error = await captureError(generateCompletion({ system: 's', user: 'u' }))
 
     expect(error).toBeInstanceOf(Error)
     expect(error.message).toMatch(/timed out/i)
