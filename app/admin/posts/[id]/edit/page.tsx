@@ -1,7 +1,6 @@
 import { notFound, redirect } from 'next/navigation'
 import { isAdmin } from '@/auth'
-import { getPost } from '@/lib/content'
-import { isPublishingConfigured } from '@/lib/publish'
+import { getLatestPost, isPublishingConfigured } from '@/lib/publish'
 import { PostEditor } from './post-editor'
 import type { PublishResult } from '@/lib/publish'
 import type { NewsletterOutcome } from '@/lib/newsletter'
@@ -29,9 +28,12 @@ export default async function AdminPostEditorPage({
     newsletterName?: string
   }>
 }) {
-  if (!(await isAdmin())) redirect('/admin/signin')
-
   const { id } = await params
+  if (!(await isAdmin())) {
+    const callbackUrl = `/admin/posts/${encodeURIComponent(id)}/edit`
+    redirect(`/admin/signin?callbackUrl=${encodeURIComponent(callbackUrl)}`)
+  }
+
   const query = searchParams ? await searchParams : undefined
   const initialPublish: PublishResult | undefined = query?.sha
     ? { target: 'github', sha: query.sha, branch: query.branch, commitUrl: query.commitUrl }
@@ -46,7 +48,7 @@ export default async function AdminPostEditorPage({
     : undefined
   if (id === 'new') return <PostEditor canPublish={isPublishingConfigured()} />
 
-  const post = await getPost(id)
+  const post = await getLatestPost(id)
   if (!post) notFound()
 
   return (

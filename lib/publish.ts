@@ -4,7 +4,7 @@ import { readFile, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import matter from 'gray-matter'
 import type { Post, Project } from './content.types'
-import { getPosts } from './content'
+import { getPost, getPosts } from './content'
 import type { SiteSettings } from './site'
 
 /**
@@ -56,7 +56,7 @@ async function gh(path: string, init: RequestInit = {}) {
 /** The blob SHA GitHub needs to update (rather than create) a file. */
 async function currentSha(path: string): Promise<string | undefined> {
   const { repo, branch } = config()
-  const response = await gh(`/repos/${repo}/contents/${encodeURI(path)}?ref=${branch}`)
+  const response = await gh(`/repos/${repo}/contents/${encodeURI(path)}?ref=${encodeURIComponent(branch)}`)
   if (response.status === 404) return undefined
   if (!response.ok) throw new Error(`GitHub read failed (${response.status}) for ${path}`)
   const body = (await response.json()) as { sha: string }
@@ -79,14 +79,43 @@ function normaliseStatus(value: unknown): Post['status'] {
   return value === 'Draft' || value === 'Archived' ? value : 'Published'
 }
 
+export class PostAlreadyExistsError extends Error {
+  constructor(public readonly slug: string) {
+    super(`A post with the slug "${slug}" already exists.`)
+    this.name = 'PostAlreadyExistsError'
+  }
+}
+
+class GitHubWriteError extends Error {
+  constructor(public readonly status: number, detail: string) {
+    super(`GitHub write failed (${status}): ${detail.slice(0, 200)}`)
+    this.name = 'GitHubWriteError'
+  }
+}
+
+function assertPostSlug(slug: string): void {
+  if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(slug)) {
+    throw new Error('Invalid post slug: expected a single filename-safe basename.')
+  }
+}
+
 async function commitFile(
   path: string,
   contents: string | Buffer,
   message: string,
 ): Promise<Pick<PublishResult, 'sha' | 'commitUrl'>> {
-  const { repo, branch } = config()
   const sha = await currentSha(path)
+  return writeGitHubFile(path, contents, message, sha)
+}
 
+/** A missing SHA always means create-only; GitHub rejects an existing file. */
+async function writeGitHubFile(
+  path: string,
+  contents: string | Buffer,
+  message: string,
+  sha?: string,
+): Promise<Pick<PublishResult, 'sha' | 'commitUrl'>> {
+  const { repo, branch } = config()
   const response = await gh(`/repos/${repo}/contents/${encodeURI(path)}`, {
     method: 'PUT',
     body: JSON.stringify({
@@ -104,7 +133,7 @@ async function commitFile(
 
   if (!response.ok) {
     const detail = await response.text()
-    throw new Error(`GitHub write failed (${response.status}): ${detail.slice(0, 200)}`)
+    throw new GitHubWriteError(response.status, detail)
   }
 
   const body = (await response.json()) as {
@@ -209,6 +238,7 @@ async function saveLocally(slug: string, changes: PostDraft): Promise<PublishRes
  * slugs to an existing post is an error, not a silent replacement.
  */
 export async function createPost(slug: string, draft: PostDraft, message: string): Promise<PublishResult> {
+  assertPostSlug(slug)
   const target = publishTarget()
   if (target === 'disabled') throw new Error(NOT_CONFIGURED)
 
@@ -220,60 +250,97 @@ export async function createPost(slug: string, draft: PostDraft, message: string
 
   if (target === 'local') {
     const absolute = join(process.cwd(), path)
-    if (await exists(absolute)) throw new Error(`A post with the slug "${slug}" already exists.`)
-    await writeFile(absolute, contents, 'utf8')
+    try {
+      await writeFile(absolute, contents, { encoding: 'utf8', flag: 'wx' })
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'EEXIST') throw new PostAlreadyExistsError(slug)
+      throw error
+    }
     return { target: 'local', status, post }
   }
 
-  if (await currentSha(path)) throw new Error(`A post with the slug "${slug}" already exists.`)
+  if (await currentSha(path)) throw new PostAlreadyExistsError(slug)
+  let commit: Pick<PublishResult, 'sha' | 'commitUrl'>
+  try {
+    // Never re-read a SHA for the write: that would turn a racing creation into
+    // an update of the other writer's post.
+    commit = await writeGitHubFile(path, contents, message)
+  } catch (error) {
+    if (
+      error instanceof GitHubWriteError &&
+      (error.status === 409 || error.status === 422) &&
+      await currentSha(path)
+    ) {
+      throw new PostAlreadyExistsError(slug)
+    }
+    throw error
+  }
   return {
     target: 'github',
     branch: config().branch,
     status,
     post,
-    ...(await commitFile(path, contents, message)),
+    ...commit,
+  }
+}
+
+/** Read current source content for authenticated admin callers, before redeploy. */
+export async function getLatestPost(slug: string): Promise<Post | null> {
+  assertPostSlug(slug)
+  // Existing local content is readable even when production publishing is off.
+  if (publishTarget() !== 'github') return getPost(slug)
+
+  const { repo, branch } = config()
+  const path = `content/posts/${slug}.mdx`
+  const response = await gh(`/repos/${repo}/contents/${encodeURI(path)}?ref=${encodeURIComponent(branch)}`)
+  if (response.status === 404) return null
+  if (!response.ok) throw new Error(`GitHub post read failed (${response.status}) for ${path}.`)
+  const payload = (await response.json()) as { content?: string }
+  if (typeof payload.content !== 'string') throw new Error(`GitHub post content is missing for ${path}.`)
+  return parsePost(slug, Buffer.from(payload.content, 'base64').toString('utf8'))
+}
+
+function parsePost(slug: string, raw: string): Post {
+  const { data, content } = matter(raw)
+  return {
+    slug,
+    title: String(data.title ?? ''),
+    excerpt: String(data.excerpt ?? ''),
+    date: String(data.date ?? ''),
+    readingTime: String(data.readingTime ?? ''),
+    category: String(data.category ?? ''),
+    cover: String(data.cover ?? '/images/sudi.jpeg'),
+    featured: Boolean(data.featured),
+    status: normaliseStatus(data.status),
+    generatedWeek: data.generatedWeek,
+    subtitle: data.subtitle,
+    breadcrumb: data.breadcrumb,
+    tags: data.tags,
+    home: data.home,
+    body: content,
   }
 }
 
 /** Find the article already generated for an ISO week, locally or in GitHub. */
 export async function findPostByGeneratedWeek(week: string): Promise<Post | null> {
+  const canonicalSlug = `weekly-${week.toLowerCase()}`
+  const isCandidate = (slug: string) => slug === canonicalSlug || slug.startsWith(`${canonicalSlug}-`)
   if (publishTarget() === 'local') {
-    return (await getPosts()).find((post) => post.generatedWeek === week) ?? null
+    return (await getPosts()).find((post) => isCandidate(post.slug) && post.generatedWeek === week) ?? null
   }
   if (publishTarget() === 'disabled') throw new Error(NOT_CONFIGURED)
 
   const { repo, branch } = config()
-  const response = await gh(`/repos/${repo}/contents/content/posts?ref=${branch}`)
+  const response = await gh(`/repos/${repo}/contents/content/posts?ref=${encodeURIComponent(branch)}`)
   if (!response.ok) throw new Error(`GitHub post listing failed (${response.status}).`)
   const files = (await response.json()) as Array<{ name?: string; type?: string }>
-  const prefix = `weekly-${week.toLowerCase()}-`
 
   for (const file of files) {
-    if (file.type !== 'file' || !file.name?.endsWith('.mdx') || !file.name.startsWith(prefix)) continue
-    const path = `content/posts/${file.name}`
-    const postResponse = await gh(`/repos/${repo}/contents/${encodeURI(path)}?ref=${branch}`)
-    if (!postResponse.ok) throw new Error(`GitHub post read failed (${postResponse.status}).`)
-    const payload = (await postResponse.json()) as { content?: string }
-    if (typeof payload.content !== 'string') continue
-    const { data, content } = matter(Buffer.from(payload.content, 'base64').toString('utf8'))
-    if (data.generatedWeek !== week) continue
-    return {
-      slug: file.name.slice(0, -'.mdx'.length),
-      title: String(data.title ?? ''),
-      excerpt: String(data.excerpt ?? ''),
-      date: String(data.date ?? ''),
-      readingTime: String(data.readingTime ?? ''),
-      category: String(data.category ?? ''),
-      cover: String(data.cover ?? '/images/sudi.jpeg'),
-      featured: Boolean(data.featured),
-      status: data.status === 'Draft' || data.status === 'Archived' ? data.status : 'Published',
-      generatedWeek: String(data.generatedWeek),
-      subtitle: data.subtitle,
-      breadcrumb: data.breadcrumb,
-      tags: data.tags,
-      home: data.home,
-      body: content,
-    }
+    if (file.type !== 'file' || !file.name?.endsWith('.mdx')) continue
+    const slug = file.name.slice(0, -'.mdx'.length)
+    if (!isCandidate(slug)) continue
+    const post = await getLatestPost(slug)
+    if (post?.generatedWeek === week) return post
   }
 
   return null

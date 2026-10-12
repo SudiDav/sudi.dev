@@ -56,8 +56,8 @@ export function PostRowActions({
       </button>
 
       <Link
-        href={`/blog/${slug}`}
-        aria-label={`View ${title} on the site`}
+        href={`/admin/posts/${slug}/preview`}
+        aria-label={`Preview ${title}`}
         className="flex size-11 items-center justify-center rounded-md text-admin-text-tertiary hover:bg-admin-bg hover:text-admin-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
       >
         <Eye size={16} />

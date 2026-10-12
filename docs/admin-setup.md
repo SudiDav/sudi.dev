@@ -153,6 +153,18 @@ and style guidance that are safe to publish. The weekly job uses these details
 and recent published posts to create a draft. It emails the owner a link to the
 admin editor, but you review and publish each article manually.
 
+New weekly drafts use one filename per ISO week, such as
+`content/posts/weekly-2026-w42.mdx`. Creation refuses to overwrite a file, so
+overlapping runs reuse the winning draft when its `generatedWeek` matches.
+Existing weekly drafts with a title suffix keep their filenames and are reused.
+
+The authenticated editor and `/admin/posts/<slug>/preview` read the current
+file from the configured GitHub branch, so the email review link works as soon
+as the draft commit succeeds. Sign in to return to that editor. Preview shows
+the saved draft; save your edits before previewing them. Drafts remain absent
+from public article pages, feeds, and indexes until you publish them and the
+deployment completes.
+
 Two fields on Add Project are not in the design, because the design's form does
 not cover what the site needs:
 

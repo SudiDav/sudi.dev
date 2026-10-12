@@ -128,9 +128,17 @@ curl --request GET \
   https://sudi.dev/api/cron/weekly-article
 ```
 
-The email links to the draft in the admin editor. Edit it and publish it
-yourself when it is ready; the scheduled job always saves status `Draft` and
-never publishes an article or sends it to subscribers.
+New drafts use `content/posts/weekly-<iso-week>.mdx`, with the ISO week in
+lowercase (for example, `weekly-2026-w42.mdx`). Create-only writes ensure
+overlapping runs cannot overwrite a draft; a matching same-week winner is
+reused. Older weekly files with a title suffix continue to be recognized.
+
+The email links to the draft in the authenticated admin editor, which reads
+the current file from `GITHUB_BRANCH` without waiting for a deployment. Sign
+in to return to the linked editor, then use its authenticated Preview action
+to review the saved article. Edit it and publish it yourself when it is ready;
+the scheduled job always saves status `Draft` and never publishes an article
+or sends it to subscribers. Public pages reflect publication after deployment.
 
 ## 3. The domain
 

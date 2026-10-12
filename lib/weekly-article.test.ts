@@ -1,12 +1,18 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Post } from './content.types'
 
-const { generateCompletionMock, getSettingsMock, getPostsMock, createPostMock, findPostMock } = vi.hoisted(() => ({
+const { generateCompletionMock, getSettingsMock, getPostsMock, createPostMock, findPostMock, getLatestPostMock, PostAlreadyExistsErrorMock } = vi.hoisted(() => ({
   generateCompletionMock: vi.fn(),
   getSettingsMock: vi.fn(),
   getPostsMock: vi.fn(),
   createPostMock: vi.fn(),
   findPostMock: vi.fn(),
+  getLatestPostMock: vi.fn(),
+  PostAlreadyExistsErrorMock: class extends Error {
+    constructor(public readonly slug: string) {
+      super(`A post with the slug "${slug}" already exists.`)
+    }
+  },
 }))
 
 vi.mock('server-only', () => ({}))
@@ -16,7 +22,8 @@ vi.mock('./content', () => ({ getPosts: (...args: unknown[]) => getPostsMock(...
 vi.mock('./publish', () => ({
   createPost: (...args: unknown[]) => createPostMock(...args),
   findPostByGeneratedWeek: (...args: unknown[]) => findPostMock(...args),
-  slugify: (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+  getLatestPost: (...args: unknown[]) => getLatestPostMock(...args),
+  PostAlreadyExistsError: PostAlreadyExistsErrorMock,
 }))
 
 import {
@@ -146,7 +153,7 @@ describe('generateWeeklyArticleDraft', () => {
     expect(result).toMatchObject({
       created: true,
       post: {
-        slug: 'weekly-2026-w42-building-useful-public-services',
+        slug: 'weekly-2026-w42',
         date: '2026-10-12',
         readingTime: '1 min read',
         status: 'Draft',

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { readFile, unlink, writeFile } from 'node:fs/promises'
+import { readFile, unlink } from 'node:fs/promises'
 import { join } from 'node:path'
 import matter from 'gray-matter'
 
@@ -28,7 +28,6 @@ describe('publishing metadata', () => {
     const fetchMock = vi.fn()
     vi.stubGlobal('fetch', fetchMock)
     fetchMock
-      .mockResolvedValueOnce(new Response(null, { status: 404 }))
       .mockResolvedValueOnce(new Response(null, { status: 404 }))
       .mockResolvedValueOnce(
         new Response(

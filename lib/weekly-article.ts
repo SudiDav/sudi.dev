@@ -3,7 +3,7 @@ import { generateCompletion } from './ai-provider'
 import { getPosts } from './content'
 import type { Post } from './content.types'
 import { POST_CATEGORIES } from './filters'
-import { createPost, findPostByGeneratedWeek, slugify } from './publish'
+import { createPost, findPostByGeneratedWeek, getLatestPost, PostAlreadyExistsError } from './publish'
 import { getSettings } from './site'
 
 const MAX_ARTICLE_WORDS = 1_600
@@ -110,7 +110,7 @@ export async function generateWeeklyArticleDraft(
   const { system, user } = buildWeeklyPrompt(settings, posts)
   const generated = parseGeneratedArticle(await generateCompletion({ system, user, maxOutputTokens: 3_500 }))
   const wordCount = generated.body.split(/\s+/).filter(Boolean).length
-  const slug = `weekly-${week.toLowerCase()}-${slugify(generated.title)}`
+  const slug = `weekly-${week.toLowerCase()}`
   const draft = {
     title: generated.title,
     excerpt: generated.excerpt,
@@ -128,8 +128,9 @@ export async function generateWeeklyArticleDraft(
     const result = await createPost(slug, draft, `content: generate weekly article draft ${week}`)
     return { post: result.post ?? ({ ...draft, slug } as Post), created: true }
   } catch (error) {
-    if (error instanceof Error && error.message.includes('already exists')) {
-      throw new Error(`Weekly article slug collision for ${slug}; no existing post was overwritten.`)
+    if (error instanceof PostAlreadyExistsError && error.slug === slug) {
+      const winner = await getLatestPost(slug)
+      if (winner?.generatedWeek === week) return { post: winner, created: false }
     }
     throw error
   }

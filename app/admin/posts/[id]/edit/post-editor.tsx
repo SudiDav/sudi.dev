@@ -167,7 +167,7 @@ export function PostEditor({
         <div className="flex w-full flex-wrap items-center justify-end gap-2.5 sm:w-auto">
           {post ? (
             <Link
-              href={`/blog/${post.slug}`}
+              href={`/admin/posts/${post.slug}/preview`}
               className="inline-flex min-h-11 items-center gap-1.5 rounded-[7px] border border-admin-border px-3.5 py-1.5 text-[13px] text-admin-text-secondary hover:bg-admin-bg"
             >
               <Eye size={14} />
