@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Post } from '@/lib/content.types'
+import { PostSaveError } from '@/lib/publish'
 
 const {
   isAdminMock,
@@ -49,7 +50,7 @@ vi.mock('@/lib/newsletter', () => ({
   sendNewsletterBroadcast: (...args: unknown[]) => sendMock(...args),
 }))
 
-import { addPost, listNewsletters, listSubscribers, publishReviewedPost, sendNewsletter, updatePost, updateSettings } from './actions'
+import { addPost, listNewsletters, listSubscribers, publishReviewedPost, sendNewsletter, setPostStatus, updatePost, updateSettings } from './actions'
 
 const postFixture: Post = {
   slug: 'hello',
@@ -100,7 +101,52 @@ describe('post newsletter integration', () => {
     const result = await publishReviewedPost('hello', 'reviewed-source-version')
 
     expect(result).toMatchObject({ ok: true, newsletter: { ok: true, id: 'br_123' } })
+    expect(savePostMock).toHaveBeenCalledWith('hello', { status: 'Published' }, 'content: update hello', 'reviewed-source-version')
     expect(newsletterMock).toHaveBeenCalledWith(postFixture, 'sha_123')
+  })
+
+  it('checks admin authorization before a reviewed publish can write', async () => {
+    isAdminMock.mockResolvedValueOnce(false)
+
+    await expect(publishReviewedPost('hello', 'reviewed-source-version')).rejects.toThrow('Not authorised')
+    expect(savePostMock).not.toHaveBeenCalled()
+    expect(newsletterMock).not.toHaveBeenCalled()
+    expect(revalidatePathMock).not.toHaveBeenCalled()
+  })
+
+  it('refuses to create a new Published post before calling the publisher', async () => {
+    const result = await addPost({ ...postInput, status: 'Published' })
+
+    expect(result).toMatchObject({ ok: false, code: 'post_review_required' })
+    expect(createPostMock).not.toHaveBeenCalled()
+    expect(newsletterMock).not.toHaveBeenCalled()
+    expect(revalidatePathMock).not.toHaveBeenCalled()
+  })
+
+  it.each([
+    ['post_conflict', 'stale source'],
+    ['post_review_required', 'missing review version'],
+    ['post_unsaved_changes', 'unsaved publication edits'],
+  ] as const)('returns the typed %s error for %s without newsletter or revalidation side effects', async (code, detail) => {
+    savePostMock.mockRejectedValueOnce(new PostSaveError(code, detail))
+
+    const result = await updatePost('hello', { status: 'Published' }, 'reviewed-source-version')
+
+    expect(result).toMatchObject({ ok: false, code, error: detail })
+    expect(savePostMock).toHaveBeenCalledOnce()
+    expect(newsletterMock).not.toHaveBeenCalled()
+    expect(revalidatePathMock).not.toHaveBeenCalled()
+  })
+
+  it('routes Published status changes without a version through the publish guard', async () => {
+    savePostMock.mockRejectedValueOnce(new PostSaveError('post_review_required', 'review required'))
+
+    const result = await setPostStatus('hello', 'Published')
+
+    expect(result).toMatchObject({ ok: false, code: 'post_review_required' })
+    expect(savePostMock).toHaveBeenCalledWith('hello', { status: 'Published' }, 'content: update hello', undefined)
+    expect(newsletterMock).not.toHaveBeenCalled()
+    expect(revalidatePathMock).not.toHaveBeenCalled()
   })
 
   it('does not create a draft when creating a Draft post', async () => {
