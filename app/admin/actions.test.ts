@@ -32,6 +32,9 @@ vi.mock('@/lib/email', () => ({
   listAudienceContacts: (...args: unknown[]) => audienceListMock(...args),
 }))
 vi.mock('@/lib/publish', () => ({
+  PostSaveError: class extends Error {
+    constructor(public readonly code: string, message: string) { super(message) }
+  },
   createPost: (...args: unknown[]) => createPostMock(...args),
   savePost: (...args: unknown[]) => savePostMock(...args),
   createProject: vi.fn(),
@@ -46,7 +49,7 @@ vi.mock('@/lib/newsletter', () => ({
   sendNewsletterBroadcast: (...args: unknown[]) => sendMock(...args),
 }))
 
-import { addPost, listNewsletters, listSubscribers, sendNewsletter, updatePost, updateSettings } from './actions'
+import { addPost, listNewsletters, listSubscribers, publishReviewedPost, sendNewsletter, updatePost, updateSettings } from './actions'
 
 const postFixture: Post = {
   slug: 'hello',
@@ -78,11 +81,12 @@ describe('post newsletter integration', () => {
     vi.clearAllMocks()
   })
 
-  it('creates a newsletter draft when a new post is published', async () => {
-    createPostMock.mockResolvedValueOnce({
+  it('creates a newsletter draft when a saved post is published after review', async () => {
+    savePostMock.mockResolvedValueOnce({
       target: 'github',
       sha: 'sha_123',
       branch: 'main',
+      previousStatus: 'Draft',
       status: 'Published',
       post: postFixture,
     })
@@ -93,7 +97,7 @@ describe('post newsletter integration', () => {
       created: true,
     })
 
-    const result = await addPost({ ...postInput, status: 'Published' })
+    const result = await publishReviewedPost('hello', 'reviewed-source-version')
 
     expect(result).toMatchObject({ ok: true, newsletter: { ok: true, id: 'br_123' } })
     expect(newsletterMock).toHaveBeenCalledWith(postFixture, 'sha_123')
@@ -123,22 +127,23 @@ describe('post newsletter integration', () => {
       post: postFixture,
     })
 
-    await updatePost('hello', { ...postInput, status: 'Published' })
+    await updatePost('hello', { ...postInput, status: 'Published' }, 'reviewed-source-version')
 
     expect(newsletterMock).not.toHaveBeenCalled()
   })
 
   it('keeps publishing successful when newsletter draft creation fails', async () => {
-    createPostMock.mockResolvedValueOnce({
+    savePostMock.mockResolvedValueOnce({
       target: 'github',
       sha: 'sha_123',
       branch: 'main',
+      previousStatus: 'Draft',
       status: 'Published',
       post: postFixture,
     })
     newsletterMock.mockResolvedValueOnce({ ok: false, error: 'domain invalid' })
 
-    const result = await addPost({ ...postInput, status: 'Published' })
+    const result = await publishReviewedPost('hello', 'reviewed-source-version')
 
     expect(result).toMatchObject({ ok: true, publish: { sha: 'sha_123' } })
     expect(result).toMatchObject({ newsletter: { ok: false, error: 'domain invalid' } })

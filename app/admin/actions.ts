@@ -10,6 +10,8 @@ import { savePost,
   saveProject,
   saveSettings,
   slugify,
+  PostSaveError,
+  type PostSaveErrorCode,
   type PostDraft, type PublishResult, uploadImage } from '@/lib/publish'
 import type { SiteSettings } from '@/lib/site'
 
@@ -26,7 +28,15 @@ async function requireAdmin() {
 
 export type ActionResult =
   | { ok: true; publish?: PublishResult; newsletter?: Awaited<ReturnType<typeof createPostBroadcast>>; warning?: string }
-  | { ok: false; error: string }
+  | { ok: false; error: string; code?: PostSaveErrorCode }
+
+function postActionFailure(error: unknown): ActionResult {
+  return {
+    ok: false,
+    error: error instanceof Error ? error.message : 'Publish failed',
+    ...(error instanceof PostSaveError ? { code: error.code } : {}),
+  }
+}
 
 async function newsletterForPublish(publish: PublishResult) {
   if (!publish.sha || !publish.post || publish.status !== 'Published') return undefined
@@ -34,23 +44,28 @@ async function newsletterForPublish(publish: PublishResult) {
   return createPostBroadcast(publish.post, publish.sha)
 }
 
-export async function updatePost(slug: string, changes: PostDraft): Promise<ActionResult> {
+export async function updatePost(slug: string, changes: PostDraft, expectedVersion?: string): Promise<ActionResult> {
   await requireAdmin()
 
   // Never let a slug escape the posts directory.
   if (!/^[a-z0-9-]+$/.test(slug)) return { ok: false, error: 'Invalid slug' }
 
   try {
-    const publish = await savePost(slug, changes, `content: update ${slug}`)
+    const publish = await savePost(slug, changes, `content: update ${slug}`, expectedVersion)
     const newsletter = await newsletterForPublish(publish)
     revalidatePath('/admin/posts')
     revalidatePath('/blog')
     revalidatePath(`/blog/${slug}`)
     return { ok: true, publish, newsletter }
   } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message : 'Publish failed' }
+    return postActionFailure(error)
   }
 
+}
+
+/** Publish only the saved source version that was reviewed in the editor. */
+export async function publishReviewedPost(slug: string, expectedVersion: string): Promise<ActionResult> {
+  return updatePost(slug, { status: 'Published' }, expectedVersion)
 }
 
 export type NewPost = {
@@ -65,6 +80,14 @@ export type NewPost = {
 /** Create a post from the editor's "new" route. Returns the slug it minted. */
 export async function addPost(input: NewPost): Promise<ActionResult & { slug?: string }> {
   await requireAdmin()
+
+  if (input.status !== 'Draft' && input.status !== 'Archived') {
+    return {
+      ok: false,
+      code: 'post_review_required',
+      error: 'Save the new post as a draft, then open it in the editor to review and publish it.',
+    }
+  }
 
   const title = input.title.trim()
   if (!title) return { ok: false, error: 'A title is required' }
@@ -105,8 +128,9 @@ export async function addPost(input: NewPost): Promise<ActionResult & { slug?: s
 export async function setPostStatus(
   slug: string,
   status: 'Published' | 'Draft' | 'Archived',
+  expectedVersion?: string,
 ): Promise<ActionResult> {
-  return updatePost(slug, { status })
+  return updatePost(slug, { status }, expectedVersion)
 }
 
 export type NewProject = {

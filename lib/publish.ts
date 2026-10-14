@@ -1,10 +1,11 @@
 import 'server-only'
-import { randomUUID } from 'node:crypto'
-import { readFile, writeFile } from 'node:fs/promises'
+import { createHash, randomUUID } from 'node:crypto'
+import { open, readFile, rename, unlink, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
+import { isDeepStrictEqual } from 'node:util'
 import matter from 'gray-matter'
 import type { Post, Project } from './content.types'
-import { getPost, getPosts } from './content'
+import { getPosts } from './content'
 import type { SiteSettings } from './site'
 
 /**
@@ -73,6 +74,25 @@ export type PublishResult = {
   previousStatus?: Post['status']
   status?: Post['status']
   post?: Post
+  /** Digest of the saved source bytes, distinct from the deployment commit SHA. */
+  postVersion?: string
+}
+
+export type PostSaveErrorCode = 'post_conflict' | 'post_review_required' | 'post_unsaved_changes'
+
+export class PostSaveError extends Error {
+  constructor(public readonly code: PostSaveErrorCode, message: string) {
+    super(message)
+    this.name = 'PostSaveError'
+  }
+}
+
+function sourceVersion(raw: Buffer | string): string {
+  return createHash('sha256').update(raw).digest('hex')
+}
+
+function postConflict(): PostSaveError {
+  return new PostSaveError('post_conflict', 'This post changed after you opened it. Reload the saved post and review it before continuing.')
 }
 
 function normaliseStatus(value: unknown): Post['status'] {
@@ -146,23 +166,37 @@ async function writeGitHubFile(
 /** Frontmatter keys that must round-trip as quoted strings, not YAML scalars. */
 const QUOTED = new Set(['date', 'year', 'title', 'excerpt'])
 
+/** JSON scalars and flow collections are safe YAML, including nested strings. */
+function encodeFrontmatterValue(value: unknown): string {
+  const encoded = JSON.stringify(value)
+  if (encoded === undefined) throw new Error('Frontmatter contains an unsupported value.')
+  // YAML treats these Unicode characters as line breaks even within quotes.
+  return encoded.replace(/[\u0085\u2028\u2029]/g, (character) =>
+    `\\u${character.charCodeAt(0).toString(16).padStart(4, '0')}`,
+  )
+}
+
+function encodeFrontmatterKey(key: string): string {
+  const plain = /^[a-zA-Z_][a-zA-Z0-9_-]*$/.test(key) && !/^(null|true|false|yes|no|on|off|y|n)$/i.test(key)
+  return plain ? key : encodeFrontmatterValue(key)
+}
+
 function serialise(data: Record<string, unknown>, body: string): string {
-  // gray-matter's stringify would unquote dates into YAML timestamps, which the
-  // loader's string sort depends on NOT happening.
+  // Never interpolate unencoded metadata into YAML: a newline or delimiter in
+  // any string/key must remain data, rather than alter the file's structure.
   const lines = Object.entries(data)
     .filter(([, value]) => value !== undefined && value !== null)
     .map(([key, value]): string | null => {
-      if (Array.isArray(value)) return `${key}: [${value.join(', ')}]`
-      if (typeof value === 'object') {
+      const encodedKey = encodeFrontmatterKey(key)
+      if (QUOTED.has(key)) return `${encodedKey}: ${encodeFrontmatterValue(String(value))}`
+      if (typeof value === 'object' && !Array.isArray(value)) {
         const nested = Object.entries(value as Record<string, unknown>)
           .filter(([, v]) => v !== undefined && v !== null && v !== '')
-          .map(([k, v]) => `  ${k}: ${v}`)
         // An object whose every field is empty would emit a dangling key.
         if (nested.length === 0) return null
-        return `${key}:\n${nested.join('\n')}`
+        return `${encodedKey}: ${encodeFrontmatterValue(Object.fromEntries(nested))}`
       }
-      if (QUOTED.has(key)) return `${key}: ${JSON.stringify(String(value))}`
-      return `${key}: ${value}`
+      return `${encodedKey}: ${encodeFrontmatterValue(value)}`
     })
   return `---\n${lines.filter(Boolean).join('\n')}\n---\n\n${body.trim()}\n`
 }
@@ -176,34 +210,98 @@ export type PostDraft = Partial<Omit<Post, 'slug' | 'body'>> & { body?: string }
  * write is based on what is actually in the repo — the local checkout may be
  * behind, and on a deployed instance there is no checkout at all.
  */
-export async function savePost(slug: string, changes: PostDraft, message: string): Promise<PublishResult> {
+export async function savePost(
+  slug: string,
+  changes: PostDraft,
+  message: string,
+  expectedVersion?: string,
+): Promise<PublishResult> {
+  assertPostSlug(slug)
   const target = publishTarget()
   if (target === 'disabled') {
     throw new Error(NOT_CONFIGURED)
   }
-  if (target === 'local') return saveLocally(slug, changes)
+  if (target === 'local') return saveLocally(slug, changes, expectedVersion)
 
   const { repo, branch } = config()
   const path = `content/posts/${slug}.mdx`
 
-  const response = await gh(`/repos/${repo}/contents/${encodeURI(path)}?ref=${branch}`)
+  const response = await gh(`/repos/${repo}/contents/${encodeURI(path)}?ref=${encodeURIComponent(branch)}`)
   if (!response.ok) throw new Error(`Cannot read ${path} (${response.status})`)
-  const file = (await response.json()) as { content: string }
-  const existing = matter(Buffer.from(file.content, 'base64').toString('utf8'))
-
-  const { body, ...frontmatterChanges } = changes
-  const merged = { ...existing.data, ...frontmatterChanges }
-  const nextBody = body ?? existing.content
-  const previousStatus = normaliseStatus(existing.data.status)
-  const status = normaliseStatus(merged.status)
+  const file = (await response.json()) as { content?: string; sha?: string }
+  if (typeof file.content !== 'string' || typeof file.sha !== 'string' || !file.sha) {
+    throw new Error(`GitHub post content or blob SHA is missing for ${path}.`)
+  }
+  const prepared = preparePostSave(slug, Buffer.from(file.content, 'base64'), changes, expectedVersion)
+  let commit: Pick<PublishResult, 'sha' | 'commitUrl'>
+  try {
+    // Compare-and-swap against the blob from the reviewed source read. Never
+    // upgrade this SHA with a second read before the write.
+    commit = await writeGitHubFile(path, prepared.contents, message, file.sha)
+  } catch (error) {
+    if (error instanceof GitHubWriteError && (error.status === 409 || error.status === 422)) {
+      // These codes also cover unrelated validation errors. Only label an
+      // actual source change as a conflict; retain other GitHub failures.
+      const latestSha = await currentSha(path)
+      if (latestSha !== file.sha) throw postConflict()
+    }
+    throw error
+  }
 
   return {
     target: 'github',
     branch,
-    previousStatus,
-    status,
-    post: { ...merged, slug, body: nextBody, status } as Post,
-    ...(await commitFile(path, serialise(merged, body ?? existing.content), message)),
+    ...prepared.result,
+    ...commit,
+  }
+}
+
+/** Validate against the source before applying any caller-supplied changes. */
+function preparePostSave(slug: string, raw: Buffer, changes: PostDraft, expectedVersion?: string) {
+  const existing = matter(raw.toString('utf8'))
+  const existingPost = parsePost(slug, raw.toString('utf8'))
+  const previousStatus = normaliseStatus(existing.data.status)
+  const status = normaliseStatus(Object.hasOwn(changes, 'status') ? changes.status : existing.data.status)
+  if (status === 'Published' && (typeof expectedVersion !== 'string' || !expectedVersion.trim())) {
+    throw new PostSaveError('post_review_required', 'Open the saved post in the editor and review it before publishing.')
+  }
+  if (expectedVersion !== undefined && expectedVersion !== sourceVersion(raw)) throw postConflict()
+
+  const publishing = previousStatus !== 'Published' && status === 'Published'
+  if (publishing) {
+    const baseline = { ...existing.data, ...existingPost }
+    const differs = Object.entries(changes).some(([key, value]) =>
+      key !== 'status' && !isDeepStrictEqual(value, baseline[key as keyof typeof baseline]),
+    )
+    if (differs) {
+      throw new PostSaveError('post_unsaved_changes', 'Save your edits first, then review the saved post before publishing.')
+    }
+  }
+
+  const { body, ...frontmatterChanges } = changes
+  // Publication changes only status. YAML's own serializer preserves all
+  // frontmatter values. Remove the empty-body newline stringify adds, keeping
+  // one newline after the closing delimiter before appending the exact body.
+  const contents = publishing
+    ? matter.stringify('', { ...existing.data, status: 'Published' }).trimEnd() + '\n' + existing.content
+    : serialise({ ...existing.data, ...frontmatterChanges }, body ?? existing.content)
+  const post = parsePost(slug, contents)
+  // Check the persisted interpretation too: serializer bugs or malformed
+  // metadata must never promote a non-publishing save into publication.
+  if (post.status !== status) {
+    throw new PostSaveError('post_unsaved_changes', 'The saved metadata would change this post\'s status unexpectedly. Review the post before saving again.')
+  }
+  if (post.status === 'Published' && (typeof expectedVersion !== 'string' || !expectedVersion.trim())) {
+    throw new PostSaveError('post_review_required', 'Open the saved post in the editor and review it before publishing.')
+  }
+  if (previousStatus !== 'Published' && post.status === 'Published') {
+    if (!isDeepStrictEqual({ ...existingPost, status: undefined }, { ...post, status: undefined })) {
+      throw new PostSaveError('post_unsaved_changes', 'The saved post could not be published without changing its content. Save and review it again.')
+    }
+  }
+  return {
+    contents,
+    result: { previousStatus, status: post.status, post, postVersion: sourceVersion(contents) },
   }
 }
 
@@ -221,16 +319,41 @@ export function publishTarget(): PublishTarget {
   return process.env.NODE_ENV === 'production' ? 'disabled' : 'local'
 }
 
-async function saveLocally(slug: string, changes: PostDraft): Promise<PublishResult> {
+async function saveLocally(slug: string, changes: PostDraft, expectedVersion?: string): Promise<PublishResult> {
   const path = join(process.cwd(), 'content', 'posts', `${slug}.mdx`)
-  const existing = matter(await readFile(path, 'utf8'))
-  const { body, ...frontmatterChanges } = changes
-  await writeFile(
-    path,
-    serialise({ ...existing.data, ...frontmatterChanges }, body ?? existing.content),
-    'utf8',
-  )
-  return { target: 'local' }
+  const lockPath = `${path}.lock`
+  const temporaryPath = `${path}.${randomUUID()}.tmp`
+  let lock: Awaited<ReturnType<typeof open>>
+  try {
+    lock = await open(lockPath, 'wx')
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'EEXIST') throw postConflict()
+    throw error
+  }
+  let ownsTemporary = false
+  try {
+    const prepared = preparePostSave(slug, await readFile(path), changes, expectedVersion)
+    const temporary = await open(temporaryPath, 'wx')
+    ownsTemporary = true
+    try {
+      await temporary.writeFile(prepared.contents, 'utf8')
+    } finally {
+      await temporary.close()
+    }
+    await rename(temporaryPath, path)
+    ownsTemporary = false
+    return { target: 'local', ...prepared.result }
+  } finally {
+    try {
+      if (ownsTemporary) await unlink(temporaryPath)
+    } finally {
+      try {
+        await lock.close()
+      } finally {
+        await unlink(lockPath)
+      }
+    }
+  }
 }
 
 /**
@@ -247,6 +370,9 @@ export async function createPost(slug: string, draft: PostDraft, message: string
   const contents = serialise(frontmatter as Record<string, unknown>, body ?? '')
   const status = normaliseStatus(frontmatter.status)
   const post = { ...frontmatter, slug, body: body ?? '', status } as Post
+  if (parsePost(slug, contents).status !== status) {
+    throw new PostSaveError('post_unsaved_changes', 'The new post\'s metadata would change its status unexpectedly. Save it as a draft and review it first.')
+  }
 
   if (target === 'local') {
     const absolute = join(process.cwd(), path)
@@ -286,9 +412,22 @@ export async function createPost(slug: string, draft: PostDraft, message: string
 
 /** Read current source content for authenticated admin callers, before redeploy. */
 export async function getLatestPost(slug: string): Promise<Post | null> {
+  return (await getLatestPostSnapshot(slug))?.post ?? null
+}
+
+/** Post and review version always originate from the same fresh source read. */
+export async function getLatestPostSnapshot(slug: string): Promise<{ post: Post; version: string } | null> {
   assertPostSlug(slug)
   // Existing local content is readable even when production publishing is off.
-  if (publishTarget() !== 'github') return getPost(slug)
+  if (publishTarget() !== 'github') {
+    try {
+      const raw = await readFile(join(process.cwd(), 'content', 'posts', `${slug}.mdx`))
+      return { post: parsePost(slug, raw.toString('utf8')), version: sourceVersion(raw) }
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') return null
+      throw error
+    }
+  }
 
   const { repo, branch } = config()
   const path = `content/posts/${slug}.mdx`
@@ -297,7 +436,8 @@ export async function getLatestPost(slug: string): Promise<Post | null> {
   if (!response.ok) throw new Error(`GitHub post read failed (${response.status}) for ${path}.`)
   const payload = (await response.json()) as { content?: string }
   if (typeof payload.content !== 'string') throw new Error(`GitHub post content is missing for ${path}.`)
-  return parsePost(slug, Buffer.from(payload.content, 'base64').toString('utf8'))
+  const raw = Buffer.from(payload.content, 'base64')
+  return { post: parsePost(slug, raw.toString('utf8')), version: sourceVersion(raw) }
 }
 
 function parsePost(slug: string, raw: string): Post {

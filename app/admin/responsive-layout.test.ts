@@ -133,6 +133,6 @@ describe('responsive post editor', () => {
       }),
     )
 
-    expect(html.match(/min-h-11/g) ?? []).toHaveLength(3)
+    expect(html.match(/min-h-11/g) ?? []).toHaveLength(2)
   })
 })

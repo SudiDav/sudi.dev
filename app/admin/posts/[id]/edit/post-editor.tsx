@@ -26,7 +26,7 @@ import {
 } from 'lucide-react'
 import type { Post } from '@/lib/content.types'
 import { useRouter } from 'next/navigation'
-import { updatePost, addPost } from '@/app/admin/actions'
+import { updatePost, addPost, publishReviewedPost } from '@/app/admin/actions'
 import { DeploymentStatus } from '@/components/admin/deployment-status'
 import type { PublishResult } from '@/lib/publish'
 import type { NewsletterOutcome } from '@/lib/newsletter'
@@ -45,7 +45,20 @@ const TEXT_FORMAT = [Heading1, Heading2, Heading3, Pilcrow]
 const INLINE_FORMAT = [Bold, Italic, Underline, Strikethrough, CodeXml]
 const BLOCK_FORMAT = [List, ListOrdered, Quote, Minus]
 
-const STATUSES = ['Published', 'Draft', 'Archived'] as const
+type EditablePost = Pick<Post, 'title' | 'excerpt' | 'body' | 'category' | 'cover' | 'status'>
+
+function editablePost(post: Post): EditablePost {
+  return {
+    title: post.title,
+    excerpt: post.excerpt,
+    body: post.body,
+    category: post.category,
+    cover: post.cover ?? '',
+    status: post.status,
+  }
+}
+
+const NEW_POST_STATUSES = ['Draft', 'Archived'] as const
 
 function SidebarField({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -65,11 +78,13 @@ const wordCount = (text: string) => text.trim().split(/\s+/).filter(Boolean).len
  */
 export function PostEditor({
   post,
+  initialVersion,
   canPublish,
   initialPublish,
   initialNewsletter,
 }: {
   post?: Post
+  initialVersion?: string
   canPublish: boolean
   initialPublish?: PublishResult
   initialNewsletter?: NewsletterOutcome
@@ -82,6 +97,11 @@ export function PostEditor({
   const [status, setStatus] = useState<Post['status']>(post?.status ?? 'Draft')
   const [category, setCategory] = useState(post?.category ?? POST_CATEGORIES[0])
   const [cover, setCover] = useState(post?.cover ?? '')
+  const [savedBaseline, setSavedBaseline] = useState<EditablePost | null>(
+    post ? editablePost(post) : null,
+  )
+  const [expectedVersion, setExpectedVersion] = useState(initialVersion)
+  const [conflicted, setConflicted] = useState(false)
   const [saved, setSaved] = useState<string | null>(null)
   const [publish, setPublish] = useState<PublishResult | null>(initialPublish ?? null)
   const [newsletter, setNewsletter] = useState<NewsletterOutcome | null>(initialNewsletter ?? null)
@@ -90,9 +110,44 @@ export function PostEditor({
 
   const words = wordCount(body)
   const minutes = Math.max(1, Math.round(words / 200))
+  const currentValues: EditablePost = { title, excerpt, body, category, cover, status }
+  const dirty = savedBaseline !== null &&
+    (currentValues.title !== savedBaseline.title ||
+      currentValues.excerpt !== savedBaseline.excerpt ||
+      currentValues.body !== savedBaseline.body ||
+      currentValues.category !== savedBaseline.category ||
+      currentValues.cover !== savedBaseline.cover ||
+      currentValues.status !== savedBaseline.status)
+  const persistedStatus = savedBaseline?.status ?? null
 
-  const save = (nextStatus?: Post['status']) => {
+  const acceptSavedPost = (savedPost: Post | undefined, fallback: EditablePost) => {
+    const persisted = savedPost ? editablePost(savedPost) : fallback
+    setTitle(persisted.title)
+    setExcerpt(persisted.excerpt)
+    setBody(persisted.body)
+    setCategory(persisted.category)
+    setCover(persisted.cover)
+    setStatus(persisted.status)
+    setSavedBaseline(persisted)
+  }
+
+  const recordConflict = (result: { code?: string; error: string }) => {
+    if (result.code === 'post_conflict' || result.code === 'post_review_required') {
+      setConflicted(true)
+      setError(
+        result.code === 'post_conflict'
+          ? 'This post changed after you opened it. Your edits are still here. Reload and review the latest draft before saving or publishing.'
+          : 'This post needs a fresh review before publishing. Reload and review the latest saved post.',
+      )
+      return true
+    }
+    setError(result.error)
+    return false
+  }
+
+  const save = () => {
     setError(null)
+    const submitted: EditablePost = { ...currentValues }
     startTransition(async () => {
       if (!post) {
         // Creating: mint the file, then move to its real edit URL so further
@@ -102,7 +157,7 @@ export function PostEditor({
           excerpt,
           body,
           category,
-          status: nextStatus ?? status ?? 'Draft',
+          status: status === 'Archived' ? 'Archived' : 'Draft',
           cover,
         })
         if (result.ok && result.slug) {
@@ -122,22 +177,52 @@ export function PostEditor({
         return
       }
 
-      const result = await updatePost(post.slug, {
-        title,
-        excerpt,
-        body,
-        category,
-        status: nextStatus ?? status,
-        readingTime: `${minutes} min read`,
-      })
+      const result = await updatePost(
+        post.slug,
+        {
+          title: submitted.title,
+          excerpt: submitted.excerpt,
+          body: submitted.body,
+          category: submitted.category,
+          cover: submitted.cover,
+          status: submitted.status,
+          readingTime: `${minutes} min read`,
+        },
+        expectedVersion,
+      )
       if (result.ok) {
         setPublish(result.publish ?? null)
         setNewsletter(result.newsletter ?? null)
-        if (nextStatus) setStatus(nextStatus)
+        setExpectedVersion(result.publish?.postVersion)
+        acceptSavedPost(result.publish?.post, submitted)
         setSaved(new Date().toLocaleTimeString())
       } else {
-        setError(result.error)
+        recordConflict(result)
       }
+    })
+  }
+
+  const publishReviewed = (unpublish = false) => {
+    if (!post || !expectedVersion || dirty || conflicted) return
+    setError(null)
+    const reviewedValues: EditablePost = { ...currentValues }
+    startTransition(async () => {
+      const result = unpublish
+        ? await updatePost(post.slug, { status: 'Draft' }, expectedVersion)
+        : await publishReviewedPost(post.slug, expectedVersion)
+      if (!result.ok) {
+        recordConflict(result)
+        return
+      }
+      setPublish(result.publish ?? null)
+      setNewsletter(result.newsletter ?? null)
+      setExpectedVersion(result.publish?.postVersion)
+      const fallback: EditablePost = {
+        ...reviewedValues,
+        status: unpublish ? 'Draft' : 'Published',
+      }
+      acceptSavedPost(result.publish?.post, fallback)
+      setSaved(new Date().toLocaleTimeString())
     })
   }
 
@@ -159,8 +244,8 @@ export function PostEditor({
               : creating
                 ? 'New post · not saved yet'
                 : saved
-                  ? `${status} · Saved ${saved}`
-                  : `${status} · No unsaved changes`}
+                  ? `${persistedStatus} · Saved ${saved}`
+                  : `${persistedStatus} · ${dirty ? 'Unsaved changes' : 'No unsaved changes'}`}
           </span>
         </div>
 
@@ -177,22 +262,43 @@ export function PostEditor({
           <button
             type="button"
             onClick={() => save()}
-            disabled={pending || !canPublish || !title.trim()}
+            disabled={pending || conflicted || (post !== undefined && !expectedVersion) || !canPublish || !title.trim()}
             className="inline-flex min-h-11 items-center gap-1.5 rounded-[7px] border border-admin-border px-3.5 py-1.5 text-[13px] text-admin-text-secondary hover:bg-admin-bg disabled:opacity-50"
           >
-            {creating ? 'Create' : 'Save'}
+            {creating ? 'Create draft' : 'Save'}
           </button>
-          <button
-            type="button"
-            onClick={() => save(status === 'Published' ? 'Draft' : 'Published')}
-            disabled={pending || !canPublish || !title.trim()}
-            className="inline-flex min-h-11 items-center gap-1.5 rounded-[7px] bg-accent px-4 py-1.5 text-[13px] font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-          >
-            <Send size={14} />
-            {creating ? 'Create & Publish' : status === 'Published' ? 'Unpublish' : 'Publish'}
-          </button>
+          {post ? (
+            <button
+              type="button"
+              onClick={() => publishReviewed(persistedStatus === 'Published')}
+              disabled={pending || conflicted || !canPublish || dirty || !expectedVersion}
+              title={dirty ? 'Save your changes before publishing.' : undefined}
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-[7px] bg-accent px-4 py-1.5 text-[13px] font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+            >
+              <Send size={14} />
+              {persistedStatus === 'Published' ? 'Unpublish' : 'Publish'}
+            </button>
+          ) : null}
         </div>
       </header>
+
+      {post && dirty ? (
+        <p className="border-b border-admin-border bg-admin-subtle px-4 py-2.5 text-[13px] text-admin-text-secondary sm:px-6">
+          Save your changes before publishing.
+        </p>
+      ) : null}
+      {post && !expectedVersion && !conflicted ? (
+        <div className="flex flex-wrap items-center gap-3 border-b border-admin-border bg-admin-subtle px-4 py-2.5 text-[13px] text-admin-text-secondary sm:px-6">
+          <p className="min-w-0 flex-1">Reload and review the saved post before publishing.</p>
+          <button
+            type="button"
+            onClick={() => window.location.reload()}
+            className="min-h-11 rounded-md border border-admin-border px-3 py-1.5 font-medium hover:bg-admin-bg"
+          >
+            Reload and review latest draft
+          </button>
+        </div>
+      ) : null}
 
       {!canPublish ? (
         <p className="flex items-start gap-2 border-b border-admin-border bg-[#F59E0B15] px-4 py-2.5 text-[13px] text-admin-warning sm:items-center sm:px-6">
@@ -202,10 +308,19 @@ export function PostEditor({
       ) : null}
 
       {error ? (
-        <p className="flex items-start gap-2 border-b border-admin-border bg-[#EF444415] px-4 py-2.5 text-[13px] text-admin-danger sm:items-center sm:px-6">
+        <div className="flex flex-wrap items-center gap-3 border-b border-admin-border bg-[#EF444415] px-4 py-2.5 text-[13px] text-admin-danger sm:px-6">
           <TriangleAlert size={14} />
-          {error}
-        </p>
+          <p className="min-w-0 flex-1">{error}</p>
+          {conflicted ? (
+            <button
+              type="button"
+              onClick={() => window.location.reload()}
+              className="min-h-11 rounded-md border border-admin-danger/30 px-3 py-1.5 font-medium text-admin-danger hover:bg-[#EF444415]"
+            >
+              Reload and review latest draft
+            </button>
+          ) : null}
+        </div>
       ) : null}
 
       {saved && !pending && !error ? (
@@ -258,6 +373,7 @@ export function PostEditor({
                 aria-label="Cover image path"
                 value={cover}
                 placeholder="/images/…"
+                disabled={pending}
                 onChange={(event) => setCover(event.target.value)}
                 className="mt-1 w-full max-w-sm rounded-md border border-admin-border px-3 py-1.5 text-center text-xs text-admin-text placeholder:text-admin-text-tertiary focus:border-accent focus:outline-none"
               />
@@ -266,6 +382,7 @@ export function PostEditor({
             <textarea
               aria-label="Post title"
               value={title}
+              disabled={pending}
               onChange={(event) => setTitle(event.target.value)}
               rows={2}
               className="resize-none border-0 font-display text-[32px] leading-[1.3] font-bold text-admin-text focus:outline-none sm:text-[36px]"
@@ -274,6 +391,7 @@ export function PostEditor({
             <textarea
               aria-label="Post subtitle"
               value={excerpt}
+              disabled={pending}
               onChange={(event) => setExcerpt(event.target.value)}
               rows={2}
               className="resize-none border-0 text-lg leading-[1.5] text-admin-text-tertiary focus:outline-none"
@@ -282,6 +400,7 @@ export function PostEditor({
             <textarea
               aria-label="Post body (MDX)"
               value={body}
+              disabled={pending}
               onChange={(event) => setBody(event.target.value)}
               rows={24}
               className="resize-y border-0 font-mono text-[13px] leading-[1.8] text-admin-text focus:outline-none"
@@ -295,10 +414,14 @@ export function PostEditor({
           <SidebarField label="Status">
             <select
               value={status}
+              disabled={pending}
               onChange={(event) => setStatus(event.target.value as Post['status'])}
               className="rounded-lg border border-admin-border bg-admin-input px-3 py-2 text-[13px] text-admin-text focus:border-accent focus:outline-none"
             >
-              {STATUSES.map((option) => (
+              {(persistedStatus === 'Published'
+                ? ['Published', 'Draft', 'Archived'] as const
+                : NEW_POST_STATUSES
+              ).map((option) => (
                 <option key={option} value={option}>
                   {option}
                 </option>
@@ -309,6 +432,7 @@ export function PostEditor({
           <SidebarField label="Category">
             <select
               value={category}
+              disabled={pending}
               onChange={(event) => setCategory(event.target.value)}
               className="rounded-lg border border-admin-border bg-admin-input px-3 py-2 text-[13px] text-admin-text focus:border-accent focus:outline-none"
             >

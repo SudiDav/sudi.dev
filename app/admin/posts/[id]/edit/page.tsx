@@ -1,6 +1,6 @@
 import { notFound, redirect } from 'next/navigation'
 import { isAdmin } from '@/auth'
-import { getLatestPost, isPublishingConfigured } from '@/lib/publish'
+import { getLatestPostSnapshot, isPublishingConfigured } from '@/lib/publish'
 import { PostEditor } from './post-editor'
 import type { PublishResult } from '@/lib/publish'
 import type { NewsletterOutcome } from '@/lib/newsletter'
@@ -48,12 +48,14 @@ export default async function AdminPostEditorPage({
     : undefined
   if (id === 'new') return <PostEditor canPublish={isPublishingConfigured()} />
 
-  const post = await getLatestPost(id)
-  if (!post) notFound()
+  const snapshot = await getLatestPostSnapshot(id)
+  if (!snapshot) notFound()
 
   return (
     <PostEditor
-      post={post}
+      key={snapshot.post.slug}
+      post={snapshot.post}
+      initialVersion={snapshot.version}
       canPublish={isPublishingConfigured()}
       initialPublish={initialPublish}
       initialNewsletter={initialNewsletter}
