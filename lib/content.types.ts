@@ -13,6 +13,8 @@ export type Post = {
   // Editorial state, surfaced in the admin. Absent means Published, so existing
   // content needs no migration.
   status?: 'Published' | 'Draft' | 'Archived'
+  /** ISO week that owns an automatically generated weekly draft, e.g. 2026-W42. */
+  generatedWeek?: string
   // Article-page only. The design's Article Subtitle differs slightly from the
   // excerpt the blog cards show, and its breadcrumb shows a short slug.
   subtitle?: string

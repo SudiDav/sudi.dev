@@ -10,7 +10,7 @@ import { ArticleItem } from '@/components/article-item'
 import { TechBadge } from '@/components/tech-badge'
 import { NewsletterForm } from '@/components/newsletter-form'
 import { PAGE_GUTTER } from '@/components/layout'
-import { getPosts } from '@/lib/content'
+import { getPublishedPosts } from '@/lib/content'
 import type { Post } from '@/lib/content.types'
 import { listBlogPosts, POST_FILTERS } from '@/lib/filters'
 
@@ -88,7 +88,7 @@ export default async function BlogPage({
     ? (category as string)
     : 'All'
 
-  const posts = await getPosts()
+  const posts = await getPublishedPosts()
   // Describes the whole blog, so it counts every post rather than the filtered view.
   const blogStats = buildBlogStats(posts)
   const topicRows = buildTopicRows(posts)

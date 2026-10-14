@@ -106,12 +106,12 @@ Everything below is wired end to end — no screen is a mock-up.
 | Screen | What works |
 | --- | --- |
 | Dashboard | Real counts, real draft list. Views/comments read "—": no analytics source. |
-| Posts | Tabs filter by status. Row actions toggle Published/Draft. |
-| Post Editor | Edit title, excerpt, body, category. Save, Publish/Unpublish. Live word count. |
+| Posts | Tabs filter by status. Publish opens the editor for review; row actions can unpublish. |
+| Post Editor | Edit title, excerpt, body, category. Save, review saved content, Publish/Unpublish. Live word count. |
 | Add Project | Creates `content/projects/<slug>.mdx`. Refuses to overwrite an existing slug. |
 | Edit Project | Same form in update mode, at `/admin/projects/<slug>/edit` |
 | Comments | Approve / Reject (spam) / Delete, with tab filtering. Writes `content/comments.json`. |
-| Settings | Writes `content/site.json`. Log Out really signs out. |
+| Settings | Writes `content/site.json`, including the weekly article writing profile. Log Out really signs out. |
 
 Public side:
 
@@ -146,6 +146,40 @@ serialises the whole file, which suits a personal blog, not a busy forum.
 Settings feed the site: the `<title>` and meta description come from
 `content/site.json`, as do the RSS channel details and the footer's social
 links. Changing your GitHub handle in Settings changes where the footer points.
+
+The Writing Profile settings guide weekly article drafts. They are saved in the
+public GitHub repository in `content/site.json`; only enter topics, interests,
+and style guidance that are safe to publish. The weekly job uses these details
+and recent published posts to create a draft. It emails the owner a link to the
+admin editor, but you review and publish each article manually.
+
+New weekly drafts use one filename per ISO week, such as
+`content/posts/weekly-2026-w42.mdx`. Creation refuses to overwrite a file, so
+overlapping runs reuse the winning draft when its `generatedWeek` matches.
+Existing weekly drafts with a title suffix keep their filenames and are reused.
+
+The authenticated editor and `/admin/posts/<slug>/preview` read the current
+file from the configured GitHub branch, so the email review link works as soon
+as the draft commit succeeds. Sign in to return to that editor. Preview shows
+the saved draft; save your edits before previewing them. Drafts remain absent
+from public article pages, feeds, and indexes until you publish them and the
+deployment completes.
+
+Publishing requires the exact saved version opened in the editor. Save new
+posts as Draft or Archived first, then open the saved post to review it. Save
+any edits before clicking Publish; publication changes only the saved post's
+status. If another save changes the source after you opened it, publishing
+stops without writing content or creating a newsletter draft. Reload the saved
+post explicitly and review that version before trying again.
+
+The review version is a SHA-256 digest of the complete source file, separate
+from the commit SHA used to track deployment. GitHub updates use the blob SHA
+from that same read, so a change that races the update also stops publication.
+Local admin saves use an exclusive lock and replace the file atomically.
+Editors or scripts that change local files outside the admin do not participate
+in that lock; coordinate those filesystem edits separately. A local process
+that crashes during a save can leave a `.mdx.lock` file; confirm no admin save
+is running before removing that lock and reloading the saved post.
 
 Two fields on Add Project are not in the design, because the design's form does
 not cover what the site needs:

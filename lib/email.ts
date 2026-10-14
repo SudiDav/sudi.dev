@@ -1,4 +1,6 @@
 import { Resend } from 'resend'
+import type { Post } from './content.types'
+import { SITE_URL } from './site'
 
 /**
  * Outbound email.
@@ -15,6 +17,18 @@ export function emailConfigured() {
 }
 
 type SendResult = { sent: boolean; reason?: string }
+
+/** Emails the owner a link to review a weekly post draft in the admin. */
+export function notifyWeeklyDraft(post: Post): Promise<SendResult> {
+  return send(
+    `Your weekly article draft: ${post.title}`,
+    [
+      post.excerpt,
+      '',
+      `Review and edit this draft: ${SITE_URL}/admin/posts/${post.slug}/edit`,
+    ].join('\n'),
+  )
+}
 
 export type SubscriptionOutcome =
   | { ok: true; warning?: string }

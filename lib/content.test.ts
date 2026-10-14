@@ -1,7 +1,7 @@
-import { readdir } from 'node:fs/promises'
+import { readdir, unlink, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
 import { describe, it, expect } from 'vitest'
-import { getPosts, getPost, getProjects } from './content'
+import { getPosts, getPost, getProjects, getPublishedPost, getPublishedPosts } from './content'
 
 /**
  * Counts come from the content directory rather than a literal, so adding a
@@ -53,6 +53,22 @@ describe('getPost', () => {
 
   it('returns null rather than escaping the content directory', async () => {
     expect(await getPost('../../package')).toBeNull()
+  })
+})
+
+describe('public post queries', () => {
+  it('keeps draft posts out of public lists and direct article lookups', async () => {
+    const slug = `draft-privacy-${Date.now()}`
+    const path = join(process.cwd(), 'content', 'posts', `${slug}.mdx`)
+    await writeFile(path, `---\ntitle: Private draft\nexcerpt: Not for public review\ndate: "2026-10-11"\nreadingTime: 1 min read\ncategory: Craft\ncover: /images/sudi.jpeg\nfeatured: false\nstatus: Draft\ngeneratedWeek: 2026-W41\n---\n\nDraft text.\n`)
+    try {
+      expect((await getPosts()).some((post) => post.slug === slug)).toBe(true)
+      expect((await getPublishedPosts()).some((post) => post.slug === slug)).toBe(false)
+      expect(await getPublishedPost(slug)).toBeNull()
+      expect((await getPost(slug))?.status).toBe('Draft')
+    } finally {
+      await unlink(path)
+    }
   })
 })
 

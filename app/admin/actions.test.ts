@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Post } from '@/lib/content.types'
+import { PostSaveError } from '@/lib/publish'
 
 const {
   isAdminMock,
@@ -9,6 +10,7 @@ const {
   listMock,
   sendMock,
   audienceListMock,
+  saveSettingsMock,
   revalidatePathMock,
 } = vi.hoisted(() => ({
   isAdminMock: vi.fn(),
@@ -18,6 +20,7 @@ const {
   listMock: vi.fn(),
   sendMock: vi.fn(),
   audienceListMock: vi.fn(),
+  saveSettingsMock: vi.fn(),
   revalidatePathMock: vi.fn(),
 }))
 
@@ -30,11 +33,14 @@ vi.mock('@/lib/email', () => ({
   listAudienceContacts: (...args: unknown[]) => audienceListMock(...args),
 }))
 vi.mock('@/lib/publish', () => ({
+  PostSaveError: class extends Error {
+    constructor(public readonly code: string, message: string) { super(message) }
+  },
   createPost: (...args: unknown[]) => createPostMock(...args),
   savePost: (...args: unknown[]) => savePostMock(...args),
   createProject: vi.fn(),
   saveProject: vi.fn(),
-  saveSettings: vi.fn(),
+  saveSettings: (...args: unknown[]) => saveSettingsMock(...args),
   slugify: (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
   uploadImage: vi.fn(),
 }))
@@ -44,7 +50,7 @@ vi.mock('@/lib/newsletter', () => ({
   sendNewsletterBroadcast: (...args: unknown[]) => sendMock(...args),
 }))
 
-import { addPost, listNewsletters, listSubscribers, sendNewsletter, updatePost } from './actions'
+import { addPost, listNewsletters, listSubscribers, publishReviewedPost, sendNewsletter, setPostStatus, updatePost, updateSettings } from './actions'
 
 const postFixture: Post = {
   slug: 'hello',
@@ -76,11 +82,12 @@ describe('post newsletter integration', () => {
     vi.clearAllMocks()
   })
 
-  it('creates a newsletter draft when a new post is published', async () => {
-    createPostMock.mockResolvedValueOnce({
+  it('creates a newsletter draft when a saved post is published after review', async () => {
+    savePostMock.mockResolvedValueOnce({
       target: 'github',
       sha: 'sha_123',
       branch: 'main',
+      previousStatus: 'Draft',
       status: 'Published',
       post: postFixture,
     })
@@ -91,10 +98,55 @@ describe('post newsletter integration', () => {
       created: true,
     })
 
-    const result = await addPost({ ...postInput, status: 'Published' })
+    const result = await publishReviewedPost('hello', 'reviewed-source-version')
 
     expect(result).toMatchObject({ ok: true, newsletter: { ok: true, id: 'br_123' } })
+    expect(savePostMock).toHaveBeenCalledWith('hello', { status: 'Published' }, 'content: update hello', 'reviewed-source-version')
     expect(newsletterMock).toHaveBeenCalledWith(postFixture, 'sha_123')
+  })
+
+  it('checks admin authorization before a reviewed publish can write', async () => {
+    isAdminMock.mockResolvedValueOnce(false)
+
+    await expect(publishReviewedPost('hello', 'reviewed-source-version')).rejects.toThrow('Not authorised')
+    expect(savePostMock).not.toHaveBeenCalled()
+    expect(newsletterMock).not.toHaveBeenCalled()
+    expect(revalidatePathMock).not.toHaveBeenCalled()
+  })
+
+  it('refuses to create a new Published post before calling the publisher', async () => {
+    const result = await addPost({ ...postInput, status: 'Published' })
+
+    expect(result).toMatchObject({ ok: false, code: 'post_review_required' })
+    expect(createPostMock).not.toHaveBeenCalled()
+    expect(newsletterMock).not.toHaveBeenCalled()
+    expect(revalidatePathMock).not.toHaveBeenCalled()
+  })
+
+  it.each([
+    ['post_conflict', 'stale source'],
+    ['post_review_required', 'missing review version'],
+    ['post_unsaved_changes', 'unsaved publication edits'],
+  ] as const)('returns the typed %s error for %s without newsletter or revalidation side effects', async (code, detail) => {
+    savePostMock.mockRejectedValueOnce(new PostSaveError(code, detail))
+
+    const result = await updatePost('hello', { status: 'Published' }, 'reviewed-source-version')
+
+    expect(result).toMatchObject({ ok: false, code, error: detail })
+    expect(savePostMock).toHaveBeenCalledOnce()
+    expect(newsletterMock).not.toHaveBeenCalled()
+    expect(revalidatePathMock).not.toHaveBeenCalled()
+  })
+
+  it('routes Published status changes without a version through the publish guard', async () => {
+    savePostMock.mockRejectedValueOnce(new PostSaveError('post_review_required', 'review required'))
+
+    const result = await setPostStatus('hello', 'Published')
+
+    expect(result).toMatchObject({ ok: false, code: 'post_review_required' })
+    expect(savePostMock).toHaveBeenCalledWith('hello', { status: 'Published' }, 'content: update hello', undefined)
+    expect(newsletterMock).not.toHaveBeenCalled()
+    expect(revalidatePathMock).not.toHaveBeenCalled()
   })
 
   it('does not create a draft when creating a Draft post', async () => {
@@ -121,22 +173,23 @@ describe('post newsletter integration', () => {
       post: postFixture,
     })
 
-    await updatePost('hello', { ...postInput, status: 'Published' })
+    await updatePost('hello', { ...postInput, status: 'Published' }, 'reviewed-source-version')
 
     expect(newsletterMock).not.toHaveBeenCalled()
   })
 
   it('keeps publishing successful when newsletter draft creation fails', async () => {
-    createPostMock.mockResolvedValueOnce({
+    savePostMock.mockResolvedValueOnce({
       target: 'github',
       sha: 'sha_123',
       branch: 'main',
+      previousStatus: 'Draft',
       status: 'Published',
       post: postFixture,
     })
     newsletterMock.mockResolvedValueOnce({ ok: false, error: 'domain invalid' })
 
-    const result = await addPost({ ...postInput, status: 'Published' })
+    const result = await publishReviewedPost('hello', 'reviewed-source-version')
 
     expect(result).toMatchObject({ ok: true, publish: { sha: 'sha_123' } })
     expect(result).toMatchObject({ newsletter: { ok: false, error: 'domain invalid' } })
@@ -198,5 +251,33 @@ describe('post newsletter integration', () => {
     await expect(sendNewsletter('br_123')).resolves.toEqual({ ok: true, id: 'br_123' })
     expect(sendMock).toHaveBeenCalledWith('br_123')
     expect(revalidatePathMock).toHaveBeenCalledWith('/admin/newsletters')
+  })
+})
+
+describe('updateSettings', () => {
+  beforeEach(() => {
+    isAdminMock.mockResolvedValue(true)
+  })
+
+  afterEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('passes the writing profile unchanged to the settings publisher', async () => {
+    const settings = {
+      displayName: 'Sudi',
+      avatar: '/images/sudi.jpeg',
+      email: 'sudi@example.com',
+      bio: 'Engineer',
+      location: 'Lubumbashi',
+      website: 'sudi.dev',
+      social: { github: 'github.com/SudiDav', twitter: '', linkedin: '', instagram: '' },
+      seo: { title: 'Sudi', description: 'Engineer' },
+      writingProfile: { interests: 'Public services', styleGuidance: 'Clear and practical' },
+    }
+    saveSettingsMock.mockResolvedValueOnce({ target: 'github', sha: 'settings_sha', branch: 'main' })
+
+    await expect(updateSettings(settings)).resolves.toMatchObject({ ok: true })
+    expect(saveSettingsMock).toHaveBeenCalledWith(settings, 'content: update site settings')
   })
 })

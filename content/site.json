@@ -15,5 +15,9 @@
     "title": "Sudi M. David — Full-Stack Engineer",
     "description": "I build software that helps institutions operate—from fintech and lending platforms to agricultural value-chain tools and school administration systems."
   },
+  "writingProfile": {
+    "interests": "",
+    "styleGuidance": ""
+  },
   "portrait": "/images/sudi.jpeg"
 }

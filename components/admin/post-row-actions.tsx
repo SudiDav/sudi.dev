@@ -8,7 +8,7 @@ import type { AdminPostStatus } from '@/lib/admin-fixtures'
 
 const NEXT_STATUS: Record<AdminPostStatus, AdminPostStatus> = {
   Published: 'Draft',
-  Draft: 'Published',
+  Draft: 'Draft',
   Archived: 'Draft',
 }
 
@@ -45,19 +45,28 @@ export function PostRowActions({
     <div className="flex items-center justify-end gap-2">
       {error ? <span className="text-[11px] text-admin-danger">{error}</span> : null}
 
-      <button
-        type="button"
-        onClick={toggle}
-        disabled={pending}
-        title={`Mark "${title}" as ${next}`}
-        className="min-h-11 rounded-md border border-admin-border px-3 py-1 text-[11px] font-medium text-admin-text-secondary transition-colors hover:bg-admin-bg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:opacity-50"
-      >
-        {pending ? '…' : next}
-      </button>
+      {status === 'Draft' ? (
+        <Link
+          href={`/admin/posts/${slug}/edit`}
+          className="inline-flex min-h-11 items-center rounded-md border border-admin-border px-3 py-1 text-[11px] font-medium text-admin-text-secondary transition-colors hover:bg-admin-bg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+        >
+          Review &amp; Publish
+        </Link>
+      ) : (
+        <button
+          type="button"
+          onClick={toggle}
+          disabled={pending}
+          title={`Mark "${title}" as ${next}`}
+          className="min-h-11 rounded-md border border-admin-border px-3 py-1 text-[11px] font-medium text-admin-text-secondary transition-colors hover:bg-admin-bg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent disabled:opacity-50"
+        >
+          {pending ? '…' : next}
+        </button>
+      )}
 
       <Link
-        href={`/blog/${slug}`}
-        aria-label={`View ${title} on the site`}
+        href={`/admin/posts/${slug}/preview`}
+        aria-label={`Preview ${title}`}
         className="flex size-11 items-center justify-center rounded-md text-admin-text-tertiary hover:bg-admin-bg hover:text-admin-text focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
       >
         <Eye size={16} />

@@ -1,9 +1,11 @@
 import 'server-only'
-import { randomUUID } from 'node:crypto'
-import { readFile, writeFile } from 'node:fs/promises'
+import { createHash, randomUUID } from 'node:crypto'
+import { open, readFile, rename, unlink, writeFile } from 'node:fs/promises'
 import { join } from 'node:path'
+import { isDeepStrictEqual } from 'node:util'
 import matter from 'gray-matter'
 import type { Post, Project } from './content.types'
+import { getPosts } from './content'
 import type { SiteSettings } from './site'
 
 /**
@@ -55,7 +57,7 @@ async function gh(path: string, init: RequestInit = {}) {
 /** The blob SHA GitHub needs to update (rather than create) a file. */
 async function currentSha(path: string): Promise<string | undefined> {
   const { repo, branch } = config()
-  const response = await gh(`/repos/${repo}/contents/${encodeURI(path)}?ref=${branch}`)
+  const response = await gh(`/repos/${repo}/contents/${encodeURI(path)}?ref=${encodeURIComponent(branch)}`)
   if (response.status === 404) return undefined
   if (!response.ok) throw new Error(`GitHub read failed (${response.status}) for ${path}`)
   const body = (await response.json()) as { sha: string }
@@ -72,10 +74,49 @@ export type PublishResult = {
   previousStatus?: Post['status']
   status?: Post['status']
   post?: Post
+  /** Digest of the saved source bytes, distinct from the deployment commit SHA. */
+  postVersion?: string
+}
+
+export type PostSaveErrorCode = 'post_conflict' | 'post_review_required' | 'post_unsaved_changes'
+
+export class PostSaveError extends Error {
+  constructor(public readonly code: PostSaveErrorCode, message: string) {
+    super(message)
+    this.name = 'PostSaveError'
+  }
+}
+
+function sourceVersion(raw: Buffer | string): string {
+  return createHash('sha256').update(raw).digest('hex')
+}
+
+function postConflict(): PostSaveError {
+  return new PostSaveError('post_conflict', 'This post changed after you opened it. Reload the saved post and review it before continuing.')
 }
 
 function normaliseStatus(value: unknown): Post['status'] {
   return value === 'Draft' || value === 'Archived' ? value : 'Published'
+}
+
+export class PostAlreadyExistsError extends Error {
+  constructor(public readonly slug: string) {
+    super(`A post with the slug "${slug}" already exists.`)
+    this.name = 'PostAlreadyExistsError'
+  }
+}
+
+class GitHubWriteError extends Error {
+  constructor(public readonly status: number, detail: string) {
+    super(`GitHub write failed (${status}): ${detail.slice(0, 200)}`)
+    this.name = 'GitHubWriteError'
+  }
+}
+
+function assertPostSlug(slug: string): void {
+  if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(slug)) {
+    throw new Error('Invalid post slug: expected a single filename-safe basename.')
+  }
 }
 
 async function commitFile(
@@ -83,9 +124,18 @@ async function commitFile(
   contents: string | Buffer,
   message: string,
 ): Promise<Pick<PublishResult, 'sha' | 'commitUrl'>> {
-  const { repo, branch } = config()
   const sha = await currentSha(path)
+  return writeGitHubFile(path, contents, message, sha)
+}
 
+/** A missing SHA always means create-only; GitHub rejects an existing file. */
+async function writeGitHubFile(
+  path: string,
+  contents: string | Buffer,
+  message: string,
+  sha?: string,
+): Promise<Pick<PublishResult, 'sha' | 'commitUrl'>> {
+  const { repo, branch } = config()
   const response = await gh(`/repos/${repo}/contents/${encodeURI(path)}`, {
     method: 'PUT',
     body: JSON.stringify({
@@ -103,7 +153,7 @@ async function commitFile(
 
   if (!response.ok) {
     const detail = await response.text()
-    throw new Error(`GitHub write failed (${response.status}): ${detail.slice(0, 200)}`)
+    throw new GitHubWriteError(response.status, detail)
   }
 
   const body = (await response.json()) as {
@@ -114,25 +164,39 @@ async function commitFile(
 }
 
 /** Frontmatter keys that must round-trip as quoted strings, not YAML scalars. */
-const QUOTED = new Set(['date', 'year'])
+const QUOTED = new Set(['date', 'year', 'title', 'excerpt'])
+
+/** JSON scalars and flow collections are safe YAML, including nested strings. */
+function encodeFrontmatterValue(value: unknown): string {
+  const encoded = JSON.stringify(value)
+  if (encoded === undefined) throw new Error('Frontmatter contains an unsupported value.')
+  // YAML treats these Unicode characters as line breaks even within quotes.
+  return encoded.replace(/[\u0085\u2028\u2029]/g, (character) =>
+    `\\u${character.charCodeAt(0).toString(16).padStart(4, '0')}`,
+  )
+}
+
+function encodeFrontmatterKey(key: string): string {
+  const plain = /^[a-zA-Z_][a-zA-Z0-9_-]*$/.test(key) && !/^(null|true|false|yes|no|on|off|y|n)$/i.test(key)
+  return plain ? key : encodeFrontmatterValue(key)
+}
 
 function serialise(data: Record<string, unknown>, body: string): string {
-  // gray-matter's stringify would unquote dates into YAML timestamps, which the
-  // loader's string sort depends on NOT happening.
+  // Never interpolate unencoded metadata into YAML: a newline or delimiter in
+  // any string/key must remain data, rather than alter the file's structure.
   const lines = Object.entries(data)
     .filter(([, value]) => value !== undefined && value !== null)
     .map(([key, value]): string | null => {
-      if (Array.isArray(value)) return `${key}: [${value.join(', ')}]`
-      if (typeof value === 'object') {
+      const encodedKey = encodeFrontmatterKey(key)
+      if (QUOTED.has(key)) return `${encodedKey}: ${encodeFrontmatterValue(String(value))}`
+      if (typeof value === 'object' && !Array.isArray(value)) {
         const nested = Object.entries(value as Record<string, unknown>)
           .filter(([, v]) => v !== undefined && v !== null && v !== '')
-          .map(([k, v]) => `  ${k}: ${v}`)
         // An object whose every field is empty would emit a dangling key.
         if (nested.length === 0) return null
-        return `${key}:\n${nested.join('\n')}`
+        return `${encodedKey}: ${encodeFrontmatterValue(Object.fromEntries(nested))}`
       }
-      if (QUOTED.has(key)) return `${key}: "${value}"`
-      return `${key}: ${value}`
+      return `${encodedKey}: ${encodeFrontmatterValue(value)}`
     })
   return `---\n${lines.filter(Boolean).join('\n')}\n---\n\n${body.trim()}\n`
 }
@@ -146,34 +210,98 @@ export type PostDraft = Partial<Omit<Post, 'slug' | 'body'>> & { body?: string }
  * write is based on what is actually in the repo — the local checkout may be
  * behind, and on a deployed instance there is no checkout at all.
  */
-export async function savePost(slug: string, changes: PostDraft, message: string): Promise<PublishResult> {
+export async function savePost(
+  slug: string,
+  changes: PostDraft,
+  message: string,
+  expectedVersion?: string,
+): Promise<PublishResult> {
+  assertPostSlug(slug)
   const target = publishTarget()
   if (target === 'disabled') {
     throw new Error(NOT_CONFIGURED)
   }
-  if (target === 'local') return saveLocally(slug, changes)
+  if (target === 'local') return saveLocally(slug, changes, expectedVersion)
 
   const { repo, branch } = config()
   const path = `content/posts/${slug}.mdx`
 
-  const response = await gh(`/repos/${repo}/contents/${encodeURI(path)}?ref=${branch}`)
+  const response = await gh(`/repos/${repo}/contents/${encodeURI(path)}?ref=${encodeURIComponent(branch)}`)
   if (!response.ok) throw new Error(`Cannot read ${path} (${response.status})`)
-  const file = (await response.json()) as { content: string }
-  const existing = matter(Buffer.from(file.content, 'base64').toString('utf8'))
-
-  const { body, ...frontmatterChanges } = changes
-  const merged = { ...existing.data, ...frontmatterChanges }
-  const nextBody = body ?? existing.content
-  const previousStatus = normaliseStatus(existing.data.status)
-  const status = normaliseStatus(merged.status)
+  const file = (await response.json()) as { content?: string; sha?: string }
+  if (typeof file.content !== 'string' || typeof file.sha !== 'string' || !file.sha) {
+    throw new Error(`GitHub post content or blob SHA is missing for ${path}.`)
+  }
+  const prepared = preparePostSave(slug, Buffer.from(file.content, 'base64'), changes, expectedVersion)
+  let commit: Pick<PublishResult, 'sha' | 'commitUrl'>
+  try {
+    // Compare-and-swap against the blob from the reviewed source read. Never
+    // upgrade this SHA with a second read before the write.
+    commit = await writeGitHubFile(path, prepared.contents, message, file.sha)
+  } catch (error) {
+    if (error instanceof GitHubWriteError && (error.status === 409 || error.status === 422)) {
+      // These codes also cover unrelated validation errors. Only label an
+      // actual source change as a conflict; retain other GitHub failures.
+      const latestSha = await currentSha(path)
+      if (latestSha !== file.sha) throw postConflict()
+    }
+    throw error
+  }
 
   return {
     target: 'github',
     branch,
-    previousStatus,
-    status,
-    post: { ...merged, slug, body: nextBody, status } as Post,
-    ...(await commitFile(path, serialise(merged, body ?? existing.content), message)),
+    ...prepared.result,
+    ...commit,
+  }
+}
+
+/** Validate against the source before applying any caller-supplied changes. */
+function preparePostSave(slug: string, raw: Buffer, changes: PostDraft, expectedVersion?: string) {
+  const existing = matter(raw.toString('utf8'))
+  const existingPost = parsePost(slug, raw.toString('utf8'))
+  const previousStatus = normaliseStatus(existing.data.status)
+  const status = normaliseStatus(Object.hasOwn(changes, 'status') ? changes.status : existing.data.status)
+  if (status === 'Published' && (typeof expectedVersion !== 'string' || !expectedVersion.trim())) {
+    throw new PostSaveError('post_review_required', 'Open the saved post in the editor and review it before publishing.')
+  }
+  if (expectedVersion !== undefined && expectedVersion !== sourceVersion(raw)) throw postConflict()
+
+  const publishing = previousStatus !== 'Published' && status === 'Published'
+  if (publishing) {
+    const baseline = { ...existing.data, ...existingPost }
+    const differs = Object.entries(changes).some(([key, value]) =>
+      key !== 'status' && !isDeepStrictEqual(value, baseline[key as keyof typeof baseline]),
+    )
+    if (differs) {
+      throw new PostSaveError('post_unsaved_changes', 'Save your edits first, then review the saved post before publishing.')
+    }
+  }
+
+  const { body, ...frontmatterChanges } = changes
+  // Publication changes only status. YAML's own serializer preserves all
+  // frontmatter values. Remove the empty-body newline stringify adds, keeping
+  // one newline after the closing delimiter before appending the exact body.
+  const contents = publishing
+    ? matter.stringify('', { ...existing.data, status: 'Published' }).trimEnd() + '\n' + existing.content
+    : serialise({ ...existing.data, ...frontmatterChanges }, body ?? existing.content)
+  const post = parsePost(slug, contents)
+  // Check the persisted interpretation too: serializer bugs or malformed
+  // metadata must never promote a non-publishing save into publication.
+  if (post.status !== status) {
+    throw new PostSaveError('post_unsaved_changes', 'The saved metadata would change this post\'s status unexpectedly. Review the post before saving again.')
+  }
+  if (post.status === 'Published' && (typeof expectedVersion !== 'string' || !expectedVersion.trim())) {
+    throw new PostSaveError('post_review_required', 'Open the saved post in the editor and review it before publishing.')
+  }
+  if (previousStatus !== 'Published' && post.status === 'Published') {
+    if (!isDeepStrictEqual({ ...existingPost, status: undefined }, { ...post, status: undefined })) {
+      throw new PostSaveError('post_unsaved_changes', 'The saved post could not be published without changing its content. Save and review it again.')
+    }
+  }
+  return {
+    contents,
+    result: { previousStatus, status: post.status, post, postVersion: sourceVersion(contents) },
   }
 }
 
@@ -191,16 +319,41 @@ export function publishTarget(): PublishTarget {
   return process.env.NODE_ENV === 'production' ? 'disabled' : 'local'
 }
 
-async function saveLocally(slug: string, changes: PostDraft): Promise<PublishResult> {
+async function saveLocally(slug: string, changes: PostDraft, expectedVersion?: string): Promise<PublishResult> {
   const path = join(process.cwd(), 'content', 'posts', `${slug}.mdx`)
-  const existing = matter(await readFile(path, 'utf8'))
-  const { body, ...frontmatterChanges } = changes
-  await writeFile(
-    path,
-    serialise({ ...existing.data, ...frontmatterChanges }, body ?? existing.content),
-    'utf8',
-  )
-  return { target: 'local' }
+  const lockPath = `${path}.lock`
+  const temporaryPath = `${path}.${randomUUID()}.tmp`
+  let lock: Awaited<ReturnType<typeof open>>
+  try {
+    lock = await open(lockPath, 'wx')
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'EEXIST') throw postConflict()
+    throw error
+  }
+  let ownsTemporary = false
+  try {
+    const prepared = preparePostSave(slug, await readFile(path), changes, expectedVersion)
+    const temporary = await open(temporaryPath, 'wx')
+    ownsTemporary = true
+    try {
+      await temporary.writeFile(prepared.contents, 'utf8')
+    } finally {
+      await temporary.close()
+    }
+    await rename(temporaryPath, path)
+    ownsTemporary = false
+    return { target: 'local', ...prepared.result }
+  } finally {
+    try {
+      if (ownsTemporary) await unlink(temporaryPath)
+    } finally {
+      try {
+        await lock.close()
+      } finally {
+        await unlink(lockPath)
+      }
+    }
+  }
 }
 
 /**
@@ -208,6 +361,7 @@ async function saveLocally(slug: string, changes: PostDraft): Promise<PublishRes
  * slugs to an existing post is an error, not a silent replacement.
  */
 export async function createPost(slug: string, draft: PostDraft, message: string): Promise<PublishResult> {
+  assertPostSlug(slug)
   const target = publishTarget()
   if (target === 'disabled') throw new Error(NOT_CONFIGURED)
 
@@ -216,22 +370,120 @@ export async function createPost(slug: string, draft: PostDraft, message: string
   const contents = serialise(frontmatter as Record<string, unknown>, body ?? '')
   const status = normaliseStatus(frontmatter.status)
   const post = { ...frontmatter, slug, body: body ?? '', status } as Post
+  if (parsePost(slug, contents).status !== status) {
+    throw new PostSaveError('post_unsaved_changes', 'The new post\'s metadata would change its status unexpectedly. Save it as a draft and review it first.')
+  }
 
   if (target === 'local') {
     const absolute = join(process.cwd(), path)
-    if (await exists(absolute)) throw new Error(`A post with the slug "${slug}" already exists.`)
-    await writeFile(absolute, contents, 'utf8')
+    try {
+      await writeFile(absolute, contents, { encoding: 'utf8', flag: 'wx' })
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'EEXIST') throw new PostAlreadyExistsError(slug)
+      throw error
+    }
     return { target: 'local', status, post }
   }
 
-  if (await currentSha(path)) throw new Error(`A post with the slug "${slug}" already exists.`)
+  if (await currentSha(path)) throw new PostAlreadyExistsError(slug)
+  let commit: Pick<PublishResult, 'sha' | 'commitUrl'>
+  try {
+    // Never re-read a SHA for the write: that would turn a racing creation into
+    // an update of the other writer's post.
+    commit = await writeGitHubFile(path, contents, message)
+  } catch (error) {
+    if (
+      error instanceof GitHubWriteError &&
+      (error.status === 409 || error.status === 422) &&
+      await currentSha(path)
+    ) {
+      throw new PostAlreadyExistsError(slug)
+    }
+    throw error
+  }
   return {
     target: 'github',
     branch: config().branch,
     status,
     post,
-    ...(await commitFile(path, contents, message)),
+    ...commit,
   }
+}
+
+/** Read current source content for authenticated admin callers, before redeploy. */
+export async function getLatestPost(slug: string): Promise<Post | null> {
+  return (await getLatestPostSnapshot(slug))?.post ?? null
+}
+
+/** Post and review version always originate from the same fresh source read. */
+export async function getLatestPostSnapshot(slug: string): Promise<{ post: Post; version: string } | null> {
+  assertPostSlug(slug)
+  // Existing local content is readable even when production publishing is off.
+  if (publishTarget() !== 'github') {
+    try {
+      const raw = await readFile(join(process.cwd(), 'content', 'posts', `${slug}.mdx`))
+      return { post: parsePost(slug, raw.toString('utf8')), version: sourceVersion(raw) }
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') return null
+      throw error
+    }
+  }
+
+  const { repo, branch } = config()
+  const path = `content/posts/${slug}.mdx`
+  const response = await gh(`/repos/${repo}/contents/${encodeURI(path)}?ref=${encodeURIComponent(branch)}`)
+  if (response.status === 404) return null
+  if (!response.ok) throw new Error(`GitHub post read failed (${response.status}) for ${path}.`)
+  const payload = (await response.json()) as { content?: string }
+  if (typeof payload.content !== 'string') throw new Error(`GitHub post content is missing for ${path}.`)
+  const raw = Buffer.from(payload.content, 'base64')
+  return { post: parsePost(slug, raw.toString('utf8')), version: sourceVersion(raw) }
+}
+
+function parsePost(slug: string, raw: string): Post {
+  const { data, content } = matter(raw)
+  return {
+    slug,
+    title: String(data.title ?? ''),
+    excerpt: String(data.excerpt ?? ''),
+    date: String(data.date ?? ''),
+    readingTime: String(data.readingTime ?? ''),
+    category: String(data.category ?? ''),
+    cover: String(data.cover ?? '/images/sudi.jpeg'),
+    featured: Boolean(data.featured),
+    status: normaliseStatus(data.status),
+    generatedWeek: data.generatedWeek,
+    subtitle: data.subtitle,
+    breadcrumb: data.breadcrumb,
+    tags: data.tags,
+    home: data.home,
+    body: content,
+  }
+}
+
+/** Find the article already generated for an ISO week, locally or in GitHub. */
+export async function findPostByGeneratedWeek(week: string): Promise<Post | null> {
+  const canonicalSlug = `weekly-${week.toLowerCase()}`
+  const isCandidate = (slug: string) => slug === canonicalSlug || slug.startsWith(`${canonicalSlug}-`)
+  if (publishTarget() === 'local') {
+    return (await getPosts()).find((post) => isCandidate(post.slug) && post.generatedWeek === week) ?? null
+  }
+  if (publishTarget() === 'disabled') throw new Error(NOT_CONFIGURED)
+
+  const { repo, branch } = config()
+  const response = await gh(`/repos/${repo}/contents/content/posts?ref=${encodeURIComponent(branch)}`)
+  if (!response.ok) throw new Error(`GitHub post listing failed (${response.status}).`)
+  const files = (await response.json()) as Array<{ name?: string; type?: string }>
+
+  for (const file of files) {
+    if (file.type !== 'file' || !file.name?.endsWith('.mdx')) continue
+    const slug = file.name.slice(0, -'.mdx'.length)
+    if (!isCandidate(slug)) continue
+    const post = await getLatestPost(slug)
+    if (post?.generatedWeek === week) return post
+  }
+
+  return null
 }
 
 export type ProjectDraft = Omit<Project, 'slug' | 'body'> & { body?: string }

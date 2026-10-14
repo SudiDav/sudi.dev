@@ -91,6 +91,55 @@ ready. The same page also shows the first 100 contacts in the configured
 audience, including their subscription status and signup date. Broadcasts
 include Resend's unsubscribe placeholder so contacts can opt out.
 
+### Weekly article drafts — optional
+
+The weekly job uses an OpenAI-compatible Chat Completions endpoint. Set these
+additional variables in Vercel Production:
+
+| Variable | Value |
+| --- | --- |
+| `AI_API_KEY` | API key from the compatible model provider |
+| `AI_MODEL` | Model identifier from that provider |
+| `AI_BASE_URL` | Optional API base URL; defaults to `https://api.openai.com/v1` |
+| `CRON_SECRET` | Random secret with at least 16 characters |
+
+The job also needs the publishing variables above (`GITHUB_TOKEN` and
+`GITHUB_REPO`) so it can save the draft, and `RESEND_API_KEY`, `EMAIL_FROM`,
+and an owner recipient (`CONTACT_EMAIL`, falling back to `ADMIN_EMAIL`) so it
+can send the review link. It does not use the newsletter audience or send
+subscriber email.
+
+In Admin → Settings → Writing Profile, enter topics and interests plus writing
+style guidance. That profile is stored in `content/site.json` in this public
+repository, so do not put secrets or private information there. The model also
+uses recent published posts as style examples.
+
+Vercel runs the cron in Production every Monday at 06:00 UTC, which is 08:00 in
+Africa/Lubumbashi. On the Hobby plan, Vercel may invoke it at any time during
+the scheduled hour, and failed invocations are not automatically retried. A
+same-week rerun is safe: it reuses the existing generated article and retries
+the owner email. The endpoint only accepts the configured `CRON_SECRET` bearer
+token. Vercel Cron invokes it only in Production; for a manual retry, set
+`CRON_SECRET` in your shell first and run:
+
+```bash
+curl --request GET \
+  --header "Authorization: Bearer $CRON_SECRET" \
+  https://sudi.dev/api/cron/weekly-article
+```
+
+New drafts use `content/posts/weekly-<iso-week>.mdx`, with the ISO week in
+lowercase (for example, `weekly-2026-w42.mdx`). Create-only writes ensure
+overlapping runs cannot overwrite a draft; a matching same-week winner is
+reused. Older weekly files with a title suffix continue to be recognized.
+
+The email links to the draft in the authenticated admin editor, which reads
+the current file from `GITHUB_BRANCH` without waiting for a deployment. Sign
+in to return to the linked editor, then use its authenticated Preview action
+to review the saved article. Edit it and publish it yourself when it is ready;
+the scheduled job always saves status `Draft` and never publishes an article
+or sends it to subscribers. Public pages reflect publication after deployment.
+
 ## 3. The domain
 
 Point `sudi.dev` at Vercel **after** the first deploy looks right on the
