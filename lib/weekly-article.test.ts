@@ -76,6 +76,28 @@ describe('weekly article helpers', () => {
     expect(parseGeneratedArticle(JSON.stringify(validArticle))).toEqual(validArticle)
   })
 
+  const fence = '```'
+
+  it.each(['json', 'JSON', 'JsOn', ''])('parses one complete %s fenced JSON response', (label) => {
+    const raw = `${fence}${label}\n${JSON.stringify(validArticle)}\n${fence}`
+    expect(parseGeneratedArticle(raw)).toEqual(validArticle)
+  })
+
+  it('validates the article schema after removing a JSON fence', () => {
+    const fenced = `${fence}json\n${JSON.stringify({ ...validArticle, status: 'Published' })}\n${fence}`
+    expect(() => parseGeneratedArticle(fenced)).toThrow(/unexpected/i)
+  })
+
+  it.each([
+    `Here is the article:\n${fence}json\n${JSON.stringify(validArticle)}\n${fence}`,
+    `${fence}json\n${JSON.stringify(validArticle)}\n${fence}\nDone.`,
+    `${fence}json\n${JSON.stringify(validArticle)}`,
+    `${fence}\n${JSON.stringify(validArticle)}\n${fence}\n${fence}\n${JSON.stringify(validArticle)}\n${fence}`,
+    `${fence}javascript\n${JSON.stringify(validArticle)}\n${fence}`,
+  ])('rejects malformed or unsupported fenced wrappers', (raw) => {
+    expect(() => parseGeneratedArticle(raw)).toThrow(/valid JSON/i)
+  })
+
   it('rejects unsupported categories and blank required fields', () => {
     expect(() => parseGeneratedArticle(JSON.stringify({ ...validArticle, category: 'Technology' }))).toThrow(/category/i)
     expect(() => parseGeneratedArticle(JSON.stringify({ ...validArticle, title: '  ' }))).toThrow(/title/i)
@@ -189,6 +211,16 @@ describe('generateWeeklyArticleDraft', () => {
 
     generateCompletionMock.mockResolvedValueOnce(JSON.stringify({ ...validArticle, status: 'Published' }))
     await expect(generateWeeklyArticleDraft(new Date('2026-10-12T06:00:00Z'))).rejects.toThrow(/unexpected/i)
+    expect(createPostMock).not.toHaveBeenCalled()
+  })
+
+  it('does not create a post when the generated body contains executable markup', async () => {
+    generateCompletionMock.mockResolvedValueOnce(JSON.stringify({
+      ...validArticle,
+      body: '<script>alert("unsafe")</script>',
+    }))
+
+    await expect(generateWeeklyArticleDraft(new Date('2026-10-12T06:00:00Z'))).rejects.toThrow()
     expect(createPostMock).not.toHaveBeenCalled()
   })
 

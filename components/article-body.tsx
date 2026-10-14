@@ -1,6 +1,7 @@
 import { Copy } from 'lucide-react'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import { isExternal } from '@/components/outbound-link'
+import { validateArticleBody } from '@/lib/article-safety'
 
 /**
  * Design: "Article Body" — COLUMN, padding [48,360], gap 28. Paragraphs are
@@ -76,5 +77,6 @@ const mdxComponents = {
 }
 
 export function ArticleBody({ body }: { body: string }) {
+  validateArticleBody(body)
   return <MDXRemote source={body} components={mdxComponents} />
 }

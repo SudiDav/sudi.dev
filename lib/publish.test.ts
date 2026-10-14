@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createHash } from 'node:crypto'
-import { mkdir, mkdtemp, readFile, readdir, rm, unlink, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import matter from 'gray-matter'
@@ -121,11 +121,11 @@ describe('publishing metadata', () => {
     vi.stubEnv('NODE_ENV', 'development')
     vi.stubEnv('GITHUB_TOKEN', '')
     vi.stubEnv('GITHUB_REPO', '')
-    const slug = `weekly-frontmatter-${Date.now()}`
-    const path = join(process.cwd(), 'content', 'posts', `${slug}.mdx`)
     const title = 'Building services: "lessons" from the field'
     const excerpt = 'A practical note: "start small", then learn.'
-    try {
+    await withLocalPosts(async (directory) => {
+      const slug = 'weekly-frontmatter-test'
+      const path = join(directory, 'content', 'posts', `${slug}.mdx`)
       await createPost(slug, {
         title,
         excerpt,
@@ -144,9 +144,7 @@ describe('publishing metadata', () => {
       expect(parsed.data.excerpt).toBe(excerpt)
       expect(parsed.data.date).toBe('2026-10-12')
       expect(parsed.data.generatedWeek).toBe('2026-W42')
-    } finally {
-      await unlink(path).catch(() => {})
-    }
+    })
   })
 
   it('finds a generated week from local post content', async () => {

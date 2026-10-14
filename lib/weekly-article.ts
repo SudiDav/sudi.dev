@@ -1,5 +1,6 @@
 import 'server-only'
 import { generateCompletion } from './ai-provider'
+import { validateArticleBody } from './article-safety'
 import { getPosts } from './content'
 import type { Post } from './content.types'
 import { POST_CATEGORIES } from './filters'
@@ -41,7 +42,7 @@ export function buildWeeklyPrompt(
     system: [
       'You are helping draft an article for the site owner. Return only a valid JSON object with exactly these string fields: title, excerpt, category, body.',
       `The category must be exactly one of: ${POST_CATEGORIES.join(', ')}.`,
-      `Keep the body at or below ${MAX_ARTICLE_WORDS} words and write the body as clean MDX.`,
+      `Keep the body at or below ${MAX_ARTICLE_WORDS} words and write it as plain Markdown. Do not include HTML, JSX, imports, or expressions; use fenced code blocks for examples.`,
       'Do not invent citations, quotations, statistics, or sources. Do not claim the article was researched or fact-checked.',
       'The result is an unpublished draft for the owner to review.',
     ].join(' '),
@@ -64,8 +65,11 @@ export type GeneratedArticle = {
 
 export function parseGeneratedArticle(raw: string): GeneratedArticle {
   let value: unknown
+  const trimmed = raw.trim()
+  const fenced = trimmed.match(/^```(?:json)?[ \t]*\r?\n([\s\S]*?)\r?\n```$/i)
+  const json = fenced ? fenced[1] : raw
   try {
-    value = JSON.parse(raw)
+    value = JSON.parse(json)
   } catch {
     throw new Error('AI response must be valid JSON.')
   }
@@ -109,6 +113,7 @@ export async function generateWeeklyArticleDraft(
   const [settings, posts] = await Promise.all([getSettings(), getPosts()])
   const { system, user } = buildWeeklyPrompt(settings, posts)
   const generated = parseGeneratedArticle(await generateCompletion({ system, user, maxOutputTokens: 3_500 }))
+  validateArticleBody(generated.body)
   const wordCount = generated.body.split(/\s+/).filter(Boolean).length
   const slug = `weekly-${week.toLowerCase()}`
   const draft = {
