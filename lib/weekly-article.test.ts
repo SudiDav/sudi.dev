@@ -37,6 +37,7 @@ const settings = {
   displayName: 'Sudi',
   avatar: '/images/sudi.jpeg',
   email: 'contact@sudi.dev',
+  phone: '',
   bio: 'I build software for institutions and African businesses.',
   location: 'Lubumbashi, DRC',
   website: 'sudi.dev',

@@ -271,6 +271,7 @@ describe('updateSettings', () => {
       displayName: 'Sudi',
       avatar: '/images/sudi.jpeg',
       email: 'sudi@example.com',
+      phone: '',
       bio: 'Engineer',
       location: 'Lubumbashi',
       website: 'sudi.dev',
