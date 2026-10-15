@@ -1,24 +1,24 @@
 ---
 title: "Adding Entity Framework Core and SQLite"
-excerpt: "Adding a real data source to a Minimal API — wiring up EF Core with SQLite, from DbContext through to dependency injection."
+excerpt: "Adding a real data source to a Minimal API by wiring up EF Core with SQLite, from DbContext through to dependency injection."
 date: "2023-11-14"
-readingTime: 5 min read
+readingTime: 4 min read
 category: .NET
 cover: /images/blog/82081135ac6b.png
 featured: false
 tags: ["EF Core", "SQLite", "Minimal APIs"]
 ---
-Building upon our introduction to [Minimal APIs](https://sudi77.hashnode.dev/getting-started-with-aspnet-core-7-minimal-apis), let's proceed to the next level by incorporating a data source to store and retrieve recipe information. We'll be using SQLite as our database and Entity Framework Core to interact with it.
+In the [introduction to Minimal APIs](https://sudi77.hashnode.dev/getting-started-with-aspnet-core-7-minimal-apis), our endpoint returned a hardcoded list. Now let's add a data source to store and retrieve recipes. We'll use SQLite as the database and Entity Framework Core to talk to it.
 
-To get started, we'll need to add some packages that will allow us to interact with SQLite and EF Core. In your terminal, navigate to the root directory of your project and run the following command to install the required packages:
+First, add the packages for SQLite and EF Core. In your terminal, go to the root directory of your project and run:
 
 `dotnet add package Microsoft.EntityFrameworkCore.Sqlite`
 
 `dotnet add package Microsoft.EntityFrameworkCore.Design`
 
-These packages are necessary for working with SQLite and Entity Framework Core.
+The first package is the SQLite provider for EF Core. The second contains the design-time tools that the `dotnet ef` commands use to create migrations.
 
-Now that we have added our packages, we will need to add our recipe model. Create a new folder named `Models` in your project directory. Inside the `Models` folder, add a new class file called `Recipe.cs`. Open the `Recipe.cs` file and define the recipe model as follows:
+Next, add the recipe model. Create a folder named `Models` in your project directory, add a class file called `Recipe.cs` inside it, and define the model:
 
 ```csharp
 namespace CookingAPI;
@@ -31,11 +31,11 @@ public class Recipe
 }
 ```
 
-We have added our Recipe model which is a representation of the data and business logic of our application. Since we have our model set up, we need to configure EF Core.
+The `Recipe` class describes the data our API stores. With the model in place, we can configure EF Core.
 
-The next step is to create our Recipe DbContext which represents a session with the database and acts as a bridge between our application code and the database. If you want to know more the DbContext, you can checkout [this](https://learn.microsoft.com/en-us/dotnet/api/system.data.entity.dbcontext?view=entity-framework-6.2.0) for more details.
+The next step is the DbContext. It represents a session with the database and connects our application code to it. To learn more, read the [DbContext documentation](https://learn.microsoft.com/en-us/dotnet/api/system.data.entity.dbcontext?view=entity-framework-6.2.0).
 
-Let's proceed by adding a folder called `Data` under our project directory. Inside the `Data` folder, add a new class file called `AppDbContext.cs` (You can give it any other name, by convention many .NET developers like to call it AppDbContext). Open the `AppDbContext.cs` file and define the database context as follows:
+Add a folder called `Data` to the project and create a class file called `AppDbContext.cs` inside it. You can choose another name, but many .NET developers call it AppDbContext by convention. Define the database context:
 
 ```csharp
 using Microsoft.EntityFrameworkCore;
@@ -51,7 +51,7 @@ public class AppDbContext: DbContext
 }
 ```
 
-Now, it's time to create a vital link between our API and the SQLite database. To achieve this, let's dive into the `Program.cs` file in your preferred code editor or IDE. Add the following code snippet just below the `builder` variable:
+Now connect the API to the SQLite database. Open `Program.cs` and add the following code just below the `builder` variable:
 
 ```csharp
 using CookingAPI.Data;
@@ -69,9 +69,9 @@ var app = builder.Build();
 app.Run();
 ```
 
-You will notice that we have added our EF core configuration and it points to a connection string called `DefaultConnection` that we will have to set in our `appsettings.json` file under our project directory(This file was scaffolded automatically when we created our project). We have also imported the `Microsoft.EntityFrameworkCore` which is vital when working with EF Core.
+This registers EF Core and points it at a connection string called `DefaultConnection`. We also imported the `Microsoft.EntityFrameworkCore` namespace, which contains the `UseSqlite` method.
 
-Our connection string will point to the `appsettings.json` looking for `DefaultConnection` which we do not have yet. Open `appsettings.json` and add a section for the connection string as follow:
+EF Core looks for `DefaultConnection` in `appsettings.json`, and it isn't there yet. Open `appsettings.json`, which was created with the project, and add a section for the connection string:
 
 ```csharp
     {
@@ -88,17 +88,17 @@ Our connection string will point to the `appsettings.json` looking for `DefaultC
 }
 ```
 
-We have added a section below `"AllowedHosts": "*"` called `ConnectionStrings` having `DefaultConnection` which is the connection string pointing to our SQLite db. The `app.db` will hold our data and will be located under `Data` folder under our project directory.
+The new `ConnectionStrings` section sits below `"AllowedHosts": "*"`. Its `DefaultConnection` value points to `app.db`, the SQLite file that holds our data, in the project's `Data` folder.
 
-Next, we need to create a migration for our `Recipe` model. EF Core migrations allow us to manage changes to the database schema. Run the following command in your terminal:
+Next, create a migration for the `Recipe` model. Migrations let EF Core manage changes to the database schema. Run:
 
 `dotnet ef migrations add InitialCreate`
 
-This command creates a new migration that will create the `Recipes` table corresponding to our `Recipe` model. To apply this migration and create the database schema, run the following command:
+This creates a migration that adds a `Recipes` table matching the `Recipe` model. To apply it and create the database, run:
 
 `dotnet ef database update`
 
-After applying the migration, we can proceed to seed the database with some initial data. Let's update our `AppDbContext` to seed the database. Here's how you could modify the `AppDbContext` class to seed the `Recipes` table with a few initial recipes:
+Now we can seed the database with some initial data. Update `AppDbContext` to seed the `Recipes` table with a few recipes:
 
 ```csharp
 using Microsoft.EntityFrameworkCore;
@@ -122,7 +122,7 @@ protected override void OnModelCreating(ModelBuilder modelBuilder)
 }
 ```
 
-Finally, let's define some API endpoints for creating, retrieving, updating, and deleting recipes. Below is a basic way of how you can create these endpoints:
+Finally, let's add endpoints for creating, retrieving, updating, and deleting recipes. Here is a basic version:
 
 ```csharp
 using CookingAPI.Data;
@@ -178,24 +178,18 @@ app.MapDelete("/recipes/{id}", async (AppDbContext db, int id) => {
 app.Run();
 ```
 
-In the final part of our setup, we've created our API endpoints to interact with our `Recipe` data. Here, we've made use of the Dependency Injection (DI) feature provided by .NET. DI is a technique where an object receives other objects that it depends on, which allows for more efficient and modular code.
+These endpoints use dependency injection (DI), which is built into .NET. With DI, an object receives the objects it depends on instead of creating them itself, which keeps the code modular and easier to test.
 
-In our case, we've injected our `AppDbContext` into our endpoints. This allows us to perform operations like retrieving, adding, updating, and deleting recipes from our SQLite database. When a request is made to an endpoint, .NET takes care of creating an instance of `AppDbContext` and providing it to our method. This is what's happening when you see `(AppDbContext db)` in the parameters of the endpoint methods.
+Each endpoint takes `AppDbContext db` as a parameter. When a request comes in, .NET creates an `AppDbContext` instance and passes it to the endpoint, which uses it to read, add, update, or delete recipes in the SQLite database.
 
-Before we conclude, let's look at how to test our endpoints using Postman. Postman allows us to send requests to our API and examine the responses. To test our API:
-
-Open Postman and perform a get request. In this case, we are getting all recipes.
+Before we finish, let's test the endpoints with Postman, which sends requests to our API and shows the responses. Open Postman and send a GET request to the root endpoint, which returns all recipes:
 
 ![](/images/blog/bf7d9fd3460c.png)
 
-For simplicity, you can test the rest of the endpoints, and if something is not working as expected, feel free to drop it in the comment.
+Test the other endpoints the same way. If something doesn't work as expected, leave a comment.
 
-## **Conclusion**
+## Conclusion
 
-In this post, we've explored how to set up a Minimal API with SQLite and EF Core in .NET. We've covered everything from setting up the database, defining a model and a DbContext, and creating and testing API endpoints. We've also introduced the concept of Dependency Injection and how it's used in our application.
+In this post, we connected a Minimal API to SQLite with EF Core. We defined a model and a DbContext, configured the database, created and tested API endpoints, and saw how dependency injection gives each endpoint its DbContext.
 
-In the next article, we'll delve deeper into structuring our data access code by introducing the Repository pattern. This pattern helps to abstract the underlying data access implementation, leading to cleaner and more maintainable code.
-
-Additionally, we'll explore how to integrate Swagger into our Minimal API. Swagger is an excellent tool for building, designing, and documenting RESTful APIs, and it will enable us to generate interactive API documentation automatically.
-
-Stay tuned for these exciting topics! We'll continue to expand our API, applying best practices, and exploring powerful tools along the way. We'll also continue to touch on important software development concepts like Dependency Injection and how they're applied in real-world scenarios.
+In the next article, we'll structure the data access code with the Repository pattern, which hides the data access implementation behind an interface. We'll also add Swagger to the API so it generates interactive API documentation automatically.

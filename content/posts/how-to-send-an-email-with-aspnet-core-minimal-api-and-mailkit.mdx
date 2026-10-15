@@ -2,31 +2,29 @@
 title: "How to send an email with ASP.NET Core Minimal API and MailKit"
 excerpt: "Sending email from an ASP.NET Core Minimal API with MailKit, built from scratch rather than pasted from a snippet."
 date: "2023-07-10"
-readingTime: 5 min read
+readingTime: 4 min read
 category: .NET
 cover: /images/blog/95cf9f51e7e5.jpeg
 featured: false
 tags: ["MailKit", ".NET", "Minimal APIs"]
 ---
-Hello everyone, I trust you're all doing well. Today, we're going to explore how to send an email from an ASP.NET Core Minimal API using MailKit from scratch.
+Hello everyone, I trust you're all doing well. Today, we're going to send an email from an ASP.NET Core Minimal API using MailKit, starting from an empty project.
 
-Assuming you have all the necessary tools installed, including the .NET SDK and an Integrated Development Environment (IDE), we can proceed. For this post, I'll be using .[NET SDK](https://dotnet.microsoft.com/en-us/download/dotnet/7.0) 7 and [JetBrains Rider](https://www.jetbrains.com/rider/download/#section=mac) (This is a paid product but you can get a month of free trial), you could use [Visual Studio Code](https://code.visualstudio.com/) or [Visual Studio 2022 Community](https://visualstudio.microsoft.com/vs/) version which is totally free.
+I'll assume you have the .NET SDK and an Integrated Development Environment (IDE) installed. For this post, I'm using the [.NET 7 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/7.0) and [JetBrains Rider](https://www.jetbrains.com/rider/download/#section=mac), which is a paid product with a one-month free trial. You can also use [Visual Studio Code](https://code.visualstudio.com/) or [Visual Studio 2022 Community](https://visualstudio.microsoft.com/vs/), which are both free.
 
-Let's dive in and start with our first step:
+**Step 1. Create a new project**
 
-**Step 1. Create a new Project.**
-
-Begin by creating a new ASP.NET Core Web API project using the terminal. Open the terminal, navigate to your preferred directory using the cd command, and create a new project as follows:
+Create a new ASP.NET Core Web API project from the terminal. Open the terminal, use the `cd` command to go to your preferred directory, and run:
 
 `dotnet new webapi -o SendingEmail`
 
-With the command above, we have scaffolded a new web API template which we'll use as our starting point and since we are working with Minimal APIs, we don't require the `controller` folder and the `WeatherForecast` class, so we will get rid of them.
+This scaffolds a new Web API project that we'll use as our starting point. Since we are working with Minimal APIs, we don't need the `Controllers` folder or the `WeatherForecast` class, so delete them.
 
-**Step 2. Define the Email Data Transfer Object (DTO)**
+**Step 2. Define the email data transfer object (DTO)**
 
-We need to define an Email Data Transfer Object (DTO) model for effectively passing data from our API to the mail server. In this context, we're using a DTO to carry email data from our API to the mail server, which will then send an email to the receiver.
+We need a data transfer object (DTO) to carry the email data from our API to the mail server, which then sends the email to the recipient.
 
-Under the project directory, let's create a new folder called `Models`. Within this folder, let's add a new class named `EmailDto` with the following properties:
+Create a folder called `Models` in the project directory, and add a class named `EmailDto` with the following properties:
 
 ```csharp
 namespace SendingEmail.API.Models;
@@ -40,9 +38,9 @@ public class EmailDto
 }
 ```
 
-**Step 3: Create the Email Service Interface**
+**Step 3. Create the email service interface**
 
-Under the project root, let's create a folder named `Services.` Within this folder, let's create an interface called `IEmailService` as follows:
+Create a folder named `Services` in the project root, and add an interface called `IEmailService`:
 
 ```csharp
 namespace SendingEmail.API.Services;
@@ -53,11 +51,11 @@ public interface IEmailService
 }
 ```
 
-The interface serves as a contract for our Email Service and should be implemented by any class that acts as such service. But before implementing this interface, we need to add the MailKit package by navigating to the project root and running the following command in your terminal:
+The interface is the contract for our email service. Any class that sends email for the API implements it. Before writing that class, add the MailKit package. From the project root, run:
 
 `dotnet add package MailKit`
 
-Following the interface definition, we need now to add the implementation of our email service. Add a class in the `Services` folder and add the implementation as follows:
+Now add the implementation. Create an `EmailService` class in the `Services` folder:
 
 ```csharp
 using MailKit.Net.Smtp;
@@ -91,11 +89,9 @@ public class EmailService : IEmailService
 }
 ```
 
-**Step 4: Configure the API Endpoint**
+**Step 4. Configure the API endpoint**
 
-Now that we have our email service set up, we will create an endpoint that utilizes this service to handle email-sending requests.
-
-We aim to MapPost route `/email` for sending emails:
+With the email service in place, we'll create an endpoint that uses it to send email. We map a POST route at `/email`:
 
 ```csharp
 //...
@@ -107,7 +103,7 @@ app.MapPost("/email", (EmailDto request, IEmailService emailService) =>
 // ...
 ```
 
-You will notice that we have the body of our POST request and the email service injected. Our Program.cs file should look as follows including the injection of our IEmailService interface and its implementation(EmailService):
+The endpoint receives the request body and the injected email service. Here is the full `Program.cs`, including the registration of the `IEmailService` interface and its `EmailService` implementation:
 
 ```csharp
 
@@ -146,11 +142,11 @@ app.MapPost("/email", (EmailDto request, IEmailService emailService) =>
 app.Run();
 ```
 
-Here, we are mapping an HTTP POST request to /email route. Whenever a POST request comes to /email, our app will call the SendEmail method from our email service using the data received in the request.
+This maps HTTP POST requests on the `/email` route. When a request arrives, the app calls the `SendEmailAsync` method on our email service with the data from the request body.
 
-**Step 5: Set Up Application Configurations**
+**Step 5. Set up the application configuration**
 
-The final step is to ensure that our application has the correct configuration to send an email. We store these settings in our appsettings.json file:
+The application needs SMTP settings to send email. We store them in the `appsettings.json` file:
 
 ```csharp
 {
@@ -167,18 +163,22 @@ The final step is to ensure that our application has the correct configuration t
 }
 ```
 
-We use Ethereal email, an online fake SMTP service, for this purpose. It helps confirm that the application is sending emails correctly without them being delivered to the recipient.
+We use Ethereal, a fake SMTP service, for testing. It accepts the email so you can confirm the application sends it, but it never delivers it to the recipient.
 
-You need to create a free account on [Ethereal](https://ethereal.email/) to start testing. Once the account is set up, they provide a username and password, which you should update in the appsettings.json file.
+Create a free account on [Ethereal](https://ethereal.email/). Ethereal gives you a username and password. Put them in `appsettings.json`.
 
-**Step 6: Test with Swagger**
+**Step 6. Test with Swagger**
 
-Since our ASP.NET Core Minimal API project was scaffolded with Swagger preconfigured, it makes API testing a breeze. Swagger offers an interactive environment allowing the users to send HTTP requests to our endpoints and view the responses directly from the browser without needing any extra tooling such as Postman. To use Swagger, once we have our application running (which could be initiated by either clicking run in JetBrains Rider IDE or using the dotnet run command in terminal), we can navigate to [https://localhost:\{yourPort\}/swagger/index.html](https://localhost:5001/swagger/index.html) in our web browser. On the Swagger page, under `POST /email`, click `Try it out`, fill the request body with your preferred email Data Transfer Object (DTO) that includes the desired From, To, Subject, and Body attributes in JSON format, then click `Execute`. Swagger will send a POST request to our /email endpoint just as any client application would do. Thanks to the visibility provided by Swagger, you can immediately view the response to your request. A Response Code of 200 and a resultant message indicate that the email was submitted successfully. With tools like Swagger integrated in your development process, API testing becomes efficient and straightforward.
+The Web API template comes with Swagger already configured, so we can test the endpoint from the browser without extra tools such as Postman.
+
+Start the application, either with the run button in Rider or with `dotnet run` in the terminal. Then open [https://localhost:\{yourPort\}/swagger/index.html](https://localhost:5001/swagger/index.html) in your browser.
+
+On the Swagger page, find `POST /email` and click `Try it out`. Fill in the request body with the JSON for an email DTO, with values for From, To, Subject, and Body, then click `Execute`. Swagger sends a POST request to the `/email` endpoint the same way any client would, and shows you the response. A 200 response code means the email was submitted. You can then open your Ethereal inbox to see the message.
 
 **Conclusion**
 
-In this post, we have explored how to send an email from an ASP.NET Core Minimal API using MailKit. We started by setting up a new project and creating a Data Transfer Object (DTO) to pass email data to the mail server. We then defined an Email Service interface and implemented it using MailKit to handle the email sending functionality.
+In this post, we sent an email from an ASP.NET Core Minimal API using MailKit. We created a project, defined a DTO for the email data, and wrote an email service interface with a MailKit implementation.
 
-We configured the API endpoint to handle email-sending requests, allowing clients to send emails by making a POST request to the /email route. We also set up the application configurations, including the email host, username, and password, which can be customized based on your specific email provider.
+We then added a POST endpoint at `/email` that clients call to send email, and configured the SMTP host, username, and password, which you can change for your own email provider.
 
-Sending emails from your API can be a powerful feature that enables communication and enhances user experiences. I hope this pos has been helpful in guiding you through the process. Happy coding! 🙏🏾
+Many APIs need to send email, for example to confirm an account or reset a password. Now you can add it to yours. Happy coding! 🙏🏾
