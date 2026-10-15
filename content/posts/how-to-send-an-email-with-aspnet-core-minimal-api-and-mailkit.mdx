@@ -99,15 +99,15 @@ We aim to MapPost route `/email` for sending emails:
 
 ```csharp
 //...
-app.MapPost("/email", (EmailDto request, IEmailService emailService) =>
+app.MapPost("/email", async (EmailDto request, IEmailService emailService) =>
 {
-    emailService.SendEmail(request);
+    await emailService.SendEmailAsync(request);
     return Results.Ok();
 });
 // ...
 ```
 
-You will notice that we have the body of our POST request and the email service injected. Our Program.cs file should look as follows including the injection of our IEmailService interface and its implementation(EmailService):
+You will notice that we have the body of our POST request and the email service injected. The lambda is `async` so it can `await` the send; without the `await`, the endpoint would return 200 before the email has gone out, and any SMTP error would be lost. Our Program.cs file should look as follows including the injection of our IEmailService interface and its implementation(EmailService). Since we deleted the controllers, we also drop the calls this post doesn't use (`AddControllers`, `MapControllers`, `UseCors` and `UseAuthorization`):
 
 ```csharp
 
@@ -116,7 +116,6 @@ global using SendingEmail.API.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IEmailService, EmailService>();
@@ -131,28 +130,22 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.MapPost("/email", (EmailDto request, IEmailService emailService) =>
+app.MapPost("/email", async (EmailDto request, IEmailService emailService) =>
 {
-    emailService.SendEmailAsync(request);
+    await emailService.SendEmailAsync(request);
 
     return Results.Ok();
 });
 app.Run();
 ```
 
-Here, we are mapping an HTTP POST request to /email route. Whenever a POST request comes to /email, our app will call the SendEmail method from our email service using the data received in the request.
+Here, we are mapping an HTTP POST request to /email route. Whenever a POST request comes to /email, our app will call and await the `SendEmailAsync` method from our email service using the data received in the request.
 
 **Step 5: Set Up Application Configurations**
 
 The final step is to ensure that our application has the correct configuration to send an email. We store these settings in our appsettings.json file:
 
-```csharp
+```json
 {
   "Logging": {
     "LogLevel": {
