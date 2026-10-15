@@ -84,6 +84,14 @@ the subscription was saved and the admin log records the provider reason. The
 `sudi.dev` sending domain also needs valid SPF/MX records before Resend can
 deliver owner notices or broadcasts.
 
+Signup notifications are sent only after the audience accepts the address.
+Admission is limited to 20 requests per minute per running server instance and
+one request per normalized address per ten minutes. Owner notices also use a
+stable Resend idempotency key, which prevents duplicate sends across instances
+within Resend's 24-hour retention window. The admission budget is process-local;
+it is not a shared quota across serverless instances or restarts. Use deployment
+firewall limits or a shared limiter if a cross-instance request quota is needed.
+
 When an admin publishes a post with status `Published`, the site creates a
 branded Resend broadcast draft for the audience. It never sends automatically.
 Review and send drafts from Admin → Newsletters after the Vercel deployment is

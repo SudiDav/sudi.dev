@@ -1,22 +1,23 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createHash } from 'node:crypto'
-import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promises'
+import { mkdir, mkdtemp, readFile, readdir, rm, unlink, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import matter from 'gray-matter'
 
 vi.mock('server-only', () => ({}))
 
-const { getPostsMock, renameMock } = vi.hoisted(() => ({ getPostsMock: vi.fn(), renameMock: vi.fn() }))
+const { getPostsMock, renameMock, openMock } = vi.hoisted(() => ({ getPostsMock: vi.fn(), renameMock: vi.fn(), openMock: vi.fn() }))
 vi.mock('./content', () => ({ getPosts: (...args: unknown[]) => getPostsMock(...args) }))
 vi.mock('node:fs/promises', async (importOriginal) => {
   const actual = await importOriginal<typeof import('node:fs/promises')>()
   renameMock.mockImplementation((...args: Parameters<typeof actual.rename>) => actual.rename(...args))
-  return { ...actual, rename: renameMock }
+  openMock.mockImplementation((...args: Parameters<typeof actual.open>) => actual.open(...args))
+  return { ...actual, rename: renameMock, open: openMock }
 })
 
-import { createPost, findPostByGeneratedWeek, getLatestPostSnapshot, savePost } from './publish'
-import type { PostDraft } from './publish'
+import { createPost, createProject, findPostByGeneratedWeek, getLatestPostSnapshot, getLatestProjectSnapshot, getLatestSettingsSnapshot, savePost, saveProject, saveSettings } from './publish'
+import type { PostDraft, ProjectDraft } from './publish'
 
 const sourceBytes = (raw: string) => Buffer.from(raw, 'utf8')
 const digest = (raw: Buffer | string) => createHash('sha256').update(raw).digest('hex')
@@ -458,6 +459,243 @@ describe('reviewed post publishing safeguards', () => {
       expect(await readFile(`${postPath}.lock`, 'utf8')).toBe('owned by another writer')
       const names = await readdir(join(_directory, 'content', 'posts'))
       expect(names.filter((name) => name.endsWith('.tmp'))).toEqual([])
+    })
+  })
+})
+
+describe('versioned project and settings publishing', () => {
+  const originalEnv = { ...process.env }
+  const projectRaw = `---\ntitle: Existing project\nyear: "2026"\ndescription: Project description\ntech: [TypeScript]\ncategory: Platforms\ncover: /images/project.png\nlinks: {}\n---\n\nProject body.\n`
+  const settingsRaw = '{\n  "displayName": "Sudi",\n  "social": { "github": "github.com/SudiDav" }\n}\n'
+  const projectChanges = (title: string): ProjectDraft => ({
+    title, year: '2026', description: 'Project description', tech: ['TypeScript'],
+    category: 'Platforms', cover: '/images/project.png', links: {},
+  })
+
+  afterEach(() => {
+    process.env = { ...originalEnv }
+    vi.unstubAllGlobals()
+  })
+
+  async function withLocalRecords<T>(run: (projectPath: string, settingsPath: string) => Promise<T>) {
+    const directory = await mkdtemp(join(tmpdir(), 'sudi-publish-records-'))
+    const projects = join(directory, 'content', 'projects')
+    const content = join(directory, 'content')
+    await mkdir(projects, { recursive: true })
+    const projectPath = join(projects, 'existing.mdx')
+    const settingsPath = join(content, 'site.json')
+    await writeFile(projectPath, projectRaw)
+    await writeFile(settingsPath, settingsRaw)
+    const cwdSpy = vi.spyOn(process, 'cwd').mockReturnValue(directory)
+    try {
+      return await run(projectPath, settingsPath)
+    } finally {
+      cwdSpy.mockRestore()
+      await rm(directory, { recursive: true, force: true })
+    }
+  }
+
+  it('loads source-byte snapshots and returns the saved project version', async () => {
+    vi.stubEnv('NODE_ENV', 'development')
+    vi.stubEnv('GITHUB_TOKEN', '')
+    vi.stubEnv('GITHUB_REPO', '')
+    await withLocalRecords(async (projectPath) => {
+      const raw = await readFile(projectPath)
+      const snapshot = await getLatestProjectSnapshot('existing')
+      expect(snapshot).toMatchObject({ project: { slug: 'existing', title: 'Existing project', body: matter(projectRaw).content }, version: digest(raw) })
+      const result = await saveProject('existing', projectChanges('Updated project'), 'test: update', snapshot!.version)
+      expect(result.contentVersion).toBe(digest(await readFile(projectPath)))
+      expect(result.contentVersion).not.toBe(snapshot!.version)
+    })
+  })
+
+  it('requires fresh snapshots for project and settings and rejects stale sources without writing', async () => {
+    vi.stubEnv('NODE_ENV', 'development')
+    vi.stubEnv('GITHUB_TOKEN', '')
+    vi.stubEnv('GITHUB_REPO', '')
+    await withLocalRecords(async (projectPath, settingsPath) => {
+      const projectVersion = (await getLatestProjectSnapshot('existing'))!.version
+      const settingsSnapshot = await getLatestSettingsSnapshot()
+      const originalProject = await readFile(projectPath)
+      await expect(saveProject('existing', projectChanges('Missing version'), 'test', undefined as unknown as string)).rejects.toThrow(/review|reload/i)
+      await expect(saveSettings(settingsSnapshot.settings, 'test', undefined as unknown as string)).rejects.toThrow(/review|reload/i)
+      await writeFile(projectPath, Buffer.concat([originalProject, Buffer.from('\n<!-- changed -->\n')]))
+      await writeFile(settingsPath, `${settingsRaw}\n`)
+      const changedProject = await readFile(projectPath)
+      const changedSettings = await readFile(settingsPath)
+      await expect(saveProject('existing', projectChanges('Stale project'), 'test', projectVersion)).rejects.toThrow(/changed|reload/i)
+      await expect(saveSettings(settingsSnapshot.settings, 'test', settingsSnapshot.version)).rejects.toThrow(/changed|reload/i)
+      expect(await readFile(projectPath)).toEqual(changedProject)
+      expect(await readFile(settingsPath)).toEqual(changedSettings)
+    })
+  })
+
+  it('rejects a second cooperating local save from the same project and settings snapshots', async () => {
+    vi.stubEnv('NODE_ENV', 'development')
+    vi.stubEnv('GITHUB_TOKEN', '')
+    vi.stubEnv('GITHUB_REPO', '')
+    await withLocalRecords(async () => {
+      const projectSnapshot = await getLatestProjectSnapshot('existing')
+      const settingsSnapshot = await getLatestSettingsSnapshot()
+      await saveProject('existing', projectChanges('First project writer'), 'test', projectSnapshot!.version)
+      await expect(saveProject('existing', projectChanges('Second project writer'), 'test', projectSnapshot!.version))
+        .rejects.toThrow(/changed|reload/i)
+      await saveSettings({ ...settingsSnapshot.settings, displayName: 'First settings writer' }, 'test', settingsSnapshot.version)
+      await expect(saveSettings({ ...settingsSnapshot.settings, displayName: 'Second settings writer' }, 'test', settingsSnapshot.version))
+        .rejects.toThrow(/changed|reload/i)
+    })
+  })
+
+  it('writes project and settings to the reviewed GitHub blobs without upgrading their SHAs', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(githubFileResponse(projectRaw, 'project-reviewed-sha'))
+      .mockResolvedValueOnce(Response.json({ content: Buffer.from(settingsRaw).toString('base64'), sha: 'settings-reviewed-sha' }))
+      .mockResolvedValueOnce(githubFileResponse(projectRaw, 'project-reviewed-sha'))
+      .mockResolvedValueOnce(Response.json({ commit: { sha: 'project-commit' } }))
+      .mockResolvedValueOnce(Response.json({ content: Buffer.from(settingsRaw).toString('base64'), sha: 'settings-reviewed-sha' }))
+      .mockResolvedValueOnce(Response.json({ commit: { sha: 'settings-commit' } }))
+    configureGithub(fetchMock)
+    const projectSnapshot = await getLatestProjectSnapshot('existing')
+    const settingsSnapshot = await getLatestSettingsSnapshot()
+    const projectResult = await saveProject('existing', projectChanges('Updated project'), 'test: project', projectSnapshot!.version)
+    const settingsResult = await saveSettings(settingsSnapshot.settings, 'test: settings', settingsSnapshot.version)
+    const putPayloads = [fetchMock.mock.calls[3], fetchMock.mock.calls[5]].map(([, init]) => JSON.parse(String((init as RequestInit).body)))
+    expect(putPayloads.map((payload) => payload.sha)).toEqual(['project-reviewed-sha', 'settings-reviewed-sha'])
+    expect(projectResult.contentVersion).toBeDefined()
+    expect(settingsResult.contentVersion).toBeDefined()
+  })
+
+  it('fails an update race when GitHub reports a changed project blob', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(githubFileResponse(projectRaw, 'reviewed-sha'))
+      .mockResolvedValueOnce(githubFileResponse(projectRaw, 'reviewed-sha'))
+      .mockResolvedValueOnce(new Response('race', { status: 409 }))
+      .mockResolvedValueOnce(Response.json({ sha: 'newer-sha' }))
+    configureGithub(fetchMock)
+    const snapshot = await getLatestProjectSnapshot('existing')
+    await expect(saveProject('existing', projectChanges('Update'), 'test', snapshot!.version)).rejects.toThrow(/changed|reload/i)
+    expect(fetchMock.mock.calls.filter(([, init]) => (init as RequestInit | undefined)?.method === 'PUT')).toHaveLength(1)
+    expect((JSON.parse(String((fetchMock.mock.calls[2]?.[1] as RequestInit).body)) as { sha: string }).sha).toBe('reviewed-sha')
+  })
+
+  it('rejects unsafe project slugs before reading or writing either backend', async () => {
+    vi.stubEnv('NODE_ENV', 'development')
+    vi.stubEnv('GITHUB_TOKEN', '')
+    vi.stubEnv('GITHUB_REPO', '')
+    await expect(getLatestProjectSnapshot('../posts/reviewed-post')).rejects.toThrow(/invalid project slug/i)
+    await expect(createProject('../posts/new', projectChanges('New'), 'test')).rejects.toThrow(/invalid project slug/i)
+    await expect(saveProject('../posts/reviewed-post', projectChanges('Update'), 'test', 'version'))
+      .rejects.toThrow(/invalid project slug/i)
+
+    const fetchMock = vi.fn()
+    configureGithub(fetchMock)
+    await expect(getLatestProjectSnapshot('..%2fposts%2freviewed-post')).rejects.toThrow(/invalid project slug/i)
+    await expect(createProject('..%2fposts%2fnew', projectChanges('New'), 'test')).rejects.toThrow(/invalid project slug/i)
+    await expect(saveProject('..%2fposts%2freviewed-post', projectChanges('Update'), 'test', 'version'))
+      .rejects.toThrow(/invalid project slug/i)
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
+  it('does not recreate a project deleted between its source read and locked local reread', async () => {
+    vi.stubEnv('NODE_ENV', 'development')
+    vi.stubEnv('GITHUB_TOKEN', '')
+    vi.stubEnv('GITHUB_REPO', '')
+    await withLocalRecords(async (projectPath) => {
+      const snapshot = await getLatestProjectSnapshot('existing')
+      const actualOpen = openMock.getMockImplementation()!
+      // Delete the file when the local writer acquires its lock, immediately
+      // before saveLocallyVersioned rereads the current source.
+      openMock.mockImplementationOnce(async (path, ...args) => {
+        await unlink(projectPath)
+        return actualOpen(path, ...args)
+      })
+      await expect(saveProject('existing', projectChanges('Updated'), 'test', snapshot!.version))
+        .rejects.toThrow(/changed|reload|deleted/i)
+      await expect(readFile(projectPath)).rejects.toMatchObject({ code: 'ENOENT' })
+      openMock.mockClear()
+    })
+  })
+
+  it('creates local projects exclusively and leaves the winner intact', async () => {
+    vi.stubEnv('NODE_ENV', 'development')
+    vi.stubEnv('GITHUB_TOKEN', '')
+    vi.stubEnv('GITHUB_REPO', '')
+    await withLocalRecords(async (projectPath) => {
+      const original = await readFile(projectPath)
+      await expect(createProject('existing', {
+        title: 'Loser', year: '2026', description: 'Description', tech: [], category: 'Platforms',
+        cover: '/images/project.png', links: {},
+      }, 'test')).rejects.toThrow(/already exists/i)
+      expect(await readFile(projectPath)).toEqual(original)
+    })
+  })
+
+  it('uses create-only GitHub PUT for projects and reports a racing winner', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(new Response(null, { status: 404 }))
+      .mockResolvedValueOnce(new Response('already created', { status: 422 }))
+      .mockResolvedValueOnce(Response.json({ sha: 'winner-sha' }))
+    configureGithub(fetchMock)
+    await expect(createProject('racing', {
+      title: 'Racing', year: '2026', description: 'Description', tech: [], category: 'Platforms',
+      cover: '/images/project.png', links: {},
+    }, 'test')).rejects.toThrow(/already exists/i)
+    const [, putInit] = fetchMock.mock.calls[1] as [string, RequestInit]
+    expect(putInit.method).toBe('PUT')
+    expect(JSON.parse(String(putInit.body))).not.toHaveProperty('sha')
+  })
+})
+
+describe('published article body validation', () => {
+  const originalEnv = { ...process.env }
+  afterEach(() => {
+    process.env = { ...originalEnv }
+    vi.unstubAllGlobals()
+  })
+
+  it('rejects unsafe Published saves and creations before GitHub writes while allowing unsafe drafts to be edited', async () => {
+    const unsafeDraft = remotePostRaw.replace('Reviewed body.', '<script>alert(1)</script>')
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(githubFileResponse(unsafeDraft))
+      .mockResolvedValueOnce(githubFileResponse(remotePostRaw))
+      .mockResolvedValueOnce(Response.json({ commit: { sha: 'draft-commit' } }))
+      .mockResolvedValueOnce(new Response(null, { status: 404 }))
+    configureGithub(fetchMock)
+    const unsafeBody = '<script>alert(1)</script>'
+    await expect(savePost('reviewed-post', { status: 'Published' }, 'test', digest(unsafeDraft)))
+      .rejects.toThrow(/safe Markdown/i)
+    await expect(createPost('unsafe-published', {
+      title: 'Unsafe', excerpt: 'Excerpt', date: '2026-10-14', readingTime: '1 min read', category: 'Craft',
+      cover: '/images/draft.png', featured: false, status: 'Published', body: unsafeBody,
+    }, 'test')).rejects.toThrow(/safe Markdown/i)
+    await expect(savePost('reviewed-post', { body: unsafeBody }, 'test', digest(remotePostRaw))).resolves.toMatchObject({ target: 'github' })
+    expect(fetchMock.mock.calls.filter(([, init]) => (init as RequestInit | undefined)?.method === 'PUT')).toHaveLength(1)
+  })
+
+  it('rejects Published creation when serialization exposes an MDX export before writing', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(new Response(null, { status: 404 }))
+      .mockResolvedValueOnce(Response.json({ commit: { sha: 'created-sha' } }))
+    configureGithub(fetchMock)
+    await expect(createPost('trimmed-export', {
+      title: 'Trimmed export', excerpt: 'Excerpt', date: '2026-10-14', readingTime: '1 min read',
+      category: 'Craft', cover: '/images/draft.png', featured: false, status: 'Published',
+      body: '\u00a0export const x = 1',
+    }, 'test')).rejects.toThrow(/safe Markdown|valid Markdown|executable MDX/i)
+    expect(fetchMock.mock.calls.filter(([, init]) => (init as RequestInit | undefined)?.method === 'PUT')).toHaveLength(0)
+  })
+
+  it('rejects unsafe Published content locally before changing the saved file', async () => {
+    vi.stubEnv('NODE_ENV', 'development')
+    vi.stubEnv('GITHUB_TOKEN', '')
+    vi.stubEnv('GITHUB_REPO', '')
+    await withLocalPosts(async (_directory, postPath) => {
+      const unsafeDraft = remotePostRaw.replace('Reviewed body.', '<script>x</script>')
+      await writeFile(postPath, unsafeDraft)
+      const before = await readFile(postPath)
+      await expect(savePost('reviewed-post', { status: 'Published' }, 'test', digest(before)))
+        .rejects.toThrow(/safe Markdown/i)
+      expect(await readFile(postPath)).toEqual(before)
     })
   })
 })

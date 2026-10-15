@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import type { Post } from '@/lib/content.types'
 import { PostSaveError } from '@/lib/publish'
+vi.mock('server-only', () => ({}))
 
 const {
   isAdminMock,
@@ -11,6 +12,7 @@ const {
   sendMock,
   audienceListMock,
   saveSettingsMock,
+  saveProjectMock,
   revalidatePathMock,
 } = vi.hoisted(() => ({
   isAdminMock: vi.fn(),
@@ -21,6 +23,7 @@ const {
   sendMock: vi.fn(),
   audienceListMock: vi.fn(),
   saveSettingsMock: vi.fn(),
+  saveProjectMock: vi.fn(),
   revalidatePathMock: vi.fn(),
 }))
 
@@ -39,7 +42,7 @@ vi.mock('@/lib/publish', () => ({
   createPost: (...args: unknown[]) => createPostMock(...args),
   savePost: (...args: unknown[]) => savePostMock(...args),
   createProject: vi.fn(),
-  saveProject: vi.fn(),
+  saveProject: (...args: unknown[]) => saveProjectMock(...args),
   saveSettings: (...args: unknown[]) => saveSettingsMock(...args),
   slugify: (value: string) => value.toLowerCase().replace(/[^a-z0-9]+/g, '-'),
   uploadImage: vi.fn(),
@@ -50,7 +53,7 @@ vi.mock('@/lib/newsletter', () => ({
   sendNewsletterBroadcast: (...args: unknown[]) => sendMock(...args),
 }))
 
-import { addPost, listNewsletters, listSubscribers, publishReviewedPost, sendNewsletter, setPostStatus, updatePost, updateSettings } from './actions'
+import { addPost, editProject, listNewsletters, listSubscribers, publishReviewedPost, sendNewsletter, setPostStatus, updatePost, updateSettings } from './actions'
 
 const postFixture: Post = {
   slug: 'hello',
@@ -277,7 +280,21 @@ describe('updateSettings', () => {
     }
     saveSettingsMock.mockResolvedValueOnce({ target: 'github', sha: 'settings_sha', branch: 'main' })
 
-    await expect(updateSettings(settings)).resolves.toMatchObject({ ok: true })
-    expect(saveSettingsMock).toHaveBeenCalledWith(settings, 'content: update site settings')
+    await expect(updateSettings(settings, 'reviewed-settings')).resolves.toMatchObject({ ok: true })
+    expect(saveSettingsMock).toHaveBeenCalledWith(settings, 'content: update site settings', 'reviewed-settings')
+  })
+})
+
+describe('project source versions', () => {
+  afterEach(() => vi.clearAllMocks())
+
+  it('passes the version reviewed with the project fields to its publisher', async () => {
+    isAdminMock.mockResolvedValue(true)
+    saveProjectMock.mockResolvedValue({ target: 'github', contentVersion: 'saved-project' })
+    const result = await editProject('sample', {
+      name: 'Sample', description: 'Description', year: '2026', tech: [], category: 'Fintech', cover: '/sample.png',
+    }, 'reviewed-project')
+    expect(result).toMatchObject({ ok: true, publish: { contentVersion: 'saved-project' } })
+    expect(saveProjectMock).toHaveBeenCalledWith('sample', expect.objectContaining({ title: 'Sample' }), 'content: update project sample', 'reviewed-project')
   })
 })

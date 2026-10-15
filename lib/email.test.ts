@@ -90,6 +90,42 @@ describe('email', () => {
     const payload = sendMock.mock.calls.at(-1)![0] as Record<string, string>
     expect(payload.to).toBe('contact@sudi.dev')
     expect(payload.subject).toContain('reader@example.com')
+    expect(sendMock.mock.calls.at(-1)).toHaveLength(2)
+    expect(sendMock.mock.calls.at(-1)![1]).toMatchObject({ idempotencyKey: expect.any(String) })
+  })
+
+  it('uses a normalized subscriber address for identical retry payloads and keys', async () => {
+    process.env.RESEND_API_KEY = 're_test_key'
+    process.env.CONTACT_EMAIL = 'contact@sudi.dev'
+    sendMock.mockResolvedValue({ error: null })
+
+    await notifyNewSubscriber(' Reader@Example.com ')
+    await notifyNewSubscriber('reader@example.com')
+
+    expect(sendMock.mock.calls[0][0]).toEqual(sendMock.mock.calls[1][0])
+    expect(sendMock.mock.calls[0][1]).toEqual(sendMock.mock.calls[1][1])
+    expect(sendMock.mock.calls[0][1].idempotencyKey).not.toContain('reader@example.com')
+  })
+
+  it('scopes notification keys to the owner and sender identity', async () => {
+    process.env.RESEND_API_KEY = 're_test_key'
+    process.env.CONTACT_EMAIL = 'owner-one@sudi.dev'
+    sendMock.mockResolvedValue({ error: null })
+    await notifyNewSubscriber('reader@example.com')
+    const firstKey = sendMock.mock.calls.at(-1)![1].idempotencyKey
+
+    process.env.CONTACT_EMAIL = 'owner-two@sudi.dev'
+    await notifyNewSubscriber('reader@example.com')
+    const secondKey = sendMock.mock.calls.at(-1)![1].idempotencyKey
+
+    vi.resetModules()
+    process.env.CONTACT_EMAIL = 'owner-one@sudi.dev'
+    process.env.EMAIL_FROM = 'Other sender <other@sudi.dev>'
+    const { notifyNewSubscriber: notifyFromOtherSender } = await import('./email')
+    await notifyFromOtherSender('reader@example.com')
+    const thirdKey = sendMock.mock.calls.at(-1)![1].idempotencyKey
+
+    expect(new Set([firstKey, secondKey, thirdKey]).size).toBe(3)
   })
 
   it('does not throw adding to the audience when unconfigured', async () => {
@@ -234,6 +270,7 @@ describe('email', () => {
         text: expect.stringContaining('https://sudi.dev/admin/posts/weekly-2026-w42-public-services/edit'),
       })
       expect(sendMock.mock.calls[0][0].text).toContain(post.excerpt)
+      expect(sendMock.mock.calls[0]).toHaveLength(1)
       expect(contactMock).not.toHaveBeenCalled()
       expect(contactListMock).not.toHaveBeenCalled()
     })

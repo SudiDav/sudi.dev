@@ -72,9 +72,11 @@ function Field({
 export function ProjectForm({
   canPublish,
   project,
+  initialVersion,
 }: {
   canPublish: boolean
   project?: Project
+  initialVersion?: string
 }) {
   const editing = Boolean(project)
   const router = useRouter()
@@ -89,6 +91,7 @@ export function ProjectForm({
   const [githubUrl, setGithubUrl] = useState(project?.links?.github ?? '')
   const [caseStudy, setCaseStudy] = useState('')
   const [body, setBody] = useState(project?.body ?? '')
+  const [version, setVersion] = useState(initialVersion ?? '')
   const [error, setError] = useState<string | null>(null)
   const [pending, startTransition] = useTransition()
 
@@ -114,10 +117,11 @@ export function ProjectForm({
         body: [body, caseStudy && `Case study: ${caseStudy}`].filter(Boolean).join('\n\n'),
       }
       const result = project
-        ? await editProject(project.slug, input)
+        ? await editProject(project.slug, input, version)
         : await addProject(input)
       // Carries the name through so the list can confirm the publish.
       if (result.ok) {
+        if (result.publish?.contentVersion) setVersion(result.publish.contentVersion)
         const params = new URLSearchParams({ published: name })
         if (result.publish?.sha) params.set('sha', result.publish.sha)
         if (result.publish?.branch) params.set('branch', result.publish.branch)

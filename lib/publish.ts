@@ -6,7 +6,9 @@ import { isDeepStrictEqual } from 'node:util'
 import matter from 'gray-matter'
 import type { Post, Project } from './content.types'
 import { getPosts } from './content'
-import type { SiteSettings } from './site'
+import { DEFAULT_SETTINGS, mergeSiteSettings } from './site'
+import type { SiteSettings, SiteSettingsInput } from './site'
+import { validateArticleBody } from './article-safety'
 
 /**
  * Git-backed publishing.
@@ -76,6 +78,8 @@ export type PublishResult = {
   post?: Post
   /** Digest of the saved source bytes, distinct from the deployment commit SHA. */
   postVersion?: string
+  /** Digest of the saved project or settings source bytes. */
+  contentVersion?: string
 }
 
 export type PostSaveErrorCode = 'post_conflict' | 'post_review_required' | 'post_unsaved_changes'
@@ -116,6 +120,12 @@ class GitHubWriteError extends Error {
 function assertPostSlug(slug: string): void {
   if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(slug)) {
     throw new Error('Invalid post slug: expected a single filename-safe basename.')
+  }
+}
+
+function assertProjectSlug(slug: string): void {
+  if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/.test(slug)) {
+    throw new Error('Invalid project slug: expected a single filename-safe basename.')
   }
 }
 
@@ -291,6 +301,7 @@ function preparePostSave(slug: string, raw: Buffer, changes: PostDraft, expected
   if (post.status !== status) {
     throw new PostSaveError('post_unsaved_changes', 'The saved metadata would change this post\'s status unexpectedly. Review the post before saving again.')
   }
+  if (post.status === 'Published') validateArticleBody(post.body)
   if (post.status === 'Published' && (typeof expectedVersion !== 'string' || !expectedVersion.trim())) {
     throw new PostSaveError('post_review_required', 'Open the saved post in the editor and review it before publishing.')
   }
@@ -369,10 +380,12 @@ export async function createPost(slug: string, draft: PostDraft, message: string
   const { body, ...frontmatter } = draft
   const contents = serialise(frontmatter as Record<string, unknown>, body ?? '')
   const status = normaliseStatus(frontmatter.status)
-  const post = { ...frontmatter, slug, body: body ?? '', status } as Post
-  if (parsePost(slug, contents).status !== status) {
+  const savedPost = parsePost(slug, contents)
+  if (savedPost.status !== status) {
     throw new PostSaveError('post_unsaved_changes', 'The new post\'s metadata would change its status unexpectedly. Save it as a draft and review it first.')
   }
+  if (status === 'Published') validateArticleBody(savedPost.body)
+  const post = { ...frontmatter, slug, body: body ?? '', status } as Post
 
   if (target === 'local') {
     const absolute = join(process.cwd(), path)
@@ -506,6 +519,7 @@ export async function createProject(
   draft: ProjectDraft,
   message: string,
 ): Promise<PublishResult> {
+  assertProjectSlug(slug)
   const target = publishTarget()
   if (target === 'disabled') {
     throw new Error(NOT_CONFIGURED)
@@ -520,76 +534,224 @@ export async function createProject(
 
   if (target === 'local') {
     const absolute = join(process.cwd(), path)
-    if (await exists(absolute)) throw new Error(`A project called "${slug}" already exists.`)
-    await writeFile(absolute, contents, 'utf8')
-    return { target: 'local' }
+    try {
+      await writeFile(absolute, contents, { encoding: 'utf8', flag: 'wx' })
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'EEXIST') {
+        throw new Error(`A project called "${slug}" already exists.`)
+      }
+      throw error
+    }
+    return { target: 'local', contentVersion: sourceVersion(contents) }
   }
 
   if (await currentSha(path)) throw new Error(`A project called "${slug}" already exists.`)
-  return {
-    target: 'github',
-    branch: config().branch,
-    ...(await commitFile(path, contents, message)),
-  }
-}
-
-async function exists(path: string): Promise<boolean> {
   try {
-    await readFile(path, 'utf8')
-    return true
-  } catch {
-    return false
+    // No SHA means create-only. GitHub rejects a racing writer's existing file.
+    const result = await writeGitHubFile(path, contents, message)
+    return { target: 'github', branch: config().branch, ...result, contentVersion: sourceVersion(contents) }
+  } catch (error) {
+    if (error instanceof GitHubWriteError && (error.status === 409 || error.status === 422)) {
+      let winnerExists = false
+      try {
+        winnerExists = Boolean(await currentSha(path))
+      } catch {
+        // Preserve the original write failure when race diagnosis also fails.
+      }
+      if (winnerExists) throw new Error(`A project called "${slug}" already exists.`)
+    }
+    throw error
   }
 }
 
-/**
- * Update an existing project. Unlike `createProject` this requires the file to
- * exist — a missing slug means the caller is editing something that was renamed
- * or deleted, which should surface rather than quietly create a new project.
- */
+/** Read a source snapshot from the publishing target, preserving source bytes. */
+async function readVersionedSource(relativeContentPath: string): Promise<{ raw: Buffer; sha?: string } | null> {
+  if (publishTarget() !== 'github') {
+    try {
+      return { raw: await readFile(join(process.cwd(), 'content', relativeContentPath)) }
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === 'ENOENT') return null
+      throw error
+    }
+  }
+
+  const { repo, branch } = config()
+  const path = `content/${relativeContentPath}`
+  const response = await gh(`/repos/${repo}/contents/${encodeURI(path)}?ref=${encodeURIComponent(branch)}`)
+  if (response.status === 404) return null
+  if (!response.ok) throw new Error(`Cannot read ${path} (${response.status})`)
+  const file = (await response.json()) as { content?: string; sha?: string }
+  if (typeof file.content !== 'string' || typeof file.sha !== 'string' || !file.sha) {
+    throw new Error(`GitHub content or blob SHA is missing for ${path}.`)
+  }
+  return { raw: Buffer.from(file.content, 'base64'), sha: file.sha }
+}
+
+function projectFromSource(slug: string, raw: Buffer): Project {
+  const { data, content } = matter(raw.toString('utf8'))
+  return {
+    slug,
+    title: String(data.title ?? ''),
+    year: String(data.year ?? ''),
+    description: String(data.description ?? ''),
+    shortDescription: data.shortDescription,
+    tech: data.tech ?? [],
+    category: String(data.category ?? ''),
+    cover: String(data.cover ?? ''),
+    links: data.links ?? {},
+    body: content,
+  }
+}
+
+/** Read a project and version from one fresh source read. */
+export async function getLatestProjectSnapshot(slug: string): Promise<{ project: Project; version: string } | null> {
+  assertProjectSlug(slug)
+  const source = await readVersionedSource(`projects/${slug}.mdx`)
+  if (!source) return null
+  return { project: projectFromSource(slug, source.raw), version: sourceVersion(source.raw) }
+}
+
+/** Read merged settings and version from the same fresh source bytes. */
+export async function getLatestSettingsSnapshot(): Promise<{ settings: SiteSettings; version: string }> {
+  const source = await readVersionedSource('site.json')
+  const raw = source?.raw ?? Buffer.from(`${JSON.stringify(DEFAULT_SETTINGS, null, 2)}\n`)
+  let parsed: SiteSettingsInput
+  try {
+    parsed = JSON.parse(raw.toString('utf8')) as SiteSettingsInput
+  } catch {
+    throw new Error('Site settings are invalid JSON. Reload after repairing the saved settings.')
+  }
+  return { settings: mergeSiteSettings(parsed), version: sourceVersion(raw) }
+}
+
+function requireFreshVersion(expectedVersion: string | undefined, raw: Buffer): void {
+  if (typeof expectedVersion !== 'string' || !expectedVersion.trim()) {
+    throw new Error('Reload the saved content and review it before saving.')
+  }
+  if (expectedVersion !== sourceVersion(raw)) {
+    throw new Error('This content changed after you opened it. Reload the saved content and review it before saving.')
+  }
+}
+
+async function saveLocallyVersioned(
+  relativeContentPath: string,
+  contents: string,
+  expectedVersion: string,
+  allowCreate = false,
+): Promise<string> {
+  const absolute = join(process.cwd(), 'content', relativeContentPath)
+  const lockPath = `${absolute}.lock`
+  const temporaryPath = `${absolute}.${randomUUID()}.tmp`
+  let lock: Awaited<ReturnType<typeof open>>
+  try {
+    lock = await open(lockPath, 'wx')
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'EEXIST') {
+      throw new Error('Another save is in progress. Reload the saved content and review it before trying again.')
+    }
+    throw error
+  }
+
+  let ownsTemporary = false
+  try {
+    let current: Buffer | null
+    try {
+      current = await readFile(absolute)
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== 'ENOENT') throw error
+      current = null
+    }
+    if (current) requireFreshVersion(expectedVersion, current)
+    else if (!allowCreate) {
+      throw new Error('This content was deleted after you opened it. Reload the saved content before saving.')
+    } else {
+      const defaultSettings = Buffer.from(`${JSON.stringify(DEFAULT_SETTINGS, null, 2)}\n`)
+      requireFreshVersion(expectedVersion, defaultSettings)
+    }
+
+    const temporary = await open(temporaryPath, 'wx')
+    ownsTemporary = true
+    try {
+      await temporary.writeFile(contents, 'utf8')
+    } finally {
+      await temporary.close()
+    }
+    await rename(temporaryPath, absolute)
+    ownsTemporary = false
+    return sourceVersion(contents)
+  } finally {
+    try {
+      if (ownsTemporary) await unlink(temporaryPath)
+    } finally {
+      try {
+        await lock.close()
+      } finally {
+        await unlink(lockPath)
+      }
+    }
+  }
+}
+
+async function saveRemoteVersioned(
+  path: string,
+  contents: string,
+  message: string,
+  expectedVersion: string,
+  snapshot: { raw: Buffer; sha?: string } | null,
+): Promise<PublishResult> {
+  const currentRaw = snapshot?.raw ?? Buffer.from(`${JSON.stringify(DEFAULT_SETTINGS, null, 2)}\n`)
+  requireFreshVersion(expectedVersion, currentRaw)
+  const { branch } = config()
+  try {
+    const commit = await writeGitHubFile(path, contents, message, snapshot?.sha)
+    return { target: 'github', branch, ...commit, contentVersion: sourceVersion(contents) }
+  } catch (error) {
+    if (error instanceof GitHubWriteError && (error.status === 409 || error.status === 422)) {
+      let latestSha: string | undefined
+      let readSucceeded = false
+      try {
+        latestSha = await currentSha(path)
+        readSucceeded = true
+      } catch {
+        // Preserve the original write failure when conflict diagnosis also fails.
+      }
+      if (readSucceeded && latestSha !== snapshot?.sha) {
+        throw new Error('This content changed after you opened it. Reload the saved content and review it before saving.')
+      }
+    }
+    throw error
+  }
+}
+
+/** Update a project using the exact source snapshot reviewed by the caller. */
 export async function saveProject(
   slug: string,
   changes: ProjectDraft,
   message: string,
+  expectedVersion: string,
 ): Promise<PublishResult> {
+  assertProjectSlug(slug)
   const target = publishTarget()
   if (target === 'disabled') throw new Error(NOT_CONFIGURED)
 
-  const path = `content/projects/${slug}.mdx`
+  const relativeContentPath = `projects/${slug}.mdx`
+  const path = `content/${relativeContentPath}`
+  const snapshot = await readVersionedSource(relativeContentPath)
+  if (!snapshot) throw new Error(`Cannot save ${path}: it no longer exists. Reload the project list.`)
+  requireFreshVersion(expectedVersion, snapshot.raw)
+  const existing = matter(snapshot.raw.toString('utf8'))
   const { body, ...frontmatter } = changes
+  const contents = serialise(
+    { ...existing.data, ...(frontmatter as Record<string, unknown>) },
+    body ?? existing.content,
+  )
 
   if (target === 'local') {
-    const absolute = join(process.cwd(), path)
-    const existing = matter(await readFile(absolute, 'utf8'))
-    await writeFile(
-      absolute,
-      serialise(
-        { ...existing.data, ...(frontmatter as Record<string, unknown>) },
-        body ?? existing.content,
-      ),
-      'utf8',
-    )
-    return { target: 'local' }
+    // Recheck after taking the lock to catch another cooperating local writer.
+    const contentVersion = await saveLocallyVersioned(relativeContentPath, contents, expectedVersion)
+    return { target: 'local', contentVersion }
   }
-
-  const { repo, branch } = config()
-  const response = await gh(`/repos/${repo}/contents/${encodeURI(path)}?ref=${branch}`)
-  if (!response.ok) throw new Error(`Cannot read ${path} (${response.status})`)
-  const file = (await response.json()) as { content: string }
-  const existing = matter(Buffer.from(file.content, 'base64').toString('utf8'))
-
-  return {
-    target: 'github',
-    branch,
-    ...(await commitFile(
-      path,
-      serialise(
-        { ...existing.data, ...(frontmatter as Record<string, unknown>) },
-        body ?? existing.content,
-      ),
-      message,
-    )),
-  }
+  return saveRemoteVersioned(path, contents, message, expectedVersion, snapshot)
 }
 
 /** Write any JSON file in the repo through the configured target. */
@@ -611,19 +773,26 @@ export async function writeJson(
 }
 
 /** Site settings live in content/site.json, written the same way as content. */
-export async function saveSettings(settings: SiteSettings, message: string): Promise<PublishResult> {
+export async function saveSettings(
+  settings: SiteSettings,
+  message: string,
+  expectedVersion: string,
+): Promise<PublishResult> {
   const target = publishTarget()
   if (target === 'disabled') throw new Error(NOT_CONFIGURED)
 
-  const path = 'content/site.json'
+  const relativeContentPath = 'site.json'
+  const path = `content/${relativeContentPath}`
+  const snapshot = await readVersionedSource(relativeContentPath)
+  const currentRaw = snapshot?.raw ?? Buffer.from(`${JSON.stringify(DEFAULT_SETTINGS, null, 2)}\n`)
+  requireFreshVersion(expectedVersion, currentRaw)
   const contents = `${JSON.stringify(settings, null, 2)}\n`
 
   if (target === 'local') {
-    await writeFile(join(process.cwd(), path), contents, 'utf8')
-    return { target: 'local' }
+    const contentVersion = await saveLocallyVersioned(relativeContentPath, contents, expectedVersion, true)
+    return { target: 'local', contentVersion }
   }
-  const { branch } = config()
-  return { target: 'github', branch, ...(await commitFile(path, contents, message)) }
+  return saveRemoteVersioned(path, contents, message, expectedVersion, snapshot)
 }
 
 /** True when saving will actually persist somewhere. */

@@ -77,11 +77,14 @@ const SOCIAL_LABELS = {
 export function SettingsForm({
   settings: initial,
   canPublish,
+  initialVersion,
 }: {
   settings: SiteSettings
   canPublish: boolean
+  initialVersion: string
 }) {
   const [settings, setSettings] = useState(initial)
+  const [version, setVersion] = useState(initialVersion)
   const [saved, setSaved] = useState(false)
   const [publish, setPublish] = useState<PublishResult | null>(null)
   const [editingAvatar, setEditingAvatar] = useState(false)
@@ -97,8 +100,9 @@ export function SettingsForm({
   const save = () => {
     setError(null)
     startTransition(async () => {
-      const result = await updateSettings(settings)
+      const result = await updateSettings(settings, version)
       if (result.ok) {
+        if (result.publish?.contentVersion) setVersion(result.publish.contentVersion)
         setSaved(true)
         setPublish(result.publish ?? null)
       }
