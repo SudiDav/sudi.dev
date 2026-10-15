@@ -6,6 +6,7 @@ import {
   Languages,
   Boxes,
   Mail,
+  Phone,
   Code2,
   Layout,
   Server,
@@ -27,38 +28,38 @@ import { getSettings, socialUrl } from '@/lib/site'
 
 export const metadata: Metadata = {
   title: 'About | Sudi M. David',
-  description: 'Full-stack engineer in Lubumbashi building banking, lending, agriculture and school systems.',
+  description: 'Software engineer in Lubumbashi specializing in DevOps and cloud systems for banking, lending, agriculture and education.',
   alternates: { canonical: '/about' },
   openGraph: {
     type: 'website',
     url: '/about',
     title: 'About | Sudi M. David',
-    description: 'Full-stack engineer in Lubumbashi building banking, lending, agriculture and school systems.',
+    description: 'Software engineer in Lubumbashi specializing in DevOps and cloud systems for banking, lending, agriculture and education.',
   },
 }
 
 /** Design: "Experience Section" → Timeline. Newest first. */
 const TIMELINE = [
   {
-    role: 'Consultant & Entrepreneur',
+    role: 'Software Engineering Consultant & Entrepreneur',
     period: 'Apr 2026 — Present',
-    company: 'Almafrica · Lubumbashi',
+    company: 'Almafrica · Lubumbashi, DR Congo',
     description:
-      'Building software for inclusive agricultural value chains — the systems that connect smallholder farmers to the buyers, financing and logistics further up the chain. Consulting alongside it.',
+      'Building and consulting on the platform behind inclusive agricultural value chains, connecting smallholder farmers with buyers, financing and logistics. Developing containerized services with TypeScript, Node.js, PostgreSQL, Docker, C# and .NET.',
   },
   {
     role: 'Full-Stack Engineer',
     period: 'Feb 2024 — Apr 2026',
-    company: 'IST Africa · Remote',
+    company: 'IST Africa · Remote, Denmark',
     description:
       'Led the redevelopment of a school management system for Danish schools, starting with the Absence module. Worked across distributed teams spanning several regions.',
   },
   {
-    role: 'Full-Stack Engineer',
+    role: 'Cloud, DevOps & Software Engineer',
     period: 'Feb 2021 — Jan 2024',
-    company: 'Altech Group · Kigali (Hybrid)',
+    company: 'Altech Group · Goma, DR Congo (Hybrid)',
     description:
-      'Managed a team of four and shipped a loan asset management system. Integrated Spark Energy and Omnivoltaic into the business process, and the Xero and Telerivet APIs to cut the finance team’s manual workload.',
+      'Deployed and operated applications on AWS and DigitalOcean while leading a six-developer team that shipped a loan asset management system. Integrated Spark Energy and Omnivoltaic into business operations, and the Xero and Telerivet APIs to cut the finance team’s manual workload.',
   },
   {
     role: 'Full-Stack Engineer',
@@ -88,7 +89,13 @@ const SKILLS = [
   {
     Icon: Container,
     title: 'Data & Infra',
-    items: ['SQL Server · PostgreSQL', 'MongoDB · RabbitMQ', 'Docker · Kubernetes', 'AWS · Cloudflare'],
+    items: [
+      'SQL Server · PostgreSQL',
+      'MongoDB · RabbitMQ',
+      'Docker · Kubernetes',
+      'AWS · DigitalOcean',
+      'Cloudflare · Coolify',
+    ],
   },
 ]
 
@@ -190,7 +197,7 @@ export default async function AboutPage() {
             <p className="text-[15px] leading-[1.7] text-text-secondary">
               Debugging is that instinct with a laboratory attached. The system insists it is
               fine; the logs say otherwise; you get to find out who is right. I&apos;m Sudi
-              David, a full-stack engineer in Lubumbashi, and I do it on software other
+              David, a software engineer specializing in DevOps and cloud systems in Lubumbashi, and I do it on software other
               people&apos;s work depends on — banking bridges, loan management, school
               administration, agricultural value chains. The kind of system where a bug is
               somebody&apos;s afternoon, not just a failed request.
@@ -323,7 +330,13 @@ export default async function AboutPage() {
               <Mail size={16} />
               Get in Touch
             </a>
-
+            <a
+              href={`tel:${settings.phone.replace(/[^+\d]/g, '')}`}
+              className="inline-flex items-center gap-2 rounded-lg border border-border bg-bg-card px-6 py-3 text-sm font-semibold text-text-primary transition-colors hover:border-border-hover"
+            >
+              <Phone size={16} />
+              {settings.phone}
+            </a>
           </div>
           <div className="flex items-center gap-5">
             {socials.map(({ kind, label, Icon }) => (
