@@ -172,6 +172,14 @@ status. If another save changes the source after you opened it, publishing
 stops without writing content or creating a newsletter draft. Reload the saved
 post explicitly and review that version before trying again.
 
+Project and settings editors also read the latest publishing source rather than
+the deployed copy. Each save carries the version loaded with the form. A newer
+save causes a conflict instead of silently restoring older fields; reload and
+review the latest source before retrying. Successful settings saves advance the
+form's own source version so another edit can be saved without waiting for a
+deployment. Published article bodies are validated against the renderer's safe
+Markdown policy before a write; invalid drafts can still be saved for editing.
+
 The review version is a SHA-256 digest of the complete source file, separate
 from the commit SHA used to track deployment. GitHub updates use the blob SHA
 from that same read, so a change that races the update also stops publication.

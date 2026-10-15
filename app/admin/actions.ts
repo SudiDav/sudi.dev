@@ -14,6 +14,7 @@ import { savePost,
   type PostSaveErrorCode,
   type PostDraft, type PublishResult, uploadImage } from '@/lib/publish'
 import type { SiteSettings } from '@/lib/site'
+import { reserveSubscription } from '@/lib/subscription-limits'
 
 /**
  * Every action re-checks authorisation itself.
@@ -186,6 +187,7 @@ export async function addProject(
 export async function editProject(
   slug: string,
   input: NewProject,
+  expectedVersion: string,
 ): Promise<ActionResult> {
   await requireAdmin()
   if (!/^[a-z0-9-]+$/.test(slug)) return { ok: false, error: 'Invalid slug' }
@@ -209,6 +211,7 @@ export async function editProject(
         body: input.body?.trim() || description,
       },
       `content: update project ${slug}`,
+      expectedVersion,
     )
     revalidatePath('/admin/projects')
     revalidatePath('/work')
@@ -220,14 +223,14 @@ export async function editProject(
 
 }
 
-export async function updateSettings(settings: SiteSettings): Promise<ActionResult> {
+export async function updateSettings(settings: SiteSettings, expectedVersion: string): Promise<ActionResult> {
   await requireAdmin()
 
   if (!settings.displayName.trim()) return { ok: false, error: 'Display name is required' }
   if (!settings.seo.title.trim()) return { ok: false, error: 'Site title is required' }
 
   try {
-    const publish = await saveSettings(settings, 'content: update site settings')
+    const publish = await saveSettings(settings, 'content: update site settings', expectedVersion)
     // Settings feed the layout metadata and the footer, so revalidate broadly.
     revalidatePath('/', 'layout')
     return { ok: true, publish }
@@ -269,17 +272,22 @@ export async function sendNewsletter(id: string) {
  * warning, but a storage failure must be shown so the subscriber can retry.
  */
 export async function subscribe(email: string): Promise<ActionResult> {
+  if (typeof email !== 'string') return { ok: false, error: 'Please enter a valid email address' }
   const address = email.trim().toLowerCase()
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(address)) {
+  if (address.length > 254 || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(address)) {
     return { ok: false, error: 'Please enter a valid email address' }
   }
+  if (!reserveSubscription(address)) {
+    return { ok: false, error: 'Too many signup attempts. Please try again later.' }
+  }
 
-  const [stored, notified] = await Promise.all([
-    addToAudience(address),
-    notifyNewSubscriber(address),
-  ])
+  const stored = await addToAudience(address)
+  if (!stored.sent) {
+    console.warn(`[newsletter] subscription not saved: ${stored.reason}`)
+    return subscriptionOutcome(stored, { sent: false })
+  }
 
-  if (!stored.sent) console.warn(`[newsletter] ${address} not added to audience: ${stored.reason}`)
+  const notified = await notifyNewSubscriber(address)
   if (!notified.sent) console.warn(`[newsletter] no notification sent: ${notified.reason}`)
 
   return subscriptionOutcome(stored, notified)

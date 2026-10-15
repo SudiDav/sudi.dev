@@ -1,4 +1,5 @@
 import { Resend } from 'resend'
+import { createHash } from 'node:crypto'
 import type { Post } from './content.types'
 import { SITE_URL } from './site'
 
@@ -61,14 +62,18 @@ export function subscriptionOutcome(stored: SendResult, notified: SendResult): S
   return { ok: true }
 }
 
-async function send(subject: string, text: string): Promise<SendResult> {
+async function send(subject: string, text: string, idempotencyKey?: string): Promise<SendResult> {
   const key = process.env.RESEND_API_KEY
   const to = process.env.CONTACT_EMAIL ?? process.env.ADMIN_EMAIL
   if (!key) return { sent: false, reason: 'RESEND_API_KEY not set' }
   if (!to) return { sent: false, reason: 'CONTACT_EMAIL not set' }
 
   try {
-    const { error } = await new Resend(key).emails.send({ from: FROM, to, subject, text })
+    const payload = { from: FROM, to, subject, text }
+    const result = idempotencyKey
+      ? await new Resend(key).emails.send(payload, { idempotencyKey })
+      : await new Resend(key).emails.send(payload)
+    const { error } = result
     return error ? { sent: false, reason: error.message } : { sent: true }
   } catch (error) {
     return { sent: false, reason: error instanceof Error ? error.message : 'send failed' }
@@ -77,14 +82,21 @@ async function send(subject: string, text: string): Promise<SendResult> {
 
 /** Tells you someone signed up. */
 export function notifyNewSubscriber(address: string) {
+  const normalizedAddress = address.trim().toLowerCase()
+  const to = process.env.CONTACT_EMAIL ?? process.env.ADMIN_EMAIL ?? ''
+  const idempotencyKey = `newsletter-notice-${createHash('sha256')
+    .update(JSON.stringify(['newsletter-owner-notice', normalizedAddress, to, FROM]))
+    .digest('hex')}`
+
   return send(
-    `New subscriber: ${address}`,
+    `New subscriber: ${normalizedAddress}`,
     [
-      `${address} just subscribed to the sudi.dev newsletter.`,
+      `${normalizedAddress} just subscribed to the sudi.dev newsletter.`,
       '',
       'The list lives in your Resend audience — not in the repo, so that',
       'subscriber addresses are never published alongside the source.',
     ].join('\n'),
+    idempotencyKey,
   )
 }
 

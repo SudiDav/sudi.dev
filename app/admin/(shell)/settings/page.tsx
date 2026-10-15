@@ -1,5 +1,4 @@
-import { getSettings } from '@/lib/site'
-import { isPublishingConfigured } from '@/lib/publish'
+import { getLatestSettingsSnapshot, isPublishingConfigured } from '@/lib/publish'
 import { SettingsForm } from './settings-form'
 
 export const metadata = { robots: { index: false, follow: false } }
@@ -9,5 +8,12 @@ export const metadata = { robots: { index: false, follow: false } }
  * Values come from content/site.json and saving writes back to it.
  */
 export default async function AdminSettingsPage() {
-  return <SettingsForm settings={await getSettings()} canPublish={isPublishingConfigured()} />
+  const snapshot = await getLatestSettingsSnapshot()
+  return (
+    <SettingsForm
+      settings={snapshot.settings}
+      initialVersion={snapshot.version}
+      canPublish={isPublishingConfigured()}
+    />
+  )
 }
