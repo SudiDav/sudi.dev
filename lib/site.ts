@@ -19,6 +19,16 @@ export type SiteSettings = {
   website: string
   social: { github: string; twitter: string; linkedin: string; instagram?: string }
   seo: { title: string; description: string }
+  writingProfile: { interests: string; styleGuidance: string }
+}
+
+export type SiteSettingsInput = Omit<
+  Partial<SiteSettings>,
+  'social' | 'seo' | 'writingProfile'
+> & {
+  social?: Partial<SiteSettings['social']>
+  seo?: Partial<SiteSettings['seo']>
+  writingProfile?: Partial<SiteSettings['writingProfile']>
 }
 
 /** Used when the file is missing or unreadable, so the site still renders. */
@@ -40,21 +50,29 @@ export const DEFAULT_SETTINGS: SiteSettings = {
     title: 'Sudi M. David — Software Engineer | DevOps & Cloud',
     description: 'Software engineer in Lubumbashi specializing in DevOps and cloud systems for fintech, lending, agriculture and school administration.',
   },
+  writingProfile: {
+    interests: '',
+    styleGuidance: '',
+  },
 }
 
 export const SITE_URL = 'https://sudi.dev'
 
+export function mergeSiteSettings(parsed: SiteSettingsInput): SiteSettings {
+  return {
+    ...DEFAULT_SETTINGS,
+    ...parsed,
+    social: { ...DEFAULT_SETTINGS.social, ...parsed.social },
+    seo: { ...DEFAULT_SETTINGS.seo, ...parsed.seo },
+    writingProfile: { ...DEFAULT_SETTINGS.writingProfile, ...parsed.writingProfile },
+  }
+}
+
 export async function getSettings(): Promise<SiteSettings> {
   try {
     const raw = await readFile(join(process.cwd(), 'content', 'site.json'), 'utf8')
-    const parsed = JSON.parse(raw) as Partial<SiteSettings>
-    // Shallow-merge so a partial file still yields a complete object.
-    return {
-      ...DEFAULT_SETTINGS,
-      ...parsed,
-      social: { ...DEFAULT_SETTINGS.social, ...parsed.social },
-      seo: { ...DEFAULT_SETTINGS.seo, ...parsed.seo },
-    }
+    const parsed = JSON.parse(raw) as SiteSettingsInput
+    return mergeSiteSettings(parsed)
   } catch {
     return DEFAULT_SETTINGS
   }

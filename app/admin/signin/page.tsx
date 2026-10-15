@@ -8,6 +8,26 @@ export const metadata = {
   robots: { index: false, follow: false },
 }
 
+function getAdminCallbackUrl(value: string | string[] | undefined) {
+  const candidate = Array.isArray(value) ? value[0] : value
+  if (!candidate) return '/admin'
+
+  try {
+    const parsed = new URL(candidate, 'https://admin.local')
+    const path = `${parsed.pathname}${parsed.search}`
+    if (
+      (parsed.pathname === '/admin' || parsed.pathname.startsWith('/admin/')) &&
+      !parsed.pathname.startsWith('/admin/signin')
+    ) {
+      return path
+    }
+  } catch {
+    // Invalid callback URLs fall back to the admin home.
+  }
+
+  return '/admin'
+}
+
 /**
  * The admin sign-in screen. Not in the design file — the design assumes an
  * already-authenticated admin — so it is deliberately plain and built from the
@@ -16,11 +36,11 @@ export const metadata = {
 export default async function AdminSignInPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string }>
+  searchParams: Promise<{ error?: string; callbackUrl?: string | string[] }>
 }) {
-  if (await isAdmin()) redirect('/admin')
-
-  const { error } = await searchParams
+  const { error, callbackUrl } = await searchParams
+  const redirectTo = getAdminCallbackUrl(callbackUrl)
+  if (await isAdmin()) redirect(redirectTo)
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-admin-bg px-6">
@@ -42,7 +62,7 @@ export default async function AdminSignInPage({
         <form
           action={async () => {
             'use server'
-            await signIn('github', { redirectTo: '/admin' })
+            await signIn('github', { redirectTo })
           }}
         >
           <button
@@ -58,7 +78,7 @@ export default async function AdminSignInPage({
           <form
             action={async () => {
               'use server'
-              await signIn('dev', { redirectTo: '/admin' })
+              await signIn('dev', { redirectTo })
             }}
             className="flex flex-col gap-2 border-t border-admin-border pt-6"
           >

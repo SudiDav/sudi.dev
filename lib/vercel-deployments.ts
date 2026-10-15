@@ -12,6 +12,7 @@ type VercelDeployment = {
   readyState?: string
   state?: string
   url?: string
+  target?: string | null
   meta?: { githubCommitSha?: string }
   gitSource?: { sha?: string }
 }
@@ -39,7 +40,7 @@ export async function getDeploymentStatus(sha: string): Promise<DeploymentStatus
     }
   }
 
-  const endpoint = `https://api.vercel.com/v6/deployments?projectId=${encodeURIComponent(projectId)}&limit=20`
+  const endpoint = `https://api.vercel.com/v6/deployments?projectId=${encodeURIComponent(projectId)}&limit=20&target=production`
   try {
     const response = await fetch(endpoint, {
       headers: {
@@ -54,7 +55,9 @@ export async function getDeploymentStatus(sha: string): Promise<DeploymentStatus
 
     const body = (await response.json()) as { deployments?: VercelDeployment[] }
     const deployment = body.deployments?.find(
-      (item) => item.meta?.githubCommitSha === sha || item.gitSource?.sha === sha,
+      (item) =>
+        item.target === 'production' &&
+        (item.meta?.githubCommitSha === sha || item.gitSource?.sha === sha),
     )
     if (!deployment) return { status: 'queued' }
 

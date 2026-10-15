@@ -77,11 +77,14 @@ const SOCIAL_LABELS = {
 export function SettingsForm({
   settings: initial,
   canPublish,
+  initialVersion,
 }: {
   settings: SiteSettings
   canPublish: boolean
+  initialVersion: string
 }) {
   const [settings, setSettings] = useState(initial)
+  const [version, setVersion] = useState(initialVersion)
   const [saved, setSaved] = useState(false)
   const [publish, setPublish] = useState<PublishResult | null>(null)
   const [editingAvatar, setEditingAvatar] = useState(false)
@@ -97,8 +100,9 @@ export function SettingsForm({
   const save = () => {
     setError(null)
     startTransition(async () => {
-      const result = await updateSettings(settings)
+      const result = await updateSettings(settings, version)
       if (result.ok) {
+        if (result.publish?.contentVersion) setVersion(result.publish.contentVersion)
         setSaved(true)
         setPublish(result.publish ?? null)
       }
@@ -236,6 +240,29 @@ export function SettingsForm({
                 </div>
               )
             })}
+          </AdminCard>
+
+          <AdminCard title="Writing Profile">
+            <p className="text-[13px] leading-[1.5] text-admin-text-secondary">
+              These details guide weekly article drafts. They are saved in the public GitHub repository,
+              so do not include secrets or private information.
+            </p>
+            <Field
+              label="Topics and interests"
+              textarea
+              value={settings.writingProfile.interests}
+              onChange={(value) =>
+                set('writingProfile', { ...settings.writingProfile, interests: value })
+              }
+            />
+            <Field
+              label="Writing style guidance"
+              textarea
+              value={settings.writingProfile.styleGuidance}
+              onChange={(value) =>
+                set('writingProfile', { ...settings.writingProfile, styleGuidance: value })
+              }
+            />
           </AdminCard>
         </div>
 

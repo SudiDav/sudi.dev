@@ -10,7 +10,7 @@ import { ArticleItem } from '@/components/article-item'
 import { TechBadge } from '@/components/tech-badge'
 import { NewsletterForm } from '@/components/newsletter-form'
 import { PAGE_GUTTER } from '@/components/layout'
-import { getPosts } from '@/lib/content'
+import { getPublishedPosts } from '@/lib/content'
 import type { Post } from '@/lib/content.types'
 import { listBlogPosts, POST_FILTERS } from '@/lib/filters'
 
@@ -81,23 +81,24 @@ function buildBlogStats(posts: Post[]) {
 export default async function BlogPage({
   searchParams,
 }: {
-  searchParams: Promise<{ category?: string; q?: string }>
+  searchParams: Promise<{ category?: string | string[]; q?: string | string[] }>
 }) {
-  const { category, q = '' } = await searchParams
+  const { category, q } = await searchParams
+  const query = Array.isArray(q) ? (q[0] ?? '') : (q ?? '')
   const active = POST_FILTERS.includes(category as (typeof POST_FILTERS)[number])
     ? (category as string)
     : 'All'
 
-  const posts = await getPosts()
+  const posts = await getPublishedPosts()
   // Describes the whole blog, so it counts every post rather than the filtered view.
   const blogStats = buildBlogStats(posts)
   const topicRows = buildTopicRows(posts)
   const featured = posts.find((post) => post.featured)
-  const listed = listBlogPosts(posts, active, q)
+  const listed = listBlogPosts(posts, active, query)
 
   // The pinned post is the design's featured slot; it is hidden once the reader
   // narrows the list, since it would otherwise ignore their filter.
-  const showFeatured = featured && active === 'All' && !q.trim()
+  const showFeatured = featured && active === 'All' && !query.trim()
 
   return (
     <div className="flex min-h-screen flex-col bg-bg-primary">
@@ -114,7 +115,7 @@ export default async function BlogPage({
         <div
           className={`flex flex-col justify-between gap-4 lg:flex-row lg:items-center ${PAGE_GUTTER}`}
         >
-          <BlogSearch query={q} />
+          <BlogSearch query={query} />
           <FilterBar
             options={POST_FILTERS}
             active={active}

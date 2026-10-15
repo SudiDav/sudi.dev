@@ -31,6 +31,7 @@ export async function getPosts(): Promise<Post[]> {
       cover: data.cover,
       featured: Boolean(data.featured),
       status: data.status,
+      generatedWeek: data.generatedWeek,
       subtitle: data.subtitle,
       breadcrumb: data.breadcrumb,
       tags: data.tags,
@@ -42,6 +43,16 @@ export async function getPosts(): Promise<Post[]> {
 
 export async function getPost(slug: string): Promise<Post | null> {
   return (await getPosts()).find((p) => p.slug === slug) ?? null
+}
+
+/** Posts safe to expose on public pages, feeds, and indexes. */
+export async function getPublishedPosts(): Promise<Post[]> {
+  return (await getPosts()).filter((post) => post.status === undefined || post.status === 'Published')
+}
+
+/** Resolve a post only when it is published (legacy posts without status count as published). */
+export async function getPublishedPost(slug: string): Promise<Post | null> {
+  return (await getPublishedPosts()).find((post) => post.slug === slug) ?? null
 }
 
 export async function getProjects(): Promise<Project[]> {

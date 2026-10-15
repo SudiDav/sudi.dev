@@ -10,8 +10,11 @@ import { savePost,
   saveProject,
   saveSettings,
   slugify,
+  PostSaveError,
+  type PostSaveErrorCode,
   type PostDraft, type PublishResult, uploadImage } from '@/lib/publish'
 import type { SiteSettings } from '@/lib/site'
+import { reserveSubscription } from '@/lib/subscription-limits'
 
 /**
  * Every action re-checks authorisation itself.
@@ -26,7 +29,15 @@ async function requireAdmin() {
 
 export type ActionResult =
   | { ok: true; publish?: PublishResult; newsletter?: Awaited<ReturnType<typeof createPostBroadcast>>; warning?: string }
-  | { ok: false; error: string }
+  | { ok: false; error: string; code?: PostSaveErrorCode }
+
+function postActionFailure(error: unknown): ActionResult {
+  return {
+    ok: false,
+    error: error instanceof Error ? error.message : 'Publish failed',
+    ...(error instanceof PostSaveError ? { code: error.code } : {}),
+  }
+}
 
 async function newsletterForPublish(publish: PublishResult) {
   if (!publish.sha || !publish.post || publish.status !== 'Published') return undefined
@@ -34,23 +45,28 @@ async function newsletterForPublish(publish: PublishResult) {
   return createPostBroadcast(publish.post, publish.sha)
 }
 
-export async function updatePost(slug: string, changes: PostDraft): Promise<ActionResult> {
+export async function updatePost(slug: string, changes: PostDraft, expectedVersion?: string): Promise<ActionResult> {
   await requireAdmin()
 
   // Never let a slug escape the posts directory.
   if (!/^[a-z0-9-]+$/.test(slug)) return { ok: false, error: 'Invalid slug' }
 
   try {
-    const publish = await savePost(slug, changes, `content: update ${slug}`)
+    const publish = await savePost(slug, changes, `content: update ${slug}`, expectedVersion)
     const newsletter = await newsletterForPublish(publish)
     revalidatePath('/admin/posts')
     revalidatePath('/blog')
     revalidatePath(`/blog/${slug}`)
     return { ok: true, publish, newsletter }
   } catch (error) {
-    return { ok: false, error: error instanceof Error ? error.message : 'Publish failed' }
+    return postActionFailure(error)
   }
 
+}
+
+/** Publish only the saved source version that was reviewed in the editor. */
+export async function publishReviewedPost(slug: string, expectedVersion: string): Promise<ActionResult> {
+  return updatePost(slug, { status: 'Published' }, expectedVersion)
 }
 
 export type NewPost = {
@@ -65,6 +81,14 @@ export type NewPost = {
 /** Create a post from the editor's "new" route. Returns the slug it minted. */
 export async function addPost(input: NewPost): Promise<ActionResult & { slug?: string }> {
   await requireAdmin()
+
+  if (input.status !== 'Draft' && input.status !== 'Archived') {
+    return {
+      ok: false,
+      code: 'post_review_required',
+      error: 'Save the new post as a draft, then open it in the editor to review and publish it.',
+    }
+  }
 
   const title = input.title.trim()
   if (!title) return { ok: false, error: 'A title is required' }
@@ -105,8 +129,9 @@ export async function addPost(input: NewPost): Promise<ActionResult & { slug?: s
 export async function setPostStatus(
   slug: string,
   status: 'Published' | 'Draft' | 'Archived',
+  expectedVersion?: string,
 ): Promise<ActionResult> {
-  return updatePost(slug, { status })
+  return updatePost(slug, { status }, expectedVersion)
 }
 
 export type NewProject = {
@@ -162,6 +187,7 @@ export async function addProject(
 export async function editProject(
   slug: string,
   input: NewProject,
+  expectedVersion: string,
 ): Promise<ActionResult> {
   await requireAdmin()
   if (!/^[a-z0-9-]+$/.test(slug)) return { ok: false, error: 'Invalid slug' }
@@ -185,6 +211,7 @@ export async function editProject(
         body: input.body?.trim() || description,
       },
       `content: update project ${slug}`,
+      expectedVersion,
     )
     revalidatePath('/admin/projects')
     revalidatePath('/work')
@@ -196,14 +223,14 @@ export async function editProject(
 
 }
 
-export async function updateSettings(settings: SiteSettings): Promise<ActionResult> {
+export async function updateSettings(settings: SiteSettings, expectedVersion: string): Promise<ActionResult> {
   await requireAdmin()
 
   if (!settings.displayName.trim()) return { ok: false, error: 'Display name is required' }
   if (!settings.seo.title.trim()) return { ok: false, error: 'Site title is required' }
 
   try {
-    const publish = await saveSettings(settings, 'content: update site settings')
+    const publish = await saveSettings(settings, 'content: update site settings', expectedVersion)
     // Settings feed the layout metadata and the footer, so revalidate broadly.
     revalidatePath('/', 'layout')
     return { ok: true, publish }
@@ -245,17 +272,22 @@ export async function sendNewsletter(id: string) {
  * warning, but a storage failure must be shown so the subscriber can retry.
  */
 export async function subscribe(email: string): Promise<ActionResult> {
+  if (typeof email !== 'string') return { ok: false, error: 'Please enter a valid email address' }
   const address = email.trim().toLowerCase()
-  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(address)) {
+  if (address.length > 254 || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(address)) {
     return { ok: false, error: 'Please enter a valid email address' }
   }
+  if (!reserveSubscription(address)) {
+    return { ok: false, error: 'Too many signup attempts. Please try again later.' }
+  }
 
-  const [stored, notified] = await Promise.all([
-    addToAudience(address),
-    notifyNewSubscriber(address),
-  ])
+  const stored = await addToAudience(address)
+  if (!stored.sent) {
+    console.warn(`[newsletter] subscription not saved: ${stored.reason}`)
+    return subscriptionOutcome(stored, { sent: false })
+  }
 
-  if (!stored.sent) console.warn(`[newsletter] ${address} not added to audience: ${stored.reason}`)
+  const notified = await notifyNewSubscriber(address)
   if (!notified.sent) console.warn(`[newsletter] no notification sent: ${notified.reason}`)
 
   return subscriptionOutcome(stored, notified)

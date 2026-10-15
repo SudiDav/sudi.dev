@@ -2,21 +2,21 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ArrowRight, Copy, AtSign } from 'lucide-react'
+import { ArrowRight, AtSign } from 'lucide-react'
 import { GithubIcon } from '@/components/brand-icons'
-import { MDXRemote } from 'next-mdx-remote/rsc'
-import { isExternal, OutboundLink } from '@/components/outbound-link'
+import { OutboundLink } from '@/components/outbound-link'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import { ArticleItem } from '@/components/article-item'
 import { ArticleComments } from '@/components/article-comments'
 import { TechBadge } from '@/components/tech-badge'
-import { getPost, getPosts } from '@/lib/content'
+import { getPublishedPost, getPublishedPosts } from '@/lib/content'
 import { getSettings, socialUrl } from '@/lib/site'
 import { formatPostDate } from '@/lib/format'
+import { ArticleBody } from '@/components/article-body'
 
 export async function generateStaticParams() {
-  return (await getPosts()).map((post) => ({ slug: post.slug }))
+  return (await getPublishedPosts()).map((post) => ({ slug: post.slug }))
 }
 
 export async function generateMetadata({
@@ -24,7 +24,7 @@ export async function generateMetadata({
 }: {
   params: Promise<{ slug: string }>
 }): Promise<Metadata> {
-  const post = await getPost((await params).slug)
+  const post = await getPublishedPost((await params).slug)
   if (!post) return {}
   const canonical = `/blog/${post.slug}`
   return {
@@ -50,86 +50,13 @@ export async function generateMetadata({
   }
 }
 
-/**
- * Design: "Article Body" — COLUMN, padding [48,360], gap 28. Paragraphs are
- * Inter 17/1.8 in $text-secondary, H2s are Geist 28/700 in $text-primary, and
- * the blockquote is italic with a 3px left border in $accent.
- */
-const mdxComponents = {
-  h2: (props: React.ComponentProps<'h2'>) => (
-    <h2 className="font-display text-[28px] font-bold text-text-primary" {...props} />
-  ),
-  h3: (props: React.ComponentProps<'h3'>) => (
-    <h3 className="font-display text-[22px] font-semibold text-text-primary" {...props} />
-  ),
-  p: (props: React.ComponentProps<'p'>) => (
-    <p className="text-[17px] leading-[1.8] text-text-secondary" {...props} />
-  ),
-  blockquote: (props: React.ComponentProps<'blockquote'>) => (
-    <blockquote
-      className="border-l-[3px] border-accent pl-5 text-[17px] leading-[1.8] text-text-secondary italic"
-      {...props}
-    />
-  ),
-  ul: (props: React.ComponentProps<'ul'>) => (
-    <ul className="list-disc pl-6 text-[17px] leading-[1.8] text-text-secondary" {...props} />
-  ),
-  a: ({ href = '', ...props }: React.ComponentProps<'a'>) => (
-    // Migrated posts link out to docs and downloads; those should not replace
-    // the article the reader is in the middle of.
-    <a
-      href={href}
-      className="text-accent underline underline-offset-2"
-      {...(isExternal(href) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-      {...props}
-    />
-  ),
-  pre: ({ children }: React.ComponentProps<'pre'>) => {
-    // Design: "Code Block" — padding 24, gap 2, a header row carrying the
-    // language in Geist Mono 11/600 plus a copy icon, then one text node per
-    // line at Geist Mono 13/1.6.
-    //
-    // The design paints declaration openers ("interface CRDT<T> {",
-    // "class TextCRDT implements CRDT<Doc> {") in $accent and every other line
-    // in $text-secondary — i.e. unindented lines that open a block. That rule
-    // is applied here rather than pulling in a syntax highlighter, whose own
-    // palette would not match the design.
-    const child = children as React.ReactElement<{ className?: string; children?: string }>
-    const language = child?.props?.className?.replace('language-', '') ?? ''
-    const lines = String(child?.props?.children ?? '').replace(/\n$/, '').split('\n')
-    const isDeclaration = (line: string) => /^\S/.test(line) && line.trimEnd().endsWith('{')
-
-    return (
-      <div className="flex flex-col rounded-lg border border-border bg-bg-card p-6">
-        <div className="flex items-center justify-between pb-3">
-          <span className="font-mono text-[11px] font-semibold text-text-tertiary">{language}</span>
-          <Copy size={14} className="text-text-tertiary" />
-        </div>
-        <div className="flex flex-col gap-0.5 overflow-x-auto">
-          {lines.map((line, index) => (
-            <span
-              key={index}
-              className={`font-mono text-[13px] leading-[1.6] whitespace-pre ${
-                isDeclaration(line) ? 'text-accent' : 'text-text-secondary'
-              }`}
-            >
-              {line || ' '}
-            </span>
-          ))}
-        </div>
-      </div>
-    )
-  },
-  code: (props: React.ComponentProps<'code'>) => <code className="font-mono" {...props} />,
-}
-
 export default async function ArticlePage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params
-  const post = await getPost(slug)
+  const post = await getPublishedPost(slug)
   if (!post) notFound()
 
   const [related, settings] = await Promise.all([
-    getPosts().then((all) => all.filter((other) => other.slug !== post.slug).slice(0, 2)),
+    getPublishedPosts().then((all) => all.filter((other) => other.slug !== post.slug).slice(0, 2)),
     getSettings(),
   ])
 
@@ -200,7 +127,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
         {/* Article Body — COLUMN, padding [48,360], gap 28 */}
         <div className="flex flex-col gap-7 px-4 py-12 md:px-8 lg:px-40 xl:px-90">
-          <MDXRemote source={post.body} components={mdxComponents} />
+          <ArticleBody body={post.body} />
 
           {post.tags?.length ? (
             <>

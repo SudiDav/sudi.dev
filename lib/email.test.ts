@@ -4,6 +4,7 @@ import {
   emailConfigured,
   listAudienceContacts,
   notifyNewSubscriber,
+  notifyWeeklyDraft,
   subscriptionOutcome,
 } from './email'
 
@@ -89,6 +90,42 @@ describe('email', () => {
     const payload = sendMock.mock.calls.at(-1)![0] as Record<string, string>
     expect(payload.to).toBe('contact@sudi.dev')
     expect(payload.subject).toContain('reader@example.com')
+    expect(sendMock.mock.calls.at(-1)).toHaveLength(2)
+    expect(sendMock.mock.calls.at(-1)![1]).toMatchObject({ idempotencyKey: expect.any(String) })
+  })
+
+  it('uses a normalized subscriber address for identical retry payloads and keys', async () => {
+    process.env.RESEND_API_KEY = 're_test_key'
+    process.env.CONTACT_EMAIL = 'contact@sudi.dev'
+    sendMock.mockResolvedValue({ error: null })
+
+    await notifyNewSubscriber(' Reader@Example.com ')
+    await notifyNewSubscriber('reader@example.com')
+
+    expect(sendMock.mock.calls[0][0]).toEqual(sendMock.mock.calls[1][0])
+    expect(sendMock.mock.calls[0][1]).toEqual(sendMock.mock.calls[1][1])
+    expect(sendMock.mock.calls[0][1].idempotencyKey).not.toContain('reader@example.com')
+  })
+
+  it('scopes notification keys to the owner and sender identity', async () => {
+    process.env.RESEND_API_KEY = 're_test_key'
+    process.env.CONTACT_EMAIL = 'owner-one@sudi.dev'
+    sendMock.mockResolvedValue({ error: null })
+    await notifyNewSubscriber('reader@example.com')
+    const firstKey = sendMock.mock.calls.at(-1)![1].idempotencyKey
+
+    process.env.CONTACT_EMAIL = 'owner-two@sudi.dev'
+    await notifyNewSubscriber('reader@example.com')
+    const secondKey = sendMock.mock.calls.at(-1)![1].idempotencyKey
+
+    vi.resetModules()
+    process.env.CONTACT_EMAIL = 'owner-one@sudi.dev'
+    process.env.EMAIL_FROM = 'Other sender <other@sudi.dev>'
+    const { notifyNewSubscriber: notifyFromOtherSender } = await import('./email')
+    await notifyFromOtherSender('reader@example.com')
+    const thirdKey = sendMock.mock.calls.at(-1)![1].idempotencyKey
+
+    expect(new Set([firstKey, secondKey, thirdKey]).size).toBe(3)
   })
 
   it('does not throw adding to the audience when unconfigured', async () => {
@@ -183,5 +220,82 @@ describe('email', () => {
 
   it('returns a clean success when both audience and notification succeed', () => {
     expect(subscriptionOutcome({ sent: true }, { sent: true })).toEqual({ ok: true })
+  })
+
+  describe('notifyWeeklyDraft', () => {
+    const post = {
+      slug: 'weekly-2026-w42-public-services',
+      title: 'Building Useful Public Services',
+      excerpt: 'A practical look at software that serves people.',
+      date: '2026-10-12',
+      readingTime: '4 min read',
+      category: 'Craft',
+      cover: '/images/sudi.jpeg',
+      featured: false,
+      status: 'Draft' as const,
+      generatedWeek: '2026-W42',
+      body: 'Article body.',
+    }
+
+    it('reports missing Resend configuration softly', async () => {
+      delete process.env.RESEND_API_KEY
+      process.env.CONTACT_EMAIL = 'contact@sudi.dev'
+
+      await expect(notifyWeeklyDraft(post)).resolves.toMatchObject({ sent: false, reason: expect.stringMatching(/RESEND_API_KEY/) })
+      expect(sendMock).not.toHaveBeenCalled()
+    })
+
+    it('reports a missing owner recipient softly', async () => {
+      process.env.RESEND_API_KEY = 're_test_key'
+      delete process.env.CONTACT_EMAIL
+      delete process.env.ADMIN_EMAIL
+
+      await expect(notifyWeeklyDraft(post)).resolves.toMatchObject({ sent: false, reason: expect.stringMatching(/CONTACT_EMAIL/) })
+      expect(sendMock).not.toHaveBeenCalled()
+    })
+
+    it('emails the owner a link to edit the saved draft', async () => {
+      process.env.RESEND_API_KEY = 're_test_key'
+      process.env.CONTACT_EMAIL = 'owner@sudi.dev'
+      process.env.ADMIN_EMAIL = 'admin@sudi.dev'
+      process.env.EMAIL_FROM = 'Sudi <contact@sudi.dev>'
+      sendMock.mockResolvedValueOnce({ error: null })
+
+      await expect(notifyWeeklyDraft(post)).resolves.toEqual({ sent: true })
+
+      expect(sendMock).toHaveBeenCalledWith({
+        from: expect.any(String),
+        to: 'owner@sudi.dev',
+        subject: 'Your weekly article draft: Building Useful Public Services',
+        text: expect.stringContaining('https://sudi.dev/admin/posts/weekly-2026-w42-public-services/edit'),
+      })
+      expect(sendMock.mock.calls[0][0].text).toContain(post.excerpt)
+      expect(sendMock.mock.calls[0]).toHaveLength(1)
+      expect(contactMock).not.toHaveBeenCalled()
+      expect(contactListMock).not.toHaveBeenCalled()
+    })
+
+    it('falls back to ADMIN_EMAIL when CONTACT_EMAIL is not set', async () => {
+      process.env.RESEND_API_KEY = 're_test_key'
+      delete process.env.CONTACT_EMAIL
+      process.env.ADMIN_EMAIL = 'admin@sudi.dev'
+      sendMock.mockResolvedValueOnce({ error: null })
+
+      await notifyWeeklyDraft(post)
+
+      expect(sendMock.mock.calls[0][0].to).toBe('admin@sudi.dev')
+    })
+
+    it('returns provider-reported and thrown errors as soft failures', async () => {
+      process.env.RESEND_API_KEY = 're_test_key'
+      process.env.CONTACT_EMAIL = 'owner@sudi.dev'
+      sendMock.mockResolvedValueOnce({ error: { message: 'domain not verified' } })
+      await expect(notifyWeeklyDraft(post)).resolves.toEqual({ sent: false, reason: 'domain not verified' })
+
+      sendMock.mockRejectedValueOnce(new Error('network down'))
+      await expect(notifyWeeklyDraft(post)).resolves.toEqual({ sent: false, reason: 'network down' })
+      expect(contactMock).not.toHaveBeenCalled()
+      expect(contactListMock).not.toHaveBeenCalled()
+    })
   })
 })
