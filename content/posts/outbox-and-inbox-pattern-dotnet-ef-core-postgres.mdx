@@ -54,6 +54,7 @@ public sealed class OutboxMessage
     public DateTime OccurredAt { get; init; }
     public DateTime? ProcessedAt { get; set; }
     public int Attempts { get; set; }
+    public DateTime? NextAttemptAt { get; set; }
     public string? Error { get; set; }
 
     public static OutboxMessage From<T>(T message) => new()
@@ -126,7 +127,8 @@ private async Task PublishBatchAsync(CancellationToken ct)
     var batch = await db.OutboxMessages
         .FromSql($"""
             SELECT * FROM outbox_messages
-            WHERE processed_at IS NULL AND attempts < {MaxAttempts}
+            WHERE processed_at IS NULL
+              AND (next_attempt_at IS NULL OR next_attempt_at <= now())
             ORDER BY occurred_at
             LIMIT {BatchSize}
             FOR UPDATE SKIP LOCKED
@@ -144,17 +146,26 @@ private async Task PublishBatchAsync(CancellationToken ct)
         {
             message.Attempts++;
             message.Error = ex.Message;
+            message.NextAttemptAt = DateTime.UtcNow + Backoff(message.Attempts);
+            break;
         }
     }
 
     await db.SaveChangesAsync(ct);
     await tx.CommitAsync(ct);
 }
+
+private static TimeSpan Backoff(int attempts) =>
+    TimeSpan.FromSeconds(Math.Min(Math.Pow(2, attempts), MaxBackoff.TotalSeconds));
 ```
 
 The line that matters is `FOR UPDATE SKIP LOCKED`. You probably run more than one instance of your API. Without that line, two instances read the same rows and publish every event twice. With it, each instance locks the rows it picked, and the other instances skip those rows and take the next ones. PostgreSQL handles the coordination, so you do not need a distributed lock.
 
-`FromSql` with an interpolated string still sends `MaxAttempts` and `BatchSize` as SQL parameters, not as raw text.
+`FromSql` with an interpolated string still sends `BatchSize` as a SQL parameter, not as raw text.
+
+When a publish fails, the publisher never gives up on the row. It records the error and schedules the next attempt with exponential backoff: 2 seconds, then 4, then 8, up to a cap of five minutes (`MaxBackoff`). Then it stops the batch, because the most common cause of a failure is the broker being down, and sending the next rows would fail too.
+
+An earlier version of this code skipped rows after five failed attempts. I tested it by taking the broker down for eight seconds. Every pending row hit five attempts, and when the broker came back, none of them were ever sent. With backoff instead of a cap, the same outage ended with all three orders invoiced.
 
 Now look at the order of operations. The publisher sends the message, marks the row as processed, and then commits. If the app dies after sending but before the commit, the row is still unprocessed, and the next run sends it again. So the outbox does not give you exactly-once delivery. It gives you **at-least-once** delivery. You never lose a message, but some messages arrive twice.
 
@@ -228,7 +239,7 @@ The code above covers the pattern itself. A production service needs a few more 
 
 - **Clean up old rows.** Processed rows pile up fast. A daily job that runs `DELETE FROM outbox_messages WHERE processed_at < now() - interval '7 days'` is enough. Do the same for the inbox, but keep those rows longer than your broker's redelivery window.
 - **Alert on the backlog.** Track the age of the oldest unsent message. If it keeps growing, your publisher is stuck or your broker is down.
-- **Watch for poison messages.** After five failed attempts, the publisher stops picking a row up. Alert on those rows, or the event stays unsent and nobody notices.
+- **Watch for poison messages.** A row that keeps failing is retried every five minutes forever. Alert when `attempts` goes above a threshold, so someone looks at the message instead of letting it retry unnoticed.
 - **Know your ordering.** `ORDER BY occurred_at` gives you rough ordering, but not strict ordering once several publishers run at once. If you need strict ordering per order or per customer, publish with a partition key, or make the consumer handle events that arrive out of order.
 - **Decide how much latency you can accept.** A one-second polling timer is fine for most work. If you need faster delivery, PostgreSQL `LISTEN/NOTIFY` can wake the publisher as soon as a row is inserted.
 - **Use migrations.** My sample calls `EnsureCreated` to keep it short. A real service should not.
