@@ -13,6 +13,18 @@
   --border: #2A2A35;
   --border-hover: #3A3A48;
 
+  /* Code blocks (lib/highlight.ts): accent-blue keywords, teal types, amber strings. */
+  --code-foreground: #C8CAD6;
+  --code-token-keyword: #8FA9E6;
+  --code-token-function: #7CCBB5;
+  --code-token-parameter: #C8CAD6;
+  --code-token-string: #DDB77E;
+  --code-token-string-expression: #DDB77E;
+  --code-token-constant: #E59C7D;
+  --code-token-comment: #868B9F;
+  --code-token-punctuation: #8B8B96;
+  --code-token-link: #8FA9E6;
+
   /* Admin — single-valued, no theme variance. Phase 2. */
   --admin-bg: #F8F9FB;
   --admin-sidebar: #111827;
@@ -73,6 +85,17 @@
   --accent-dim: #D1E0D7;
   --border: #D8DCE4;
   --border-hover: #C0C6D2;
+
+  --code-foreground: #2B303B;
+  --code-token-keyword: #3B5BA5;
+  --code-token-function: #1D7562;
+  --code-token-parameter: #2B303B;
+  --code-token-string: #94600F;
+  --code-token-string-expression: #94600F;
+  --code-token-constant: #B04A22;
+  --code-token-comment: #676D7D;
+  --code-token-punctuation: #5A6070;
+  --code-token-link: #3B5BA5;
 }
 
 @theme inline {

@@ -2,6 +2,7 @@ import { Copy } from 'lucide-react'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import { isExternal } from '@/components/outbound-link'
 import { validateArticleBody } from '@/lib/article-safety'
+import { highlight } from '@/lib/highlight'
 
 /**
  * Design: "Article Body" — COLUMN, padding [48,360], gap 28. Paragraphs are
@@ -42,15 +43,11 @@ const mdxComponents = {
     // language in Geist Mono 11/600 plus a copy icon, then one text node per
     // line at Geist Mono 13/1.6.
     //
-    // The design paints declaration openers ("interface CRDT<T> {",
-    // "class TextCRDT implements CRDT<Doc> {") in $accent and every other line
-    // in $text-secondary — i.e. unindented lines that open a block. That rule
-    // is applied here rather than pulling in a syntax highlighter, whose own
-    // palette would not match the design.
+    // Tokens are coloured by Shiki through the --code-* variables in
+    // globals.css, so the palette is the site's own rather than a stock theme.
     const child = children as React.ReactElement<{ className?: string; children?: string }>
     const language = child?.props?.className?.replace('language-', '') ?? ''
-    const lines = String(child?.props?.children ?? '').replace(/\n$/, '').split('\n')
-    const isDeclaration = (line: string) => /^\S/.test(line) && line.trimEnd().endsWith('{')
+    const lines = highlight(String(child?.props?.children ?? '').replace(/\n$/, ''), language)
 
     return (
       <div className="flex flex-col rounded-lg border border-border bg-bg-card p-6">
@@ -59,14 +56,15 @@ const mdxComponents = {
           <Copy size={14} className="text-text-tertiary" />
         </div>
         <div className="flex flex-col gap-0.5 overflow-x-auto">
-          {lines.map((line, index) => (
-            <span
-              key={index}
-              className={`font-mono text-[13px] leading-[1.6] whitespace-pre ${
-                isDeclaration(line) ? 'text-accent' : 'text-text-secondary'
-              }`}
-            >
-              {line || ' '}
+          {lines.map((tokens, index) => (
+            <span key={index} className="font-mono text-[13px] leading-[1.6] whitespace-pre text-[var(--code-foreground)]">
+              {tokens.length === 0
+                ? ' '
+                : tokens.map((token, i) => (
+                    <span key={i} style={token.color ? { color: token.color } : undefined}>
+                      {token.content}
+                    </span>
+                  ))}
             </span>
           ))}
         </div>
