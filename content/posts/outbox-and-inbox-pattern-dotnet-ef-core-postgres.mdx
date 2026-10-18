@@ -78,6 +78,16 @@ b.Entity<OutboxMessage>(e =>
 });
 ```
 
+The SQL in this post uses snake_case names like `outbox_messages` and `processed_at`. EF Core does not create those by default. It would name the table `OutboxMessages` and the column `ProcessedAt`. So the sample registers the context with `UseSnakeCaseNamingConvention()` from the `EFCore.NamingConventions` package:
+
+```csharp
+builder.Services.AddDbContext<AppDbContext>(o => o
+    .UseNpgsql(builder.Configuration.GetConnectionString("Default"))
+    .UseSnakeCaseNamingConvention());
+```
+
+If you leave that line out, the partial index and the raw SQL fail with "relation does not exist".
+
 The endpoint has no broker call at all:
 
 ```csharp
