@@ -3,7 +3,11 @@ import { join } from 'node:path'
 import matter from 'gray-matter'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { compileMDX } from 'next-mdx-remote/rsc'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+
+// The signup form imports a server action, which cannot load outside Next.
+vi.mock('@/components/newsletter-form', () => ({ NewsletterForm: () => null }))
+
 import { ArticleBody } from '@/components/article-body'
 import { validateArticleBody } from './article-safety'
 
