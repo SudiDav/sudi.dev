@@ -1,6 +1,7 @@
 import { Copy } from 'lucide-react'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import { isExternal } from '@/components/outbound-link'
+import { NewsletterLink } from '@/components/newsletter-link'
 import { validateArticleBody } from '@/lib/article-safety'
 import { highlight } from '@/lib/highlight'
 
@@ -9,7 +10,7 @@ import { highlight } from '@/lib/highlight'
  * Inter 17/1.8 in $text-secondary, H2s are Geist 28/700 in $text-primary, and
  * the blockquote is italic with a 3px left border in $accent.
  */
-const mdxComponents = {
+export const mdxComponents = {
   h2: (props: React.ComponentProps<'h2'>) => (
     <h2 className="font-display text-[28px] font-bold text-text-primary" {...props} />
   ),
@@ -28,16 +29,19 @@ const mdxComponents = {
   ul: (props: React.ComponentProps<'ul'>) => (
     <ul className="list-disc pl-6 text-[17px] leading-[1.8] text-text-secondary" {...props} />
   ),
-  a: ({ href = '', ...props }: React.ComponentProps<'a'>) => (
-    // Migrated posts link out to docs and downloads; those should not replace
-    // the article the reader is in the middle of.
-    <a
-      href={href}
-      className="text-accent underline underline-offset-2"
-      {...(isExternal(href) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-      {...props}
-    />
-  ),
+  a: ({ href = '', ...props }: React.ComponentProps<'a'>) =>
+    href === '#newsletter' ? (
+      <NewsletterLink>{props.children}</NewsletterLink>
+    ) : (
+      // Migrated posts link out to docs and downloads; those should not replace
+      // the article the reader is in the middle of.
+      <a
+        href={href}
+        className="text-accent underline underline-offset-2"
+        {...(isExternal(href) ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+        {...props}
+      />
+    ),
   pre: ({ children }: React.ComponentProps<'pre'>) => {
     // Design: "Code Block" — padding 24, gap 2, a header row carrying the
     // language in Geist Mono 11/600 plus a copy icon, then one text node per
