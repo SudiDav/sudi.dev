@@ -134,6 +134,11 @@ altering Auth.js. HTTP local tests set `x-forwarded-proto=http`; real deployed
 requests use HTTPS and secure session cookies. Browser inspection confirmed the
 home page, styles, fonts, and interactive 3D scene load.
 
+A controlled unpublished fixture was included in a local Worker build: its
+public article URL returned 404, its marker was absent from blog/RSS/sitemap
+responses and every public asset, and present only in the server bundle. The
+fixture was removed after the check; it was never deployed to Cloudflare.
+
 Cloudflare previews were deployed. Direct requests to their Cloudflare edge
 with normal certificate validation returned HTTPS 200 for the portal and main
 public pages, an article, RSS, and the social image; unsigned admin status
