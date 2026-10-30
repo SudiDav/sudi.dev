@@ -22,7 +22,7 @@ function migratedPostRedirects() {
     }))
 }
 
-const nextConfig: NextConfig = {
+const nextConfig = {
   // Standalone output produces a self-contained server bundle for the
   // container build — no node_modules, no package manager in the image.
   //
@@ -43,6 +43,6 @@ const nextConfig: NextConfig = {
   async redirects() {
     return migratedPostRedirects()
   },
-}
+} satisfies NextConfig
 
 export default nextConfig

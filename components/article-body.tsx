@@ -1,5 +1,5 @@
 import { Copy } from 'lucide-react'
-import { MDXRemote } from 'next-mdx-remote/rsc'
+import { Markdown } from '@/lib/markdown'
 import { isExternal } from '@/components/outbound-link'
 import { NewsletterLink } from '@/components/newsletter-link'
 import { validateArticleBody } from '@/lib/article-safety'
@@ -80,5 +80,5 @@ export const mdxComponents = {
 
 export function ArticleBody({ body }: { body: string }) {
   validateArticleBody(body)
-  return <MDXRemote source={body} components={mdxComponents} />
+  return <Markdown source={body} components={mdxComponents} />
 }

@@ -1,6 +1,6 @@
 # Cloudflare hosting for sudi.dev and stream.sudi.dev
 
-Status: proposed; compatibility reconnaissance completed; implementation and live cutover have not started.
+Status: approved with revision. Sudi explicitly selected vinext after the OpenNext proposal and asked to proceed directly. Implementation is in progress; live cutover has not started.
 
 ## Intended result
 
@@ -20,7 +20,7 @@ The main app uses Next.js 16.3.0, React 19.2.0, Auth.js (`next-auth` beta), GitH
 
 Cloudflare's current default recommendation is vinext, which is beta. Running `npx vinext check` reported eight supported import families, three supported configuration options, and **one incompatible library: next-auth**. The reported 95% compatibility is a static scan, not evidence that the app runs correctly on Workers.
 
-**Proposed choice:** use the OpenNext Cloudflare adapter as the first implementation candidate for the main app. It retains Next.js build output and documents Next.js 16 support. Preserve the current Auth.js identity and authorization model rather than replace login solely to fit vinext. OpenNext is a compatibility candidate, not a proven working deployment yet. Its documented lack of Node middleware support makes the existing `proxy.ts` a specific validation item. If an equivalent supported redirect cannot be implemented while retaining the server-side security gates, leave the main site on Vercel and report the blocker; do not silently rewrite authentication or weaken authorization.
+**User's final choice:** use vinext and its generated Cloudflare configuration. Keep the current React components and Auth.js integration initially; treat the compatibility warning as a hypothesis to test against the real runtime. Change application code only where an observed incompatibility requires it. Retain the GitHub identity, ADMIN_EMAIL allowlist, production prohibition on development bypass, and every server-side authorization gate. If the existing integration cannot run, implement the minimum compatible integration around the maintained Auth.js core and prove the same access rules before cutover. Do not adopt OpenNext or redesign the UI.
 
 Deploy the stream portal separately as Cloudflare Workers Static Assets. It needs no Next.js adapter or application server.
 
@@ -28,7 +28,7 @@ Deploy the stream portal separately as Cloudflare Workers Static Assets. It need
 
 ### Main website
 
-Keep Next.js development and Vercel build commands available during the transition. Add separately named Cloudflare build, local Workers preview, and deploy commands with locked compatible dependency versions. Read the installed Next.js 16 documentation before changing framework code. Check current framework/security compatibility before pinning versions; scope any required patch updates to the migration.
+Keep Next.js development and Vercel build commands available during the transition. Add separately named vinext build, local Workers preview, and deploy commands with locked compatible dependency versions. Read the installed Next.js 16 documentation before changing framework code. Check current framework/security compatibility before pinning versions; scope any required patch updates to the migration.
 
 Public routes, feeds, metadata, social previews, old article redirects, images, fonts, and comments must work in the built Workers runtime. Prefer existing static image assets initially; do not activate a paid image product without approval.
 

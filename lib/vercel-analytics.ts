@@ -24,6 +24,9 @@ function analyticsQuery(path: string) {
 
 /** Query lifetime production page views for the exact public path of each post. */
 export async function getPostViewCounts(slugs: string[]): Promise<PostViewResult> {
+  if (process.env.HOSTING_PROVIDER === 'cloudflare') {
+    return { counts: {}, available: false, error: 'Site statistics are available in Cloudflare Web Analytics.' }
+  }
   const token = process.env.VERCEL_TOKEN
   const projectId = process.env.VERCEL_PROJECT_ID
   if (!token || !projectId) {
