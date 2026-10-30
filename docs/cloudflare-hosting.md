@@ -155,10 +155,10 @@ The inactive feature's AI/cron secrets are intentionally not declared as
 required bindings in the main Worker. Add those bindings and their real values
 when enabling it; declare `AI_BASE_URL` only if a custom endpoint is used.
 
-## Verified and pending
+## Verified and release checks
 
 Verified locally: vinext production build, original Next.js production build,
-typecheck, lint, all 302 tests including analytics guards, and direct Workers
+typecheck, lint, the CI suite including analytics guards, and direct Workers
 requests for public pages, article bodies, sitemap/RSS, and protected endpoints.
 Local fixture sessions proved owner acceptance and non-owner rejection without
 altering Auth.js. HTTP local tests set `x-forwarded-proto=http`; real deployed
@@ -168,7 +168,10 @@ home page, styles, fonts, and interactive 3D scene load.
 A controlled unpublished fixture was included in a local Worker build: its
 public article URL returned 404, its marker was absent from blog/RSS/sitemap
 responses and every public asset, and present only in the server bundle. The
-fixture was removed after the check; it was never deployed to Cloudflare.
+fixture was removed after the local check. A separate unpublished admin draft
+subsequently verified the real GitHub-save-to-Cloudflare-build path, with the
+same public 404 and blog/RSS/sitemap exclusion checks. It is removed from the
+release. GitHub API request-header regression coverage also passes.
 
 Cloudflare previews were deployed. Direct requests to their Cloudflare edge
 with normal certificate validation returned HTTPS 200 for the portal and main
@@ -179,12 +182,16 @@ or daily request limits.
 
 An independent source review found no critical or important issues. Latest main
 preview version: `590fe6ca-c683-4526-8279-9f3315b8492e`. Stream preview version:
-`25f73a42-1a78-4995-a66d-dd51fef970e1`. The parent `.dev` registry delegates to
-Cloudflare, while a sampled recursive resolver still has the old Namecheap
-nameservers cached. Cloudflare authoritative DNS already serves both previews.
+`25f73a42-1a78-4995-a66d-dd51fef970e1`. The parent `.dev` registry and the
+refreshed Cloudflare resolver confirm Cloudflare nameservers. Browser access
+to the owner-validation hostname works after refreshing stale NS, A, and AAAA
+entries through Cloudflare's public DNS cache tool.
 
-Pending: public DNS propagation, real production credentials and OAuth verification, GitHub
-build connection/publishing, production analytics ingestion, and live cutover.
+Release verification must also cover the live addresses, owner sign-in on the
+production hostname, unchanged mail DNS, and actual production analytics
+ingestion. Runtime credentials, real OAuth, Resend reads, comment reads, and
+the native GitHub publishing/build connection have been verified on the
+temporary owner-validation deployment.
 
 ## Cutover and rollback
 
