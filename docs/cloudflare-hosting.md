@@ -1,8 +1,9 @@
 # Cloudflare hosting migration
 
 The main app runs with vinext alongside the original Next.js/Vercel build. The
-family portal is a separate Workers Static Assets project. Neither production
-website has been cut over by this branch.
+family portal is a separate Workers Static Assets project. The production
+domain configuration is prepared for staged deployment: stream portal first,
+then the main app, following the normal develop-to-main release workflow.
 
 ## Build and preview
 
@@ -35,7 +36,8 @@ For the stream portal, run the root-installed Vite and cf binaries from
 ../../node_modules/.bin/cf deploy --prebuilt
 ```
 
-Its preview address is https://stream-preview.sudi.dev. These custom domains
+The portal was verified at https://stream-preview.sudi.dev; its production
+configuration now targets https://stream.sudi.dev. These custom domains
 use Cloudflare DNS. Public resolvers may still follow cached Namecheap
 delegation while the earlier nameserver migration propagates. Do not change
 nameservers again to work around those caches.
@@ -43,8 +45,8 @@ nameservers again to work around those caches.
 ## Configuration and content
 
 - `cloudflare.config.ts` declares main Worker bindings. The production Worker
-  uses `migration.sudi.dev` for owner sign-in and publishing checks before
-  cutover; `sudi.dev` remains on Vercel. `preview` mode has its own hostname
+  targets `sudi.dev`, following verified owner sign-in and publishing checks
+  at the temporary `migration.sudi.dev` hostname. `preview` mode has its own hostname
   and no production credentials. Production workers.dev and version URLs
   are explicitly disabled; existing dashboard logging settings are preserved.
 - `vite.config.ts` disables Node standalone output for Workers while preserving
@@ -64,8 +66,10 @@ nameservers again to work around those caches.
 Vercel's production export returned `[SENSITIVE]` instead of the protected
 values. Do not upload these placeholders or replace them with test fixtures.
 The owner entered replacement GitHub OAuth, publishing, and Resend credentials
-privately. All nine required secret names are confirmed saved in Cloudflare;
-presence alone does not validate their values or prove a real sign-in.
+privately. All nine required secret names are confirmed saved in Cloudflare.
+Real GitHub owner sign-in, Resend audience/broadcast reads, GitHub comment reads,
+and an unpublished admin save to the migration branch have been verified.
+No newsletter or owner notification was sent during verification.
 
 Use Cloudflare secret storage, or a local ignored JSON file passed to
 `cf deploy --secrets-file`. Never commit, print, or send the values in chat.
@@ -84,7 +88,8 @@ A real OAuth test on another hostname needs a separate test OAuth application
 or an explicitly approved additional exact redirect URI on the existing app.
 Keep the production and localhost redirect URIs unchanged. The temporary
 validation URI is `https://migration.sudi.dev/api/auth/callback/github`;
-its GitHub authorization remains pending until the owner approves it.
+the owner approved and saved it for testing. Remove that temporary URI after
+the production sign-in check, keeping the original two URIs.
 
 Production publishing also requires a connected Cloudflare GitHub build that
 deploys `main`, including content-only commits. Use `pnpm install
@@ -96,6 +101,15 @@ public comment-widget settings saved. Their repository and Announcements
 category identifiers match the live Vercel site's public client bundle.
 Automatic branch previews on the production Worker are disabled; public
 previews continue to use the separately isolated preview Worker.
+The connection temporarily watched the migration branch for a real admin-save
+test, and has been restored to `main`. The test save created commit `4efe732`;
+Cloudflare build `bf77f9e3-bc30-4084-98c7-ff9bb52cda14` successfully deployed it
+after the temporary publishing-branch override was restored to `main`.
+The unpublished draft returned 404 and was absent from the public blog,
+sitemap, and RSS; it is removed from this release. Keep authored/runtime
+branch settings aligned: native builds correctly reject conflicting dashboard
+overrides. GitHub requests identify the app with a required `User-Agent`,
+including the anonymous fallback for public discussion reads.
 Do not switch production before a controlled publishing commit has been
 observed reaching the Cloudflare deployment. Until a supported commit-status
 integration is configured, admin status explicitly says unavailable and asks

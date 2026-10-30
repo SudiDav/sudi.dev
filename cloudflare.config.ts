@@ -4,7 +4,7 @@ export default defineConfig(({ mode, isPreview }) => ({
   accountId: 'aa039e1fd071fc06505e7cbff58b4de3',
   worker: defineWorker({
     name: mode === 'preview' || isPreview ? 'sudi-dev-preview' : 'sudi-dev',
-    domains: mode === 'preview' ? ['preview.sudi.dev'] : ['migration.sudi.dev'],
+    domains: mode === 'preview' ? ['preview.sudi.dev'] : ['sudi.dev'],
     ...(mode === 'preview' || isPreview ? {} : {
       workersDev: false,
       previewUrls: false,
