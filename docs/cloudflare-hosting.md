@@ -42,8 +42,11 @@ nameservers again to work around those caches.
 
 ## Configuration and content
 
-- `cloudflare.config.ts` declares main Worker bindings; production has no custom
-  domain until an explicit cutover edit. `preview` mode has its own hostname.
+- `cloudflare.config.ts` declares main Worker bindings. The production Worker
+  uses `migration.sudi.dev` for owner sign-in and publishing checks before
+  cutover; `sudi.dev` remains on Vercel. `preview` mode has its own hostname
+  and no production credentials. Production workers.dev and version URLs
+  are explicitly disabled; existing dashboard logging settings are preserved.
 - `vite.config.ts` disables Node standalone output for Workers while preserving
   the same redirects and Server Action size limit.
 - `build-plugins/content.ts` embeds only posts, projects, and `site.json` into
@@ -60,8 +63,9 @@ nameservers again to work around those caches.
 
 Vercel's production export returned `[SENSITIVE]` instead of the protected
 values. Do not upload these placeholders or replace them with test fixtures.
-The existing local configuration also lacks the production GitHub OAuth,
-publishing, and Resend credentials. The owner must supply those privately.
+The owner entered replacement GitHub OAuth, publishing, and Resend credentials
+privately. All nine required secret names are confirmed saved in Cloudflare;
+presence alone does not validate their values or prove a real sign-in.
 
 Use Cloudflare secret storage, or a local ignored JSON file passed to
 `cf deploy --secrets-file`. Never commit, print, or send the values in chat.
@@ -76,12 +80,22 @@ Use Cloudflare secret storage, or a local ignored JSON file passed to
 The main config sets `AUTH_TRUST_HOST=true`, `GITHUB_REPO=SudiDav/sudi.dev`, and
 `GITHUB_BRANCH=main`. Never bind `AUTH_DEV_BYPASS` in a deployed Worker. Keep
 production OAuth's callback at `https://sudi.dev/api/auth/callback/github`.
-A real OAuth test on another hostname needs a separate test OAuth application.
+A real OAuth test on another hostname needs a separate test OAuth application
+or an explicitly approved additional exact redirect URI on the existing app.
+Keep the production and localhost redirect URIs unchanged. The temporary
+validation URI is `https://migration.sudi.dev/api/auth/callback/github`;
+its GitHub authorization remains pending until the owner approves it.
 
 Production publishing also requires a connected Cloudflare GitHub build that
 deploys `main`, including content-only commits. Use `pnpm install
 --frozen-lockfile`, `pnpm build:vinext`, and the prebuilt Cloudflare deployment.
 Configure the public `NEXT_PUBLIC_GISCUS_*` values in the build environment.
+The existing Cloudflare GitHub connection now watches `main`, uses
+`pnpm run build:vinext` and `pnpm exec cf deploy --prebuilt`, and has the four
+public comment-widget settings saved. Their repository and Announcements
+category identifiers match the live Vercel site's public client bundle.
+Automatic branch previews on the production Worker are disabled; public
+previews continue to use the separately isolated preview Worker.
 Do not switch production before a controlled publishing commit has been
 observed reaching the Cloudflare deployment. Until a supported commit-status
 integration is configured, admin status explicitly says unavailable and asks
@@ -123,6 +137,9 @@ Keep same-week draft deduplication and the existing email idempotency behavior.
 Never activate both schedules deliberately. The production Vercel export did
 not include the AI/cron variables; check actual configuration before enabling
 a previously inactive feature.
+The inactive feature's AI/cron secrets are intentionally not declared as
+required bindings in the main Worker. Add those bindings and their real values
+when enabling it; declare `AI_BASE_URL` only if a custom endpoint is used.
 
 ## Verified and pending
 
