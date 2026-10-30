@@ -14,7 +14,7 @@
 - [x] Replace local-only notices with an honest invitation availability notice and a manual email request action.
 - [x] Add independent Vercel static deployment configuration and deployment instructions.
 - [x] Check script syntax, local asset references, English/French interactions, invitation email targets, and mobile layout. Inspect the policy on a served response.
-- [ ] Review the isolated change and commit it. Open a PR against `develop` following the repository's source workflow.
+- [x] Review the isolated change and commit it. Open a PR against `develop` following the repository's source workflow.
 - [ ] Deploy the separate static project with the authenticated Vercel account. Add `stream.sudi.dev`, obtain its exact DNS requirement, and verify the live site after DNS is configured.
 
 ## Deployment checks
