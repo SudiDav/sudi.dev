@@ -31,6 +31,9 @@ function mapState(deployment: VercelDeployment): DeploymentState {
 }
 
 export async function getDeploymentStatus(sha: string): Promise<DeploymentStatus> {
+  if (process.env.HOSTING_PROVIDER === 'cloudflare') {
+    return { status: 'unavailable', error: 'Check the Cloudflare build dashboard for this commit.' }
+  }
   const token = process.env.VERCEL_TOKEN
   const projectId = process.env.VERCEL_PROJECT_ID
   if (!token || !projectId) {

@@ -1,5 +1,3 @@
-import { readdir } from 'node:fs/promises'
-import { join } from 'node:path'
 import { describe, it, expect } from 'vitest'
 import { isExternal } from '@/components/outbound-link'
 
@@ -27,12 +25,20 @@ async function serverUp() {
 }
 
 async function routes() {
-  const contentRoutes = async (dir: string, prefix: string) =>
-    (await readdir(join(process.cwd(), 'content', dir)))
-      .filter((f) => f.endsWith('.mdx'))
-      .map((f) => prefix + f.replace(/\.mdx$/, ''))
+  // Use the running build's published routes, not temporary files created by
+  // concurrent content tests or drafts that must return 404 publicly.
+  const sitemap = await pageHtml('/sitemap.xml')
+  const articles = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)]
+    .map((match) => new URL(match[1]).pathname)
+    .filter((path) => path.startsWith('/blog/'))
+  expect(articles.length, 'The published article sitemap must not be empty').toBeGreaterThan(0)
+  return ['/', '/work', '/blog', '/about', ...articles]
+}
 
-  return ['/', '/work', '/blog', '/about', ...(await contentRoutes('posts', '/blog/'))]
+async function pageHtml(route: string) {
+  const response = await fetch(BASE + route)
+  expect(response.status, `Page ${route} must render before checking its links`).toBe(200)
+  return response.text()
 }
 
 /** Anchors in the served HTML, as [href, fullTag] pairs. */
@@ -50,7 +56,7 @@ describe('outbound links', async () => {
     const offenders: string[] = []
 
     for (const route of await routes()) {
-      const html = await (await fetch(BASE + route)).text()
+      const html = await pageHtml(route)
       for (const [href, tag] of anchors(html)) {
         // mailto: hands off to a mail client without navigating away, so a new
         // tab would only leave a blank one behind.
@@ -66,7 +72,7 @@ describe('outbound links', async () => {
     const offenders: string[] = []
 
     for (const route of await routes()) {
-      const html = await (await fetch(BASE + route)).text()
+      const html = await pageHtml(route)
       for (const [href, tag] of anchors(html)) {
         if (!tag.includes('target="_blank"')) continue
         // Without noopener the opened page can navigate this tab elsewhere.
