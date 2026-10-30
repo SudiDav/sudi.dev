@@ -127,7 +127,7 @@ a previously inactive feature.
 ## Verified and pending
 
 Verified locally: vinext production build, original Next.js production build,
-typecheck, lint, all 294 tests before the analytics addition, and direct Workers
+typecheck, lint, all 302 tests including analytics guards, and direct Workers
 requests for public pages, article bodies, sitemap/RSS, and protected endpoints.
 Local fixture sessions proved owner acceptance and non-owner rejection without
 altering Auth.js. HTTP local tests set `x-forwarded-proto=http`; real deployed
@@ -141,8 +141,13 @@ returned 401. A build measured about 1.93 MiB compressed, below the free plan's
 bundle limit; this does not guarantee every future request stays within CPU
 or daily request limits.
 
-Pending: final regression after analytics changes, independent review, public
-DNS propagation, real production credentials and OAuth verification, GitHub
+An independent source review found no critical or important issues. Latest main
+preview version: `590fe6ca-c683-4526-8279-9f3315b8492e`. Stream preview version:
+`25f73a42-1a78-4995-a66d-dd51fef970e1`. The parent `.dev` registry delegates to
+Cloudflare, while a sampled recursive resolver still has the old Namecheap
+nameservers cached. Cloudflare authoritative DNS already serves both previews.
+
+Pending: public DNS propagation, real production credentials and OAuth verification, GitHub
 build connection/publishing, production analytics ingestion, and live cutover.
 
 ## Cutover and rollback
