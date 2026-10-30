@@ -36,7 +36,15 @@ vercel deploy --prod
 
 If importing this Git repository instead, set **Root Directory** to `sites/stream`. Follow the repository's `develop` → `main` source workflow and use `main` for production. Changes to this directory can then be deployed separately from the portfolio.
 
-After Vercel returns the exact DNS record for the subdomain, add only that subdomain record at the domain's DNS provider. The domain currently uses external registrar nameservers, so adding a project domain in Vercel alone does not configure its DNS.
+After Vercel returns the exact DNS record for the subdomain, add only that subdomain record at the domain's DNS provider. Adding a project domain in Vercel alone does not configure its DNS.
+
+### Published deployment (2026-10-30)
+
+- Live portal: https://stream.sudi.dev (fallback: https://sudi-stream.vercel.app).
+- Independent Vercel project: `sudi-stream` in `trykatchs-projects`.
+- `stream` CNAME: `f164129511200d9c.vercel-dns-017.com` (DNS only).
+- Vercel reports Valid Configuration; the custom address opens successfully over HTTPS.
+- All 21 existing DNS records were copied and compared with Cloudflare before the nameserver change. Namecheap now has `anna.ns.cloudflare.com` and `rick.ns.cloudflare.com` saved. At verification time Cloudflare was waiting for registrar propagation, so global activation was still pending. Future DNS changes belong in Cloudflare after activation.
 
 ## Security and verification
 

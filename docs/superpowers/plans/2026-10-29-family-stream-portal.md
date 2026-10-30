@@ -15,7 +15,9 @@
 - [x] Add independent Vercel static deployment configuration and deployment instructions.
 - [x] Check script syntax, local asset references, English/French interactions, invitation email targets, and mobile layout. Inspect the policy on a served response.
 - [x] Review the isolated change and commit it. Open a PR against `develop` following the repository's source workflow.
-- [ ] Deploy the separate static project with the authenticated Vercel account. Add `stream.sudi.dev`, obtain its exact DNS requirement, and verify the live site after DNS is configured.
+- [x] Deploy the separate static project with the authenticated Vercel account. Add `stream.sudi.dev`, obtain its exact DNS requirement, and verify the live site after DNS is configured.
+
+Published on 2026-10-30 at https://stream.sudi.dev. Vercel reports Valid Configuration, and the custom address opens over HTTPS. The user's subsequently requested Cloudflare migration preserved all 21 records; Namecheap saved Cloudflare's nameservers after explicit approval. Cloudflare activation remains pending registrar propagation at the time of this note.
 
 ## Deployment checks
 
