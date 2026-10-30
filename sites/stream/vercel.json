@@ -22,7 +22,7 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
+          "value": "default-src 'self'; script-src 'self' https://static.cloudflareinsights.com/beacon.min.js; style-src 'self'; img-src 'self'; connect-src https://cloudflareinsights.com; object-src 'none'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'"
         },
         {
           "key": "X-Robots-Tag",

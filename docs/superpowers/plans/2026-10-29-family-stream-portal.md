@@ -19,6 +19,10 @@
 
 Published on 2026-10-30 at https://stream.sudi.dev. Vercel reports Valid Configuration, and the custom address opens over HTTPS. The user's subsequently requested Cloudflare migration preserved all 21 records; Namecheap saved Cloudflare's nameservers after explicit approval. Cloudflare activation remains pending registrar propagation at the time of this note.
 
+## Cloudflare analytics follow-up
+
+Cloudflare has since activated the zone. The user requested analytics for the existing Vercel-hosted website setup and supplied the public installation snippet for `stream.sudi.dev`. Add it only on that hostname, permit only the required analytics script and connection in the content security policy, and disclose cookie-free statistics in both footer languages. Keep the welcome page public; the main portfolio already has its own analytics and admin authentication. No VPS, Tunnel, or additional application hosting is required.
+
 ## Deployment checks
 
 The portal can be deployed independently of the portfolio. If Vercel or registrar authentication is unavailable, retain the complete reviewed source and report the precise missing access. A successful static deployment does not mean that Syncio or automatic invitations are active.
