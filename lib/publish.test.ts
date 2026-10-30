@@ -59,7 +59,7 @@ describe('publishing metadata', () => {
     getPostsMock.mockReset()
   })
 
-  it('returns the GitHub commit metadata for a production publish', async () => {
+  it('publishes a production draft with GitHub-compatible read/write requests', async () => {
     vi.stubEnv('NODE_ENV', 'production')
     process.env.GITHUB_TOKEN = 'github-test-token'
     process.env.GITHUB_REPO = 'SudiDav/sudi.dev'
@@ -116,6 +116,9 @@ describe('publishing metadata', () => {
       sha: 'abc123',
       commitUrl: 'https://github.com/SudiDav/sudi.dev/commit/abc123',
     })
+    for (const [, request] of fetchMock.mock.calls) {
+      expect(new Headers(request?.headers).get('User-Agent')).toBeTruthy()
+    }
   })
 
   it('serializes generated titles and excerpts as valid YAML strings', async () => {

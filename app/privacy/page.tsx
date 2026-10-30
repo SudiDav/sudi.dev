@@ -16,13 +16,13 @@ export const metadata: Metadata = {
  * Every claim below is checkable in the codebase:
  *
  *   newsletter  → subscribe() in app/admin/actions.ts, Resend audience
- *   comments    → components/comment-form.tsx, content/comments.json
- *   no analytics → no tracking dependency in package.json
+ *   comments    → GitHub Discussions via giscus
+ *   analytics   → components/site-analytics.tsx, selected by hosting provider
  *   self-hosted fonts → next/font/google inlines them at build time
  *
  * If any of those change, this page has to change with it.
  */
-const UPDATED = '23 August 2026'
+const UPDATED = '30 October 2026'
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
@@ -39,6 +39,7 @@ function P({ children }: { children: React.ReactNode }) {
 
 export default async function PrivacyPage() {
   const settings = await getSettings()
+  const cloudflare = process.env.HOSTING_PROVIDER === 'cloudflare'
 
   return (
     <div className="flex min-h-screen flex-col bg-bg-primary">
@@ -76,11 +77,16 @@ export default async function PrivacyPage() {
               anywhere else.
             </P>
             <P>
-              I do count page views, through Vercel Web Analytics. It sets no cookie and stores no
-              personal data: visitors are identified by a hash of the request that resets every
-              day, so the same person cannot be recognised tomorrow, or on any other site. What I
-              see is aggregate — which pages get read, roughly where in the world from, which
-              browsers. Never who.
+              {cloudflare ? (
+                <>Cloudflare Web Analytics counts public page loads without cookies or tracking
+                  individual visitors across sites. Local previews and admin page loads are
+                  excluded. Automatic tracking of navigation within a page is disabled. I see
+                  aggregate statistics rather than individual visitor profiles.</>
+              ) : (
+                <>I count page views through Vercel Web Analytics. It sets no cookie; visitor
+                  identification resets daily. I see aggregate statistics about pages and
+                  browsers rather than individual visitor profiles.</>
+              )}
             </P>
             <P>
               This site sets no cookies for visitors. The only cookie it issues is a sign-in
@@ -110,9 +116,9 @@ export default async function PrivacyPage() {
               cookie, and giscus states that it has no tracking and no ads.
             </P>
             <P>
-              <strong className="text-text-primary">Vercel</strong> hosts the site, keeps ordinary
-              server logs — IP address, page requested, timestamp — as every web server does, and
-              runs the analytics described above.
+              <strong className="text-text-primary">{cloudflare ? 'Cloudflare' : 'Vercel'}</strong>{' '}
+              hosts the site, processes ordinary server request information such as IP addresses,
+              requested pages, and timestamps, and runs the analytics described above.
             </P>
             <P>
               <strong className="text-text-primary">OpenStreetMap and CARTO</strong> serve the map

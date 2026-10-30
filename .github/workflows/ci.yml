@@ -65,3 +65,37 @@ jobs:
 
       - name: Test
         run: pnpm test
+
+  workers-preview:
+    name: vinext · Workers build · rendered routes
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build isolated Workers preview
+        run: pnpm build:vinext --mode preview
+        env:
+          NEXT_PUBLIC_GISCUS_REPO: SudiDav/sudi.dev
+          NEXT_PUBLIC_GISCUS_REPO_ID: R_kgDOUBlxDQ
+          NEXT_PUBLIC_GISCUS_CATEGORY: Announcements
+          NEXT_PUBLIC_GISCUS_CATEGORY_ID: DIC_kwDOUBlxDc4DEBBp
+      - name: Start local Workers runtime
+        run: |
+          # This fixture is used only by the local test runtime, never deployed.
+          echo 'AUTH_SECRET=local-ci-fixture-not-for-deployment' > .dev.vars
+          pnpm start:vinext --host 127.0.0.1 --port 4173 &
+          for i in $(seq 1 30); do
+            curl -sf http://127.0.0.1:4173/ >/dev/null && exit 0
+            sleep 2
+          done
+          exit 1
+      - name: Verify rendered routes
+        run: pnpm exec vitest run lib/outbound-links.test.ts lib/article-rendering.test.ts
+        env:
+          TEST_BASE_URL: http://127.0.0.1:4173
