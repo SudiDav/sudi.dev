@@ -58,7 +58,7 @@ function editablePost(post: Post): EditablePost {
   }
 }
 
-const NEW_POST_STATUSES = ['Draft', 'Archived'] as const
+const POST_STATUSES = ['Draft', 'Published', 'Archived'] as const
 
 function SidebarField({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -413,20 +413,43 @@ export function PostEditor({
 
           <SidebarField label="Status">
             <select
+              aria-label="Status"
+              aria-describedby="post-status-help"
               value={status}
               disabled={pending}
               onChange={(event) => setStatus(event.target.value as Post['status'])}
               className="rounded-lg border border-admin-border bg-admin-input px-3 py-2 text-[13px] text-admin-text focus:border-accent focus:outline-none"
             >
-              {(persistedStatus === 'Published'
-                ? ['Published', 'Draft', 'Archived'] as const
-                : NEW_POST_STATUSES
-              ).map((option) => (
-                <option key={option} value={option}>
+              {POST_STATUSES.map((option) => (
+                <option
+                  key={option}
+                  value={option}
+                  disabled={option === 'Published' && persistedStatus !== 'Published'}
+                >
                   {option}
                 </option>
               ))}
             </select>
+            <p id="post-status-help" className="text-xs leading-relaxed text-admin-text-tertiary">
+              {creating
+                ? 'Create a draft first, then review and publish it.'
+                : persistedStatus === 'Published'
+                  ? 'This post is published. Choose Draft or Archived and save to take it offline.'
+                  : dirty
+                    ? 'Save your changes, then click Publish to make the saved post public.'
+                    : 'Click Publish to make this saved post public. Draft and Archived posts stay hidden.'}
+            </p>
+            {post && persistedStatus !== 'Published' ? (
+              <button
+                type="button"
+                onClick={() => publishReviewed()}
+                disabled={pending || conflicted || !canPublish || dirty || !expectedVersion}
+                className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-[13px] font-medium text-white hover:opacity-90 disabled:opacity-50"
+              >
+                <Send size={14} />
+                Publish post
+              </button>
+            ) : null}
           </SidebarField>
 
           <SidebarField label="Category">
