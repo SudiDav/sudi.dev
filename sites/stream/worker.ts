@@ -1,4 +1,4 @@
-import { refreshCatalog, type Catalog, type CatalogEnv } from './catalog'
+import { MovieProviderError, refreshCatalog, type Catalog, type CatalogEnv } from './catalog'
 export type Env = CatalogEnv & {
   MOVIE_REFRESH_TOKEN?: string
   ASSETS: { fetch(request: Request): Promise<Response> }
@@ -26,7 +26,10 @@ const worker = {
       const header = request.headers.get('Authorization')
       if (!env.MOVIE_REFRESH_TOKEN || header !== `Bearer ${env.MOVIE_REFRESH_TOKEN}`) return reply({ error: 'Unauthorized' }, 401)
       try { return reply({ ok: true, count: (await refreshCatalog(env)).movies.length }) }
-      catch { return reply({ error: 'Movie refresh failed; saved recommendations have been kept' }, 502) }
+      catch (error) {
+        return reply({ error: 'Movie refresh failed; saved recommendations have been kept',
+          code: error instanceof MovieProviderError ? error.code : 'refresh_failed' }, 502)
+      }
     }
     if (path.startsWith('/api/')) return reply({ error: 'Not found' }, 404)
     return env.ASSETS.fetch(request)

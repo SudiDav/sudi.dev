@@ -13,7 +13,9 @@ export default defineConfig(({ mode, isPreview }) => ({
     triggers: mode === 'preview' || isPreview || mode === 'setup' ? [] : [triggers.scheduled({ schedule: '17 */6 * * *' })],
     env: {
       ASSETS: bindings.assets(),
-      MOVIES_STORAGE: bindings.kv(),
+      MOVIES_STORAGE: bindings.kv(mode === 'preview' || isPreview ? {} : {
+        id: '46b08a78ace94f0da73b5780af0822c5',
+      }),
       ...(mode === 'preview' || isPreview || mode === 'setup' ? {} : {
         TMDB_READ_TOKEN: bindings.secret(),
         OMDB_API_KEY: bindings.secret(),
