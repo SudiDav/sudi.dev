@@ -138,7 +138,9 @@ describe('reviewed post editor wiring', () => {
 
     expect(field(tree, 'Post title').value).toBe('Unsaved title')
     expect(button(tree, 'Publish').disabled).toBe(true)
+    expect(button(tree, 'Publish post').disabled).toBe(true)
     button(tree, 'Publish').onClick!()
+    button(tree, 'Publish post').onClick!()
     await settle()
 
     expect(publishReviewedPostMock).not.toHaveBeenCalled()
@@ -159,11 +161,15 @@ describe('reviewed post editor wiring', () => {
     expect(field(tree, 'Post title').value).toBe('Reviewed title')
     expect(field(tree, 'Post body (MDX)').value).toBe('Reviewed body.')
     expect(button(tree, 'Publish').disabled).toBe(false)
-    button(tree, 'Publish').onClick!()
+    expect(button(tree, 'Publish post').disabled).toBe(false)
+    button(tree, 'Publish post').onClick!()
     await settle()
 
     expect(publishReviewedPostMock).toHaveBeenCalledExactlyOnceWith('reviewed-post', 'original-review')
     expect(updatePostMock).not.toHaveBeenCalled()
+    const publishedTree = render()
+    expect(statusSelect(publishedTree).props.value).toBe('Published')
+    expect(elements(statusSelect(publishedTree).props.children).find((option) => option.props.value === 'Published')?.props.disabled).toBe(false)
   })
 
   it('preserves stale-save edits and blocks both controls until explicit reload', async () => {
@@ -182,7 +188,9 @@ describe('reviewed post editor wiring', () => {
     expect(field(tree, 'Post body (MDX)').value).toBe('My unsaved body.')
     expect(button(tree, 'Save').disabled).toBe(true)
     expect(button(tree, 'Publish').disabled).toBe(true)
+    expect(button(tree, 'Publish post').disabled).toBe(true)
     button(tree, 'Publish').onClick!()
+    button(tree, 'Publish post').onClick!()
     await settle()
     expect(publishReviewedPostMock).not.toHaveBeenCalled()
     expect(reloadMock).not.toHaveBeenCalled()
@@ -210,6 +218,7 @@ describe('reviewed post editor wiring', () => {
     expect(editableFields.every((element) => element.props.disabled === true)).toBe(true)
     expect(button(tree, 'Save').disabled).toBe(true)
     expect(button(tree, 'Publish').disabled).toBe(true)
+    expect(button(tree, 'Publish post').disabled).toBe(true)
 
     finishSave({ ok: true, publish: { target: 'github', post: canonical, postVersion: 'canonical-version' } })
     await settle()
@@ -228,11 +237,13 @@ describe('reviewed post editor wiring', () => {
     expect(publishReviewedPostMock).toHaveBeenCalledExactlyOnceWith('reviewed-post', 'canonical-version')
   })
 
-  it('offers only Draft and Archived creation and clamps a crafted Published value to Draft', async () => {
+  it('shows every status but permits only Draft and Archived creation, clamping a crafted Published value to Draft', async () => {
     const newProps: EditorProps = { canPublish: true }
     addPostMock.mockResolvedValue({ ok: false, error: 'Fixture leaves the form open' })
     let tree = render(newProps)
-    expect(elements(statusSelect(tree).props.children).map((option) => option.props.value)).toEqual(['Draft', 'Archived'])
+    const options = elements(statusSelect(tree).props.children)
+    expect(options.map((option) => option.props.value)).toEqual(['Draft', 'Published', 'Archived'])
+    expect(options.filter((option) => !option.props.disabled).map((option) => option.props.value)).toEqual(['Draft', 'Archived'])
     expect(elements(tree).filter((element) => element.type === 'button').map((element) => text(element.props.children))).toEqual(['Create draft'])
     field(tree, 'Post title').onChange!({ target: { value: 'New title' } })
 
