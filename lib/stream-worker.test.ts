@@ -28,4 +28,24 @@ describe('stream movie API', () => {
     expect(await response.text()).not.toContain('private-')
     expect(await (await worker.fetch(new Request('https://stream.sudi.dev/'), env())).text()).toBe('portal')
   })
+  it('reports missing configuration only to an authorized maintenance request', async () => {
+    const response = await worker.fetch(new Request('https://stream.sudi.dev/api/movies/refresh', {
+      method: 'POST', headers: { Authorization: 'Bearer private-refresh-fixture' },
+    }), env(null))
+    expect(response.status).toBe(502)
+    expect(await response.json()).toMatchObject({ code: 'providers_missing' })
+  })
+
+  it('identifies the failed provider and status privately without returning key values', async () => {
+    const fetcher = vi.spyOn(globalThis, 'fetch').mockResolvedValue(new Response('{}', { status: 401 }))
+    try {
+      const response = await worker.fetch(new Request('https://stream.sudi.dev/api/movies/refresh', {
+        method: 'POST', headers: { Authorization: 'Bearer private-refresh-fixture' },
+      }), { ...env(null), TMDB_READ_TOKEN: 'private-tmdb-fixture', OMDB_API_KEY: 'private-omdb-fixture' })
+      const data = await response.json()
+      expect(data).toMatchObject({ code: 'tmdb_http_401' })
+      expect(JSON.stringify(data)).not.toContain('private-')
+    } finally { fetcher.mockRestore() }
+  })
+
 })
