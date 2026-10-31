@@ -47,7 +47,7 @@ async function json(url: string, fetcher: typeof fetch, token?: string): Promise
   try {
     const response = await fetcher(url, {
       headers: token ? { Authorization: `Bearer ${token}`, Accept: 'application/json' } : { Accept: 'application/json' },
-      signal: AbortSignal.timeout(8000), redirect: 'error',
+      signal: AbortSignal.timeout(8000), redirect: 'manual',
     })
     if (!response.ok) throw new MovieProviderError(`${provider}_http_${response.status}`)
     const data = await response.json()

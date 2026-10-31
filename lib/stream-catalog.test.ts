@@ -88,4 +88,15 @@ describe('stream movie catalog', () => {
     expect(saved).toBe(previous)
   })
 
+  it('refuses provider redirects using the redirect modes supported by Workers', async () => {
+    const env: CatalogEnv = { TMDB_READ_TOKEN: 'fixture', OMDB_API_KEY: 'fixture', MOVIES_STORAGE: { get: async () => null, put: async () => {} } }
+    const edgeFetch: typeof fetch = async (_input, options) => {
+      // Native Workers rejects redirect:error; follow would hide the 302.
+      if (options?.redirect === 'error') throw new TypeError('Unsupported redirect mode')
+      if (options?.redirect !== 'manual') return Response.json({ results: [] })
+      return new Response(null, { status: 302, headers: { Location: 'https://other.example/' } })
+    }
+    await expect(refreshCatalog(env, edgeFetch)).rejects.toMatchObject({ code: 'tmdb_http_302' })
+  })
+
 })
