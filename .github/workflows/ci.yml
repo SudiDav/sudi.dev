@@ -99,3 +99,6 @@ jobs:
         run: pnpm exec vitest run lib/outbound-links.test.ts lib/article-rendering.test.ts
         env:
           TEST_BASE_URL: http://127.0.0.1:4173
+      - name: Build isolated stream portal preview
+        working-directory: sites/stream
+        run: pnpm exec vite build --mode preview
