@@ -64,7 +64,7 @@ Required Worker secrets on `sudi-stream`: `TMDB_READ_TOKEN` (TMDB API Read Acces
 
 `POST /api/movies/refresh` accepts only the private maintenance Bearer token. It populates the first catalog after key setup and reuses snapshots younger than6hours. The token is for maintenance only, never an end-user control. The public API provides sanitized catalog fields and generic errors.
 
-Build from this directory with `pnpm exec vite build`; deploy with `pnpm exec cf deploy --prebuilt`. A preview build uses `--mode preview` and has its own isolated KV storage. KV is provisioned by Cloudflare's configuration tooling on first production deploy. Existing main-site credentials, domain DNS and email are unrelated and remain unchanged.
+Build from this directory with `pnpm exec vite build`; deploy with `pnpm exec cf deploy --prebuilt`. A preview build uses `--mode preview` and has its own isolated KV storage. Production explicitly binds the existing movie KV namespace; public previews use separate local/preview storage. Existing main-site credentials, domain DNS and email are unrelated and remain unchanged.
 
 Attribution logo: TMDB's approved Primary long (blue) SVG from https://www.themoviedb.org/about/logos-attribution (downloaded unmodified). OMDb data is CC BY-NC4.0; TMDB API use is non-commercial with attribution. The UI links to individual IMDb records and does not provide playback or claim subscription availability.
 
