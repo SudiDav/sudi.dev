@@ -1,0 +1,18 @@
+# yellowdot-os Standards Index
+
+global:
+  agent-config:
+    description: Needs description - run /index-standards
+  ci-requirements:
+    description: Needs description - run /index-standards
+  git-conventions:
+    description: Needs description - run /index-standards
+  mno-integrations:
+    description: Needs description - run /index-standards
+  msisdn-pii:
+    description: Needs description - run /index-standards
+  org-baseline:
+    description: Needs description - run /index-standards
+  secrets-policy:
+    description: Needs description - run /index-standards
+
