@@ -2,17 +2,16 @@
 
 global:
   agent-config:
-    description: Needs description - run /index-standards
+    description: "AI agent config as code: AGENTS.md/CLAUDE.md, hooks, MCP allowlist, dependency hygiene, agents in CI"
   ci-requirements:
-    description: Needs description - run /index-standards
+    description: "Minimum CI/CD bar: PR checks, test-gated deploys, pinned actions, blessed deploy paths, environments"
   git-conventions:
-    description: Needs description - run /index-standards
+    description: Branch and commit naming, repo hygiene, README requirements, no committed artifacts
   mno-integrations:
-    description: Needs description - run /index-standards
+    description: Index of MNO integration domains (SDP billing, callbacks, SMS, USSD, payouts) and their rules of thumb
   msisdn-pii:
-    description: Needs description - run /index-standards
+    description: MSISDN normalization, masking, storage and export rules, and market-specific PII obligations
   org-baseline:
-    description: Needs description - run /index-standards
+    description: "Org-wide tech stack constants: MySQL, Keycloak, Redis/Kafka, Loki, GitHub Actions, self-hosted k8s, GHCR"
   secrets-policy:
-    description: Needs description - run /index-standards
-
+    description: No committed credentials, .env handling, per-repo deploy keys, rotation on leaks, no client-side secrets
