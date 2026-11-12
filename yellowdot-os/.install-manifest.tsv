@@ -1,0 +1,16 @@
+schema_version	1
+profile	default
+file	agent	claude-code	.claude/agents/yellowdot-os/prd-implementer.md	0feafe49fac2e0c7c1e2225154b85375e56fb4231f830981ba823c1579494b8e
+file	agent	claude-code	.claude/agents/yellowdot-os/reviewer-ac-fidelity.md	f55d34366a202e332c41d5cbf8d1aeb0cd1ae092e700ff86bba33098f3c708f6
+file	agent	claude-code	.claude/agents/yellowdot-os/reviewer-security-pii.md	02bb95312fd51505e8793b76c7e67ac3963230b1443d97f31bed20dc41ef7b8f
+file	agent	claude-code	.claude/agents/yellowdot-os/reviewer-standards.md	9a20aa4f991d515b042be356c239ce740fce6544cb880ecac99e8c38e15138a4
+file	hook	claude-code	.claude/hooks/yellowdot-os/agent-progress.sh	7ed27acaaf4dd6bb0ad2faacedfa18faf9fcab3a245c0dc1e28cec65fcb2315f
+file	hook	claude-code	.claude/hooks/yellowdot-os/guard-pii.sh	7092162888be042062520bebc2be4f1a1296208444fc876bb66e0836d4b4f9cd
+file	skill	claude-code	.claude/skills/create-prd/SKILL.md	22a18bde566d72a637ee4d4ce1989b9926555601e3c58a77dcb59a74e46dffdb
+file	skill	claude-code	.claude/skills/discover-standards/SKILL.md	2a042bea46d11ce84e6bc0861981e9b63771f8a8e017f384a0771bc59fe06df9
+file	skill	claude-code	.claude/skills/fix-bug/SKILL.md	0b56953561c23e3f2b24be9afc9cf968f0634c9ab7746acfd9a3900832393ddf
+file	skill	claude-code	.claude/skills/implement-prd/SKILL.md	26b3b71f08315cad6c571e85510c21d216aab41630667fe1a202915f48e631a8
+file	skill	claude-code	.claude/skills/index-standards/SKILL.md	97af3fcb1440e0646c61d8e337f80c0e2d7a2039bc0a82c90b8fc4a01e518821
+file	skill	claude-code	.claude/skills/inject-standards/SKILL.md	8aab137434a51834df3f62f9b115774e2991a5c2c2ab88317d11bdba83a90bee
+file	skill	claude-code	.claude/skills/plan-product/SKILL.md	19b306afd2a11dcec82d8e0dd923946c065c6d4e10407addac6dcb86f7d4be67
+file	skill	claude-code	.claude/skills/shape-spec/SKILL.md	6b0aea319dc6e89fcd7283e39483460860d2acaec0b184fe0b30c4ed4fec20af
