@@ -12,6 +12,7 @@ const COMPANIES = [
   { name: 'Altech Group', logo: 'altech-group.svg' },
   { name: 'Fintech International', logo: 'fintech-international.png' },
   { name: 'Waves Ressources', logo: 'waves-ressources.svg', darkLogo: 'waves-ressources-dark.svg' },
+  { name: 'KHM Technology', logo: 'khm-technology.png', darkLogo: 'khm-technology-dark.png' },
 ]
 
 const LOGO_CLASS = 'h-11 w-20 object-contain'
