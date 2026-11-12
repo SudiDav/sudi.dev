@@ -5,6 +5,7 @@ import { SiteFooter } from '@/components/site-footer'
 import { PageIntro } from '@/components/page-intro'
 import { FilterBar } from '@/components/filter-bar'
 import { WorkProjectCard } from '@/components/work-project-card'
+import { CompanyShowcase } from '@/components/company-showcase'
 import { PAGE_GUTTER } from '@/components/layout'
 import { getProjects } from '@/lib/content'
 import type { Project } from '@/lib/content.types'
@@ -115,6 +116,8 @@ export default async function WorkPage({
             </div>
           )}
         </section>
+
+        <CompanyShowcase />
       </main>
 
       <SiteFooter />
