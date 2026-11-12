@@ -85,7 +85,7 @@ export default async function WorkPage({
                     <Icon size={16} className="text-accent" />
                   </span>
                   <span className="font-mono text-[28px] font-bold text-text-primary">{number}</span>
-                  <span className="text-xs font-medium text-text-tertiary">{label}</span>
+                  <span className="text-xs font-medium text-text-secondary">{label}</span>
                 </div>
               </div>
             ))}

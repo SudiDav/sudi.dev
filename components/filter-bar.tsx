@@ -1,10 +1,11 @@
 'use client'
 
+import { useId } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
 /**
  * Design: "Filters" (Work) and "Category Filters" (Blog). Both are pills of
- * cornerRadius 9999 where the active one is filled $accent with #FFFFFF text
+ * cornerRadius 9999 where the active one has a blue fill with white text
  * and the rest are $bg-card with a 1px $border and $text-secondary text — but
  * the two surfaces size them differently:
  *
@@ -33,6 +34,8 @@ export function FilterBar({
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
+  const groupName = useId()
+  const selectedBackground = size === 'work' ? 'bg-[#4e6ca8]' : 'bg-accent'
 
   const select = (option: string) => {
     const params = new URLSearchParams(searchParams)
@@ -47,20 +50,25 @@ export function FilterBar({
       {options.map((option) => {
         const selected = option === active
         return (
-          <button
-            key={option}
-            type="button"
-            role="radio"
-            aria-checked={selected}
-            onClick={() => select(option)}
-            className={`rounded-full font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${SIZES[size]} ${
-              selected
-                ? 'bg-accent text-white'
-                : 'border border-border bg-bg-card text-text-secondary hover:border-border-hover hover:text-text-primary'
-            }`}
-          >
-            {option}
-          </button>
+          <label key={option} className="relative">
+            <input
+              type="radio"
+              name={groupName}
+              value={option}
+              checked={selected}
+              onChange={() => select(option)}
+              className="peer sr-only"
+            />
+            <span
+              className={`block cursor-pointer rounded-full font-medium transition-colors peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-accent ${SIZES[size]} ${
+                selected
+                  ? `${selectedBackground} text-white`
+                  : 'border border-border bg-bg-card text-text-secondary hover:border-border-hover hover:text-text-primary'
+              }`}
+            >
+              {option}
+            </span>
+          </label>
         )
       })}
     </div>
