@@ -74,8 +74,8 @@ is live:
 | --- | --- |
 | `RESEND_API_KEY` | resend.com → API Keys |
 | `RESEND_AUDIENCE_ID` | resend.com → Audiences |
-| `CONTACT_EMAIL` | `contact@sudi.dev` |
-| `EMAIL_FROM` | `contact@sudi.dev` after the `sudi.dev` domain is verified |
+| `CONTACT_EMAIL` | `hello@sudi.dev` |
+| `EMAIL_FROM` | `hello@sudi.dev` after the `sudi.dev` domain is verified |
 
 `RESEND_API_KEY` and `RESEND_AUDIENCE_ID` are required to save a subscription
 and prepare a post announcement draft. `CONTACT_EMAIL` is only needed for the

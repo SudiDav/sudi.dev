@@ -35,7 +35,7 @@ export type SiteSettingsInput = Omit<
 export const DEFAULT_SETTINGS: SiteSettings = {
   displayName: 'Sudi M. David',
   avatar: '/images/sudi.jpeg',
-  email: 'contact@sudi.dev',
+  email: 'hello@sudi.dev',
   phone: '+243 817 334 881',
   bio: 'Software engineer specializing in DevOps and cloud systems for fintech, lending, agriculture and school administration.',
   location: 'Lubumbashi, DRC',

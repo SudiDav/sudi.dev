@@ -4,7 +4,7 @@ An independent English/French static website for `stream.sudi.dev`. The portfoli
 
 ## Current behavior
 
-Visitors can read device-specific Stremio guidance, switch language, and open their email client to request an invitation from `contact@sudi.dev`. Opening the email draft does not send it. The page explicitly states that automatic invitations are coming soon. Syncio and provider integration are not deployed by this project.
+Visitors can read device-specific Stremio guidance, switch language, and open their email client to request an invitation from `hello@sudi.dev`. Opening the email draft does not send it. The page explicitly states that automatic invitations are coming soon. Syncio and provider integration are not deployed by this project.
 
 Cloudflare Web Analytics measures visits and page performance on `stream.sudi.dev`. The loader skips localhost and alternate deployment URLs. Its site token is public tracking configuration, not an account API credential. The footer explains the cookie-free statistics in English and French. The main portfolio retains its existing Vercel Analytics setup.
 
