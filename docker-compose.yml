@@ -1,0 +1,88 @@
+name: sudi
+services:
+  database:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: sudi
+      POSTGRES_USER: sudi
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - database:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sudi -d sudi"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+  migrate:
+    build:
+      context: .
+      dockerfile: infra/api.Dockerfile
+    image: sudi-api:local
+    command: ["--migrate"]
+    environment:
+      ConnectionStrings__Database: Host=database;Database=sudi;Username=sudi;Password=${POSTGRES_PASSWORD}
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: "no"
+
+  api:
+    build:
+      context: .
+      dockerfile: infra/api.Dockerfile
+    image: sudi-api:local
+    environment:
+      ASPNETCORE_ENVIRONMENT: Production
+      ConnectionStrings__Database: Host=database;Database=sudi;Username=sudi;Password=${POSTGRES_PASSWORD}
+      Web__BaseUrl: ${SITE_URL:-http://localhost:3000}
+      Cache__WebBaseUrl: http://web:3000
+      Cache__RevalidationSecret: ${REVALIDATION_SECRET:?Set REVALIDATION_SECRET in .env}
+      Auth__AdminEmail: ${ADMIN_EMAIL:?Set ADMIN_EMAIL in .env}
+      Auth__GitHub__ClientId: ${AUTH_GITHUB_ID:-}
+      Auth__GitHub__ClientSecret: ${AUTH_GITHUB_SECRET:-}
+      Auth__DevBypass: "false"
+      Auth__KeysPath: /app/data/keys
+      Storage__RootPath: /app/data/media
+      Resend__ApiKey: ${RESEND_API_KEY:-}
+      Resend__AudienceId: ${RESEND_AUDIENCE_ID:-}
+      Resend__From: ${EMAIL_FROM:-}
+      Resend__ContactEmail: ${CONTACT_EMAIL:-}
+    volumes:
+      - media:/app/data/media
+      - auth-keys:/app/data/keys
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      args:
+        NEXT_PUBLIC_GISCUS_REPO: ${NEXT_PUBLIC_GISCUS_REPO:-}
+        NEXT_PUBLIC_GISCUS_REPO_ID: ${NEXT_PUBLIC_GISCUS_REPO_ID:-}
+        NEXT_PUBLIC_GISCUS_CATEGORY: ${NEXT_PUBLIC_GISCUS_CATEGORY:-Announcements}
+        NEXT_PUBLIC_GISCUS_CATEGORY_ID: ${NEXT_PUBLIC_GISCUS_CATEGORY_ID:-}
+    image: sudi-web:local
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      API_BASE_URL: http://api:8080
+      SITE_URL: ${SITE_URL:-http://localhost:3000}
+      REVALIDATION_SECRET: ${REVALIDATION_SECRET}
+      GITHUB_TOKEN: ${GITHUB_TOKEN:-}
+      GITHUB_REPO: ${GITHUB_REPO:-SudiDav/sudi.dev}
+      VERCEL_TOKEN: ${VERCEL_TOKEN:-}
+      VERCEL_PROJECT_ID: ${VERCEL_PROJECT_ID:-}
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  database:
+  media:
+  auth-keys:

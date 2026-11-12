@@ -1,0 +1,21 @@
+# Apply after docker-compose.yml on a host with the existing Traefik network.
+services:
+  database:
+    ports: !reset []
+  web:
+    ports: !reset []
+    networks: [default, traefik]
+    labels:
+      traefik.enable: 'true'
+      traefik.docker.network: traefik
+      traefik.http.routers.sudi.rule: Host(`sudi.dev`) || Host(`www.sudi.dev`)
+      traefik.http.routers.sudi.entrypoints: websecure
+      traefik.http.routers.sudi.tls.certresolver: letsencrypt
+      traefik.http.services.sudi.loadbalancer.server.port: '3000'
+      traefik.http.routers.sudi.middlewares: sudi-www@docker
+      traefik.http.middlewares.sudi-www.redirectregex.regex: ^https?://www\.sudi\.dev/(.*)
+      traefik.http.middlewares.sudi-www.redirectregex.replacement: https://sudi.dev/$${1}
+      traefik.http.middlewares.sudi-www.redirectregex.permanent: 'true'
+networks:
+  traefik:
+    external: true

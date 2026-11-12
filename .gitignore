@@ -54,3 +54,13 @@ next-env.d.ts
 # comments live in Discussions.
 content/subscribers.json
 content/comments.json
+
+# Monorepo build output
+**/node_modules/
+**/.next/
+**/coverage/
+**/bin/
+**/obj/
+**/TestResults/
+.worktrees/
+artifacts/

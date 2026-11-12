@@ -1,28 +1,17 @@
-# Build artefacts and dependencies — reinstalled inside the image.
-node_modules
-.next
-out
-
-# Never let secrets into the build context. .env.example is intentionally kept.
-.env
-.env.local
-.env.*.local
-
-# Local-only data. Subscribers live in Resend, comments in GitHub Discussions.
-content/subscribers.json
-content/comments.json
-
-# Not needed at runtime.
+**/node_modules
+**/.next
+**/bin
+**/obj
+**/TestResults
+**/coverage
+**/.env
+**/.env.*
+!**/.env.example
 .git
-.github
-.claude
-docs
+.worktrees
+.superpowers
+artifacts
+output
+tmp
 design
-tools
-scripts
-*.md
-!README.md
-.vscode
-.idea
 .DS_Store
-coverage

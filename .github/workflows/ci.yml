@@ -1,67 +1,105 @@
 name: CI
-
-# Runs on every PR, and on pushes to the long-lived branches. `develop` is
-# where work lands day to day; `main` is what Vercel deploys to production, so
-# nothing should reach it that has not passed here first.
 on:
   pull_request:
+    branches: [main, develop]
   push:
     branches: [main, develop]
-
-# A newer push to the same branch makes the previous run irrelevant.
 concurrency:
   group: ci-${{ github.ref }}
   cancel-in-progress: true
-
 jobs:
   verify:
-    name: typecheck · lint · test · build
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-
+    timeout-minutes: 25
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: sudi_ci
+          POSTGRES_USER: sudi
+          POSTGRES_PASSWORD: ci-local-password
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U sudi -d sudi_ci"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    env:
+      ConnectionStrings__Database: Host=localhost;Port=5432;Database=sudi_ci;Username=sudi;Password=ci-local-password
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://127.0.0.1:5000
+      API_BASE_URL: http://127.0.0.1:5000
+      Web__BaseUrl: http://localhost:3000
+      Cache__RevalidationSecret: ci-revalidation-secret
+      REVALIDATION_SECRET: ci-revalidation-secret
+      Auth__AdminEmail: admin@example.test
+      Auth__DevBypass: 'false'
+      NEXT_PUBLIC_GISCUS_REPO: SudiDav/sudi.dev
+      NEXT_PUBLIC_GISCUS_REPO_ID: R_kgDOUBlxDQ
+      NEXT_PUBLIC_GISCUS_CATEGORY: Announcements
+      NEXT_PUBLIC_GISCUS_CATEGORY_ID: DIC_kwDOUBlxDc4DEBBp
     steps:
       - uses: actions/checkout@v4
-
       - uses: pnpm/action-setup@v4
-
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: pnpm
-
-      - name: Install
-        run: pnpm install --frozen-lockfile
-
-      - name: Typecheck
-        run: pnpm typecheck
-
-      - name: Lint
-        run: pnpm lint
-
-      - name: Build
-        run: pnpm build
-        env:
-          # NEXT_PUBLIC_* values are inlined at build time. They are not secret
-          # — they identify a public repo and discussion category — so they live
-          # here rather than in Actions secrets, and the build exercises the
-          # same code path production does.
-          NEXT_PUBLIC_GISCUS_REPO: SudiDav/sudi.dev
-          NEXT_PUBLIC_GISCUS_REPO_ID: R_kgDOUBlxDQ
-          NEXT_PUBLIC_GISCUS_CATEGORY: Announcements
-          NEXT_PUBLIC_GISCUS_CATEGORY_ID: DIC_kwDOUBlxDc4DEBBp
-
-      # The outbound-link tests read the rendered HTML of every page, so they
-      # need something serving it. Without this they skip themselves and the
-      # rule they protect goes unchecked in CI.
-      - name: Start the built app
+          cache-dependency-path: web/pnpm-lock.yaml
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Install frontend dependencies
+        run: pnpm --dir web install --frozen-lockfile
+      - name: Build backend and run unit, architecture and PostgreSQL integration tests
+        run: dotnet test Sudi.slnx -c Release
+      - name: Test content export
+        run: node --test tools/ContentImport/export.test.mjs
+      - name: Export migration archive
         run: |
-          pnpm start &
+          mkdir -p artifacts
+          node tools/ContentImport/export.mjs content artifacts/content.json
+      - name: Migrate and import into isolated CI database
+        run: |
+          dotnet run --project src/Web.Api -c Release --no-build -- --migrate
+          dotnet run --project tools/ContentImport -c Release -- --input artifacts/content.json --dry-run
+          dotnet run --project tools/ContentImport -c Release --no-build -- --input artifacts/content.json
+          dotnet run --project tools/ContentImport -c Release --no-build -- --input artifacts/content.json
+      - name: Start API
+        run: |
+          dotnet run --project src/Web.Api -c Release --no-build --no-launch-profile > artifacts/api.log 2>&1 &
           for i in $(seq 1 30); do
-            curl -sf http://localhost:3000 >/dev/null && exit 0
+            curl -sf http://127.0.0.1:5000/health && exit 0
             sleep 2
           done
-          echo "server did not become ready" >&2
+          cat artifacts/api.log
           exit 1
-
-      - name: Test
-        run: pnpm test
+      - name: Check API contract and generated client
+        run: |
+          cp contracts/openapi.json artifacts/committed-openapi.json
+          node tools/generate-api-client.mjs --fetch
+          git diff --exit-code -- contracts/openapi.json web/lib/api/generated.ts
+          node tools/generate-api-client.mjs --check
+      - name: Frontend typecheck and lint
+        run: |
+          pnpm --dir web typecheck
+          pnpm --dir web lint
+      - name: Build frontend
+        run: pnpm --dir web build
+      - name: Start built frontend
+        run: |
+          pnpm --dir web start > artifacts/web.log 2>&1 &
+          for i in $(seq 1 30); do
+            curl -sf http://localhost:3000/ > /dev/null && exit 0
+            sleep 2
+          done
+          cat artifacts/web.log
+          exit 1
+      - name: Frontend tests and import verification
+        run: |
+          pnpm --dir web test
+          node tools/verify-import.mjs --manifest artifacts/content.json
+      - name: Upload diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: verification-logs
+          path: artifacts/*.log
