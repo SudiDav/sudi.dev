@@ -1,0 +1,11 @@
+**/bin/
+**/obj/
+data/*
+!data/.gitkeep
+BenchmarkDotNet.Artifacts/
+artifacts/
+**/target/
+**/__pycache__/
+.vs/
+.idea/
+*.user

@@ -1,0 +1,4 @@
+dotnet-jit PASS rssMiB 48.12
+dotnet-aot PASS rssMiB 7.62
+rust PASS rssMiB 1.69
+python PASS rssMiB 11.75

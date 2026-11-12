@@ -1,0 +1,2 @@
+Downloading official .NET SDK 10.0.114 to /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/artifacts/dotnet
+Verified and installed 10.0.114. Set DOTNET_ROOT=/Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/artifacts/dotnet and prepend it to PATH.

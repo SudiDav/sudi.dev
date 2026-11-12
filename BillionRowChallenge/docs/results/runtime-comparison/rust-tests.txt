@@ -1,0 +1,30 @@
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.03s
+     Running unittests src/lib.rs (comparisons/rust/target/debug/deps/billion_rows_rust-9b2ae7007ef9dd23)
+
+running 11 tests
+test tests::overflow_does_not_mutate_station_statistics ... ok
+test tests::failed_cli_processing_writes_no_partial_aggregate ... ok
+test tests::empty_input_is_an_empty_aggregate ... ok
+test tests::bom_only_input_has_no_records ... ok
+test tests::rounds_positive_and_negative_midpoints_away_from_zero ... ok
+test tests::accepts_utf8_bom_crlf_cr_and_unterminated_final_record ... ok
+test tests::rejects_temperature_accumulation_overflow ... ok
+test tests::formats_exact_aggregates_and_ordinal_utf16_sort_order ... ok
+test tests::processes_records_separated_only_by_carriage_returns ... ok
+test tests::rejects_control_and_overlong_station_names ... ok
+test tests::rejects_malformed_encoding_records_and_utf16_bom ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running unittests src/main.rs (comparisons/rust/target/debug/deps/billion_rows_rust-95c0d19a2f958594)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+   Doc-tests billion_rows_rust
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+

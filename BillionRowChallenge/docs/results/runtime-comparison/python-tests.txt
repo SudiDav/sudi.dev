@@ -1,0 +1,18 @@
+test_failure_has_no_partial_stdout (test_processor.CliTests) ... ok
+test_help_and_invalid_arguments (test_processor.CliTests) ... ok
+test_process_success_and_diagnostics (test_processor.CliTests) ... ok
+test_parses_valid_and_normalizes_negative_zero (test_processor.ParserTests) ... ok
+test_rejects_malformed_rows (test_processor.ParserTests) ... ok
+test_station_utf8_limit_and_empty_name (test_processor.ParserTests) ... ok
+test_aggregates_rounds_away_from_zero_and_sorts_utf16_ordinal (test_processor.ProcessingTests) ... ok
+test_bom_and_universal_line_endings_and_unterminated_last_row (test_processor.ProcessingTests) ... ok
+test_bom_only_file_is_empty_input (test_processor.ProcessingTests) ... ok
+test_empty_input (test_processor.ProcessingTests) ... ok
+test_invalid_utf8_and_utf16_bom_rejected (test_processor.ProcessingTests) ... ok
+test_single_row_and_temperature_extrema (test_processor.ProcessingTests) ... ok
+test_stats_overflow_is_atomic (test_processor.ProcessingTests) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.086s
+
+OK

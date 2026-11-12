@@ -1,0 +1,1136 @@
+// Validating benchmarks:
+// ***** BenchmarkRunner: Start   *****
+// ***** Found 12 benchmark(s) in total *****
+// ***** Building 2 exe(s) in Parallel: Start   *****
+// ***** Done, took 00:00:36 (36.39 sec)   *****
+// Found 12 benchmarks:
+//   ProcessingBenchmarks.Baseline: JIT(Runtime=.NET 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=10000]
+//   ProcessingBenchmarks.Optimized: JIT(Runtime=.NET 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=10000]
+//   ProcessingBenchmarks.Baseline: NativeAOT(Runtime=NativeAOT 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=10000]
+//   ProcessingBenchmarks.Optimized: NativeAOT(Runtime=NativeAOT 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=10000]
+//   ProcessingBenchmarks.Baseline: JIT(Runtime=.NET 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=100000]
+//   ProcessingBenchmarks.Optimized: JIT(Runtime=.NET 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=100000]
+//   ProcessingBenchmarks.Baseline: NativeAOT(Runtime=NativeAOT 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=100000]
+//   ProcessingBenchmarks.Optimized: NativeAOT(Runtime=NativeAOT 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=100000]
+//   ProcessingBenchmarks.Baseline: JIT(Runtime=.NET 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=1000000]
+//   ProcessingBenchmarks.Optimized: JIT(Runtime=.NET 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=1000000]
+//   ProcessingBenchmarks.Baseline: NativeAOT(Runtime=NativeAOT 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=1000000]
+//   ProcessingBenchmarks.Optimized: NativeAOT(Runtime=NativeAOT 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=1000000]
+
+// **************************
+// Benchmark: ProcessingBenchmarks.Baseline: JIT(Runtime=.NET 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=10000]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet BillionRows.Benchmarks-JIT-1.dll --anonymousPipes 132 133 --benchmarkName "BillionRows.Benchmarks.ProcessingBenchmarks.Baseline(RowCount: 10000)" --job JIT --benchmarkId 0 in /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/tests/BillionRows.Benchmarks/bin/Release/net10.0/BillionRows.Benchmarks-JIT-1/bin/Release/net10.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.14 (10.0.14, 10.0.1426.52326), Arm64 RyuJIT armv8.0-a
+// GC=Concurrent Workstation
+// HardwareIntrinsics=ArmBase+AdvSimd,AES,CRC32,DP,RDM,SHA1,SHA256 VectorSize=128
+// Job: JIT(IterationCount=5, LaunchCount=1, WarmupCount=3)
+
+OverheadJitting  1: 1 op, 76125.00 ns, 76.1250 us/op
+WorkloadJitting  1: 1 op, 6163875.00 ns, 6.1639 ms/op
+
+OverheadJitting  2: 16 op, 238833.00 ns, 14.9271 us/op
+WorkloadJitting  2: 16 op, 31077542.00 ns, 1.9423 ms/op
+
+WorkloadPilot    1: 16 op, 28201125.00 ns, 1.7626 ms/op
+WorkloadPilot    2: 32 op, 59267417.00 ns, 1.8521 ms/op
+WorkloadPilot    3: 64 op, 113178833.00 ns, 1.7684 ms/op
+WorkloadPilot    4: 128 op, 238416209.00 ns, 1.8626 ms/op
+WorkloadPilot    5: 256 op, 229556375.00 ns, 896.7046 us/op
+WorkloadPilot    6: 512 op, 444372792.00 ns, 867.9156 us/op
+WorkloadPilot    7: 1024 op, 865068625.00 ns, 844.7936 us/op
+
+OverheadWarmup   1: 1024 op, 2875.00 ns, 2.8076 ns/op
+OverheadWarmup   2: 1024 op, 2041.00 ns, 1.9932 ns/op
+OverheadWarmup   3: 1024 op, 1875.00 ns, 1.8311 ns/op
+OverheadWarmup   4: 1024 op, 2500.00 ns, 2.4414 ns/op
+OverheadWarmup   5: 1024 op, 2292.00 ns, 2.2383 ns/op
+OverheadWarmup   6: 1024 op, 2209.00 ns, 2.1572 ns/op
+OverheadWarmup   7: 1024 op, 2208.00 ns, 2.1563 ns/op
+OverheadWarmup   8: 1024 op, 2167.00 ns, 2.1162 ns/op
+OverheadWarmup   9: 1024 op, 2375.00 ns, 2.3193 ns/op
+OverheadWarmup  10: 1024 op, 2292.00 ns, 2.2383 ns/op
+
+OverheadActual   1: 1024 op, 1917.00 ns, 1.8721 ns/op
+OverheadActual   2: 1024 op, 2334.00 ns, 2.2793 ns/op
+OverheadActual   3: 1024 op, 2292.00 ns, 2.2383 ns/op
+OverheadActual   4: 1024 op, 2084.00 ns, 2.0352 ns/op
+OverheadActual   5: 1024 op, 2292.00 ns, 2.2383 ns/op
+OverheadActual   6: 1024 op, 2167.00 ns, 2.1162 ns/op
+OverheadActual   7: 1024 op, 2209.00 ns, 2.1572 ns/op
+OverheadActual   8: 1024 op, 2125.00 ns, 2.0752 ns/op
+OverheadActual   9: 1024 op, 2333.00 ns, 2.2783 ns/op
+OverheadActual  10: 1024 op, 2250.00 ns, 2.1973 ns/op
+OverheadActual  11: 1024 op, 2125.00 ns, 2.0752 ns/op
+OverheadActual  12: 1024 op, 2541.00 ns, 2.4814 ns/op
+OverheadActual  13: 1024 op, 1833.00 ns, 1.7900 ns/op
+OverheadActual  14: 1024 op, 2250.00 ns, 2.1973 ns/op
+OverheadActual  15: 1024 op, 2250.00 ns, 2.1973 ns/op
+OverheadActual  16: 1024 op, 2250.00 ns, 2.1973 ns/op
+OverheadActual  17: 1024 op, 2250.00 ns, 2.1973 ns/op
+OverheadActual  18: 1024 op, 2292.00 ns, 2.2383 ns/op
+OverheadActual  19: 1024 op, 2334.00 ns, 2.2793 ns/op
+OverheadActual  20: 1024 op, 1792.00 ns, 1.7500 ns/op
+
+WorkloadWarmup   1: 1024 op, 879344375.00 ns, 858.7347 us/op
+WorkloadWarmup   2: 1024 op, 885316917.00 ns, 864.5673 us/op
+WorkloadWarmup   3: 1024 op, 915357625.00 ns, 893.9039 us/op
+
+// BeforeActualRun
+WorkloadActual   1: 1024 op, 922319083.00 ns, 900.7022 us/op
+WorkloadActual   2: 1024 op, 906142084.00 ns, 884.9044 us/op
+WorkloadActual   3: 1024 op, 881362750.00 ns, 860.7058 us/op
+WorkloadActual   4: 1024 op, 879724958.00 ns, 859.1064 us/op
+WorkloadActual   5: 1024 op, 858231125.00 ns, 838.1163 us/op
+
+// AfterActualRun
+WorkloadResult   1: 1024 op, 922316833.00 ns, 900.7000 us/op
+WorkloadResult   2: 1024 op, 906139834.00 ns, 884.9022 us/op
+WorkloadResult   3: 1024 op, 881360500.00 ns, 860.7036 us/op
+WorkloadResult   4: 1024 op, 879722708.00 ns, 859.1042 us/op
+WorkloadResult   5: 1024 op, 858228875.00 ns, 838.1141 us/op
+// GC:  154 5 0 1288619712 1024
+// Threading:  0 0 1024
+
+// AfterAll
+// Benchmark Process 3961 has exited with code 0.
+
+Mean = 868.705 us, StdErr = 10.904 us (1.26%), N = 5, StdDev = 24.383 us
+Min = 838.114 us, Q1 = 859.104 us, Median = 860.704 us, Q3 = 884.902 us, Max = 900.700 us
+IQR = 25.798 us, LowerFence = 820.407 us, UpperFence = 923.599 us
+ConfidenceInterval = [774.816 us; 962.593 us] (CI 99.9%), Margin = 93.888 us (10.81% of Mean)
+Skewness = 0.1, Kurtosis = 1.13, MValue = 2
+
+// ** Remained 11 (91.7%) benchmark(s) to run. Estimated finish 2026-11-05 20:57 (0h 1m from now) **
+// **************************
+// Benchmark: ProcessingBenchmarks.Optimized: JIT(Runtime=.NET 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=10000]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet BillionRows.Benchmarks-JIT-1.dll --anonymousPipes 132 133 --benchmarkName "BillionRows.Benchmarks.ProcessingBenchmarks.Optimized(RowCount: 10000)" --job JIT --benchmarkId 1 in /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/tests/BillionRows.Benchmarks/bin/Release/net10.0/BillionRows.Benchmarks-JIT-1/bin/Release/net10.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.14 (10.0.14, 10.0.1426.52326), Arm64 RyuJIT armv8.0-a
+// GC=Concurrent Workstation
+// HardwareIntrinsics=ArmBase+AdvSimd,AES,CRC32,DP,RDM,SHA1,SHA256 VectorSize=128
+// Job: JIT(IterationCount=5, LaunchCount=1, WarmupCount=3)
+
+OverheadJitting  1: 1 op, 82291.00 ns, 82.2910 us/op
+WorkloadJitting  1: 1 op, 9827459.00 ns, 9.8275 ms/op
+
+OverheadJitting  2: 16 op, 235583.00 ns, 14.7239 us/op
+WorkloadJitting  2: 16 op, 17492625.00 ns, 1.0933 ms/op
+
+WorkloadPilot    1: 16 op, 17282250.00 ns, 1.0801 ms/op
+WorkloadPilot    2: 32 op, 32763833.00 ns, 1.0239 ms/op
+WorkloadPilot    3: 64 op, 64792166.00 ns, 1.0124 ms/op
+WorkloadPilot    4: 128 op, 149941500.00 ns, 1.1714 ms/op
+WorkloadPilot    5: 256 op, 113430459.00 ns, 443.0877 us/op
+WorkloadPilot    6: 512 op, 228662209.00 ns, 446.6059 us/op
+WorkloadPilot    7: 1024 op, 428796583.00 ns, 418.7467 us/op
+WorkloadPilot    8: 2048 op, 1007654375.00 ns, 492.0187 us/op
+
+OverheadWarmup   1: 2048 op, 5667.00 ns, 2.7671 ns/op
+OverheadWarmup   2: 2048 op, 4417.00 ns, 2.1567 ns/op
+OverheadWarmup   3: 2048 op, 4459.00 ns, 2.1772 ns/op
+OverheadWarmup   4: 2048 op, 4334.00 ns, 2.1162 ns/op
+OverheadWarmup   5: 2048 op, 4375.00 ns, 2.1362 ns/op
+OverheadWarmup   6: 2048 op, 4250.00 ns, 2.0752 ns/op
+
+OverheadActual   1: 2048 op, 3458.00 ns, 1.6885 ns/op
+OverheadActual   2: 2048 op, 4292.00 ns, 2.0957 ns/op
+OverheadActual   3: 2048 op, 4209.00 ns, 2.0552 ns/op
+OverheadActual   4: 2048 op, 4125.00 ns, 2.0142 ns/op
+OverheadActual   5: 2048 op, 4292.00 ns, 2.0957 ns/op
+OverheadActual   6: 2048 op, 4333.00 ns, 2.1157 ns/op
+OverheadActual   7: 2048 op, 4416.00 ns, 2.1563 ns/op
+OverheadActual   8: 2048 op, 4459.00 ns, 2.1772 ns/op
+OverheadActual   9: 2048 op, 4334.00 ns, 2.1162 ns/op
+OverheadActual  10: 2048 op, 4250.00 ns, 2.0752 ns/op
+OverheadActual  11: 2048 op, 4292.00 ns, 2.0957 ns/op
+OverheadActual  12: 2048 op, 4250.00 ns, 2.0752 ns/op
+OverheadActual  13: 2048 op, 4375.00 ns, 2.1362 ns/op
+OverheadActual  14: 2048 op, 4333.00 ns, 2.1157 ns/op
+OverheadActual  15: 2048 op, 4333.00 ns, 2.1157 ns/op
+OverheadActual  16: 2048 op, 4292.00 ns, 2.0957 ns/op
+OverheadActual  17: 2048 op, 4333.00 ns, 2.1157 ns/op
+OverheadActual  18: 2048 op, 4500.00 ns, 2.1973 ns/op
+OverheadActual  19: 2048 op, 4333.00 ns, 2.1157 ns/op
+
+WorkloadWarmup   1: 2048 op, 754323541.00 ns, 368.3220 us/op
+WorkloadWarmup   2: 2048 op, 684207000.00 ns, 334.0854 us/op
+WorkloadWarmup   3: 2048 op, 734119292.00 ns, 358.4567 us/op
+
+// BeforeActualRun
+WorkloadActual   1: 2048 op, 717241375.00 ns, 350.2155 us/op
+WorkloadActual   2: 2048 op, 681097958.00 ns, 332.5674 us/op
+WorkloadActual   3: 2048 op, 672996209.00 ns, 328.6114 us/op
+WorkloadActual   4: 2048 op, 696408875.00 ns, 340.0434 us/op
+WorkloadActual   5: 2048 op, 714576375.00 ns, 348.9142 us/op
+
+// AfterActualRun
+WorkloadResult   1: 2048 op, 717237042.00 ns, 350.2134 us/op
+WorkloadResult   2: 2048 op, 681093625.00 ns, 332.5652 us/op
+WorkloadResult   3: 2048 op, 672991876.00 ns, 328.6093 us/op
+WorkloadResult   4: 2048 op, 696404542.00 ns, 340.0413 us/op
+WorkloadResult   5: 2048 op, 714572042.00 ns, 348.9121 us/op
+// GC:  4 0 0 38716512 2048
+// Threading:  0 0 2048
+
+// AfterAll
+// Benchmark Process 4098 has exited with code 0.
+
+Mean = 340.068 us, StdErr = 4.294 us (1.26%), N = 5, StdDev = 9.601 us
+Min = 328.609 us, Q1 = 332.565 us, Median = 340.041 us, Q3 = 348.912 us, Max = 350.213 us
+IQR = 16.347 us, LowerFence = 308.045 us, UpperFence = 373.432 us
+ConfidenceInterval = [303.097 us; 377.040 us] (CI 99.9%), Margin = 36.971 us (10.87% of Mean)
+Skewness = -0.04, Kurtosis = 0.87, MValue = 2
+
+// ** Remained 10 (83.3%) benchmark(s) to run. Estimated finish 2026-11-05 20:57 (0h 1m from now) **
+// **************************
+// Benchmark: ProcessingBenchmarks.Baseline: NativeAOT(Runtime=NativeAOT 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=10000]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/tests/BillionRows.Benchmarks/bin/Release/net10.0/BillionRows.Benchmarks-NativeAOT-2/bin/Release/net10.0/osx-arm64/publish/BillionRows.Benchmarks-NativeAOT-2 --anonymousPipes 132 133 --benchmarkName "BillionRows.Benchmarks.ProcessingBenchmarks.Baseline(RowCount: 10000)" --job NativeAOT --benchmarkId 0 in 
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.14, Arm64 NativeAOT armv8.0-a
+// GC=Concurrent Workstation
+// HardwareIntrinsics=ArmBase+AdvSimd,AES,CRC32,DP,RDM,SHA1,SHA256 VectorSize=128
+// Job: NativeAOT(IterationCount=5, LaunchCount=1, WarmupCount=3)
+
+OverheadJitting  1: 1 op, 11459.00 ns, 11.4590 us/op
+WorkloadJitting  1: 1 op, 1527833.00 ns, 1.5278 ms/op
+
+OverheadJitting  2: 16 op, 250.00 ns, 15.6250 ns/op
+WorkloadJitting  2: 16 op, 21387875.00 ns, 1.3367 ms/op
+
+WorkloadPilot    1: 16 op, 20128625.00 ns, 1.2580 ms/op
+WorkloadPilot    2: 32 op, 37680666.00 ns, 1.1775 ms/op
+WorkloadPilot    3: 64 op, 76257959.00 ns, 1.1915 ms/op
+WorkloadPilot    4: 128 op, 156123541.00 ns, 1.2197 ms/op
+WorkloadPilot    5: 256 op, 305191792.00 ns, 1.1922 ms/op
+WorkloadPilot    6: 512 op, 603166209.00 ns, 1.1781 ms/op
+
+OverheadWarmup   1: 512 op, 1083.00 ns, 2.1152 ns/op
+OverheadWarmup   2: 512 op, 542.00 ns, 1.0586 ns/op
+OverheadWarmup   3: 512 op, 583.00 ns, 1.1387 ns/op
+OverheadWarmup   4: 512 op, 583.00 ns, 1.1387 ns/op
+OverheadWarmup   5: 512 op, 542.00 ns, 1.0586 ns/op
+OverheadWarmup   6: 512 op, 792.00 ns, 1.5469 ns/op
+
+OverheadActual   1: 512 op, 584.00 ns, 1.1406 ns/op
+OverheadActual   2: 512 op, 625.00 ns, 1.2207 ns/op
+OverheadActual   3: 512 op, 708.00 ns, 1.3828 ns/op
+OverheadActual   4: 512 op, 542.00 ns, 1.0586 ns/op
+OverheadActual   5: 512 op, 708.00 ns, 1.3828 ns/op
+OverheadActual   6: 512 op, 667.00 ns, 1.3027 ns/op
+OverheadActual   7: 512 op, 667.00 ns, 1.3027 ns/op
+OverheadActual   8: 512 op, 708.00 ns, 1.3828 ns/op
+OverheadActual   9: 512 op, 708.00 ns, 1.3828 ns/op
+OverheadActual  10: 512 op, 750.00 ns, 1.4648 ns/op
+OverheadActual  11: 512 op, 709.00 ns, 1.3848 ns/op
+OverheadActual  12: 512 op, 1000.00 ns, 1.9531 ns/op
+OverheadActual  13: 512 op, 666.00 ns, 1.3008 ns/op
+OverheadActual  14: 512 op, 750.00 ns, 1.4648 ns/op
+OverheadActual  15: 512 op, 709.00 ns, 1.3848 ns/op
+OverheadActual  16: 512 op, 709.00 ns, 1.3848 ns/op
+OverheadActual  17: 512 op, 1000.00 ns, 1.9531 ns/op
+OverheadActual  18: 512 op, 667.00 ns, 1.3027 ns/op
+OverheadActual  19: 512 op, 625.00 ns, 1.2207 ns/op
+OverheadActual  20: 512 op, 667.00 ns, 1.3027 ns/op
+
+WorkloadWarmup   1: 512 op, 604076750.00 ns, 1.1798 ms/op
+WorkloadWarmup   2: 512 op, 600573792.00 ns, 1.1730 ms/op
+WorkloadWarmup   3: 512 op, 615009667.00 ns, 1.2012 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 512 op, 631780875.00 ns, 1.2339 ms/op
+WorkloadActual   2: 512 op, 601525625.00 ns, 1.1749 ms/op
+WorkloadActual   3: 512 op, 609478167.00 ns, 1.1904 ms/op
+WorkloadActual   4: 512 op, 611624959.00 ns, 1.1946 ms/op
+WorkloadActual   5: 512 op, 609175625.00 ns, 1.1898 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 512 op, 601524917.00 ns, 1.1749 ms/op
+WorkloadResult   2: 512 op, 609477459.00 ns, 1.1904 ms/op
+WorkloadResult   3: 512 op, 611624251.00 ns, 1.1946 ms/op
+WorkloadResult   4: 512 op, 609174917.00 ns, 1.1898 ms/op
+// GC:  96 3 0 808133616 512
+// Threading:  0 0 512
+
+// AfterAll
+// Benchmark Process 4155 has exited with code 0.
+
+Mean = 1.187 ms, StdErr = 0.004 ms (0.36%), N = 4, StdDev = 0.009 ms
+Min = 1.175 ms, Q1 = 1.186 ms, Median = 1.190 ms, Q3 = 1.191 ms, Max = 1.195 ms
+IQR = 0.005 ms, LowerFence = 1.178 ms, UpperFence = 1.199 ms
+ConfidenceInterval = [1.132 ms; 1.243 ms] (CI 99.9%), Margin = 0.056 ms (4.70% of Mean)
+Skewness = -0.61, Kurtosis = 1.24, MValue = 2
+
+// ** Remained 9 (75.0%) benchmark(s) to run. Estimated finish 2026-11-05 20:57 (0h 1m from now) **
+// **************************
+// Benchmark: ProcessingBenchmarks.Optimized: NativeAOT(Runtime=NativeAOT 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=10000]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/tests/BillionRows.Benchmarks/bin/Release/net10.0/BillionRows.Benchmarks-NativeAOT-2/bin/Release/net10.0/osx-arm64/publish/BillionRows.Benchmarks-NativeAOT-2 --anonymousPipes 132 133 --benchmarkName "BillionRows.Benchmarks.ProcessingBenchmarks.Optimized(RowCount: 10000)" --job NativeAOT --benchmarkId 1 in 
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.14, Arm64 NativeAOT armv8.0-a
+// GC=Concurrent Workstation
+// HardwareIntrinsics=ArmBase+AdvSimd,AES,CRC32,DP,RDM,SHA1,SHA256 VectorSize=128
+// Job: NativeAOT(IterationCount=5, LaunchCount=1, WarmupCount=3)
+
+OverheadJitting  1: 1 op, 334.00 ns, 334.0000 ns/op
+WorkloadJitting  1: 1 op, 529500.00 ns, 529.5000 us/op
+
+OverheadJitting  2: 16 op, 208.00 ns, 13.0000 ns/op
+WorkloadJitting  2: 16 op, 8074792.00 ns, 504.6745 us/op
+
+WorkloadPilot    1: 16 op, 8740833.00 ns, 546.3021 us/op
+WorkloadPilot    2: 32 op, 16425708.00 ns, 513.3034 us/op
+WorkloadPilot    3: 64 op, 30826084.00 ns, 481.6576 us/op
+WorkloadPilot    4: 128 op, 61669916.00 ns, 481.7962 us/op
+WorkloadPilot    5: 256 op, 125531583.00 ns, 490.3577 us/op
+WorkloadPilot    6: 512 op, 252801583.00 ns, 493.7531 us/op
+WorkloadPilot    7: 1024 op, 497786416.00 ns, 486.1195 us/op
+WorkloadPilot    8: 2048 op, 1012122625.00 ns, 494.2005 us/op
+
+OverheadWarmup   1: 2048 op, 2667.00 ns, 1.3022 ns/op
+OverheadWarmup   2: 2048 op, 2667.00 ns, 1.3022 ns/op
+OverheadWarmup   3: 2048 op, 2083.00 ns, 1.0171 ns/op
+OverheadWarmup   4: 2048 op, 2500.00 ns, 1.2207 ns/op
+OverheadWarmup   5: 2048 op, 2625.00 ns, 1.2817 ns/op
+OverheadWarmup   6: 2048 op, 2542.00 ns, 1.2412 ns/op
+
+OverheadActual   1: 2048 op, 2584.00 ns, 1.2617 ns/op
+OverheadActual   2: 2048 op, 2500.00 ns, 1.2207 ns/op
+OverheadActual   3: 2048 op, 2500.00 ns, 1.2207 ns/op
+OverheadActual   4: 2048 op, 2500.00 ns, 1.2207 ns/op
+OverheadActual   5: 2048 op, 2541.00 ns, 1.2407 ns/op
+OverheadActual   6: 2048 op, 2541.00 ns, 1.2407 ns/op
+OverheadActual   7: 2048 op, 2541.00 ns, 1.2407 ns/op
+OverheadActual   8: 2048 op, 2500.00 ns, 1.2207 ns/op
+OverheadActual   9: 2048 op, 2542.00 ns, 1.2412 ns/op
+OverheadActual  10: 2048 op, 2541.00 ns, 1.2407 ns/op
+OverheadActual  11: 2048 op, 2542.00 ns, 1.2412 ns/op
+OverheadActual  12: 2048 op, 2667.00 ns, 1.3022 ns/op
+OverheadActual  13: 2048 op, 2042.00 ns, 0.9971 ns/op
+OverheadActual  14: 2048 op, 2083.00 ns, 1.0171 ns/op
+OverheadActual  15: 2048 op, 2250.00 ns, 1.0986 ns/op
+OverheadActual  16: 2048 op, 2375.00 ns, 1.1597 ns/op
+OverheadActual  17: 2048 op, 2250.00 ns, 1.0986 ns/op
+OverheadActual  18: 2048 op, 2250.00 ns, 1.0986 ns/op
+OverheadActual  19: 2048 op, 2000.00 ns, 0.9766 ns/op
+OverheadActual  20: 2048 op, 2000.00 ns, 0.9766 ns/op
+
+WorkloadWarmup   1: 2048 op, 1000467709.00 ns, 488.5096 us/op
+WorkloadWarmup   2: 2048 op, 1001227417.00 ns, 488.8806 us/op
+WorkloadWarmup   3: 2048 op, 986230458.00 ns, 481.5578 us/op
+
+// BeforeActualRun
+WorkloadActual   1: 2048 op, 995250208.00 ns, 485.9620 us/op
+WorkloadActual   2: 2048 op, 1016296834.00 ns, 496.2387 us/op
+WorkloadActual   3: 2048 op, 1016948042.00 ns, 496.5567 us/op
+WorkloadActual   4: 2048 op, 998068542.00 ns, 487.3382 us/op
+WorkloadActual   5: 2048 op, 992033250.00 ns, 484.3912 us/op
+
+// AfterActualRun
+WorkloadResult   1: 2048 op, 995247708.00 ns, 485.9608 us/op
+WorkloadResult   2: 2048 op, 1016294334.00 ns, 496.2375 us/op
+WorkloadResult   3: 2048 op, 1016945542.00 ns, 496.5554 us/op
+WorkloadResult   4: 2048 op, 998066042.00 ns, 487.3369 us/op
+WorkloadResult   5: 2048 op, 992030750.00 ns, 484.3900 us/op
+// GC:  4 0 0 38716400 2048
+// Threading:  0 0 2048
+
+// AfterAll
+// Benchmark Process 4226 has exited with code 0.
+
+Mean = 490.096 us, StdErr = 2.615 us (0.53%), N = 5, StdDev = 5.846 us
+Min = 484.390 us, Q1 = 485.961 us, Median = 487.337 us, Q3 = 496.237 us, Max = 496.555 us
+IQR = 10.277 us, LowerFence = 470.546 us, UpperFence = 511.652 us
+ConfidenceInterval = [467.584 us; 512.608 us] (CI 99.9%), Margin = 22.512 us (4.59% of Mean)
+Skewness = 0.22, Kurtosis = 0.78, MValue = 2
+
+// ** Remained 8 (66.7%) benchmark(s) to run. Estimated finish 2026-11-05 20:57 (0h 1m from now) **
+// **************************
+// Benchmark: ProcessingBenchmarks.Baseline: JIT(Runtime=.NET 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=100000]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet BillionRows.Benchmarks-JIT-1.dll --anonymousPipes 132 133 --benchmarkName "BillionRows.Benchmarks.ProcessingBenchmarks.Baseline(RowCount: 100000)" --job JIT --benchmarkId 2 in /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/tests/BillionRows.Benchmarks/bin/Release/net10.0/BillionRows.Benchmarks-JIT-1/bin/Release/net10.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.14 (10.0.14, 10.0.1426.52326), Arm64 RyuJIT armv8.0-a
+// GC=Concurrent Workstation
+// HardwareIntrinsics=ArmBase+AdvSimd,AES,CRC32,DP,RDM,SHA1,SHA256 VectorSize=128
+// Job: JIT(IterationCount=5, LaunchCount=1, WarmupCount=3)
+
+OverheadJitting  1: 1 op, 86583.00 ns, 86.5830 us/op
+WorkloadJitting  1: 1 op, 22492292.00 ns, 22.4923 ms/op
+
+OverheadJitting  2: 16 op, 250209.00 ns, 15.6381 us/op
+WorkloadJitting  2: 16 op, 313641625.00 ns, 19.6026 ms/op
+
+WorkloadPilot    1: 16 op, 151486250.00 ns, 9.4679 ms/op
+WorkloadPilot    2: 32 op, 306655375.00 ns, 9.5830 ms/op
+WorkloadPilot    3: 64 op, 734847791.00 ns, 11.4820 ms/op
+
+OverheadWarmup   1: 64 op, 1792.00 ns, 28.0000 ns/op
+OverheadWarmup   2: 64 op, 417.00 ns, 6.5156 ns/op
+OverheadWarmup   3: 64 op, 417.00 ns, 6.5156 ns/op
+OverheadWarmup   4: 64 op, 458.00 ns, 7.1563 ns/op
+OverheadWarmup   5: 64 op, 250.00 ns, 3.9063 ns/op
+OverheadWarmup   6: 64 op, 500.00 ns, 7.8125 ns/op
+
+OverheadActual   1: 64 op, 583.00 ns, 9.1094 ns/op
+OverheadActual   2: 64 op, 250.00 ns, 3.9063 ns/op
+OverheadActual   3: 64 op, 334.00 ns, 5.2188 ns/op
+OverheadActual   4: 64 op, 458.00 ns, 7.1563 ns/op
+OverheadActual   5: 64 op, 292.00 ns, 4.5625 ns/op
+OverheadActual   6: 64 op, 167.00 ns, 2.6094 ns/op
+OverheadActual   7: 64 op, 334.00 ns, 5.2188 ns/op
+OverheadActual   8: 64 op, 416.00 ns, 6.5000 ns/op
+OverheadActual   9: 64 op, 208.00 ns, 3.2500 ns/op
+OverheadActual  10: 64 op, 125.00 ns, 1.9531 ns/op
+OverheadActual  11: 64 op, 125.00 ns, 1.9531 ns/op
+OverheadActual  12: 64 op, 125.00 ns, 1.9531 ns/op
+OverheadActual  13: 64 op, 292.00 ns, 4.5625 ns/op
+OverheadActual  14: 64 op, 209.00 ns, 3.2656 ns/op
+OverheadActual  15: 64 op, 250.00 ns, 3.9063 ns/op
+OverheadActual  16: 64 op, 208.00 ns, 3.2500 ns/op
+OverheadActual  17: 64 op, 208.00 ns, 3.2500 ns/op
+OverheadActual  18: 64 op, 208.00 ns, 3.2500 ns/op
+OverheadActual  19: 64 op, 292.00 ns, 4.5625 ns/op
+OverheadActual  20: 64 op, 208.00 ns, 3.2500 ns/op
+
+WorkloadWarmup   1: 64 op, 540804834.00 ns, 8.4501 ms/op
+WorkloadWarmup   2: 64 op, 533914333.00 ns, 8.3424 ms/op
+WorkloadWarmup   3: 64 op, 536393917.00 ns, 8.3812 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 64 op, 740417458.00 ns, 11.5690 ms/op
+WorkloadActual   2: 64 op, 543110417.00 ns, 8.4861 ms/op
+WorkloadActual   3: 64 op, 543275916.00 ns, 8.4887 ms/op
+WorkloadActual   4: 64 op, 540737458.00 ns, 8.4490 ms/op
+WorkloadActual   5: 64 op, 554173292.00 ns, 8.6590 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 64 op, 543110187.50 ns, 8.4861 ms/op
+WorkloadResult   2: 64 op, 543275686.50 ns, 8.4887 ms/op
+WorkloadResult   3: 64 op, 540737228.50 ns, 8.4490 ms/op
+WorkloadResult   4: 64 op, 554173062.50 ns, 8.6590 ms/op
+// GC:  95 2 0 797599232 64
+// Threading:  0 0 64
+
+// AfterAll
+// Benchmark Process 4544 has exited with code 0.
+
+Mean = 8.521 ms, StdErr = 0.047 ms (0.55%), N = 4, StdDev = 0.094 ms
+Min = 8.449 ms, Q1 = 8.477 ms, Median = 8.487 ms, Q3 = 8.531 ms, Max = 8.659 ms
+IQR = 0.054 ms, LowerFence = 8.395 ms, UpperFence = 8.613 ms
+ConfidenceInterval = [7.914 ms; 9.128 ms] (CI 99.9%), Margin = 0.607 ms (7.12% of Mean)
+Skewness = 0.66, Kurtosis = 1.27, MValue = 2
+
+// ** Remained 7 (58.3%) benchmark(s) to run. Estimated finish 2026-11-05 20:57 (0h 1m from now) **
+// **************************
+// Benchmark: ProcessingBenchmarks.Optimized: JIT(Runtime=.NET 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=100000]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet BillionRows.Benchmarks-JIT-1.dll --anonymousPipes 132 133 --benchmarkName "BillionRows.Benchmarks.ProcessingBenchmarks.Optimized(RowCount: 100000)" --job JIT --benchmarkId 3 in /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/tests/BillionRows.Benchmarks/bin/Release/net10.0/BillionRows.Benchmarks-JIT-1/bin/Release/net10.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.14 (10.0.14, 10.0.1426.52326), Arm64 RyuJIT armv8.0-a
+// GC=Concurrent Workstation
+// HardwareIntrinsics=ArmBase+AdvSimd,AES,CRC32,DP,RDM,SHA1,SHA256 VectorSize=128
+// Job: JIT(IterationCount=5, LaunchCount=1, WarmupCount=3)
+
+OverheadJitting  1: 1 op, 84583.00 ns, 84.5830 us/op
+WorkloadJitting  1: 1 op, 20054208.00 ns, 20.0542 ms/op
+
+OverheadJitting  2: 16 op, 221709.00 ns, 13.8568 us/op
+WorkloadJitting  2: 16 op, 175692458.00 ns, 10.9808 ms/op
+
+WorkloadPilot    1: 16 op, 189014750.00 ns, 11.8134 ms/op
+WorkloadPilot    2: 32 op, 152653459.00 ns, 4.7704 ms/op
+WorkloadPilot    3: 64 op, 306457291.00 ns, 4.7884 ms/op
+WorkloadPilot    4: 128 op, 584074417.00 ns, 4.5631 ms/op
+
+OverheadWarmup   1: 128 op, 1583.00 ns, 12.3672 ns/op
+OverheadWarmup   2: 128 op, 458.00 ns, 3.5781 ns/op
+OverheadWarmup   3: 128 op, 458.00 ns, 3.5781 ns/op
+OverheadWarmup   4: 128 op, 500.00 ns, 3.9063 ns/op
+OverheadWarmup   5: 128 op, 500.00 ns, 3.9063 ns/op
+OverheadWarmup   6: 128 op, 208.00 ns, 1.6250 ns/op
+
+OverheadActual   1: 128 op, 375.00 ns, 2.9297 ns/op
+OverheadActual   2: 128 op, 208.00 ns, 1.6250 ns/op
+OverheadActual   3: 128 op, 292.00 ns, 2.2813 ns/op
+OverheadActual   4: 128 op, 500.00 ns, 3.9063 ns/op
+OverheadActual   5: 128 op, 250.00 ns, 1.9531 ns/op
+OverheadActual   6: 128 op, 291.00 ns, 2.2734 ns/op
+OverheadActual   7: 128 op, 250.00 ns, 1.9531 ns/op
+OverheadActual   8: 128 op, 208.00 ns, 1.6250 ns/op
+OverheadActual   9: 128 op, 250.00 ns, 1.9531 ns/op
+OverheadActual  10: 128 op, 292.00 ns, 2.2813 ns/op
+OverheadActual  11: 128 op, 292.00 ns, 2.2813 ns/op
+OverheadActual  12: 128 op, 291.00 ns, 2.2734 ns/op
+OverheadActual  13: 128 op, 209.00 ns, 1.6328 ns/op
+OverheadActual  14: 128 op, 250.00 ns, 1.9531 ns/op
+OverheadActual  15: 128 op, 208.00 ns, 1.6250 ns/op
+OverheadActual  16: 128 op, 250.00 ns, 1.9531 ns/op
+OverheadActual  17: 128 op, 292.00 ns, 2.2813 ns/op
+OverheadActual  18: 128 op, 542.00 ns, 4.2344 ns/op
+OverheadActual  19: 128 op, 208.00 ns, 1.6250 ns/op
+OverheadActual  20: 128 op, 208.00 ns, 1.6250 ns/op
+
+WorkloadWarmup   1: 128 op, 560797916.00 ns, 4.3812 ms/op
+WorkloadWarmup   2: 128 op, 556227708.00 ns, 4.3455 ms/op
+WorkloadWarmup   3: 128 op, 556788625.00 ns, 4.3499 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 128 op, 553052000.00 ns, 4.3207 ms/op
+WorkloadActual   2: 128 op, 631869125.00 ns, 4.9365 ms/op
+WorkloadActual   3: 128 op, 552100292.00 ns, 4.3133 ms/op
+WorkloadActual   4: 128 op, 553702000.00 ns, 4.3258 ms/op
+WorkloadActual   5: 128 op, 551278958.00 ns, 4.3069 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 128 op, 553051750.00 ns, 4.3207 ms/op
+WorkloadResult   2: 128 op, 552100042.00 ns, 4.3133 ms/op
+WorkloadResult   3: 128 op, 553701750.00 ns, 4.3258 ms/op
+WorkloadResult   4: 128 op, 551278708.00 ns, 4.3069 ms/op
+// GC:  0 0 0 2427104 128
+// Threading:  0 0 128
+
+// AfterAll
+// Benchmark Process 5352 has exited with code 0.
+
+Mean = 4.317 ms, StdErr = 0.004 ms (0.10%), N = 4, StdDev = 0.008 ms
+Min = 4.307 ms, Q1 = 4.312 ms, Median = 4.317 ms, Q3 = 4.322 ms, Max = 4.326 ms
+IQR = 0.010 ms, LowerFence = 4.296 ms, UpperFence = 4.337 ms
+ConfidenceInterval = [4.263 ms; 4.370 ms] (CI 99.9%), Margin = 0.054 ms (1.24% of Mean)
+Skewness = -0.07, Kurtosis = 0.87, MValue = 2
+
+// ** Remained 6 (50.0%) benchmark(s) to run. Estimated finish 2026-11-05 20:57 (0h 0m from now) **
+// **************************
+// Benchmark: ProcessingBenchmarks.Baseline: NativeAOT(Runtime=NativeAOT 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=100000]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/tests/BillionRows.Benchmarks/bin/Release/net10.0/BillionRows.Benchmarks-NativeAOT-2/bin/Release/net10.0/osx-arm64/publish/BillionRows.Benchmarks-NativeAOT-2 --anonymousPipes 132 133 --benchmarkName "BillionRows.Benchmarks.ProcessingBenchmarks.Baseline(RowCount: 100000)" --job NativeAOT --benchmarkId 2 in 
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.14, Arm64 NativeAOT armv8.0-a
+// GC=Concurrent Workstation
+// HardwareIntrinsics=ArmBase+AdvSimd,AES,CRC32,DP,RDM,SHA1,SHA256 VectorSize=128
+// Job: NativeAOT(IterationCount=5, LaunchCount=1, WarmupCount=3)
+
+OverheadJitting  1: 1 op, 84.00 ns, 84.0000 ns/op
+WorkloadJitting  1: 1 op, 12150500.00 ns, 12.1505 ms/op
+
+OverheadJitting  2: 16 op, 125.00 ns, 7.8125 ns/op
+WorkloadJitting  2: 16 op, 185289042.00 ns, 11.5806 ms/op
+
+WorkloadPilot    1: 16 op, 184523458.00 ns, 11.5327 ms/op
+WorkloadPilot    2: 32 op, 377459583.00 ns, 11.7956 ms/op
+WorkloadPilot    3: 64 op, 749600875.00 ns, 11.7125 ms/op
+
+OverheadWarmup   1: 64 op, 417.00 ns, 6.5156 ns/op
+OverheadWarmup   2: 64 op, 375.00 ns, 5.8594 ns/op
+OverheadWarmup   3: 64 op, 208.00 ns, 3.2500 ns/op
+OverheadWarmup   4: 64 op, 83.00 ns, 1.2969 ns/op
+OverheadWarmup   5: 64 op, 125.00 ns, 1.9531 ns/op
+OverheadWarmup   6: 64 op, 125.00 ns, 1.9531 ns/op
+OverheadWarmup   7: 64 op, 417.00 ns, 6.5156 ns/op
+OverheadWarmup   8: 64 op, 250.00 ns, 3.9063 ns/op
+
+OverheadActual   1: 64 op, 250.00 ns, 3.9063 ns/op
+OverheadActual   2: 64 op, 250.00 ns, 3.9063 ns/op
+OverheadActual   3: 64 op, 167.00 ns, 2.6094 ns/op
+OverheadActual   4: 64 op, 84.00 ns, 1.3125 ns/op
+OverheadActual   5: 64 op, 125.00 ns, 1.9531 ns/op
+OverheadActual   6: 64 op, 167.00 ns, 2.6094 ns/op
+OverheadActual   7: 64 op, 167.00 ns, 2.6094 ns/op
+OverheadActual   8: 64 op, 125.00 ns, 1.9531 ns/op
+OverheadActual   9: 64 op, 125.00 ns, 1.9531 ns/op
+OverheadActual  10: 64 op, 125.00 ns, 1.9531 ns/op
+OverheadActual  11: 64 op, 167.00 ns, 2.6094 ns/op
+OverheadActual  12: 64 op, 83.00 ns, 1.2969 ns/op
+OverheadActual  13: 64 op, 41.00 ns, 0.6406 ns/op
+OverheadActual  14: 64 op, 125.00 ns, 1.9531 ns/op
+OverheadActual  15: 64 op, 84.00 ns, 1.3125 ns/op
+OverheadActual  16: 64 op, 167.00 ns, 2.6094 ns/op
+OverheadActual  17: 64 op, 83.00 ns, 1.2969 ns/op
+OverheadActual  18: 64 op, 125.00 ns, 1.9531 ns/op
+OverheadActual  19: 64 op, 83.00 ns, 1.2969 ns/op
+OverheadActual  20: 64 op, 84.00 ns, 1.3125 ns/op
+
+WorkloadWarmup   1: 64 op, 754971875.00 ns, 11.7964 ms/op
+WorkloadWarmup   2: 64 op, 778950625.00 ns, 12.1711 ms/op
+WorkloadWarmup   3: 64 op, 761732750.00 ns, 11.9021 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 64 op, 755895333.00 ns, 11.8109 ms/op
+WorkloadActual   2: 64 op, 746493167.00 ns, 11.6640 ms/op
+WorkloadActual   3: 64 op, 762783584.00 ns, 11.9185 ms/op
+WorkloadActual   4: 64 op, 754448792.00 ns, 11.7883 ms/op
+WorkloadActual   5: 64 op, 755052875.00 ns, 11.7977 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 64 op, 755895208.00 ns, 11.8109 ms/op
+WorkloadResult   2: 64 op, 746493042.00 ns, 11.6640 ms/op
+WorkloadResult   3: 64 op, 754448667.00 ns, 11.7883 ms/op
+WorkloadResult   4: 64 op, 755052750.00 ns, 11.7977 ms/op
+// GC:  119 2 0 1002385904 64
+// Threading:  0 0 64
+
+// AfterAll
+// Benchmark Process 5446 has exited with code 0.
+
+Mean = 11.765 ms, StdErr = 0.034 ms (0.29%), N = 4, StdDev = 0.068 ms
+Min = 11.664 ms, Q1 = 11.757 ms, Median = 11.793 ms, Q3 = 11.801 ms, Max = 11.811 ms
+IQR = 0.044 ms, LowerFence = 11.691 ms, UpperFence = 11.867 ms
+ConfidenceInterval = [11.325 ms; 12.205 ms] (CI 99.9%), Margin = 0.440 ms (3.74% of Mean)
+Skewness = -0.71, Kurtosis = 1.29, MValue = 2
+
+// ** Remained 5 (41.7%) benchmark(s) to run. Estimated finish 2026-11-05 20:57 (0h 0m from now) **
+// **************************
+// Benchmark: ProcessingBenchmarks.Optimized: NativeAOT(Runtime=NativeAOT 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=100000]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/tests/BillionRows.Benchmarks/bin/Release/net10.0/BillionRows.Benchmarks-NativeAOT-2/bin/Release/net10.0/osx-arm64/publish/BillionRows.Benchmarks-NativeAOT-2 --anonymousPipes 107 108 --benchmarkName "BillionRows.Benchmarks.ProcessingBenchmarks.Optimized(RowCount: 100000)" --job NativeAOT --benchmarkId 3 in 
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.14, Arm64 NativeAOT armv8.0-a
+// GC=Concurrent Workstation
+// HardwareIntrinsics=ArmBase+AdvSimd,AES,CRC32,DP,RDM,SHA1,SHA256 VectorSize=128
+// Job: NativeAOT(IterationCount=5, LaunchCount=1, WarmupCount=3)
+
+OverheadJitting  1: 1 op, 208.00 ns, 208.0000 ns/op
+WorkloadJitting  1: 1 op, 4942833.00 ns, 4.9428 ms/op
+
+OverheadJitting  2: 16 op, 209.00 ns, 13.0625 ns/op
+WorkloadJitting  2: 16 op, 79303375.00 ns, 4.9565 ms/op
+
+WorkloadPilot    1: 16 op, 78749041.00 ns, 4.9218 ms/op
+WorkloadPilot    2: 32 op, 155360125.00 ns, 4.8550 ms/op
+WorkloadPilot    3: 64 op, 305780958.00 ns, 4.7778 ms/op
+WorkloadPilot    4: 128 op, 613020750.00 ns, 4.7892 ms/op
+
+OverheadWarmup   1: 128 op, 541.00 ns, 4.2266 ns/op
+OverheadWarmup   2: 128 op, 208.00 ns, 1.6250 ns/op
+OverheadWarmup   3: 128 op, 208.00 ns, 1.6250 ns/op
+OverheadWarmup   4: 128 op, 208.00 ns, 1.6250 ns/op
+OverheadWarmup   5: 128 op, 208.00 ns, 1.6250 ns/op
+OverheadWarmup   6: 128 op, 416.00 ns, 3.2500 ns/op
+
+OverheadActual   1: 128 op, 417.00 ns, 3.2578 ns/op
+OverheadActual   2: 128 op, 208.00 ns, 1.6250 ns/op
+OverheadActual   3: 128 op, 250.00 ns, 1.9531 ns/op
+OverheadActual   4: 128 op, 250.00 ns, 1.9531 ns/op
+OverheadActual   5: 128 op, 250.00 ns, 1.9531 ns/op
+OverheadActual   6: 128 op, 250.00 ns, 1.9531 ns/op
+OverheadActual   7: 128 op, 167.00 ns, 1.3047 ns/op
+OverheadActual   8: 128 op, 375.00 ns, 2.9297 ns/op
+OverheadActual   9: 128 op, 209.00 ns, 1.6328 ns/op
+OverheadActual  10: 128 op, 208.00 ns, 1.6250 ns/op
+OverheadActual  11: 128 op, 167.00 ns, 1.3047 ns/op
+OverheadActual  12: 128 op, 209.00 ns, 1.6328 ns/op
+OverheadActual  13: 128 op, 291.00 ns, 2.2734 ns/op
+OverheadActual  14: 128 op, 250.00 ns, 1.9531 ns/op
+OverheadActual  15: 128 op, 250.00 ns, 1.9531 ns/op
+OverheadActual  16: 128 op, 291.00 ns, 2.2734 ns/op
+OverheadActual  17: 128 op, 250.00 ns, 1.9531 ns/op
+OverheadActual  18: 128 op, 167.00 ns, 1.3047 ns/op
+OverheadActual  19: 128 op, 208.00 ns, 1.6250 ns/op
+OverheadActual  20: 128 op, 209.00 ns, 1.6328 ns/op
+
+WorkloadWarmup   1: 128 op, 612118375.00 ns, 4.7822 ms/op
+WorkloadWarmup   2: 128 op, 607046125.00 ns, 4.7425 ms/op
+WorkloadWarmup   3: 128 op, 607576458.00 ns, 4.7467 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 128 op, 603337834.00 ns, 4.7136 ms/op
+WorkloadActual   2: 128 op, 626549000.00 ns, 4.8949 ms/op
+WorkloadActual   3: 128 op, 609512042.00 ns, 4.7618 ms/op
+WorkloadActual   4: 128 op, 608650083.00 ns, 4.7551 ms/op
+WorkloadActual   5: 128 op, 615440458.00 ns, 4.8081 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 128 op, 603337584.00 ns, 4.7136 ms/op
+WorkloadResult   2: 128 op, 609511792.00 ns, 4.7618 ms/op
+WorkloadResult   3: 128 op, 608649833.00 ns, 4.7551 ms/op
+WorkloadResult   4: 128 op, 615440208.00 ns, 4.8081 ms/op
+// GC:  0 0 0 2427888 128
+// Threading:  0 0 128
+
+// AfterAll
+// Benchmark Process 5737 has exited with code 0.
+
+Mean = 4.760 ms, StdErr = 0.019 ms (0.41%), N = 4, StdDev = 0.039 ms
+Min = 4.714 ms, Q1 = 4.745 ms, Median = 4.758 ms, Q3 = 4.773 ms, Max = 4.808 ms
+IQR = 0.029 ms, LowerFence = 4.702 ms, UpperFence = 4.816 ms
+ConfidenceInterval = [4.509 ms; 5.010 ms] (CI 99.9%), Margin = 0.250 ms (5.26% of Mean)
+Skewness = 0.07, Kurtosis = 1.12, MValue = 2
+
+// ** Remained 4 (33.3%) benchmark(s) to run. Estimated finish 2026-11-05 20:57 (0h 0m from now) **
+// **************************
+// Benchmark: ProcessingBenchmarks.Baseline: JIT(Runtime=.NET 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=1000000]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet BillionRows.Benchmarks-JIT-1.dll --anonymousPipes 107 108 --benchmarkName "BillionRows.Benchmarks.ProcessingBenchmarks.Baseline(RowCount: 1000000)" --job JIT --benchmarkId 4 in /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/tests/BillionRows.Benchmarks/bin/Release/net10.0/BillionRows.Benchmarks-JIT-1/bin/Release/net10.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.14 (10.0.14, 10.0.1426.52326), Arm64 RyuJIT armv8.0-a
+// GC=Concurrent Workstation
+// HardwareIntrinsics=ArmBase+AdvSimd,AES,CRC32,DP,RDM,SHA1,SHA256 VectorSize=128
+// Job: JIT(IterationCount=5, LaunchCount=1, WarmupCount=3)
+
+OverheadJitting  1: 1 op, 81792.00 ns, 81.7920 us/op
+WorkloadJitting  1: 1 op, 171098083.00 ns, 171.0981 ms/op
+
+WorkloadPilot    1: 2 op, 343897542.00 ns, 171.9488 ms/op
+WorkloadPilot    2: 3 op, 259521417.00 ns, 86.5071 ms/op
+WorkloadPilot    3: 4 op, 335931333.00 ns, 83.9828 ms/op
+WorkloadPilot    4: 5 op, 450098125.00 ns, 90.0196 ms/op
+WorkloadPilot    5: 6 op, 513643375.00 ns, 85.6072 ms/op
+
+WorkloadWarmup   1: 6 op, 518543208.00 ns, 86.4239 ms/op
+WorkloadWarmup   2: 6 op, 532146750.00 ns, 88.6911 ms/op
+WorkloadWarmup   3: 6 op, 515615959.00 ns, 85.9360 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 6 op, 701355708.00 ns, 116.8926 ms/op
+WorkloadActual   2: 6 op, 585114208.00 ns, 97.5190 ms/op
+WorkloadActual   3: 6 op, 609157541.00 ns, 101.5263 ms/op
+WorkloadActual   4: 6 op, 573157750.00 ns, 95.5263 ms/op
+WorkloadActual   5: 6 op, 548919167.00 ns, 91.4865 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 6 op, 585114208.00 ns, 97.5190 ms/op
+WorkloadResult   2: 6 op, 609157541.00 ns, 101.5263 ms/op
+WorkloadResult   3: 6 op, 573157750.00 ns, 95.5263 ms/op
+WorkloadResult   4: 6 op, 548919167.00 ns, 91.4865 ms/op
+// GC:  89 0 0 747106464 6
+// Threading:  0 0 6
+
+// AfterAll
+// Benchmark Process 5959 has exited with code 0.
+
+Mean = 96.515 ms, StdErr = 2.089 ms (2.16%), N = 4, StdDev = 4.179 ms
+Min = 91.487 ms, Q1 = 94.516 ms, Median = 96.523 ms, Q3 = 98.521 ms, Max = 101.526 ms
+IQR = 4.004 ms, LowerFence = 88.510 ms, UpperFence = 104.528 ms
+ConfidenceInterval = [69.512 ms; 123.517 ms] (CI 99.9%), Margin = 27.003 ms (27.98% of Mean)
+Skewness = -0, Kurtosis = 1.04, MValue = 2
+
+// ** Remained 3 (25.0%) benchmark(s) to run. Estimated finish 2026-11-05 20:57 (0h 0m from now) **
+// **************************
+// Benchmark: ProcessingBenchmarks.Optimized: JIT(Runtime=.NET 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=1000000]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet BillionRows.Benchmarks-JIT-1.dll --anonymousPipes 107 108 --benchmarkName "BillionRows.Benchmarks.ProcessingBenchmarks.Optimized(RowCount: 1000000)" --job JIT --benchmarkId 5 in /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/tests/BillionRows.Benchmarks/bin/Release/net10.0/BillionRows.Benchmarks-JIT-1/bin/Release/net10.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.14 (10.0.14, 10.0.1426.52326), Arm64 RyuJIT armv8.0-a
+// GC=Concurrent Workstation
+// HardwareIntrinsics=ArmBase+AdvSimd,AES,CRC32,DP,RDM,SHA1,SHA256 VectorSize=128
+// Job: JIT(IterationCount=5, LaunchCount=1, WarmupCount=3)
+
+OverheadJitting  1: 1 op, 86166.00 ns, 86.1660 us/op
+WorkloadJitting  1: 1 op, 109826500.00 ns, 109.8265 ms/op
+
+WorkloadPilot    1: 2 op, 240023166.00 ns, 120.0116 ms/op
+WorkloadPilot    2: 3 op, 261999667.00 ns, 87.3332 ms/op
+WorkloadPilot    3: 4 op, 183886625.00 ns, 45.9717 ms/op
+WorkloadPilot    4: 5 op, 225028625.00 ns, 45.0057 ms/op
+WorkloadPilot    5: 6 op, 271896458.00 ns, 45.3161 ms/op
+WorkloadPilot    6: 7 op, 326859375.00 ns, 46.6942 ms/op
+WorkloadPilot    7: 8 op, 394131292.00 ns, 49.2664 ms/op
+WorkloadPilot    8: 9 op, 404186708.00 ns, 44.9096 ms/op
+WorkloadPilot    9: 10 op, 440203875.00 ns, 44.0204 ms/op
+WorkloadPilot   10: 11 op, 486141000.00 ns, 44.1946 ms/op
+WorkloadPilot   11: 12 op, 519606917.00 ns, 43.3006 ms/op
+
+WorkloadWarmup   1: 12 op, 525505209.00 ns, 43.7921 ms/op
+WorkloadWarmup   2: 12 op, 566972250.00 ns, 47.2477 ms/op
+WorkloadWarmup   3: 12 op, 544351334.00 ns, 45.3626 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 12 op, 538303625.00 ns, 44.8586 ms/op
+WorkloadActual   2: 12 op, 524671500.00 ns, 43.7226 ms/op
+WorkloadActual   3: 12 op, 527112250.00 ns, 43.9260 ms/op
+WorkloadActual   4: 12 op, 545098333.00 ns, 45.4249 ms/op
+WorkloadActual   5: 12 op, 542650542.00 ns, 45.2209 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 12 op, 538303625.00 ns, 44.8586 ms/op
+WorkloadResult   2: 12 op, 524671500.00 ns, 43.7226 ms/op
+WorkloadResult   3: 12 op, 527112250.00 ns, 43.9260 ms/op
+WorkloadResult   4: 12 op, 545098333.00 ns, 45.4249 ms/op
+WorkloadResult   5: 12 op, 542650542.00 ns, 45.2209 ms/op
+// GC:  0 0 0 227744 12
+// Threading:  0 0 12
+
+// AfterAll
+// Benchmark Process 6125 has exited with code 0.
+
+Mean = 44.631 ms, StdErr = 0.343 ms (0.77%), N = 5, StdDev = 0.767 ms
+Min = 43.723 ms, Q1 = 43.926 ms, Median = 44.859 ms, Q3 = 45.221 ms, Max = 45.425 ms
+IQR = 1.295 ms, LowerFence = 41.984 ms, UpperFence = 47.163 ms
+ConfidenceInterval = [41.678 ms; 47.583 ms] (CI 99.9%), Margin = 2.953 ms (6.62% of Mean)
+Skewness = -0.17, Kurtosis = 0.84, MValue = 2
+
+// ** Remained 2 (16.7%) benchmark(s) to run. Estimated finish 2026-11-05 20:57 (0h 0m from now) **
+// **************************
+// Benchmark: ProcessingBenchmarks.Baseline: NativeAOT(Runtime=NativeAOT 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=1000000]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/tests/BillionRows.Benchmarks/bin/Release/net10.0/BillionRows.Benchmarks-NativeAOT-2/bin/Release/net10.0/osx-arm64/publish/BillionRows.Benchmarks-NativeAOT-2 --anonymousPipes 107 108 --benchmarkName "BillionRows.Benchmarks.ProcessingBenchmarks.Baseline(RowCount: 1000000)" --job NativeAOT --benchmarkId 4 in 
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.14, Arm64 NativeAOT armv8.0-a
+// GC=Concurrent Workstation
+// HardwareIntrinsics=ArmBase+AdvSimd,AES,CRC32,DP,RDM,SHA1,SHA256 VectorSize=128
+// Job: NativeAOT(IterationCount=5, LaunchCount=1, WarmupCount=3)
+
+OverheadJitting  1: 1 op, 167.00 ns, 167.0000 ns/op
+WorkloadJitting  1: 1 op, 172465333.00 ns, 172.4653 ms/op
+
+WorkloadPilot    1: 2 op, 261872958.00 ns, 130.9365 ms/op
+WorkloadPilot    2: 3 op, 372896583.00 ns, 124.2989 ms/op
+WorkloadPilot    3: 4 op, 470955000.00 ns, 117.7388 ms/op
+WorkloadPilot    4: 5 op, 719681917.00 ns, 143.9364 ms/op
+
+WorkloadWarmup   1: 5 op, 640408583.00 ns, 128.0817 ms/op
+WorkloadWarmup   2: 5 op, 643675333.00 ns, 128.7351 ms/op
+WorkloadWarmup   3: 5 op, 604160375.00 ns, 120.8321 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 5 op, 578752625.00 ns, 115.7505 ms/op
+WorkloadActual   2: 5 op, 575186750.00 ns, 115.0374 ms/op
+WorkloadActual   3: 5 op, 582848250.00 ns, 116.5697 ms/op
+WorkloadActual   4: 5 op, 583429500.00 ns, 116.6859 ms/op
+WorkloadActual   5: 5 op, 621332000.00 ns, 124.2664 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 5 op, 578752625.00 ns, 115.7505 ms/op
+WorkloadResult   2: 5 op, 575186750.00 ns, 115.0374 ms/op
+WorkloadResult   3: 5 op, 582848250.00 ns, 116.5697 ms/op
+WorkloadResult   4: 5 op, 583429500.00 ns, 116.6859 ms/op
+// GC:  93 0 0 782588608 5
+// Threading:  0 0 5
+
+// AfterAll
+// Benchmark Process 6274 has exited with code 0.
+
+Mean = 116.011 ms, StdErr = 0.386 ms (0.33%), N = 4, StdDev = 0.771 ms
+Min = 115.037 ms, Q1 = 115.572 ms, Median = 116.160 ms, Q3 = 116.599 ms, Max = 116.686 ms
+IQR = 1.026 ms, LowerFence = 114.033 ms, UpperFence = 118.138 ms
+ConfidenceInterval = [111.029 ms; 120.993 ms] (CI 99.9%), Margin = 4.982 ms (4.29% of Mean)
+Skewness = -0.25, Kurtosis = 0.85, MValue = 2
+
+// ** Remained 1 (8.3%) benchmark(s) to run. Estimated finish 2026-11-05 20:57 (0h 0m from now) **
+// **************************
+// Benchmark: ProcessingBenchmarks.Optimized: NativeAOT(Runtime=NativeAOT 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=1000000]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/tests/BillionRows.Benchmarks/bin/Release/net10.0/BillionRows.Benchmarks-NativeAOT-2/bin/Release/net10.0/osx-arm64/publish/BillionRows.Benchmarks-NativeAOT-2 --anonymousPipes 107 108 --benchmarkName "BillionRows.Benchmarks.ProcessingBenchmarks.Optimized(RowCount: 1000000)" --job NativeAOT --benchmarkId 5 in 
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.14, Arm64 NativeAOT armv8.0-a
+// GC=Concurrent Workstation
+// HardwareIntrinsics=ArmBase+AdvSimd,AES,CRC32,DP,RDM,SHA1,SHA256 VectorSize=128
+// Job: NativeAOT(IterationCount=5, LaunchCount=1, WarmupCount=3)
+
+OverheadJitting  1: 1 op, 208.00 ns, 208.0000 ns/op
+WorkloadJitting  1: 1 op, 48568458.00 ns, 48.5685 ms/op
+
+WorkloadPilot    1: 2 op, 96552083.00 ns, 48.2760 ms/op
+WorkloadPilot    2: 3 op, 144261459.00 ns, 48.0872 ms/op
+WorkloadPilot    3: 4 op, 193560459.00 ns, 48.3901 ms/op
+WorkloadPilot    4: 5 op, 245172708.00 ns, 49.0345 ms/op
+WorkloadPilot    5: 6 op, 290195667.00 ns, 48.3659 ms/op
+WorkloadPilot    6: 7 op, 337927583.00 ns, 48.2754 ms/op
+WorkloadPilot    7: 8 op, 385969584.00 ns, 48.2462 ms/op
+WorkloadPilot    8: 9 op, 436549125.00 ns, 48.5055 ms/op
+WorkloadPilot    9: 10 op, 488915500.00 ns, 48.8916 ms/op
+WorkloadPilot   10: 11 op, 531662750.00 ns, 48.3330 ms/op
+
+WorkloadWarmup   1: 11 op, 529823666.00 ns, 48.1658 ms/op
+WorkloadWarmup   2: 11 op, 585622875.00 ns, 53.2384 ms/op
+WorkloadWarmup   3: 11 op, 632460292.00 ns, 57.4964 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 11 op, 688463667.00 ns, 62.5876 ms/op
+WorkloadActual   2: 11 op, 715734542.00 ns, 65.0668 ms/op
+WorkloadActual   3: 11 op, 642396916.00 ns, 58.3997 ms/op
+WorkloadActual   4: 11 op, 544535792.00 ns, 49.5033 ms/op
+WorkloadActual   5: 11 op, 540538500.00 ns, 49.1399 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 11 op, 688463667.00 ns, 62.5876 ms/op
+WorkloadResult   2: 11 op, 715734542.00 ns, 65.0668 ms/op
+WorkloadResult   3: 11 op, 642396916.00 ns, 58.3997 ms/op
+WorkloadResult   4: 11 op, 544535792.00 ns, 49.5033 ms/op
+WorkloadResult   5: 11 op, 540538500.00 ns, 49.1399 ms/op
+// GC:  0 0 0 209568 11
+// Threading:  0 0 11
+
+// AfterAll
+// Benchmark Process 6692 has exited with code 0.
+
+Mean = 56.939 ms, StdErr = 3.288 ms (5.77%), N = 5, StdDev = 7.352 ms
+Min = 49.140 ms, Q1 = 49.503 ms, Median = 58.400 ms, Q3 = 62.588 ms, Max = 65.067 ms
+IQR = 13.084 ms, LowerFence = 29.877 ms, UpperFence = 82.214 ms
+ConfidenceInterval = [28.629 ms; 85.250 ms] (CI 99.9%), Margin = 28.311 ms (49.72% of Mean)
+Skewness = -0.08, Kurtosis = 0.83, MValue = 2
+
+// ** Remained 0 (0.0%) benchmark(s) to run. Estimated finish 2026-11-05 20:57 (0h 0m from now) **
+// ***** BenchmarkRunner: Finish  *****
+
+// * Export *
+  BenchmarkDotNet.Artifacts/aot-comparison/results/BillionRows.Benchmarks.ProcessingBenchmarks-report.csv
+  BenchmarkDotNet.Artifacts/aot-comparison/results/BillionRows.Benchmarks.ProcessingBenchmarks-report-github.md
+  BenchmarkDotNet.Artifacts/aot-comparison/results/BillionRows.Benchmarks.ProcessingBenchmarks-report.html
+
+// * Detailed results *
+ProcessingBenchmarks.Baseline: JIT(Runtime=.NET 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=10000]
+Runtime = .NET 10.0.14 (10.0.14, 10.0.1426.52326), Arm64 RyuJIT armv8.0-a; GC = Concurrent Workstation
+Mean = 868.705 us, StdErr = 10.904 us (1.26%), N = 5, StdDev = 24.383 us
+Min = 838.114 us, Q1 = 859.104 us, Median = 860.704 us, Q3 = 884.902 us, Max = 900.700 us
+IQR = 25.798 us, LowerFence = 820.407 us, UpperFence = 923.599 us
+ConfidenceInterval = [774.816 us; 962.593 us] (CI 99.9%), Margin = 93.888 us (10.81% of Mean)
+Skewness = 0.1, Kurtosis = 1.13, MValue = 2
+-------------------- Histogram --------------------
+[830.694 us ; 874.086 us) | @@@
+[874.086 us ; 911.516 us) | @@
+---------------------------------------------------
+
+ProcessingBenchmarks.Baseline: NativeAOT(Runtime=NativeAOT 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=10000]
+Runtime = .NET 10.0.14, Arm64 NativeAOT armv8.0-a; GC = Concurrent Workstation
+Mean = 1.187 ms, StdErr = 0.004 ms (0.36%), N = 4, StdDev = 0.009 ms
+Min = 1.175 ms, Q1 = 1.186 ms, Median = 1.190 ms, Q3 = 1.191 ms, Max = 1.195 ms
+IQR = 0.005 ms, LowerFence = 1.178 ms, UpperFence = 1.199 ms
+ConfidenceInterval = [1.132 ms; 1.243 ms] (CI 99.9%), Margin = 0.056 ms (4.70% of Mean)
+Skewness = -0.61, Kurtosis = 1.24, MValue = 2
+-------------------- Histogram --------------------
+[1.168 ms ; 1.202 ms) | @@@@
+---------------------------------------------------
+
+ProcessingBenchmarks.Optimized: JIT(Runtime=.NET 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=10000]
+Runtime = .NET 10.0.14 (10.0.14, 10.0.1426.52326), Arm64 RyuJIT armv8.0-a; GC = Concurrent Workstation
+Mean = 340.068 us, StdErr = 4.294 us (1.26%), N = 5, StdDev = 9.601 us
+Min = 328.609 us, Q1 = 332.565 us, Median = 340.041 us, Q3 = 348.912 us, Max = 350.213 us
+IQR = 16.347 us, LowerFence = 308.045 us, UpperFence = 373.432 us
+ConfidenceInterval = [303.097 us; 377.040 us] (CI 99.9%), Margin = 36.971 us (10.87% of Mean)
+Skewness = -0.04, Kurtosis = 0.87, MValue = 2
+-------------------- Histogram --------------------
+[321.240 us ; 337.758 us) | @@
+[337.758 us ; 352.497 us) | @@@
+---------------------------------------------------
+
+ProcessingBenchmarks.Optimized: NativeAOT(Runtime=NativeAOT 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=10000]
+Runtime = .NET 10.0.14, Arm64 NativeAOT armv8.0-a; GC = Concurrent Workstation
+Mean = 490.096 us, StdErr = 2.615 us (0.53%), N = 5, StdDev = 5.846 us
+Min = 484.390 us, Q1 = 485.961 us, Median = 487.337 us, Q3 = 496.237 us, Max = 496.555 us
+IQR = 10.277 us, LowerFence = 470.546 us, UpperFence = 511.652 us
+ConfidenceInterval = [467.584 us; 512.608 us] (CI 99.9%), Margin = 22.512 us (4.59% of Mean)
+Skewness = 0.22, Kurtosis = 0.78, MValue = 2
+-------------------- Histogram --------------------
+[481.005 us ; 501.043 us) | @@@@@
+---------------------------------------------------
+
+ProcessingBenchmarks.Baseline: JIT(Runtime=.NET 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=100000]
+Runtime = .NET 10.0.14 (10.0.14, 10.0.1426.52326), Arm64 RyuJIT armv8.0-a; GC = Concurrent Workstation
+Mean = 8.521 ms, StdErr = 0.047 ms (0.55%), N = 4, StdDev = 0.094 ms
+Min = 8.449 ms, Q1 = 8.477 ms, Median = 8.487 ms, Q3 = 8.531 ms, Max = 8.659 ms
+IQR = 0.054 ms, LowerFence = 8.395 ms, UpperFence = 8.613 ms
+ConfidenceInterval = [7.914 ms; 9.128 ms] (CI 99.9%), Margin = 0.607 ms (7.12% of Mean)
+Skewness = 0.66, Kurtosis = 1.27, MValue = 2
+-------------------- Histogram --------------------
+[8.371 ms ; 8.554 ms) | @@@
+[8.554 ms ; 8.737 ms) | @
+---------------------------------------------------
+
+ProcessingBenchmarks.Baseline: NativeAOT(Runtime=NativeAOT 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=100000]
+Runtime = .NET 10.0.14, Arm64 NativeAOT armv8.0-a; GC = Concurrent Workstation
+Mean = 11.765 ms, StdErr = 0.034 ms (0.29%), N = 4, StdDev = 0.068 ms
+Min = 11.664 ms, Q1 = 11.757 ms, Median = 11.793 ms, Q3 = 11.801 ms, Max = 11.811 ms
+IQR = 0.044 ms, LowerFence = 11.691 ms, UpperFence = 11.867 ms
+ConfidenceInterval = [11.325 ms; 12.205 ms] (CI 99.9%), Margin = 0.440 ms (3.74% of Mean)
+Skewness = -0.71, Kurtosis = 1.29, MValue = 2
+-------------------- Histogram --------------------
+[11.608 ms ; 11.867 ms) | @@@@
+---------------------------------------------------
+
+ProcessingBenchmarks.Optimized: JIT(Runtime=.NET 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=100000]
+Runtime = .NET 10.0.14 (10.0.14, 10.0.1426.52326), Arm64 RyuJIT armv8.0-a; GC = Concurrent Workstation
+Mean = 4.317 ms, StdErr = 0.004 ms (0.10%), N = 4, StdDev = 0.008 ms
+Min = 4.307 ms, Q1 = 4.312 ms, Median = 4.317 ms, Q3 = 4.322 ms, Max = 4.326 ms
+IQR = 0.010 ms, LowerFence = 4.296 ms, UpperFence = 4.337 ms
+ConfidenceInterval = [4.263 ms; 4.370 ms] (CI 99.9%), Margin = 0.054 ms (1.24% of Mean)
+Skewness = -0.07, Kurtosis = 0.87, MValue = 2
+-------------------- Histogram --------------------
+[4.300 ms ; 4.333 ms) | @@@@
+---------------------------------------------------
+
+ProcessingBenchmarks.Optimized: NativeAOT(Runtime=NativeAOT 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=100000]
+Runtime = .NET 10.0.14, Arm64 NativeAOT armv8.0-a; GC = Concurrent Workstation
+Mean = 4.760 ms, StdErr = 0.019 ms (0.41%), N = 4, StdDev = 0.039 ms
+Min = 4.714 ms, Q1 = 4.745 ms, Median = 4.758 ms, Q3 = 4.773 ms, Max = 4.808 ms
+IQR = 0.029 ms, LowerFence = 4.702 ms, UpperFence = 4.816 ms
+ConfidenceInterval = [4.509 ms; 5.010 ms] (CI 99.9%), Margin = 0.250 ms (5.26% of Mean)
+Skewness = 0.07, Kurtosis = 1.12, MValue = 2
+-------------------- Histogram --------------------
+[4.690 ms ; 4.840 ms) | @@@@
+---------------------------------------------------
+
+ProcessingBenchmarks.Baseline: JIT(Runtime=.NET 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=1000000]
+Runtime = .NET 10.0.14 (10.0.14, 10.0.1426.52326), Arm64 RyuJIT armv8.0-a; GC = Concurrent Workstation
+Mean = 96.515 ms, StdErr = 2.089 ms (2.16%), N = 4, StdDev = 4.179 ms
+Min = 91.487 ms, Q1 = 94.516 ms, Median = 96.523 ms, Q3 = 98.521 ms, Max = 101.526 ms
+IQR = 4.004 ms, LowerFence = 88.510 ms, UpperFence = 104.528 ms
+ConfidenceInterval = [69.512 ms; 123.517 ms] (CI 99.9%), Margin = 27.003 ms (27.98% of Mean)
+Skewness = -0, Kurtosis = 1.04, MValue = 2
+-------------------- Histogram --------------------
+[88.032 ms ;  95.071 ms) | @
+[95.071 ms ; 101.981 ms) | @@@
+---------------------------------------------------
+
+ProcessingBenchmarks.Baseline: NativeAOT(Runtime=NativeAOT 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=1000000]
+Runtime = .NET 10.0.14, Arm64 NativeAOT armv8.0-a; GC = Concurrent Workstation
+Mean = 116.011 ms, StdErr = 0.386 ms (0.33%), N = 4, StdDev = 0.771 ms
+Min = 115.037 ms, Q1 = 115.572 ms, Median = 116.160 ms, Q3 = 116.599 ms, Max = 116.686 ms
+IQR = 1.026 ms, LowerFence = 114.033 ms, UpperFence = 118.138 ms
+ConfidenceInterval = [111.029 ms; 120.993 ms] (CI 99.9%), Margin = 4.982 ms (4.29% of Mean)
+Skewness = -0.25, Kurtosis = 0.85, MValue = 2
+-------------------- Histogram --------------------
+[114.400 ms ; 117.323 ms) | @@@@
+---------------------------------------------------
+
+ProcessingBenchmarks.Optimized: JIT(Runtime=.NET 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=1000000]
+Runtime = .NET 10.0.14 (10.0.14, 10.0.1426.52326), Arm64 RyuJIT armv8.0-a; GC = Concurrent Workstation
+Mean = 44.631 ms, StdErr = 0.343 ms (0.77%), N = 5, StdDev = 0.767 ms
+Min = 43.723 ms, Q1 = 43.926 ms, Median = 44.859 ms, Q3 = 45.221 ms, Max = 45.425 ms
+IQR = 1.295 ms, LowerFence = 41.984 ms, UpperFence = 47.163 ms
+ConfidenceInterval = [41.678 ms; 47.583 ms] (CI 99.9%), Margin = 2.953 ms (6.62% of Mean)
+Skewness = -0.17, Kurtosis = 0.84, MValue = 2
+-------------------- Histogram --------------------
+[43.134 ms ; 44.413 ms) | @@
+[44.413 ms ; 45.730 ms) | @@@
+---------------------------------------------------
+
+ProcessingBenchmarks.Optimized: NativeAOT(Runtime=NativeAOT 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=1000000]
+Runtime = .NET 10.0.14, Arm64 NativeAOT armv8.0-a; GC = Concurrent Workstation
+Mean = 56.939 ms, StdErr = 3.288 ms (5.77%), N = 5, StdDev = 7.352 ms
+Min = 49.140 ms, Q1 = 49.503 ms, Median = 58.400 ms, Q3 = 62.588 ms, Max = 65.067 ms
+IQR = 13.084 ms, LowerFence = 29.877 ms, UpperFence = 82.214 ms
+ConfidenceInterval = [28.629 ms; 85.250 ms] (CI 99.9%), Margin = 28.311 ms (49.72% of Mean)
+Skewness = -0.08, Kurtosis = 0.83, MValue = 2
+-------------------- Histogram --------------------
+[43.497 ms ; 56.090 ms) | @@
+[56.090 ms ; 67.376 ms) | @@@
+---------------------------------------------------
+
+// * Summary *
+
+BenchmarkDotNet v0.15.8, macOS Tahoe 26.6 (25G72) [Darwin 25.6.0]
+Apple M5 Max, 1 CPU, 18 logical and 18 physical cores
+.NET SDK 10.0.114
+  [Host]    : .NET 10.0.14 (10.0.14, 10.0.1426.52326), Arm64 RyuJIT armv8.0-a
+  JIT       : .NET 10.0.14 (10.0.14, 10.0.1426.52326), Arm64 RyuJIT armv8.0-a
+  NativeAOT : .NET 10.0.14, Arm64 NativeAOT armv8.0-a
+
+IterationCount=5  LaunchCount=1  WarmupCount=3  
+
+| Method    | Job       | Runtime        | RowCount | Mean         | Error        | StdDev      | Ratio | RatioSD | Rows/s   | Gen0       | Gen1    | Allocated    | Alloc Ratio |
+|---------- |---------- |--------------- |--------- |-------------:|-------------:|------------:|------:|--------:|---------:|-----------:|--------:|-------------:|------------:|
+| Baseline  | JIT       | .NET 10.0      | 10000    |     868.7 us |     93.89 us |    24.38 us |  1.00 |    0.04 | 11511390 |   150.3906 |  4.8828 |   1228.92 KB |        1.00 |
+| Baseline  | NativeAOT | NativeAOT 10.0 | 10000    |   1,187.4 us |     55.79 us |     8.63 us |  1.37 |    0.04 |  8421740 |   187.5000 |  5.8594 |   1541.39 KB |        1.25 |
+|           |           |                |          |              |              |             |       |         |          |            |         |              |             |
+| Optimized | JIT       | .NET 10.0      | 10000    |     340.1 us |     36.97 us |     9.60 us |  1.00 |    0.04 | 29405860 |     1.9531 |       - |     18.46 KB |        1.00 |
+| Optimized | NativeAOT | NativeAOT 10.0 | 10000    |     490.1 us |     22.51 us |     5.85 us |  1.44 |    0.04 | 20404160 |     1.9531 |       - |     18.46 KB |        1.00 |
+|           |           |                |          |              |              |             |       |         |          |            |         |              |             |
+| Baseline  | JIT       | .NET 10.0      | 100000   |   8,520.7 us |    607.05 us |    93.94 us |  1.00 |    0.01 | 11736141 |  1484.3750 | 31.2500 |   12170.4 KB |        1.00 |
+| Baseline  | NativeAOT | NativeAOT 10.0 | 100000   |  11,765.2 us |    440.24 us |    68.13 us |  1.38 |    0.02 |  8499647 |  1859.3750 | 31.2500 |   15295.2 KB |        1.26 |
+|           |           |                |          |              |              |             |       |         |          |            |         |              |             |
+| Optimized | JIT       | .NET 10.0      | 100000   |   4,316.7 us |     53.71 us |     8.31 us |  1.00 |    0.00 | 23166035 |          - |       - |     18.52 KB |        1.00 |
+| Optimized | NativeAOT | NativeAOT 10.0 | 100000   |   4,759.6 us |    250.23 us |    38.72 us |  1.10 |    0.01 | 21009960 |          - |       - |     18.52 KB |        1.00 |
+|           |           |                |          |              |              |             |       |         |          |            |         |              |             |
+| Baseline  | JIT       | .NET 10.0      | 1000000  |  96,514.5 us | 27,002.52 us | 4,178.67 us |  1.00 |    0.05 | 10361134 | 14833.3333 |       - | 121599.36 KB |        1.00 |
+| Baseline  | NativeAOT | NativeAOT 10.0 | 1000000  | 116,010.9 us |  4,982.33 us |   771.02 us |  1.20 |    0.05 |  8619883 | 18600.0000 |       - | 152849.34 KB |        1.26 |
+|           |           |                |          |              |              |             |       |         |          |            |         |              |             |
+| Optimized | JIT       | .NET 10.0      | 1000000  |  44,630.6 us |  2,952.80 us |   766.83 us |  1.00 |    0.02 | 22406150 |          - |       - |     18.53 KB |        1.00 |
+| Optimized | NativeAOT | NativeAOT 10.0 | 1000000  |  56,939.4 us | 28,310.62 us | 7,352.18 us |  1.28 |    0.15 | 17562518 |          - |       - |     18.61 KB |        1.00 |
+
+// * Hints *
+Outliers
+  ProcessingBenchmarks.Baseline: NativeAOT  -> 1 outlier  was  removed, 2 outliers were detected (1.17 ms, 1.23 ms)
+  ProcessingBenchmarks.Baseline: JIT        -> 1 outlier  was  removed (11.57 ms)
+  ProcessingBenchmarks.Baseline: NativeAOT  -> 1 outlier  was  removed, 2 outliers were detected (11.66 ms, 11.92 ms)
+  ProcessingBenchmarks.Optimized: JIT       -> 1 outlier  was  removed (4.94 ms)
+  ProcessingBenchmarks.Optimized: NativeAOT -> 1 outlier  was  removed (4.89 ms)
+  ProcessingBenchmarks.Baseline: JIT        -> 1 outlier  was  removed (116.89 ms)
+  ProcessingBenchmarks.Baseline: NativeAOT  -> 1 outlier  was  removed (124.27 ms)
+
+// * Legends *
+  RowCount    : Value of the 'RowCount' parameter
+  Mean        : Arithmetic mean of all measurements
+  Error       : Half of 99.9% confidence interval
+  StdDev      : Standard deviation of all measurements
+  Ratio       : Mean of the ratio distribution ([Current]/[Baseline])
+  RatioSD     : Standard deviation of the ratio distribution ([Current]/[Baseline])
+  Rows/s      : Rows processed per second, derived from RowCount / mean operation time.
+  Gen0        : GC Generation 0 collects per 1000 operations
+  Gen1        : GC Generation 1 collects per 1000 operations
+  Allocated   : Allocated memory per single operation (managed only, inclusive, 1KB = 1024B)
+  Alloc Ratio : Allocated memory ratio distribution ([Current]/[Baseline])
+  1 us        : 1 Microsecond (0.000001 sec)
+
+// * Diagnostic Output - MemoryDiagnoser *
+
+
+// ***** BenchmarkRunner: End *****
+Run time: 00:01:38 (98.65 sec), executed benchmarks: 12
+
+Global total time: 00:02:15 (135.27 sec), executed benchmarks: 12
+// * Artifacts cleanup *
+Artifacts cleanup is finished

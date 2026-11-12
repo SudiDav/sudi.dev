@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/BillionRows.Cli/BillionRows.Cli.csproj" />
+    <Project Path="src/BillionRows.Core/BillionRows.Core.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/BillionRows.Benchmarks/BillionRows.Benchmarks.csproj" />
+    <Project Path="tests/BillionRows.Tests/BillionRows.Tests.csproj" />
+  </Folder>
+</Solution>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>BillionRows.Benchmarks.ProcessingBenchmarks-20261105-205548</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet v0.15.8, macOS Tahoe 26.6 (25G72) [Darwin 25.6.0]
+Apple M5 Max, 1 CPU, 18 logical and 18 physical cores
+.NET SDK 10.0.114
+  [Host]    : .NET 10.0.14 (10.0.14, 10.0.1426.52326), Arm64 RyuJIT armv8.0-a
+  JIT       : .NET 10.0.14 (10.0.14, 10.0.1426.52326), Arm64 RyuJIT armv8.0-a
+  NativeAOT : .NET 10.0.14, Arm64 NativeAOT armv8.0-a
+</code></pre>
+<pre><code>IterationCount=5  LaunchCount=1  WarmupCount=3  
+</code></pre>
+
+<table>
+<thead><tr><th>Method</th><th>Job</th><th>Runtime </th><th>RowCount</th><th>Mean  </th><th>Error </th><th>StdDev</th><th>Ratio</th><th>RatioSD</th><th>Rows/s</th><th>Gen0</th><th>Gen1</th><th>Allocated</th><th>Alloc Ratio</th>
+</tr>
+</thead><tbody><tr><td>Baseline</td><td>JIT</td><td>.NET 10.0</td><td>10000</td><td>868.7 &mu;s</td><td>93.89 &mu;s</td><td>24.38 &mu;s</td><td>1.00</td><td>0.04</td><td>11511390</td><td>150.3906</td><td>4.8828</td><td>1228.92 KB</td><td>1.00</td>
+</tr><tr><td>Baseline</td><td>NativeAOT</td><td>NativeAOT 10.0</td><td>10000</td><td>1,187.4 &mu;s</td><td>55.79 &mu;s</td><td>8.63 &mu;s</td><td>1.37</td><td>0.04</td><td>8421740</td><td>187.5000</td><td>5.8594</td><td>1541.39 KB</td><td>1.25</td>
+</tr><tr><td>Optimized</td><td>JIT</td><td>.NET 10.0</td><td>10000</td><td>340.1 &mu;s</td><td>36.97 &mu;s</td><td>9.60 &mu;s</td><td>1.00</td><td>0.04</td><td>29405860</td><td>1.9531</td><td>-</td><td>18.46 KB</td><td>1.00</td>
+</tr><tr><td>Optimized</td><td>NativeAOT</td><td>NativeAOT 10.0</td><td>10000</td><td>490.1 &mu;s</td><td>22.51 &mu;s</td><td>5.85 &mu;s</td><td>1.44</td><td>0.04</td><td>20404160</td><td>1.9531</td><td>-</td><td>18.46 KB</td><td>1.00</td>
+</tr><tr><td>Baseline</td><td>JIT</td><td>.NET 10.0</td><td>100000</td><td>8,520.7 &mu;s</td><td>607.05 &mu;s</td><td>93.94 &mu;s</td><td>1.00</td><td>0.01</td><td>11736141</td><td>1484.3750</td><td>31.2500</td><td>12170.4 KB</td><td>1.00</td>
+</tr><tr><td>Baseline</td><td>NativeAOT</td><td>NativeAOT 10.0</td><td>100000</td><td>11,765.2 &mu;s</td><td>440.24 &mu;s</td><td>68.13 &mu;s</td><td>1.38</td><td>0.02</td><td>8499647</td><td>1859.3750</td><td>31.2500</td><td>15295.2 KB</td><td>1.26</td>
+</tr><tr><td>Optimized</td><td>JIT</td><td>.NET 10.0</td><td>100000</td><td>4,316.7 &mu;s</td><td>53.71 &mu;s</td><td>8.31 &mu;s</td><td>1.00</td><td>0.00</td><td>23166035</td><td>-</td><td>-</td><td>18.52 KB</td><td>1.00</td>
+</tr><tr><td>Optimized</td><td>NativeAOT</td><td>NativeAOT 10.0</td><td>100000</td><td>4,759.6 &mu;s</td><td>250.23 &mu;s</td><td>38.72 &mu;s</td><td>1.10</td><td>0.01</td><td>21009960</td><td>-</td><td>-</td><td>18.52 KB</td><td>1.00</td>
+</tr><tr><td>Baseline</td><td>JIT</td><td>.NET 10.0</td><td>1000000</td><td>96,514.5 &mu;s</td><td>27,002.52 &mu;s</td><td>4,178.67 &mu;s</td><td>1.00</td><td>0.05</td><td>10361134</td><td>14833.3333</td><td>-</td><td>121599.36 KB</td><td>1.00</td>
+</tr><tr><td>Baseline</td><td>NativeAOT</td><td>NativeAOT 10.0</td><td>1000000</td><td>116,010.9 &mu;s</td><td>4,982.33 &mu;s</td><td>771.02 &mu;s</td><td>1.20</td><td>0.05</td><td>8619883</td><td>18600.0000</td><td>-</td><td>152849.34 KB</td><td>1.26</td>
+</tr><tr><td>Optimized</td><td>JIT</td><td>.NET 10.0</td><td>1000000</td><td>44,630.6 &mu;s</td><td>2,952.80 &mu;s</td><td>766.83 &mu;s</td><td>1.00</td><td>0.02</td><td>22406150</td><td>-</td><td>-</td><td>18.53 KB</td><td>1.00</td>
+</tr><tr><td>Optimized</td><td>NativeAOT</td><td>NativeAOT 10.0</td><td>1000000</td><td>56,939.4 &mu;s</td><td>28,310.62 &mu;s</td><td>7,352.18 &mu;s</td><td>1.28</td><td>0.15</td><td>17562518</td><td>-</td><td>-</td><td>18.61 KB</td><td>1.00</td>
+</tr></tbody></table>
+</body>
+</html>

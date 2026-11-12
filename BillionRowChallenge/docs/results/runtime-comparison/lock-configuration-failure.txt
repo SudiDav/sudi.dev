@@ -1,0 +1,28 @@
+
+Welcome to .NET 10.0!
+---------------------
+SDK Version: 10.0.114
+
+Telemetry
+---------
+The .NET tools collect usage data in order to help us improve your experience. It is collected by Microsoft and shared with the community. You can opt-out of telemetry by setting the DOTNET_CLI_TELEMETRY_OPTOUT environment variable to '1' or 'true' using your favorite shell.
+
+Read more about .NET CLI Tools telemetry: https://aka.ms/dotnet-cli-telemetry
+
+----------------
+Installed an ASP.NET Core HTTPS development certificate.
+To trust the certificate, run 'dotnet dev-certs https --trust'
+Learn about HTTPS: https://aka.ms/dotnet-https
+
+----------------
+Write your first app: https://aka.ms/dotnet-hello-world
+Find out what's new: https://aka.ms/dotnet-whats-new
+Explore documentation: https://aka.ms/dotnet-docs
+Report issues and find source on GitHub: https://github.com/dotnet/core
+Use 'dotnet --help' to see available commands or visit: https://aka.ms/dotnet-cli
+--------------------------------------------------------------------------------------
+  Determining projects to restore...
+/Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/artifacts/dotnet/sdk/10.0.114/NuGet.targets(196,5): error NU1005: Invalid restore input where RestorePackagesWithLockFile property is set to false but a packages lock file exists at /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/src/BillionRows.Cli/packages.lock.json. [/Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/src/BillionRows.Cli/BillionRows.Cli.csproj]
+/Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/artifacts/dotnet/sdk/10.0.114/NuGet.targets(196,5): error NU1005: Invalid restore input where RestorePackagesWithLockFile property is set to false but a packages lock file exists at /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/src/BillionRows.Core/packages.lock.json. [/Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/src/BillionRows.Cli/BillionRows.Cli.csproj]
+  Failed to restore /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/src/BillionRows.Core/BillionRows.Core.csproj (in 68 ms).
+  Failed to restore /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/src/BillionRows.Cli/BillionRows.Cli.csproj (in 68 ms).

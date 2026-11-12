@@ -1,0 +1,10 @@
+  BillionRows.Core -> /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/src/BillionRows.Core/bin/Release/net10.0/BillionRows.Core.dll
+  BillionRows.Cli -> /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/src/BillionRows.Cli/bin/Release/net10.0/BillionRows.Cli.dll
+  BillionRows.Tests -> /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/tests/BillionRows.Tests/bin/Release/net10.0/BillionRows.Tests.dll
+  BillionRows.Benchmarks -> /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/tests/BillionRows.Benchmarks/bin/Release/net10.0/BillionRows.Benchmarks.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:01.48

@@ -1,0 +1,5 @@
+  Determining projects to restore...
+/Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/src/BillionRows.Core/BillionRows.Core.csproj : error NU1903: Warning As Error: Package 'Microsoft.DotNet.ILCompiler' 10.0.1 has a known high severity vulnerability, https://github.com/advisories/GHSA-p3jp-9v83-76w9 [/Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/src/BillionRows.Cli/BillionRows.Cli.csproj]
+/Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/src/BillionRows.Cli/BillionRows.Cli.csproj : error NU1903: Warning As Error: Package 'Microsoft.DotNet.ILCompiler' 10.0.1 has a known high severity vulnerability, https://github.com/advisories/GHSA-p3jp-9v83-76w9
+  Failed to restore /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/src/BillionRows.Core/BillionRows.Core.csproj (in 104 ms).
+  Failed to restore /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/src/BillionRows.Cli/BillionRows.Cli.csproj (in 104 ms).

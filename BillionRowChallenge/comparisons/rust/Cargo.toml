@@ -1,0 +1,10 @@
+[package]
+name = "billion-rows-rust"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "billion-rows-rust"
+path = "src/main.rs"
+
+[dependencies]

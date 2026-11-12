@@ -1,0 +1,5 @@
+  Determining projects to restore...
+  Restored /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/src/BillionRows.Core/BillionRows.Core.csproj (in 54 ms).
+  Restored /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/src/BillionRows.Cli/BillionRows.Cli.csproj (in 55 ms).
+  Restored /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/tests/BillionRows.Tests/BillionRows.Tests.csproj (in 93 ms).
+  Restored /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/tests/BillionRows.Benchmarks/BillionRows.Benchmarks.csproj (in 96 ms).

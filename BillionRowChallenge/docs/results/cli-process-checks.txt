@@ -1,0 +1,4 @@
+PASS args=[] exit=2 stdout_empty=True
+PASS args=['process', '/var/folders/4y/kjp2_pzd4fn1868qmcv7t67h0000gn/T/tmprgrpfvw2/missing'] exit=1 stdout_empty=True
+PASS args=['generate', '-1', '/var/folders/4y/kjp2_pzd4fn1868qmcv7t67h0000gn/T/tmprgrpfvw2/out'] exit=2 stdout_empty=True
+PASS args=['process', '/var/folders/4y/kjp2_pzd4fn1868qmcv7t67h0000gn/T/tmprgrpfvw2/malformed'] exit=1 stdout_empty=True

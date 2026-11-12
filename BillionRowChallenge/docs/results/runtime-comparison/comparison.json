@@ -1,0 +1,1042 @@
+{
+  "metric": "end-to-end wall time including process startup and output, via /usr/bin/time wrapper",
+  "dotnet_command": "process-fast (Span processor)",
+  "warmups": 1,
+  "repeats": 5,
+  "fixtures": [
+    {
+      "engine": "dotnet-jit",
+      "fixture": "empty",
+      "exit": 0
+    },
+    {
+      "engine": "dotnet-aot",
+      "fixture": "empty",
+      "exit": 0
+    },
+    {
+      "engine": "rust",
+      "fixture": "empty",
+      "exit": 0
+    },
+    {
+      "engine": "python",
+      "fixture": "empty",
+      "exit": 0
+    },
+    {
+      "engine": "dotnet-jit",
+      "fixture": "bom-only",
+      "exit": 0
+    },
+    {
+      "engine": "dotnet-aot",
+      "fixture": "bom-only",
+      "exit": 0
+    },
+    {
+      "engine": "rust",
+      "fixture": "bom-only",
+      "exit": 0
+    },
+    {
+      "engine": "python",
+      "fixture": "bom-only",
+      "exit": 0
+    },
+    {
+      "engine": "dotnet-jit",
+      "fixture": "singleton",
+      "exit": 0
+    },
+    {
+      "engine": "dotnet-aot",
+      "fixture": "singleton",
+      "exit": 0
+    },
+    {
+      "engine": "rust",
+      "fixture": "singleton",
+      "exit": 0
+    },
+    {
+      "engine": "python",
+      "fixture": "singleton",
+      "exit": 0
+    },
+    {
+      "engine": "dotnet-jit",
+      "fixture": "rounding",
+      "exit": 0
+    },
+    {
+      "engine": "dotnet-aot",
+      "fixture": "rounding",
+      "exit": 0
+    },
+    {
+      "engine": "rust",
+      "fixture": "rounding",
+      "exit": 0
+    },
+    {
+      "engine": "python",
+      "fixture": "rounding",
+      "exit": 0
+    },
+    {
+      "engine": "dotnet-jit",
+      "fixture": "crlf",
+      "exit": 0
+    },
+    {
+      "engine": "dotnet-aot",
+      "fixture": "crlf",
+      "exit": 0
+    },
+    {
+      "engine": "rust",
+      "fixture": "crlf",
+      "exit": 0
+    },
+    {
+      "engine": "python",
+      "fixture": "crlf",
+      "exit": 0
+    },
+    {
+      "engine": "dotnet-jit",
+      "fixture": "cr",
+      "exit": 0
+    },
+    {
+      "engine": "dotnet-aot",
+      "fixture": "cr",
+      "exit": 0
+    },
+    {
+      "engine": "rust",
+      "fixture": "cr",
+      "exit": 0
+    },
+    {
+      "engine": "python",
+      "fixture": "cr",
+      "exit": 0
+    },
+    {
+      "engine": "dotnet-jit",
+      "fixture": "unicode",
+      "exit": 0
+    },
+    {
+      "engine": "dotnet-aot",
+      "fixture": "unicode",
+      "exit": 0
+    },
+    {
+      "engine": "rust",
+      "fixture": "unicode",
+      "exit": 0
+    },
+    {
+      "engine": "python",
+      "fixture": "unicode",
+      "exit": 0
+    },
+    {
+      "engine": "dotnet-jit",
+      "fixture": "ordinal",
+      "exit": 0
+    },
+    {
+      "engine": "dotnet-aot",
+      "fixture": "ordinal",
+      "exit": 0
+    },
+    {
+      "engine": "rust",
+      "fixture": "ordinal",
+      "exit": 0
+    },
+    {
+      "engine": "python",
+      "fixture": "ordinal",
+      "exit": 0
+    },
+    {
+      "engine": "dotnet-jit",
+      "fixture": "boundary",
+      "exit": 0
+    },
+    {
+      "engine": "dotnet-aot",
+      "fixture": "boundary",
+      "exit": 0
+    },
+    {
+      "engine": "rust",
+      "fixture": "boundary",
+      "exit": 0
+    },
+    {
+      "engine": "python",
+      "fixture": "boundary",
+      "exit": 0
+    },
+    {
+      "engine": "dotnet-jit",
+      "fixture": "invalid-0",
+      "exit": 1
+    },
+    {
+      "engine": "dotnet-aot",
+      "fixture": "invalid-0",
+      "exit": 1
+    },
+    {
+      "engine": "rust",
+      "fixture": "invalid-0",
+      "exit": 1
+    },
+    {
+      "engine": "python",
+      "fixture": "invalid-0",
+      "exit": 1
+    },
+    {
+      "engine": "dotnet-jit",
+      "fixture": "invalid-1",
+      "exit": 1
+    },
+    {
+      "engine": "dotnet-aot",
+      "fixture": "invalid-1",
+      "exit": 1
+    },
+    {
+      "engine": "rust",
+      "fixture": "invalid-1",
+      "exit": 1
+    },
+    {
+      "engine": "python",
+      "fixture": "invalid-1",
+      "exit": 1
+    },
+    {
+      "engine": "dotnet-jit",
+      "fixture": "invalid-2",
+      "exit": 1
+    },
+    {
+      "engine": "dotnet-aot",
+      "fixture": "invalid-2",
+      "exit": 1
+    },
+    {
+      "engine": "rust",
+      "fixture": "invalid-2",
+      "exit": 1
+    },
+    {
+      "engine": "python",
+      "fixture": "invalid-2",
+      "exit": 1
+    },
+    {
+      "engine": "dotnet-jit",
+      "fixture": "invalid-3",
+      "exit": 1
+    },
+    {
+      "engine": "dotnet-aot",
+      "fixture": "invalid-3",
+      "exit": 1
+    },
+    {
+      "engine": "rust",
+      "fixture": "invalid-3",
+      "exit": 1
+    },
+    {
+      "engine": "python",
+      "fixture": "invalid-3",
+      "exit": 1
+    },
+    {
+      "engine": "dotnet-jit",
+      "fixture": "invalid-4",
+      "exit": 1
+    },
+    {
+      "engine": "dotnet-aot",
+      "fixture": "invalid-4",
+      "exit": 1
+    },
+    {
+      "engine": "rust",
+      "fixture": "invalid-4",
+      "exit": 1
+    },
+    {
+      "engine": "python",
+      "fixture": "invalid-4",
+      "exit": 1
+    },
+    {
+      "engine": "dotnet-jit",
+      "fixture": "invalid-5",
+      "exit": 1
+    },
+    {
+      "engine": "dotnet-aot",
+      "fixture": "invalid-5",
+      "exit": 1
+    },
+    {
+      "engine": "rust",
+      "fixture": "invalid-5",
+      "exit": 1
+    },
+    {
+      "engine": "python",
+      "fixture": "invalid-5",
+      "exit": 1
+    },
+    {
+      "engine": "dotnet-jit",
+      "fixture": "invalid-6",
+      "exit": 1
+    },
+    {
+      "engine": "dotnet-aot",
+      "fixture": "invalid-6",
+      "exit": 1
+    },
+    {
+      "engine": "rust",
+      "fixture": "invalid-6",
+      "exit": 1
+    },
+    {
+      "engine": "python",
+      "fixture": "invalid-6",
+      "exit": 1
+    },
+    {
+      "engine": "dotnet-jit",
+      "fixture": "invalid-7",
+      "exit": 1
+    },
+    {
+      "engine": "dotnet-aot",
+      "fixture": "invalid-7",
+      "exit": 1
+    },
+    {
+      "engine": "rust",
+      "fixture": "invalid-7",
+      "exit": 1
+    },
+    {
+      "engine": "python",
+      "fixture": "invalid-7",
+      "exit": 1
+    },
+    {
+      "engine": "dotnet-jit",
+      "fixture": "invalid-8",
+      "exit": 1
+    },
+    {
+      "engine": "dotnet-aot",
+      "fixture": "invalid-8",
+      "exit": 1
+    },
+    {
+      "engine": "rust",
+      "fixture": "invalid-8",
+      "exit": 1
+    },
+    {
+      "engine": "python",
+      "fixture": "invalid-8",
+      "exit": 1
+    },
+    {
+      "engine": "dotnet-jit",
+      "fixture": "invalid-9",
+      "exit": 1
+    },
+    {
+      "engine": "dotnet-aot",
+      "fixture": "invalid-9",
+      "exit": 1
+    },
+    {
+      "engine": "rust",
+      "fixture": "invalid-9",
+      "exit": 1
+    },
+    {
+      "engine": "python",
+      "fixture": "invalid-9",
+      "exit": 1
+    },
+    {
+      "engine": "dotnet-jit",
+      "fixture": "invalid-10",
+      "exit": 1
+    },
+    {
+      "engine": "dotnet-aot",
+      "fixture": "invalid-10",
+      "exit": 1
+    },
+    {
+      "engine": "rust",
+      "fixture": "invalid-10",
+      "exit": 1
+    },
+    {
+      "engine": "python",
+      "fixture": "invalid-10",
+      "exit": 1
+    },
+    {
+      "engine": "dotnet-jit",
+      "fixture": "invalid-11",
+      "exit": 1
+    },
+    {
+      "engine": "dotnet-aot",
+      "fixture": "invalid-11",
+      "exit": 1
+    },
+    {
+      "engine": "rust",
+      "fixture": "invalid-11",
+      "exit": 1
+    },
+    {
+      "engine": "python",
+      "fixture": "invalid-11",
+      "exit": 1
+    },
+    {
+      "engine": "dotnet-jit",
+      "fixture": "invalid-12",
+      "exit": 1
+    },
+    {
+      "engine": "dotnet-aot",
+      "fixture": "invalid-12",
+      "exit": 1
+    },
+    {
+      "engine": "rust",
+      "fixture": "invalid-12",
+      "exit": 1
+    },
+    {
+      "engine": "python",
+      "fixture": "invalid-12",
+      "exit": 1
+    },
+    {
+      "engine": "dotnet-jit",
+      "fixture": "invalid-13",
+      "exit": 1
+    },
+    {
+      "engine": "dotnet-aot",
+      "fixture": "invalid-13",
+      "exit": 1
+    },
+    {
+      "engine": "rust",
+      "fixture": "invalid-13",
+      "exit": 1
+    },
+    {
+      "engine": "python",
+      "fixture": "invalid-13",
+      "exit": 1
+    },
+    {
+      "engine": "dotnet-jit",
+      "fixture": "invalid-14",
+      "exit": 1
+    },
+    {
+      "engine": "dotnet-aot",
+      "fixture": "invalid-14",
+      "exit": 1
+    },
+    {
+      "engine": "rust",
+      "fixture": "invalid-14",
+      "exit": 1
+    },
+    {
+      "engine": "python",
+      "fixture": "invalid-14",
+      "exit": 1
+    },
+    {
+      "engine": "dotnet-jit",
+      "fixture": "invalid-15",
+      "exit": 1
+    },
+    {
+      "engine": "dotnet-aot",
+      "fixture": "invalid-15",
+      "exit": 1
+    },
+    {
+      "engine": "rust",
+      "fixture": "invalid-15",
+      "exit": 1
+    },
+    {
+      "engine": "python",
+      "fixture": "invalid-15",
+      "exit": 1
+    },
+    {
+      "engine": "dotnet-jit",
+      "fixture": "invalid-16",
+      "exit": 1
+    },
+    {
+      "engine": "dotnet-aot",
+      "fixture": "invalid-16",
+      "exit": 1
+    },
+    {
+      "engine": "rust",
+      "fixture": "invalid-16",
+      "exit": 1
+    },
+    {
+      "engine": "python",
+      "fixture": "invalid-16",
+      "exit": 1
+    },
+    {
+      "engine": "dotnet-jit",
+      "fixture": "invalid-17",
+      "exit": 1
+    },
+    {
+      "engine": "dotnet-aot",
+      "fixture": "invalid-17",
+      "exit": 1
+    },
+    {
+      "engine": "rust",
+      "fixture": "invalid-17",
+      "exit": 1
+    },
+    {
+      "engine": "python",
+      "fixture": "invalid-17",
+      "exit": 1
+    }
+  ],
+  "experiments": [
+    {
+      "rows": 10000,
+      "bytes": 142188,
+      "sha256": "df6f2c677b246c92b30830e1b35dfc974b654ed40887e81bf7d457bcfb6d3849",
+      "engine": "dotnet-jit",
+      "runs": [
+        {
+          "wall_seconds": 0.043813375,
+          "peak_rss_bytes": 49135616,
+          "user_seconds": 0.02,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.03989225,
+          "peak_rss_bytes": 49004544,
+          "user_seconds": 0.02,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.040002375,
+          "peak_rss_bytes": 49152000,
+          "user_seconds": 0.02,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.03866475,
+          "peak_rss_bytes": 48955392,
+          "user_seconds": 0.02,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.03816725,
+          "peak_rss_bytes": 49037312,
+          "user_seconds": 0.02,
+          "system_seconds": 0.0
+        }
+      ],
+      "mean_seconds": 0.040108,
+      "stddev_seconds": 0.0022156821589947202,
+      "rows_per_second": 249326.81759250027
+    },
+    {
+      "rows": 10000,
+      "bytes": 142188,
+      "sha256": "df6f2c677b246c92b30830e1b35dfc974b654ed40887e81bf7d457bcfb6d3849",
+      "engine": "dotnet-aot",
+      "runs": [
+        {
+          "wall_seconds": 0.008339125,
+          "peak_rss_bytes": 7995392,
+          "user_seconds": 0.0,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.00709775,
+          "peak_rss_bytes": 7995392,
+          "user_seconds": 0.0,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.006962584,
+          "peak_rss_bytes": 7995392,
+          "user_seconds": 0.0,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.00749775,
+          "peak_rss_bytes": 7995392,
+          "user_seconds": 0.0,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.00667925,
+          "peak_rss_bytes": 7995392,
+          "user_seconds": 0.0,
+          "system_seconds": 0.0
+        }
+      ],
+      "mean_seconds": 0.0073152918,
+      "stddev_seconds": 0.0006437782643202546,
+      "rows_per_second": 1366999.4681551869
+    },
+    {
+      "rows": 10000,
+      "bytes": 142188,
+      "sha256": "df6f2c677b246c92b30830e1b35dfc974b654ed40887e81bf7d457bcfb6d3849",
+      "engine": "rust",
+      "runs": [
+        {
+          "wall_seconds": 0.005056375,
+          "peak_rss_bytes": 1769472,
+          "user_seconds": 0.0,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.004544709,
+          "peak_rss_bytes": 1769472,
+          "user_seconds": 0.0,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.00463825,
+          "peak_rss_bytes": 1769472,
+          "user_seconds": 0.0,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.00443875,
+          "peak_rss_bytes": 1769472,
+          "user_seconds": 0.0,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.004468,
+          "peak_rss_bytes": 1769472,
+          "user_seconds": 0.0,
+          "system_seconds": 0.0
+        }
+      ],
+      "mean_seconds": 0.0046292168,
+      "stddev_seconds": 0.0002509759716062477,
+      "rows_per_second": 2160192.626968778
+    },
+    {
+      "rows": 10000,
+      "bytes": 142188,
+      "sha256": "df6f2c677b246c92b30830e1b35dfc974b654ed40887e81bf7d457bcfb6d3849",
+      "engine": "python",
+      "runs": [
+        {
+          "wall_seconds": 0.035845,
+          "peak_rss_bytes": 12402688,
+          "user_seconds": 0.02,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.035628709,
+          "peak_rss_bytes": 12435456,
+          "user_seconds": 0.02,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.035387875,
+          "peak_rss_bytes": 12386304,
+          "user_seconds": 0.02,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.033920917,
+          "peak_rss_bytes": 12386304,
+          "user_seconds": 0.02,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.034532292,
+          "peak_rss_bytes": 12386304,
+          "user_seconds": 0.02,
+          "system_seconds": 0.0
+        }
+      ],
+      "mean_seconds": 0.0350629586,
+      "stddev_seconds": 0.0008097992019459517,
+      "rows_per_second": 285201.26079719927
+    },
+    {
+      "rows": 100000,
+      "bytes": 1423076,
+      "sha256": "03dd6bed1b821d96f0b72870ba198694526458770c46eebc41682dd1ab9ca819",
+      "engine": "dotnet-jit",
+      "runs": [
+        {
+          "wall_seconds": 0.050729875,
+          "peak_rss_bytes": 49037312,
+          "user_seconds": 0.03,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.048592583,
+          "peak_rss_bytes": 49070080,
+          "user_seconds": 0.03,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.046975833,
+          "peak_rss_bytes": 49070080,
+          "user_seconds": 0.03,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.05122225,
+          "peak_rss_bytes": 49184768,
+          "user_seconds": 0.03,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.048347041,
+          "peak_rss_bytes": 49053696,
+          "user_seconds": 0.03,
+          "system_seconds": 0.0
+        }
+      ],
+      "mean_seconds": 0.0491735164,
+      "stddev_seconds": 0.0017656386227254419,
+      "rows_per_second": 2033614.988738125
+    },
+    {
+      "rows": 100000,
+      "bytes": 1423076,
+      "sha256": "03dd6bed1b821d96f0b72870ba198694526458770c46eebc41682dd1ab9ca819",
+      "engine": "dotnet-aot",
+      "runs": [
+        {
+          "wall_seconds": 0.011515875,
+          "peak_rss_bytes": 7995392,
+          "user_seconds": 0.0,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.012207375,
+          "peak_rss_bytes": 7995392,
+          "user_seconds": 0.0,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.011359292,
+          "peak_rss_bytes": 7995392,
+          "user_seconds": 0.0,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.011510291,
+          "peak_rss_bytes": 8011776,
+          "user_seconds": 0.0,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.011583625,
+          "peak_rss_bytes": 7995392,
+          "user_seconds": 0.0,
+          "system_seconds": 0.0
+        }
+      ],
+      "mean_seconds": 0.0116352916,
+      "stddev_seconds": 0.0003301553072673523,
+      "rows_per_second": 8594541.799021177
+    },
+    {
+      "rows": 100000,
+      "bytes": 1423076,
+      "sha256": "03dd6bed1b821d96f0b72870ba198694526458770c46eebc41682dd1ab9ca819",
+      "engine": "rust",
+      "runs": [
+        {
+          "wall_seconds": 0.01019925,
+          "peak_rss_bytes": 1769472,
+          "user_seconds": 0.0,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.008946417,
+          "peak_rss_bytes": 1769472,
+          "user_seconds": 0.0,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.009102791,
+          "peak_rss_bytes": 1769472,
+          "user_seconds": 0.0,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.008516875,
+          "peak_rss_bytes": 1769472,
+          "user_seconds": 0.0,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.008542958,
+          "peak_rss_bytes": 1769472,
+          "user_seconds": 0.0,
+          "system_seconds": 0.0
+        }
+      ],
+      "mean_seconds": 0.0090616582,
+      "stddev_seconds": 0.0006846397186336037,
+      "rows_per_second": 11035507.827916088
+    },
+    {
+      "rows": 100000,
+      "bytes": 1423076,
+      "sha256": "03dd6bed1b821d96f0b72870ba198694526458770c46eebc41682dd1ab9ca819",
+      "engine": "python",
+      "runs": [
+        {
+          "wall_seconds": 0.13618075,
+          "peak_rss_bytes": 12435456,
+          "user_seconds": 0.12,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.135297583,
+          "peak_rss_bytes": 12419072,
+          "user_seconds": 0.12,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.140546292,
+          "peak_rss_bytes": 12468224,
+          "user_seconds": 0.12,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.143333167,
+          "peak_rss_bytes": 12500992,
+          "user_seconds": 0.13,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.135000041,
+          "peak_rss_bytes": 12419072,
+          "user_seconds": 0.12,
+          "system_seconds": 0.0
+        }
+      ],
+      "mean_seconds": 0.1380715666,
+      "stddev_seconds": 0.0036916509353555286,
+      "rows_per_second": 724262.0798944422
+    },
+    {
+      "rows": 1000000,
+      "bytes": 14232785,
+      "sha256": "e9ccbd44a3775f3822f1885a4b32fe10a68c7de04eb6e081453d43299a601206",
+      "engine": "dotnet-jit",
+      "runs": [
+        {
+          "wall_seconds": 0.148940458,
+          "peak_rss_bytes": 49184768,
+          "user_seconds": 0.12,
+          "system_seconds": 0.01
+        },
+        {
+          "wall_seconds": 0.160389583,
+          "peak_rss_bytes": 49152000,
+          "user_seconds": 0.13,
+          "system_seconds": 0.01
+        },
+        {
+          "wall_seconds": 0.138136167,
+          "peak_rss_bytes": 49004544,
+          "user_seconds": 0.12,
+          "system_seconds": 0.01
+        },
+        {
+          "wall_seconds": 0.135873167,
+          "peak_rss_bytes": 48922624,
+          "user_seconds": 0.12,
+          "system_seconds": 0.01
+        },
+        {
+          "wall_seconds": 0.1378965,
+          "peak_rss_bytes": 48906240,
+          "user_seconds": 0.12,
+          "system_seconds": 0.01
+        }
+      ],
+      "mean_seconds": 0.144247175,
+      "stddev_seconds": 0.010373087089583144,
+      "rows_per_second": 6932544.77947315
+    },
+    {
+      "rows": 1000000,
+      "bytes": 14232785,
+      "sha256": "e9ccbd44a3775f3822f1885a4b32fe10a68c7de04eb6e081453d43299a601206",
+      "engine": "dotnet-aot",
+      "runs": [
+        {
+          "wall_seconds": 0.055714958,
+          "peak_rss_bytes": 7995392,
+          "user_seconds": 0.04,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.05841425,
+          "peak_rss_bytes": 7995392,
+          "user_seconds": 0.05,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.056374666,
+          "peak_rss_bytes": 7995392,
+          "user_seconds": 0.04,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.057846208,
+          "peak_rss_bytes": 7995392,
+          "user_seconds": 0.05,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.056935916,
+          "peak_rss_bytes": 8028160,
+          "user_seconds": 0.04,
+          "system_seconds": 0.0
+        }
+      ],
+      "mean_seconds": 0.057057199600000004,
+      "stddev_seconds": 0.0010892995895229198,
+      "rows_per_second": 17526272.004418526
+    },
+    {
+      "rows": 1000000,
+      "bytes": 14232785,
+      "sha256": "e9ccbd44a3775f3822f1885a4b32fe10a68c7de04eb6e081453d43299a601206",
+      "engine": "rust",
+      "runs": [
+        {
+          "wall_seconds": 0.047626417,
+          "peak_rss_bytes": 1769472,
+          "user_seconds": 0.04,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.049645666,
+          "peak_rss_bytes": 1769472,
+          "user_seconds": 0.04,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.0546665,
+          "peak_rss_bytes": 1769472,
+          "user_seconds": 0.04,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.048004792,
+          "peak_rss_bytes": 1769472,
+          "user_seconds": 0.04,
+          "system_seconds": 0.0
+        },
+        {
+          "wall_seconds": 0.048093916,
+          "peak_rss_bytes": 1769472,
+          "user_seconds": 0.04,
+          "system_seconds": 0.0
+        }
+      ],
+      "mean_seconds": 0.049607458199999996,
+      "stddev_seconds": 0.0029316905083086797,
+      "rows_per_second": 20158259.18692202
+    },
+    {
+      "rows": 1000000,
+      "bytes": 14232785,
+      "sha256": "e9ccbd44a3775f3822f1885a4b32fe10a68c7de04eb6e081453d43299a601206",
+      "engine": "python",
+      "runs": [
+        {
+          "wall_seconds": 1.251609208,
+          "peak_rss_bytes": 12402688,
+          "user_seconds": 1.19,
+          "system_seconds": 0.01
+        },
+        {
+          "wall_seconds": 1.242426459,
+          "peak_rss_bytes": 12435456,
+          "user_seconds": 1.2,
+          "system_seconds": 0.01
+        },
+        {
+          "wall_seconds": 1.149795583,
+          "peak_rss_bytes": 12419072,
+          "user_seconds": 1.12,
+          "system_seconds": 0.01
+        },
+        {
+          "wall_seconds": 1.154638375,
+          "peak_rss_bytes": 12468224,
+          "user_seconds": 1.13,
+          "system_seconds": 0.01
+        },
+        {
+          "wall_seconds": 1.17979725,
+          "peak_rss_bytes": 12435456,
+          "user_seconds": 1.15,
+          "system_seconds": 0.01
+        }
+      ],
+      "mean_seconds": 1.195653375,
+      "stddev_seconds": 0.04836155664814216,
+      "rows_per_second": 836362.7961991911
+    }
+  ]
+}

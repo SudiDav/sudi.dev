@@ -1,0 +1,10 @@
+  Determining projects to restore...
+  Restored /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/src/BillionRows.Core/BillionRows.Core.csproj (in 57 ms).
+  Restored /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/src/BillionRows.Cli/BillionRows.Cli.csproj (in 60 ms).
+  2 of 4 projects are up-to-date for restore.
+  Determining projects to restore...
+/Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/tests/BillionRows.Benchmarks/BillionRows.Benchmarks.csproj : error NU1004: The project's runtime identifiers have changed from. Project's runtime identifiers: , lock file's runtime identifiers osx-arm64.The packages lock file is inconsistent with the project dependencies so restore can't be run in locked mode. Disable the RestoreLockedMode MSBuild property or pass an explicit --force-evaluate option to run restore to update the lock file. [/Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/BillionRowChallenge.slnx]
+  Restored /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/src/BillionRows.Core/BillionRows.Core.csproj (in 53 ms).
+  Restored /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/src/BillionRows.Cli/BillionRows.Cli.csproj (in 57 ms).
+  Failed to restore /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/tests/BillionRows.Benchmarks/BillionRows.Benchmarks.csproj (in 53 ms).
+  Restored /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/tests/BillionRows.Tests/BillionRows.Tests.csproj (in 87 ms).

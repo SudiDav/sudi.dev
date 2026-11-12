@@ -1,0 +1,430 @@
+{
+  "preflight_free_bytes": 1021532143616,
+  "estimated_upper_bound_bytes": 675520000,
+  "experiments": [
+    {
+      "rows": 10000,
+      "file_size_bytes": 142188,
+      "sha256": "df6f2c677b246c92b30830e1b35dfc974b654ed40887e81bf7d457bcfb6d3849",
+      "generation": {
+        "rows": "10000",
+        "bytes": "142188",
+        "seconds": "0.008749",
+        "rows_per_second": "1143040",
+        "seed": "42",
+        "peak_rss_bytes": 44613632,
+        "process_time": {
+          "wall_seconds": 0.08,
+          "user_seconds": 0.02,
+          "system_seconds": 0.01
+        }
+      },
+      "processing": {
+        "rows": "10000",
+        "stations": "12",
+        "seconds": "0.008460",
+        "rows_per_second": "1181977",
+        "allocated_bytes": "1579192",
+        "peak_rss_bytes": 46989312,
+        "process_time": {
+          "wall_seconds": 0.03,
+          "user_seconds": 0.02,
+          "system_seconds": 0.0
+        }
+      },
+      "oracle_stations": {
+        "Kolwezi": [
+          -999,
+          999,
+          22046,
+          820
+        ],
+        "Lubumbashi": [
+          -995,
+          999,
+          5758,
+          813
+        ],
+        "Mbuji-Mayi": [
+          -991,
+          999,
+          24622,
+          886
+        ],
+        "Bukavu": [
+          -995,
+          995,
+          -13420,
+          822
+        ],
+        "Kananga": [
+          -998,
+          999,
+          16079,
+          839
+        ],
+        "Kikwit": [
+          -999,
+          998,
+          -3592,
+          896
+        ],
+        "Kinshasa": [
+          -999,
+          997,
+          -16987,
+          826
+        ],
+        "Kisangani": [
+          -999,
+          999,
+          9486,
+          810
+        ],
+        "Matadi": [
+          -997,
+          990,
+          -50572,
+          833
+        ],
+        "Goma": [
+          -996,
+          997,
+          -26314,
+          820
+        ],
+        "\u00c9quateur": [
+          -995,
+          999,
+          30473,
+          834
+        ],
+        "Haut-Katanga": [
+          -999,
+          999,
+          990,
+          801
+        ]
+      },
+      "verified": true
+    },
+    {
+      "rows": 100000,
+      "file_size_bytes": 1423076,
+      "sha256": "03dd6bed1b821d96f0b72870ba198694526458770c46eebc41682dd1ab9ca819",
+      "generation": {
+        "rows": "100000",
+        "bytes": "1423076",
+        "seconds": "0.011876",
+        "rows_per_second": "8420344",
+        "seed": "42",
+        "peak_rss_bytes": 48398336,
+        "process_time": {
+          "wall_seconds": 0.04,
+          "user_seconds": 0.02,
+          "system_seconds": 0.0
+        }
+      },
+      "processing": {
+        "rows": "100000",
+        "stations": "12",
+        "seconds": "0.024975",
+        "rows_per_second": "4003956",
+        "allocated_bytes": "15663072",
+        "peak_rss_bytes": 53837824,
+        "process_time": {
+          "wall_seconds": 0.05,
+          "user_seconds": 0.04,
+          "system_seconds": 0.0
+        }
+      },
+      "oracle_stations": {
+        "Kolwezi": [
+          -999,
+          999,
+          7278,
+          8340
+        ],
+        "Lubumbashi": [
+          -999,
+          999,
+          -31552,
+          8293
+        ],
+        "Mbuji-Mayi": [
+          -999,
+          999,
+          30578,
+          8350
+        ],
+        "Bukavu": [
+          -999,
+          999,
+          -3178,
+          8403
+        ],
+        "Kananga": [
+          -999,
+          999,
+          73252,
+          8394
+        ],
+        "Kikwit": [
+          -999,
+          999,
+          -3841,
+          8331
+        ],
+        "Kinshasa": [
+          -999,
+          999,
+          -14355,
+          8418
+        ],
+        "Kisangani": [
+          -999,
+          999,
+          -13265,
+          8341
+        ],
+        "Matadi": [
+          -999,
+          999,
+          -16148,
+          8234
+        ],
+        "Goma": [
+          -999,
+          999,
+          -4032,
+          8256
+        ],
+        "\u00c9quateur": [
+          -999,
+          999,
+          31035,
+          8446
+        ],
+        "Haut-Katanga": [
+          -999,
+          999,
+          23057,
+          8194
+        ]
+      },
+      "verified": true
+    },
+    {
+      "rows": 1000000,
+      "file_size_bytes": 14232785,
+      "sha256": "e9ccbd44a3775f3822f1885a4b32fe10a68c7de04eb6e081453d43299a601206",
+      "generation": {
+        "rows": "1000000",
+        "bytes": "14232785",
+        "seconds": "0.074038",
+        "rows_per_second": "13506596",
+        "seed": "42",
+        "peak_rss_bytes": 53657600,
+        "process_time": {
+          "wall_seconds": 0.1,
+          "user_seconds": 0.08,
+          "system_seconds": 0.01
+        }
+      },
+      "processing": {
+        "rows": "1000000",
+        "stations": "12",
+        "seconds": "0.173509",
+        "rows_per_second": "5763400",
+        "allocated_bytes": "156518328",
+        "peak_rss_bytes": 53788672,
+        "process_time": {
+          "wall_seconds": 0.2,
+          "user_seconds": 0.18,
+          "system_seconds": 0.01
+        }
+      },
+      "oracle_stations": {
+        "Kolwezi": [
+          -999,
+          999,
+          -85234,
+          83600
+        ],
+        "Lubumbashi": [
+          -999,
+          999,
+          -237886,
+          83468
+        ],
+        "Mbuji-Mayi": [
+          -999,
+          999,
+          -5669,
+          83225
+        ],
+        "Bukavu": [
+          -999,
+          999,
+          327119,
+          84204
+        ],
+        "Kananga": [
+          -999,
+          999,
+          88926,
+          83210
+        ],
+        "Kikwit": [
+          -999,
+          999,
+          -188153,
+          83308
+        ],
+        "Kinshasa": [
+          -999,
+          999,
+          -279377,
+          83246
+        ],
+        "Kisangani": [
+          -999,
+          999,
+          7370,
+          83258
+        ],
+        "Matadi": [
+          -999,
+          999,
+          217873,
+          83596
+        ],
+        "Goma": [
+          -999,
+          999,
+          19819,
+          82671
+        ],
+        "\u00c9quateur": [
+          -999,
+          999,
+          -280306,
+          83259
+        ],
+        "Haut-Katanga": [
+          -999,
+          999,
+          81165,
+          82955
+        ]
+      },
+      "verified": true
+    },
+    {
+      "rows": 10000000,
+      "file_size_bytes": 142331333,
+      "sha256": "caad950e6eb7cf1c3fc4d33ef2001cb5531e1a938e62b8063c307931dd04cf3a",
+      "generation": {
+        "rows": "10000000",
+        "bytes": "142331333",
+        "seconds": "0.618463",
+        "rows_per_second": "16169106",
+        "seed": "42",
+        "peak_rss_bytes": 55001088,
+        "process_time": {
+          "wall_seconds": 0.64,
+          "user_seconds": 0.63,
+          "system_seconds": 0.02
+        }
+      },
+      "processing": {
+        "rows": "10000000",
+        "stations": "12",
+        "seconds": "1.167682",
+        "rows_per_second": "8563978",
+        "allocated_bytes": "1301775480",
+        "peak_rss_bytes": 55984128,
+        "process_time": {
+          "wall_seconds": 1.19,
+          "user_seconds": 1.2,
+          "system_seconds": 0.04
+        }
+      },
+      "oracle_stations": {
+        "Kolwezi": [
+          -999,
+          999,
+          518798,
+          831637
+        ],
+        "Lubumbashi": [
+          -999,
+          999,
+          -217328,
+          835495
+        ],
+        "Mbuji-Mayi": [
+          -999,
+          999,
+          -207387,
+          832351
+        ],
+        "Bukavu": [
+          -999,
+          999,
+          570150,
+          831928
+        ],
+        "Kananga": [
+          -999,
+          999,
+          69246,
+          833743
+        ],
+        "Kikwit": [
+          -999,
+          999,
+          84110,
+          835017
+        ],
+        "Kinshasa": [
+          -999,
+          999,
+          -324774,
+          833668
+        ],
+        "Kisangani": [
+          -999,
+          999,
+          -283053,
+          834184
+        ],
+        "Matadi": [
+          -999,
+          999,
+          940143,
+          833467
+        ],
+        "Goma": [
+          -999,
+          999,
+          -212957,
+          833368
+        ],
+        "\u00c9quateur": [
+          -999,
+          999,
+          -581864,
+          833595
+        ],
+        "Haut-Katanga": [
+          -999,
+          999,
+          269842,
+          831547
+        ]
+      },
+      "verified": true
+    }
+  ]
+}

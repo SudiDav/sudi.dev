@@ -1,0 +1,327 @@
+// Validating benchmarks:
+// ***** BenchmarkRunner: Start   *****
+// ***** Found 3 benchmark(s) in total *****
+// ***** Building 1 exe(s) in Parallel: Start   *****
+// start dotnet  restore --nodeReuse:false /p:UseSharedCompilation=false /p:Deterministic=true /p:Optimize=true /p:ArtifactsPath="/Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/tests/BillionRows.Benchmarks/bin/Release/net10.0/BillionRows.Benchmarks-Job-OIKEGS-1/" /p:OutDir="/Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/tests/BillionRows.Benchmarks/bin/Release/net10.0/BillionRows.Benchmarks-Job-OIKEGS-1/bin/Release/net10.0/" /p:OutputPath="/Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/tests/BillionRows.Benchmarks/bin/Release/net10.0/BillionRows.Benchmarks-Job-OIKEGS-1/bin/Release/net10.0/" /p:PublishDir="/Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/tests/BillionRows.Benchmarks/bin/Release/net10.0/BillionRows.Benchmarks-Job-OIKEGS-1/publish/" in /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/tests/BillionRows.Benchmarks/bin/Release/net10.0/BillionRows.Benchmarks-Job-OIKEGS-1
+// command took 0.49 sec and exited with 0
+// start dotnet  build -c Release --no-restore --nodeReuse:false /p:UseSharedCompilation=false /p:Deterministic=true /p:Optimize=true /p:ArtifactsPath="/Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/tests/BillionRows.Benchmarks/bin/Release/net10.0/BillionRows.Benchmarks-Job-OIKEGS-1/" /p:OutDir="/Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/tests/BillionRows.Benchmarks/bin/Release/net10.0/BillionRows.Benchmarks-Job-OIKEGS-1/bin/Release/net10.0/" /p:OutputPath="/Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/tests/BillionRows.Benchmarks/bin/Release/net10.0/BillionRows.Benchmarks-Job-OIKEGS-1/bin/Release/net10.0/" /p:PublishDir="/Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/tests/BillionRows.Benchmarks/bin/Release/net10.0/BillionRows.Benchmarks-Job-OIKEGS-1/publish/" --output "/Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/tests/BillionRows.Benchmarks/bin/Release/net10.0/BillionRows.Benchmarks-Job-OIKEGS-1/bin/Release/net10.0/" in /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/tests/BillionRows.Benchmarks/bin/Release/net10.0/BillionRows.Benchmarks-Job-OIKEGS-1
+// command took 3.46 sec and exited with 0
+// ***** Done, took 00:00:03 (3.97 sec)   *****
+// Found 3 benchmarks:
+//   ProcessingBenchmarks.Baseline: Job-OIKEGS(Runtime=.NET 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=10000]
+//   ProcessingBenchmarks.Baseline: Job-OIKEGS(Runtime=.NET 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=100000]
+//   ProcessingBenchmarks.Baseline: Job-OIKEGS(Runtime=.NET 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=1000000]
+
+// **************************
+// Benchmark: ProcessingBenchmarks.Baseline: Job-OIKEGS(Runtime=.NET 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=10000]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet BillionRows.Benchmarks-Job-OIKEGS-1.dll --anonymousPipes 123 124 --benchmarkName "BillionRows.Benchmarks.ProcessingBenchmarks.Baseline(RowCount: 10000)" --job "Runtime=.NET 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3" --benchmarkId 0 in /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/tests/BillionRows.Benchmarks/bin/Release/net10.0/BillionRows.Benchmarks-Job-OIKEGS-1/bin/Release/net10.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.1 (10.0.1, 10.0.125.57005), Arm64 RyuJIT armv8.0-a
+// GC=Concurrent Workstation
+// HardwareIntrinsics=ArmBase+AdvSimd,AES,CRC32,DP,RDM,SHA1,SHA256 VectorSize=128
+// Job: Job-IJPESX(IterationCount=5, LaunchCount=1, WarmupCount=3)
+
+OverheadJitting  1: 1 op, 78792.00 ns, 78.7920 us/op
+WorkloadJitting  1: 1 op, 7334167.00 ns, 7.3342 ms/op
+
+OverheadJitting  2: 16 op, 243583.00 ns, 15.2239 us/op
+WorkloadJitting  2: 16 op, 29160125.00 ns, 1.8225 ms/op
+
+WorkloadPilot    1: 16 op, 27486000.00 ns, 1.7179 ms/op
+WorkloadPilot    2: 32 op, 56854042.00 ns, 1.7767 ms/op
+WorkloadPilot    3: 64 op, 113082709.00 ns, 1.7669 ms/op
+WorkloadPilot    4: 128 op, 192284542.00 ns, 1.5022 ms/op
+WorkloadPilot    5: 256 op, 228117750.00 ns, 891.0850 us/op
+WorkloadPilot    6: 512 op, 436695625.00 ns, 852.9211 us/op
+WorkloadPilot    7: 1024 op, 853144750.00 ns, 833.1492 us/op
+
+OverheadWarmup   1: 1024 op, 3000.00 ns, 2.9297 ns/op
+OverheadWarmup   2: 1024 op, 2583.00 ns, 2.5225 ns/op
+OverheadWarmup   3: 1024 op, 2542.00 ns, 2.4824 ns/op
+OverheadWarmup   4: 1024 op, 2000.00 ns, 1.9531 ns/op
+OverheadWarmup   5: 1024 op, 1917.00 ns, 1.8721 ns/op
+OverheadWarmup   6: 1024 op, 1792.00 ns, 1.7500 ns/op
+OverheadWarmup   7: 1024 op, 1750.00 ns, 1.7090 ns/op
+OverheadWarmup   8: 1024 op, 1875.00 ns, 1.8311 ns/op
+OverheadWarmup   9: 1024 op, 1875.00 ns, 1.8311 ns/op
+OverheadWarmup  10: 1024 op, 1750.00 ns, 1.7090 ns/op
+
+OverheadActual   1: 1024 op, 1750.00 ns, 1.7090 ns/op
+OverheadActual   2: 1024 op, 2000.00 ns, 1.9531 ns/op
+OverheadActual   3: 1024 op, 2375.00 ns, 2.3193 ns/op
+OverheadActual   4: 1024 op, 2792.00 ns, 2.7266 ns/op
+OverheadActual   5: 1024 op, 2375.00 ns, 2.3193 ns/op
+OverheadActual   6: 1024 op, 2334.00 ns, 2.2793 ns/op
+OverheadActual   7: 1024 op, 1875.00 ns, 1.8311 ns/op
+OverheadActual   8: 1024 op, 2250.00 ns, 2.1973 ns/op
+OverheadActual   9: 1024 op, 1750.00 ns, 1.7090 ns/op
+OverheadActual  10: 1024 op, 2208.00 ns, 2.1563 ns/op
+OverheadActual  11: 1024 op, 1792.00 ns, 1.7500 ns/op
+OverheadActual  12: 1024 op, 2458.00 ns, 2.4004 ns/op
+OverheadActual  13: 1024 op, 2667.00 ns, 2.6045 ns/op
+OverheadActual  14: 1024 op, 1875.00 ns, 1.8311 ns/op
+OverheadActual  15: 1024 op, 1750.00 ns, 1.7090 ns/op
+OverheadActual  16: 1024 op, 1791.00 ns, 1.7490 ns/op
+OverheadActual  17: 1024 op, 1833.00 ns, 1.7900 ns/op
+OverheadActual  18: 1024 op, 1875.00 ns, 1.8311 ns/op
+OverheadActual  19: 1024 op, 1750.00 ns, 1.7090 ns/op
+OverheadActual  20: 1024 op, 1750.00 ns, 1.7090 ns/op
+
+WorkloadWarmup   1: 1024 op, 860882625.00 ns, 840.7057 us/op
+WorkloadWarmup   2: 1024 op, 855404375.00 ns, 835.3558 us/op
+WorkloadWarmup   3: 1024 op, 870018208.00 ns, 849.6272 us/op
+
+// BeforeActualRun
+WorkloadActual   1: 1024 op, 849618750.00 ns, 829.7058 us/op
+WorkloadActual   2: 1024 op, 858791709.00 ns, 838.6638 us/op
+WorkloadActual   3: 1024 op, 854449542.00 ns, 834.4234 us/op
+WorkloadActual   4: 1024 op, 855855084.00 ns, 835.7960 us/op
+WorkloadActual   5: 1024 op, 877072750.00 ns, 856.5164 us/op
+
+// AfterActualRun
+WorkloadResult   1: 1024 op, 849616875.00 ns, 829.7040 us/op
+WorkloadResult   2: 1024 op, 858789834.00 ns, 838.6619 us/op
+WorkloadResult   3: 1024 op, 854447667.00 ns, 834.4215 us/op
+WorkloadResult   4: 1024 op, 855853209.00 ns, 835.7941 us/op
+// GC:  154 5 0 1288619712 1024
+// Threading:  0 0 1024
+
+// AfterAll
+// Benchmark Process 46456 has exited with code 0.
+
+Mean = 834.645 us, StdErr = 1.869 us (0.22%), N = 4, StdDev = 3.738 us
+Min = 829.704 us, Q1 = 833.242 us, Median = 835.108 us, Q3 = 836.511 us, Max = 838.662 us
+IQR = 3.269 us, LowerFence = 828.339 us, UpperFence = 841.415 us
+ConfidenceInterval = [810.490 us; 858.801 us] (CI 99.9%), Margin = 24.156 us (2.89% of Mean)
+Skewness = -0.26, Kurtosis = 1.1, MValue = 2
+
+// ** Remained 2 (66.7%) benchmark(s) to run. Estimated finish 2026-11-05 17:01 (0h 0m from now) **
+// **************************
+// Benchmark: ProcessingBenchmarks.Baseline: Job-OIKEGS(Runtime=.NET 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=100000]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet BillionRows.Benchmarks-Job-OIKEGS-1.dll --anonymousPipes 123 124 --benchmarkName "BillionRows.Benchmarks.ProcessingBenchmarks.Baseline(RowCount: 100000)" --job "Runtime=.NET 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3" --benchmarkId 1 in /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/tests/BillionRows.Benchmarks/bin/Release/net10.0/BillionRows.Benchmarks-Job-OIKEGS-1/bin/Release/net10.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.1 (10.0.1, 10.0.125.57005), Arm64 RyuJIT armv8.0-a
+// GC=Concurrent Workstation
+// HardwareIntrinsics=ArmBase+AdvSimd,AES,CRC32,DP,RDM,SHA1,SHA256 VectorSize=128
+// Job: Job-IJPESX(IterationCount=5, LaunchCount=1, WarmupCount=3)
+
+OverheadJitting  1: 1 op, 89792.00 ns, 89.7920 us/op
+WorkloadJitting  1: 1 op, 23485166.00 ns, 23.4852 ms/op
+
+OverheadJitting  2: 16 op, 244958.00 ns, 15.3099 us/op
+WorkloadJitting  2: 16 op, 305949167.00 ns, 19.1218 ms/op
+
+WorkloadPilot    1: 16 op, 137163083.00 ns, 8.5727 ms/op
+WorkloadPilot    2: 32 op, 272915708.00 ns, 8.5286 ms/op
+WorkloadPilot    3: 64 op, 545552334.00 ns, 8.5243 ms/op
+
+OverheadWarmup   1: 64 op, 1208.00 ns, 18.8750 ns/op
+OverheadWarmup   2: 64 op, 375.00 ns, 5.8594 ns/op
+OverheadWarmup   3: 64 op, 333.00 ns, 5.2031 ns/op
+OverheadWarmup   4: 64 op, 209.00 ns, 3.2656 ns/op
+OverheadWarmup   5: 64 op, 125.00 ns, 1.9531 ns/op
+OverheadWarmup   6: 64 op, 209.00 ns, 3.2656 ns/op
+OverheadWarmup   7: 64 op, 125.00 ns, 1.9531 ns/op
+OverheadWarmup   8: 64 op, 125.00 ns, 1.9531 ns/op
+OverheadWarmup   9: 64 op, 208.00 ns, 3.2500 ns/op
+
+OverheadActual   1: 64 op, 208.00 ns, 3.2500 ns/op
+OverheadActual   2: 64 op, 208.00 ns, 3.2500 ns/op
+OverheadActual   3: 64 op, 250.00 ns, 3.9063 ns/op
+OverheadActual   4: 64 op, 208.00 ns, 3.2500 ns/op
+OverheadActual   5: 64 op, 208.00 ns, 3.2500 ns/op
+OverheadActual   6: 64 op, 167.00 ns, 2.6094 ns/op
+OverheadActual   7: 64 op, 167.00 ns, 2.6094 ns/op
+OverheadActual   8: 64 op, 208.00 ns, 3.2500 ns/op
+OverheadActual   9: 64 op, 125.00 ns, 1.9531 ns/op
+OverheadActual  10: 64 op, 667.00 ns, 10.4219 ns/op
+OverheadActual  11: 64 op, 208.00 ns, 3.2500 ns/op
+OverheadActual  12: 64 op, 167.00 ns, 2.6094 ns/op
+OverheadActual  13: 64 op, 500.00 ns, 7.8125 ns/op
+OverheadActual  14: 64 op, 125.00 ns, 1.9531 ns/op
+OverheadActual  15: 64 op, 208.00 ns, 3.2500 ns/op
+OverheadActual  16: 64 op, 250.00 ns, 3.9063 ns/op
+OverheadActual  17: 64 op, 209.00 ns, 3.2656 ns/op
+OverheadActual  18: 64 op, 125.00 ns, 1.9531 ns/op
+OverheadActual  19: 64 op, 167.00 ns, 2.6094 ns/op
+OverheadActual  20: 64 op, 209.00 ns, 3.2656 ns/op
+
+WorkloadWarmup   1: 64 op, 529549958.00 ns, 8.2742 ms/op
+WorkloadWarmup   2: 64 op, 524304000.00 ns, 8.1923 ms/op
+WorkloadWarmup   3: 64 op, 534323500.00 ns, 8.3488 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 64 op, 521869667.00 ns, 8.1542 ms/op
+WorkloadActual   2: 64 op, 526320666.00 ns, 8.2238 ms/op
+WorkloadActual   3: 64 op, 528879667.00 ns, 8.2637 ms/op
+WorkloadActual   4: 64 op, 533360041.00 ns, 8.3338 ms/op
+WorkloadActual   5: 64 op, 542788541.00 ns, 8.4811 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 64 op, 521869459.00 ns, 8.1542 ms/op
+WorkloadResult   2: 64 op, 526320458.00 ns, 8.2238 ms/op
+WorkloadResult   3: 64 op, 528879459.00 ns, 8.2637 ms/op
+WorkloadResult   4: 64 op, 533359833.00 ns, 8.3337 ms/op
+WorkloadResult   5: 64 op, 542788333.00 ns, 8.4811 ms/op
+// GC:  95 2 0 797599232 64
+// Threading:  0 0 64
+
+// AfterAll
+// Benchmark Process 46862 has exited with code 0.
+
+Mean = 8.291 ms, StdErr = 0.056 ms (0.67%), N = 5, StdDev = 0.124 ms
+Min = 8.154 ms, Q1 = 8.224 ms, Median = 8.264 ms, Q3 = 8.334 ms, Max = 8.481 ms
+IQR = 0.110 ms, LowerFence = 8.059 ms, UpperFence = 8.499 ms
+ConfidenceInterval = [7.812 ms; 8.770 ms] (CI 99.9%), Margin = 0.479 ms (5.78% of Mean)
+Skewness = 0.42, Kurtosis = 1.4, MValue = 2
+
+// ** Remained 1 (33.3%) benchmark(s) to run. Estimated finish 2026-11-05 17:01 (0h 0m from now) **
+// **************************
+// Benchmark: ProcessingBenchmarks.Baseline: Job-OIKEGS(Runtime=.NET 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=1000000]
+// *** Execute ***
+// Launch: 1 / 1
+// Execute: dotnet BillionRows.Benchmarks-Job-OIKEGS-1.dll --anonymousPipes 123 124 --benchmarkName "BillionRows.Benchmarks.ProcessingBenchmarks.Baseline(RowCount: 1000000)" --job "Runtime=.NET 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3" --benchmarkId 2 in /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/tests/BillionRows.Benchmarks/bin/Release/net10.0/BillionRows.Benchmarks-Job-OIKEGS-1/bin/Release/net10.0
+// Failed to set up high priority (Permission denied). In order to run benchmarks with high priority, make sure you have the right permissions.
+// BeforeAnythingElse
+
+// Benchmark Process Environment Information:
+// BenchmarkDotNet v0.15.8
+// Runtime=.NET 10.0.1 (10.0.1, 10.0.125.57005), Arm64 RyuJIT armv8.0-a
+// GC=Concurrent Workstation
+// HardwareIntrinsics=ArmBase+AdvSimd,AES,CRC32,DP,RDM,SHA1,SHA256 VectorSize=128
+// Job: Job-IJPESX(IterationCount=5, LaunchCount=1, WarmupCount=3)
+
+OverheadJitting  1: 1 op, 90959.00 ns, 90.9590 us/op
+WorkloadJitting  1: 1 op, 175878167.00 ns, 175.8782 ms/op
+
+WorkloadPilot    1: 2 op, 306149583.00 ns, 153.0748 ms/op
+WorkloadPilot    2: 3 op, 253632458.00 ns, 84.5442 ms/op
+WorkloadPilot    3: 4 op, 332583958.00 ns, 83.1460 ms/op
+WorkloadPilot    4: 5 op, 420163166.00 ns, 84.0326 ms/op
+WorkloadPilot    5: 6 op, 502669000.00 ns, 83.7782 ms/op
+
+WorkloadWarmup   1: 6 op, 504706459.00 ns, 84.1177 ms/op
+WorkloadWarmup   2: 6 op, 528436083.00 ns, 88.0727 ms/op
+WorkloadWarmup   3: 6 op, 515462541.00 ns, 85.9104 ms/op
+
+// BeforeActualRun
+WorkloadActual   1: 6 op, 493151416.00 ns, 82.1919 ms/op
+WorkloadActual   2: 6 op, 497680625.00 ns, 82.9468 ms/op
+WorkloadActual   3: 6 op, 495489667.00 ns, 82.5816 ms/op
+WorkloadActual   4: 6 op, 498655208.00 ns, 83.1092 ms/op
+WorkloadActual   5: 6 op, 488194084.00 ns, 81.3657 ms/op
+
+// AfterActualRun
+WorkloadResult   1: 6 op, 493151416.00 ns, 82.1919 ms/op
+WorkloadResult   2: 6 op, 497680625.00 ns, 82.9468 ms/op
+WorkloadResult   3: 6 op, 495489667.00 ns, 82.5816 ms/op
+WorkloadResult   4: 6 op, 498655208.00 ns, 83.1092 ms/op
+WorkloadResult   5: 6 op, 488194084.00 ns, 81.3657 ms/op
+// GC:  89 0 0 747106464 6
+// Threading:  0 0 6
+
+// AfterAll
+// Benchmark Process 46909 has exited with code 0.
+
+Mean = 82.439 ms, StdErr = 0.311 ms (0.38%), N = 5, StdDev = 0.696 ms
+Min = 81.366 ms, Q1 = 82.192 ms, Median = 82.582 ms, Q3 = 82.947 ms, Max = 83.109 ms
+IQR = 0.755 ms, LowerFence = 81.060 ms, UpperFence = 84.079 ms
+ConfidenceInterval = [79.757 ms; 85.121 ms] (CI 99.9%), Margin = 2.682 ms (3.25% of Mean)
+Skewness = -0.48, Kurtosis = 1.36, MValue = 2
+
+// ** Remained 0 (0.0%) benchmark(s) to run. Estimated finish 2026-11-05 17:01 (0h 0m from now) **
+// ***** BenchmarkRunner: Finish  *****
+
+// * Export *
+  BenchmarkDotNet.Artifacts/results/BillionRows.Benchmarks.ProcessingBenchmarks-report.csv
+  BenchmarkDotNet.Artifacts/results/BillionRows.Benchmarks.ProcessingBenchmarks-report-github.md
+  BenchmarkDotNet.Artifacts/results/BillionRows.Benchmarks.ProcessingBenchmarks-report.html
+
+// * Detailed results *
+ProcessingBenchmarks.Baseline: Job-OIKEGS(Runtime=.NET 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=10000]
+Runtime = .NET 10.0.1 (10.0.1, 10.0.125.57005), Arm64 RyuJIT armv8.0-a; GC = Concurrent Workstation
+Mean = 834.645 us, StdErr = 1.869 us (0.22%), N = 4, StdDev = 3.738 us
+Min = 829.704 us, Q1 = 833.242 us, Median = 835.108 us, Q3 = 836.511 us, Max = 838.662 us
+IQR = 3.269 us, LowerFence = 828.339 us, UpperFence = 841.415 us
+ConfidenceInterval = [810.490 us; 858.801 us] (CI 99.9%), Margin = 24.156 us (2.89% of Mean)
+Skewness = -0.26, Kurtosis = 1.1, MValue = 2
+-------------------- Histogram --------------------
+[826.613 us ; 841.753 us) | @@@@
+---------------------------------------------------
+
+ProcessingBenchmarks.Baseline: Job-OIKEGS(Runtime=.NET 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=100000]
+Runtime = .NET 10.0.1 (10.0.1, 10.0.125.57005), Arm64 RyuJIT armv8.0-a; GC = Concurrent Workstation
+Mean = 8.291 ms, StdErr = 0.056 ms (0.67%), N = 5, StdDev = 0.124 ms
+Min = 8.154 ms, Q1 = 8.224 ms, Median = 8.264 ms, Q3 = 8.334 ms, Max = 8.481 ms
+IQR = 0.110 ms, LowerFence = 8.059 ms, UpperFence = 8.499 ms
+ConfidenceInterval = [7.812 ms; 8.770 ms] (CI 99.9%), Margin = 0.479 ms (5.78% of Mean)
+Skewness = 0.42, Kurtosis = 1.4, MValue = 2
+-------------------- Histogram --------------------
+[8.148 ms ; 8.386 ms) | @@@@
+[8.386 ms ; 8.577 ms) | @
+---------------------------------------------------
+
+ProcessingBenchmarks.Baseline: Job-OIKEGS(Runtime=.NET 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3) [RowCount=1000000]
+Runtime = .NET 10.0.1 (10.0.1, 10.0.125.57005), Arm64 RyuJIT armv8.0-a; GC = Concurrent Workstation
+Mean = 82.439 ms, StdErr = 0.311 ms (0.38%), N = 5, StdDev = 0.696 ms
+Min = 81.366 ms, Q1 = 82.192 ms, Median = 82.582 ms, Q3 = 82.947 ms, Max = 83.109 ms
+IQR = 0.755 ms, LowerFence = 81.060 ms, UpperFence = 84.079 ms
+ConfidenceInterval = [79.757 ms; 85.121 ms] (CI 99.9%), Margin = 2.682 ms (3.25% of Mean)
+Skewness = -0.48, Kurtosis = 1.36, MValue = 2
+-------------------- Histogram --------------------
+[80.831 ms ; 83.477 ms) | @@@@@
+---------------------------------------------------
+
+// * Summary *
+
+BenchmarkDotNet v0.15.8, macOS Tahoe 26.6 (25G72) [Darwin 25.6.0]
+Apple M5 Max, 1 CPU, 18 logical and 18 physical cores
+.NET SDK 10.0.101
+  [Host]     : .NET 10.0.1 (10.0.1, 10.0.125.57005), Arm64 RyuJIT armv8.0-a
+  Job-OIKEGS : .NET 10.0.1 (10.0.1, 10.0.125.57005), Arm64 RyuJIT armv8.0-a
+
+Runtime=.NET 10.0  IterationCount=5  LaunchCount=1  
+WarmupCount=3  
+
+| Method   | RowCount | Mean        | Error       | StdDev    | Rows/s   | Gen0       | Gen1    | Allocated |
+|--------- |--------- |------------:|------------:|----------:|---------:|-----------:|--------:|----------:|
+| Baseline | 10000    |    834.6 us |    24.16 us |   3.74 us | 11981136 |   150.3906 |  4.8828 |    1.2 MB |
+| Baseline | 100000   |  8,291.3 us |   479.13 us | 124.43 us | 12060828 |  1484.3750 | 31.2500 |  11.89 MB |
+| Baseline | 1000000  | 82,439.0 us | 2,681.95 us | 696.49 us | 12130176 | 14833.3333 |       - | 118.75 MB |
+
+// * Hints *
+Outliers
+  ProcessingBenchmarks.Baseline: Runtime=.NET 10.0, IterationCount=5, LaunchCount=1, WarmupCount=3 -> 1 outlier  was  removed (856.52 us)
+
+// * Legends *
+  RowCount  : Value of the 'RowCount' parameter
+  Mean      : Arithmetic mean of all measurements
+  Error     : Half of 99.9% confidence interval
+  StdDev    : Standard deviation of all measurements
+  Rows/s    : Rows processed per second, derived from RowCount / mean operation time.
+  Gen0      : GC Generation 0 collects per 1000 operations
+  Gen1      : GC Generation 1 collects per 1000 operations
+  Allocated : Allocated memory per single operation (managed only, inclusive, 1KB = 1024B)
+  1 us      : 1 Microsecond (0.000001 sec)
+
+// * Diagnostic Output - MemoryDiagnoser *
+
+
+// ***** BenchmarkRunner: End *****
+Run time: 00:00:22 (22.71 sec), executed benchmarks: 3
+
+Global total time: 00:00:26 (26.91 sec), executed benchmarks: 3
+// * Artifacts cleanup *
+Artifacts cleanup is finished

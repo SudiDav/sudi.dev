@@ -1,0 +1,36 @@
+{
+  "rows": 10000000,
+  "bytes": 142331333,
+  "sha256": "caad950e6eb7cf1c3fc4d33ef2001cb5531e1a938e62b8063c307931dd04cf3a",
+  "methodology": "single verification invocation per engine; not a repeated performance benchmark",
+  "engines": [
+    {
+      "engine": "dotnet-jit",
+      "verified": true,
+      "peak_rss_bytes": 50462720,
+      "wall_seconds": 0.762105917,
+      "diagnostics": "process rows=10000000 stations=12 seconds=0.661477 rows_per_second=15117688 allocated_bytes=29392\n        0.75 real         0.68 user         0.04 sys\n            50462720  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n                2816  page reclaims\n                1509  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                   0  messages sent\n                   0  messages received\n                   0  signals received\n                   5  voluntary context switches\n                1509  involuntary context switches\n         13266443975  instructions retired\n          3107244432  cycles elapsed\n            31474360  peak memory footprint\n"
+    },
+    {
+      "engine": "dotnet-aot",
+      "verified": true,
+      "peak_rss_bytes": 7995392,
+      "wall_seconds": 0.555055458,
+      "diagnostics": "process rows=10000000 stations=12 seconds=0.542608 rows_per_second=18429501 allocated_bytes=28824\n        0.55 real         0.50 user         0.02 sys\n             7995392  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n                 606  page reclaims\n                  97  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                   0  messages sent\n                   0  messages received\n                   0  signals received\n                   3  voluntary context switches\n                 696  involuntary context switches\n          9067178793  instructions retired\n          2208325656  cycles elapsed\n             2326960  peak memory footprint\n"
+    },
+    {
+      "engine": "rust",
+      "verified": true,
+      "peak_rss_bytes": 1769472,
+      "wall_seconds": 0.517708959,
+      "diagnostics": "process rows=10000000 stations=12 seconds=0.511019 rows_per_second=19568725\n        0.51 real         0.44 user         0.03 sys\n             1769472  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n                 272  page reclaims\n                  18  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                   0  messages sent\n                   0  messages received\n                   0  signals received\n                   0  voluntary context switches\n                1679  involuntary context switches\n          8559901644  instructions retired\n          1953738019  cycles elapsed\n             1130808  peak memory footprint\n"
+    },
+    {
+      "engine": "python",
+      "verified": true,
+      "peak_rss_bytes": 12320768,
+      "wall_seconds": 12.196996625,
+      "diagnostics": "process rows=10000000 stations=12 seconds=12.167461 rows_per_second=821864\n       12.19 real        11.86 user         0.10 sys\n            12320768  maximum resident set size\n                   0  average shared memory size\n                   0  average unshared data size\n                   0  average unshared stack size\n                1631  page reclaims\n                  20  page faults\n                   0  swaps\n                   0  block input operations\n                   0  block output operations\n                   0  messages sent\n                   0  messages received\n                   0  signals received\n                  23  voluntary context switches\n               13872  involuntary context switches\n        272979598336  instructions retired\n         49648650757  cycles elapsed\n             8306952  peak memory footprint\n"
+    }
+  ]
+}

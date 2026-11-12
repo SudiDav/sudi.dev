@@ -1,0 +1,7 @@
+  Determining projects to restore...
+  Restored /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/src/BillionRows.Core/BillionRows.Core.csproj (in 100 ms).
+  Restored /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/src/BillionRows.Cli/BillionRows.Cli.csproj (in 100 ms).
+  BillionRows.Core -> /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/src/BillionRows.Core/bin/Release/net10.0/BillionRows.Core.dll
+  BillionRows.Cli -> /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/src/BillionRows.Cli/bin/Release/net10.0/osx-arm64/BillionRows.Cli.dll
+  Generating native code
+  BillionRows.Cli -> /Users/sudi/.codex/worktrees/billion-row-lesson-01/sudi.dev/BillionRowChallenge/artifacts/native-aot/
