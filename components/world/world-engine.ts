@@ -1,7 +1,9 @@
 import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
+import { GLTFLoader, type GLTF } from 'three/addons/loaders/GLTFLoader.js'
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js'
 import { collectSignals, moveRover, moveTowardSignal, type WorldPoint } from '@/lib/world-game'
-import { yinYangImpulse } from '@/lib/world-motion'
+import { cosmosIntro, yinYangImpulse } from '@/lib/world-motion'
 import { WORLD_SECTORS, type SectorId } from './world-data'
 import { buildWorld } from './world-model'
 
@@ -15,7 +17,12 @@ type Options = {
 
 export type WorldEngine = ReturnType<typeof createWorldEngine>
 
-export function createWorldEngine(canvas: HTMLCanvasElement, options: Options) {
+/** The Blender-built cosmos (tools/blender/build_cosmos.py). */
+export function loadCosmos() {
+  return new GLTFLoader().loadAsync('/models/cosmos.glb')
+}
+
+export function createWorldEngine(canvas: HTMLCanvasElement, cosmos: GLTF, options: Options) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'low-power' })
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75))
   renderer.setClearColor(0x000000, 0)
@@ -43,7 +50,14 @@ export function createWorldEngine(canvas: HTMLCanvasElement, options: Options) {
   const rim = new THREE.DirectionalLight(0x607ebc, 4)
   rim.position.set(4, 6, -8)
   scene.add(rim)
-  const model = buildWorld(scene)
+  // Soft studio reflections give the metal and gloss from Blender something to mirror.
+  const pmrem = new THREE.PMREMGenerator(renderer)
+  const environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture
+  scene.environment = environment
+  scene.environmentIntensity = 0.55
+  const model = buildWorld(scene, cosmos)
+  const mixer = new THREE.AnimationMixer(scene)
+  for (const clip of cosmos.animations) mixer.clipAction(clip).play()
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
   const keys = new Set<string>()
   const raycaster = new THREE.Raycaster()
@@ -64,6 +78,23 @@ export function createWorldEngine(canvas: HTMLCanvasElement, options: Options) {
   let impulseStarted: number | null = null
   let impulseBase = 0
   let restTurn = 0
+  let introStarted: number | null = reducedMotion.matches ? null : performance.now()
+  let introScale = 1
+  let introTurn = 0
+  const planetScale = new Map<SectorId, number>()
+
+  function applyIntro(pose: ReturnType<typeof cosmosIntro>) {
+    introScale = pose.symbolScale
+    introTurn = pose.symbolTurn
+    model.logo.scale.setScalar(Math.max(pose.logoScale, 0.0001))
+    for (const { half, rest, restTurn: turn, turn: direction, from } of model.logoHalves) {
+      half.position.copy(rest).addScaledVector(from, pose.logoApart)
+      half.rotation.z = turn + direction * pose.logoApart * Math.PI
+    }
+    WORLD_SECTORS.forEach((sector, index) => planetScale.set(sector.id, Math.max(pose.planetScale(index), 0.0001)))
+    model.setStars(pose.stars)
+    updateBeacons()
+  }
 
   function render() {
     if (disposed) return
@@ -81,8 +112,12 @@ export function createWorldEngine(canvas: HTMLCanvasElement, options: Options) {
     return mode === 'play' && (keys.size > 0 || destination !== null)
   }
 
+  function animating() {
+    return !paused || moving() || impulseStarted !== null || introStarted !== null
+  }
+
   function schedule() {
-    if (!disposed && !frame && visible && !document.hidden && (!paused || moving() || impulseStarted !== null)) {
+    if (!disposed && !frame && visible && !document.hidden && animating()) {
       previous = 0
       frame = requestAnimationFrame(tick)
     }
@@ -98,9 +133,14 @@ export function createWorldEngine(canvas: HTMLCanvasElement, options: Options) {
     if (disposed || !visible || document.hidden) return
     const delta = previous ? Math.min((now - previous) / 1000, 0.1) : 0
     previous = now
+    if (introStarted !== null) {
+      const pose = cosmosIntro((now - introStarted) / 1000)
+      applyIntro(pose)
+      if (!pose.active) introStarted = null
+    }
     if (!paused) {
       elapsed += delta
-      model.orbit.rotation.z = -0.35 + Math.sin(elapsed * 0.35) * 0.16
+      mixer.update(delta)
       const follow = 1 - Math.exp(-5 * delta)
       model.processor.rotation.x += (-0.55 + hover.y * 0.22 - model.processor.rotation.x) * follow
       model.processor.rotation.y += (0.48 + hover.x * 0.28 - model.processor.rotation.y) * follow
@@ -112,9 +152,8 @@ export function createWorldEngine(canvas: HTMLCanvasElement, options: Options) {
     const impulse = impulseStarted === null ? null : yinYangImpulse((now - impulseStarted) / 1000)
     const bounce = impulse?.bounce ?? 0
     model.processor.position.y = 2.3 + Math.sin(elapsed * 1.3) * 0.22 + bounce
-    model.processor.rotation.z = impulse ? impulseBase + impulse.turn : restTurn + Math.sin(elapsed * 0.65) * 0.07
-    model.processor.scale.set(1 - bounce * 0.08, 1 + bounce * 0.12, 1)
-    model.orbit.scale.setScalar(1 + Math.abs(bounce) * 0.16)
+    model.processor.rotation.z = (impulse ? impulseBase + impulse.turn : restTurn + Math.sin(elapsed * 0.65) * 0.07) + introTurn
+    model.processor.scale.set((1 - bounce * 0.08) * introScale, (1 + bounce * 0.12) * introScale, introScale)
     if (impulse && !impulse.active) impulseStarted = null
     if (mode === 'play') {
       let input = { x: 0, z: 0 }
@@ -145,7 +184,7 @@ export function createWorldEngine(canvas: HTMLCanvasElement, options: Options) {
       }
     }
     render()
-    if (!paused || moving() || impulseStarted !== null) frame = requestAnimationFrame(tick)
+    if (animating()) frame = requestAnimationFrame(tick)
   }
 
   function pulse() {
@@ -165,7 +204,7 @@ export function createWorldEngine(canvas: HTMLCanvasElement, options: Options) {
   function updateBeacons() {
     for (const [id, beacon] of model.beacons) {
       beacon.visible = mode !== 'play' || !collected.includes(id)
-      beacon.scale.setScalar(id === selected ? 1.5 : 1)
+      beacon.scale.setScalar((id === selected ? 1.5 : 1) * (planetScale.get(id) ?? 1))
     }
   }
 
@@ -220,6 +259,8 @@ export function createWorldEngine(canvas: HTMLCanvasElement, options: Options) {
     paused = reducedMotion.matches
     if (paused) {
       impulseStarted = null
+      introStarted = null
+      applyIntro(cosmosIntro(Infinity))
       model.processor.scale.setScalar(1)
       cancelAnimationFrame(frame)
       frame = 0
@@ -302,6 +343,7 @@ export function createWorldEngine(canvas: HTMLCanvasElement, options: Options) {
   window.addEventListener('blur', blur)
   document.addEventListener('visibilitychange', visibilityChanged)
   reducedMotion.addEventListener('change', motionChanged)
+  applyIntro(cosmosIntro(introStarted === null ? Infinity : 0))
   resize()
   schedule()
 
@@ -367,6 +409,10 @@ export function createWorldEngine(canvas: HTMLCanvasElement, options: Options) {
       })
       geometries.forEach(geometry => geometry.dispose())
       materials.forEach(material => material.dispose())
+      mixer.stopAllAction()
+      model.sprite.dispose()
+      environment.dispose()
+      pmrem.dispose()
       renderer.dispose()
     },
   }

@@ -1,0 +1,47 @@
+import { readFileSync } from 'node:fs'
+import { describe, expect, it } from 'vitest'
+import { WORLD_SECTORS } from '@/components/world/world-data'
+
+/** The JSON chunk of public/models/cosmos.glb, built by tools/blender/build_cosmos.py. */
+function readGlb() {
+  const file = readFileSync(new URL('../public/models/cosmos.glb', import.meta.url))
+  expect(file.toString('ascii', 0, 4)).toBe('glTF')
+  const length = file.readUInt32LE(12)
+  return JSON.parse(file.toString('utf8', 20, 20 + length)) as {
+    nodes: { name: string }[]
+    meshes: { name: string; primitives: { mode?: number }[] }[]
+    materials: { name: string }[]
+    accessors: { count: number }[]
+    animations: { channels: { target: { node: number } }[]; samplers: { input: number }[] }[]
+  }
+}
+
+describe('Blender cosmos model', () => {
+  const glb = readGlb()
+  const names = glb.nodes.map(node => node.name)
+
+  it('has every node the homepage world places and animates', () => {
+    expect(names).toEqual(expect.arrayContaining(['YinYang', 'Logo', 'LogoTop', 'LogoBottom', 'Galaxy', 'Starfield']))
+    for (const sector of WORLD_SECTORS) expect(names).toContain(`Planet_${sector.id}`)
+    expect(glb.materials.map(material => material.name)).toEqual(expect.arrayContaining(['Yin', 'Yang', 'Accent', 'Glow', 'Logo']))
+  })
+
+  it('exports the galaxy and starfield as point clouds', () => {
+    for (const name of ['Galaxy', 'Starfield']) {
+      expect(glb.meshes.find(mesh => mesh.name === name)?.primitives[0].mode).toBe(0)
+    }
+  })
+
+  it('keys one seamless loop on every frame for the spinning parts', () => {
+    expect(glb.animations).toHaveLength(1)
+    const [loop] = glb.animations
+    const animated = new Set(loop.channels.map(channel => names[channel.target.node]))
+    for (const name of ['YinYangSpin', 'LogoOrbit', 'LogoSpin', 'Galaxy']) expect(animated).toContain(name)
+    // Full turns sampled sparsely collapse to no motion; every frame must be keyed.
+    for (const sampler of loop.samplers) expect(glb.accessors[sampler.input].count).toBeGreaterThan(500)
+    // The code-driven parts must stay free of keyframes.
+    for (const name of ['YinYang', 'Logo', 'LogoTop', 'LogoBottom', ...WORLD_SECTORS.map(s => `Planet_${s.id}`)]) {
+      expect(animated).not.toContain(name)
+    }
+  })
+})

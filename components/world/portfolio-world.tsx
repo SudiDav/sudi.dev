@@ -36,10 +36,11 @@ export function PortfolioWorld() {
     const motion = window.matchMedia('(prefers-reduced-motion: reduce)')
     const motionChanged = () => setPaused(motion.matches)
     motion.addEventListener('change', motionChanged)
-    import('./world-engine').then(({ createWorldEngine }) => {
+    import('./world-engine').then(async ({ createWorldEngine, loadCosmos }) => {
+      const cosmos = await loadCosmos()
       if (disposed || !canvas.current) return
       try {
-        engine.current = createWorldEngine(canvas.current, {
+        engine.current = createWorldEngine(canvas.current, cosmos, {
           onProject: points => {
             const width = canvas.current?.clientWidth ?? 0
             const height = canvas.current?.clientHeight ?? 0
@@ -113,7 +114,7 @@ export function PortfolioWorld() {
           </div>
         )}
         <canvas ref={canvas} className="world-canvas" tabIndex={status === 'ready' ? 0 : -1}
-          aria-label="3D yin and yang symbol. Drag to rotate. Tap the symbol or press Space to bounce."
+          aria-label="3D universe: a yin and yang symbol inside spinning rings, orbited by the Sudi logo and five planets over a spiral galaxy. Drag to rotate. Tap the symbol or press Space to bounce."
           aria-describedby="world-instructions" />
         {status === 'ready' && (
           <button className="world-motion-toggle" type="button" aria-label={paused ? 'Resume ambient motion' : 'Pause ambient motion'} title={paused ? 'Resume ambient motion' : 'Pause ambient motion'} aria-pressed={paused}
@@ -139,7 +140,7 @@ export function PortfolioWorld() {
       </div>
       </div>
       <p id="world-instructions" className="sr-only">
-        {status === 'unavailable' ? 'A static yin and yang symbol is shown because 3D is unavailable.' : 'Drag to orbit. Tap yin and yang or press Space to bounce. Hover an orbiting world to read its reflection, or focus a label with the keyboard.'}
+        {status === 'unavailable' ? 'A static yin and yang symbol is shown because 3D is unavailable.' : 'Drag to orbit the universe. Tap yin and yang or press Space to bounce. Hover a planet to read its reflection, or focus a label with the keyboard.'}
       </p>
     </div>
   )
