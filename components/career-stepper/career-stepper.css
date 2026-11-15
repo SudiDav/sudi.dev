@@ -36,11 +36,8 @@
 .career-stepper-period { color: var(--text-tertiary); font: 400 12px/1.4 var(--font-mono); }
 .career-stepper-company { color: var(--accent); font-size: 14px; font-weight: 600; }
 .career-stepper-description { color: var(--text-secondary); font-size: 14px; line-height: 1.6; }
-/* Unreached roles sit back a little, so the eye follows the fill. */
-.career-stepper-step:not([data-reached]) .career-stepper-body { opacity: .6; }
-.career-stepper-body { transition: opacity .3s; }
 
 @media (prefers-reduced-motion: reduce) {
-  .career-stepper-dot, .career-stepper-body { transition: none; }
+  .career-stepper-dot { transition: none; }
   .career-stepper-step:first-child .career-stepper-dot { animation: none; }
 }
