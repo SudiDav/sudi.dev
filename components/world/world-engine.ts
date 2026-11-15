@@ -53,8 +53,9 @@ export function createWorldEngine(canvas: HTMLCanvasElement, cosmos: GLTF, optio
   scene.add(rim)
   // Soft studio reflections give the metal and gloss from Blender something to mirror.
   const pmrem = new THREE.PMREMGenerator(renderer)
-  const environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture
-  scene.environment = environment
+  // Keep the whole render target: disposing only its texture would leave its framebuffer behind.
+  const environment = pmrem.fromScene(new RoomEnvironment(), 0.04)
+  scene.environment = environment.texture
   scene.environmentIntensity = 0.55
   const model = buildWorld(scene, cosmos)
   const mixer = new THREE.AnimationMixer(scene)

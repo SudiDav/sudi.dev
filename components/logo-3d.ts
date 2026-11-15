@@ -23,8 +23,9 @@ export async function createLogo3d(canvas: HTMLCanvasElement, onLost: () => void
   renderer.setClearColor(0x000000, 0)
   const scene = new THREE.Scene()
   const pmrem = new THREE.PMREMGenerator(renderer)
-  const environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture
-  scene.environment = environment
+  // Keep the whole render target: disposing only its texture would leave its framebuffer behind.
+  const environment = pmrem.fromScene(new RoomEnvironment(), 0.04)
+  scene.environment = environment.texture
   scene.environmentIntensity = 0.8
   const key = new THREE.DirectionalLight(0xffffff, 2.2)
   key.position.set(-2, 3, 4)
