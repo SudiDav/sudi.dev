@@ -250,11 +250,11 @@ def build_universe():
     # quarter turn per loop repeats seamlessly.
     coordinates = [(r * math.cos(a + k * TAU / 4), r * math.sin(a + k * TAU / 4), h)
                    for k in range(4) for r, a, h in arm]
-    # A dense bulge of old stars around the centre.
-    for _ in range(2400):
-        r = 4.5 + abs(rng.gauss(0, 3.2))
-        a = rng.uniform(0, TAU)
-        coordinates.append((r * math.cos(a), r * math.sin(a), rng.gauss(0, 0.35)))
+    # A dense bulge of old stars around the centre, also repeated every quarter
+    # turn so the whole galaxy, not just its arms, loops without a jump.
+    bulge = [(4.5 + abs(rng.gauss(0, 3.2)), rng.uniform(0, TAU), rng.gauss(0, 0.35)) for _ in range(600)]
+    coordinates += [(r * math.cos(a + k * TAU / 4), r * math.sin(a + k * TAU / 4), h)
+                    for k in range(4) for r, a, h in bulge]
     galaxy = points('Galaxy', coordinates)
     galaxy.location = (0, 0, -0.6)
     spin(galaxy, 2, 0.25)
