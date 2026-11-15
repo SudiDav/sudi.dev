@@ -166,7 +166,7 @@ export default async function AdminDashboardPage() {
                   index < activity.length - 1 ? 'border-b border-admin-border' : ''
                 }`}
               >
-                <span className={`rounded-lg p-2 ${item.tint}`}>
+                <span className={`rounded-full p-2 ${item.tint}`}>
                   <item.Icon size={16} />
                 </span>
                 <div className="flex min-w-0 flex-1 flex-col gap-0.5">
@@ -184,9 +184,9 @@ export default async function AdminDashboardPage() {
               <Link
                 key={label}
                 href={href}
-                className="flex items-center gap-3.5 rounded-[10px] border border-admin-border px-4 py-3.5 transition-colors hover:bg-admin-bg"
+                className="flex items-center gap-3.5 rounded-2xl border border-admin-border px-4 py-3.5 transition-colors hover:bg-admin-bg"
               >
-                <span className="rounded-lg bg-accent-dim p-2">
+                <span className="rounded-full bg-accent-dim p-2">
                   <Icon size={18} className="text-accent" />
                 </span>
                 <div className="flex flex-col gap-0.5">

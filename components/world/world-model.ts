@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import type { GLTF } from 'three/addons/loaders/GLTFLoader.js'
 import { WORLD_SECTORS, type SectorId } from './world-data'
+import { chromeMaterial } from '@/components/chrome-material'
 
 const STAR_TINTS = ['#FFFFFF', '#DCE6FF', '#9DB4F0', '#F2A541', '#E86A92', '#8B6CEF']
 
@@ -41,6 +42,17 @@ function stars(points: THREE.Points, size: number, sprite: THREE.Texture) {
  * Blender (tools/blender/build_cosmos.py); this places them on the five
  * reflections and adds the parts that respond to the page.
  */
+/**
+ * The symbol floats high enough that, from the camera's angle, the S standing
+ * at the centre shows beneath it rather than behind it.
+ */
+export const SYMBOL_HEIGHT = 3.2
+/** Where the camera rests; the engine starts it here. */
+export const HOME_CAMERA = new THREE.Vector3(10, 10, 12)
+const LOGO_HEIGHT = -0.75
+/** Half the S's height (LOGO_TALL in build_cosmos.py): its base, where the "I am" label points. */
+const LOGO_HALF = 1.1
+
 export function buildWorld(scene: THREE.Scene, cosmos: GLTF) {
   // Index everything before pieces are moved out of the loaded scene.
   const nodes = new Map<string, THREE.Object3D>()
@@ -56,10 +68,9 @@ export function buildWorld(scene: THREE.Scene, cosmos: GLTF) {
   }
   const material = (name: string) => materials.get(name) ?? new THREE.MeshStandardMaterial()
   const accent = material('Accent')
-  const logoMaterial = material('Logo')
+  const logoMaterial = chromeMaterial('#607EBC')
   const glow = material('Glow')
   const yang = material('Yang')
-  const line = new THREE.LineBasicMaterial({ transparent: true, opacity: 0.26 })
   const world = new THREE.Group()
   scene.add(world)
 
@@ -71,37 +82,20 @@ export function buildWorld(scene: THREE.Scene, cosmos: GLTF) {
     return mesh
   }
 
-  // The taijitu and its gyroscope of rings float above the landscape.
+  // The taijitu floats above the planets.
   const processor = new THREE.Group()
-  processor.position.y = 2.3
+  processor.position.y = SYMBOL_HEIGHT
   processor.rotation.set(-0.55, 0.48, 0)
   processor.add(node('YinYang'))
   world.add(processor)
 
-  // The logo orbits the symbol on its own tilted path.
+  // The S stands at the centre, beneath the symbol.
   const logo = node('Logo')
-  logo.position.set(0, 2.6, 0)
+  logo.position.set(0, LOGO_HEIGHT, 0)
   world.add(logo)
-  const logoHalves = ['LogoTop', 'LogoBottom'].map(name => {
-    const half = node(name)
-    return { half, rest: half.position.clone(), restTurn: half.rotation.z, turn: name === 'LogoTop' ? 1 : -1, from: new THREE.Vector3(name === 'LogoTop' ? -2.6 : 2.6, name === 'LogoTop' ? 1.8 : -1.8, 1.2) }
-  })
+  logo.traverse(object => { if (object instanceof THREE.Mesh) object.material = logoMaterial })
 
-  ring(world, 4.95, -0.2)
-  ring(world, 5.08, -0.2, accent, 0.006)
-
-  // Concentric wave contours connect the symbol to the five reflections.
-  for (let row = 0; row < 7; row++) {
-    const points = []
-    for (let i = 0; i <= 160; i++) {
-      const angle = i / 160 * Math.PI * 2
-      const r = 1.2 + row * 0.48 + Math.sin(angle * 3 + row * 0.5) * 0.14
-      points.push(new THREE.Vector3(Math.cos(angle) * r, -0.28, Math.sin(angle) * r))
-    }
-    world.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(points), line))
-  }
-
-  // Each reflection is a planet with its own moon.
+  // Each reflection is a planet.
   const beacons = new Map<SectorId, THREE.Object3D>()
   const targets: THREE.Object3D[] = []
   for (const sector of WORLD_SECTORS) {
@@ -120,8 +114,15 @@ export function buildWorld(scene: THREE.Scene, cosmos: GLTF) {
   const sprite = starSprite()
   const galaxy = node('Galaxy') as THREE.Points
   const starfield = node('Starfield') as THREE.Points
-  scene.add(galaxy, starfield)
-  const starMaterials = [stars(galaxy, 0.16, sprite), stars(starfield, 0.55, sprite)]
+  const farGalaxies = node('FarGalaxies') as THREE.Points
+  scene.add(galaxy, starfield, farGalaxies)
+  // A soft halo of light behind the S. It rides on the S, so it stays behind it
+  // as the S turns to the camera and grows in with it during the intro.
+  const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: sprite, transparent: true, depthWrite: false }))
+  halo.position.set(0, 0, -0.4)
+  halo.scale.setScalar(3.6)
+  logo.add(halo)
+  const starMaterials = [stars(galaxy, 0.16, sprite), stars(starfield, 0.55, sprite), stars(farGalaxies, 0.24, sprite)]
 
   // A small spark is the player, carrying attention between reflections.
   const rover = new THREE.Group()
@@ -151,11 +152,15 @@ export function buildWorld(scene: THREE.Scene, cosmos: GLTF) {
     light = document.documentElement.classList.contains('light')
     accent.color.set(colour)
     accent.emissive.set(colour)
-    logoMaterial.color.set(colour)
+    logoMaterial.color.set(colour).lerp(new THREE.Color('#ffffff'), 0.35)
     logoMaterial.emissive.set(colour)
+    // Additive glow vanishes on white; the light theme uses a faint tint instead.
+    halo.material.color.set(colour)
+    halo.material.blending = light ? THREE.NormalBlending : THREE.AdditiveBlending
+    halo.material.opacity = light ? 0.22 : 0.5
+    halo.material.needsUpdate = true
     glow.color.set(light ? colour : '#B9CBF2')
     glow.emissive.set(light ? colour : '#B9CBF2')
-    line.color.set(colour)
     // Additive light glows on the dark theme but vanishes on white, so the
     // light theme draws ordinary accent-tinted dots instead.
     for (const starMaterial of starMaterials) {
@@ -166,5 +171,5 @@ export function buildWorld(scene: THREE.Scene, cosmos: GLTF) {
     setStars(starOpacity)
   }
   setPalette()
-  return { world, processor, logo, logoHalves, rover, shadow, beacons, targets, setPalette, setStars, sprite }
+  return { world, processor, logo, logoBase: new THREE.Vector3(0, -LOGO_HALF, 0), rover, shadow, beacons, targets, setPalette, setStars, sprite }
 }

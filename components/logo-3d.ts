@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js'
+import { chromeMaterial } from './chrome-material'
 
 const REST = { yaw: -0.28, pitch: 0.1 }
 const SPIN_SECONDS = 1.1
@@ -37,12 +38,12 @@ export async function createLogo3d(canvas: HTMLCanvasElement, onLost: () => void
     const half = mark.getObjectByName(name)!
     return { half, rest: half.position.clone(), away: new THREE.Vector3(index ? 0.22 : -0.22, index ? -0.16 : 0.16, index ? -0.12 : 0.12) }
   })
+  const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#607EBC'
+  const chrome = chromeMaterial(accent)
   mark.traverse(object => {
-    if (object instanceof THREE.Mesh && object.material instanceof THREE.MeshStandardMaterial) {
-      const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#607EBC'
-      object.material.color.set(accent)
-      object.material.emissive.set(accent)
-      object.material.emissiveIntensity = 0.18
+    if (object instanceof THREE.Mesh) {
+      ;(object.material as THREE.Material).dispose()
+      object.material = chrome
     }
   })
 

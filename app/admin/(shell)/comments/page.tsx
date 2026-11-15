@@ -39,9 +39,9 @@ export default async function AdminCommentsPage() {
       />
 
       {result.error ? (
-        <div className="rounded-xl border border-admin-border bg-admin-card p-6">
+        <div className="rounded-2xl border border-admin-border bg-admin-card p-6">
           <div className="flex items-start gap-3">
-            <span className="rounded-lg bg-accent-dim p-2 text-accent">
+            <span className="rounded-full bg-accent-dim p-2 text-accent">
               <MessageCircle size={18} />
             </span>
             <div className="flex flex-col gap-1">

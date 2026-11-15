@@ -1,10 +1,10 @@
 import * as THREE from 'three'
 import { starSprite } from '@/components/world/world-model'
 import { WARP_LEAD, stopVisibility } from '@/lib/project-warp'
+import { createGalaxies } from './warp-galaxies'
 
 const SPACING = 26
 const REST_DISTANCE = 9
-const SPACE = 0x07070c
 const IMAGE = { width: 4, height: 2.25 }
 const MARGIN = 0.45
 
@@ -71,16 +71,26 @@ const portalShader = {
 export type WarpStop = { cover?: string }
 
 /**
- * A tunnel through space with one holographic portal per project. The page
- * drives it with setTime (from scroll); it eases toward that time, stretches
- * the stars with its speed, and renders only while on screen.
+ * A flight through space with one holographic portal per project, drawn on a
+ * transparent canvas so it sits on the page's own background in either theme.
+ * The page picks a stop with setTime; the camera eases there, stretching the
+ * stars with its speed, reports each frame's time through onTime (so the story
+ * can fade in step with the flight), and renders only while on screen.
  */
-export function createWarpEngine(canvas: HTMLCanvasElement, stops: WarpStop[], accentHex: string, onUnavailable: () => void) {
-  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' })
+export function createWarpEngine(
+  canvas: HTMLCanvasElement,
+  stops: WarpStop[],
+  accentHex: string,
+  onUnavailable: () => void,
+  onTime: (time: number) => void,
+) {
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' })
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5))
-  renderer.setClearColor(SPACE, 1)
+  renderer.setClearColor(0x000000, 0)
   const scene = new THREE.Scene()
-  scene.fog = new THREE.FogExp2(SPACE, 0.02)
+  // Distant things fade into the page colour (set in setPalette).
+  const fog = new THREE.FogExp2(0x0b0b11, 0.02)
+  scene.fog = fog
   const camera = new THREE.PerspectiveCamera(55, 1, 0.1, 160)
   const accent = rgb(accentHex)
   const length = (stops.length - 1) * SPACING
@@ -100,7 +110,8 @@ export function createWarpEngine(canvas: HTMLCanvasElement, stops: WarpStop[], a
   const starGeometry = track(new THREE.BufferGeometry())
   starGeometry.setAttribute('position', new THREE.BufferAttribute(heads, 3))
   const sprite = track(starSprite())
-  scene.add(new THREE.Points(starGeometry, track(new THREE.PointsMaterial({ size: 0.12, map: sprite, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, color: 0xdce6ff }))))
+  const starMaterial = track(new THREE.PointsMaterial({ size: 0.12, map: sprite, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, color: 0xdce6ff }))
+  scene.add(new THREE.Points(starGeometry, starMaterial))
   const streakGeometry = track(new THREE.BufferGeometry())
   const streakPositions = new THREE.BufferAttribute(segments, 3)
   streakPositions.setUsage(THREE.DynamicDrawUsage)
@@ -108,20 +119,29 @@ export function createWarpEngine(canvas: HTMLCanvasElement, stops: WarpStop[], a
   const streakMaterial = track(new THREE.LineBasicMaterial({ color: 0x9db4f0, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false }))
   scene.add(new THREE.LineSegments(streakGeometry, streakMaterial))
 
-  // Faint rings every few metres turn empty space into a tunnel.
-  const ringGeometry = track(new THREE.TorusGeometry(8, 0.02, 6, 96))
-  const ringMaterial = track(new THREE.MeshBasicMaterial({ color: new THREE.Color().setRGB(accent.x, accent.y, accent.z, THREE.SRGBColorSpace), transparent: true, opacity: 0.16 }))
-  for (let z = REST_DISTANCE + 10; z > -length - 60; z -= 9) {
-    const ring = new THREE.Mesh(ringGeometry, ringMaterial)
-    ring.position.z = z
-    scene.add(ring)
-  }
+  const galaxies = track(createGalaxies(length, REST_DISTANCE, sprite, accentHex))
+  scene.add(...galaxies.galaxies)
 
-  // One portal per project: a holographic picture in a neon frame, inside a stargate.
+  /** Follow the page's theme: glowing light on dark, darker dots on white. */
+  function setPalette() {
+    const css = getComputedStyle(document.documentElement)
+    const light = document.documentElement.classList.contains('light')
+    fog.color.set(css.getPropertyValue('--bg-primary').trim() || '#0B0B11')
+    for (const material of [starMaterial, streakMaterial]) {
+      material.blending = light ? THREE.NormalBlending : THREE.AdditiveBlending
+      material.needsUpdate = true
+    }
+    starMaterial.color.set(light ? '#3a4050' : '#dce6ff')
+    streakMaterial.color.set(light ? accentHex : '#9db4f0')
+    galaxies.setLight(light)
+  }
+  setPalette()
+  const themeObserver = new MutationObserver(() => { setPalette(); if (!frame) render(0) })
+  themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
+
+  // One portal per project: a holographic picture in a neon frame.
   const loader = new THREE.TextureLoader()
   const planeGeometry = track(new THREE.PlaneGeometry(IMAGE.width + MARGIN * 2, IMAGE.height + MARGIN * 2))
-  const gateGeometry = track(new THREE.TorusGeometry(3.3, 0.018, 8, 160))
-  const gateMaterial = track(new THREE.MeshBasicMaterial({ color: ringMaterial.color, transparent: true, opacity: 0.5 }))
   const portals = stops.map((stop, index) => {
     const material = track(new THREE.ShaderMaterial({
       ...portalShader,
@@ -150,14 +170,8 @@ export function createWarpEngine(canvas: HTMLCanvasElement, stops: WarpStop[], a
     const group = new THREE.Group()
     group.position.z = -index * SPACING
     group.add(new THREE.Mesh(planeGeometry, material))
-    const gates = [0, 1].map(layer => {
-      const gate = new THREE.Mesh(gateGeometry, gateMaterial)
-      gate.scale.setScalar(1 + layer * 0.12)
-      group.add(gate)
-      return gate
-    })
     scene.add(group)
-    return { group, material, gates, side: index % 2 === 0 ? 1 : -1 }
+    return { group, material, side: index % 2 === 0 ? 1 : -1 }
   })
 
   const pointer = { x: 0, y: 0, tx: 0, ty: 0 }
@@ -185,6 +199,7 @@ export function createWarpEngine(canvas: HTMLCanvasElement, stops: WarpStop[], a
     const before = time
     time += (target - time) * (1 - Math.exp(-5 * delta))
     if (Math.abs(target - time) < 0.0005) time = target
+    onTime(time)
     const velocity = delta ? (time - before) / delta : 0
     speed += (Math.abs(velocity) - speed) * (1 - Math.exp(-8 * delta))
     const warp = Math.min(speed / 1.6, 1)
@@ -217,10 +232,8 @@ export function createWarpEngine(canvas: HTMLCanvasElement, stops: WarpStop[], a
       uniforms.fade.value = Math.min(1, Math.max(0, (70 - distance) / 40)) * Math.min(1, Math.max(0, (distance - 1.5) / 3))
       portal.group.rotation.y = -portal.group.position.x * 0.09 + Math.sin(clock * 0.6 + index) * 0.04
       portal.group.rotation.x = Math.sin(clock * 0.5 + index * 2) * 0.03
-      portal.gates[0].rotation.set(0.25 * portal.side, clock * 0.2, clock * 0.15 * portal.side)
-      portal.gates[1].rotation.set(-0.2, -clock * 0.15, -clock * 0.1)
     })
-    gateMaterial.opacity = 0.25 + warp * 0.4
+    galaxies.spin(clock)
     renderer.render(scene, camera)
   }
 
@@ -242,7 +255,8 @@ export function createWarpEngine(canvas: HTMLCanvasElement, stops: WarpStop[], a
     if (!width || !height) return
     renderer.setSize(width, height, false)
     camera.aspect = width / height
-    narrow = camera.aspect < 0.95
+    // The same test as the CSS, so the portal and the story always agree on the layout.
+    narrow = narrowQuery.matches
     layout()
     render(0)
   }
@@ -264,6 +278,8 @@ export function createWarpEngine(canvas: HTMLCanvasElement, stops: WarpStop[], a
     onUnavailable()
   }
 
+  const narrowQuery = window.matchMedia('(max-width: 900px), (max-aspect-ratio: 19/20)')
+  narrowQuery.addEventListener('change', resize)
   const sizer = new ResizeObserver(resize)
   sizer.observe(canvas)
   window.addEventListener('pointermove', pointerMove)
@@ -273,7 +289,7 @@ export function createWarpEngine(canvas: HTMLCanvasElement, stops: WarpStop[], a
 
   return {
     setTime(next: number) { target = next },
-    /** Jump without travelling, e.g. on first paint mid-section. */
+    /** Jump without travelling, e.g. on first paint. */
     jump(next: number) { target = time = next },
     setVisible(next: boolean) {
       visible = next
@@ -284,9 +300,11 @@ export function createWarpEngine(canvas: HTMLCanvasElement, stops: WarpStop[], a
       disposed = true
       cancelAnimationFrame(frame)
       sizer.disconnect()
+      narrowQuery.removeEventListener('change', resize)
       window.removeEventListener('pointermove', pointerMove)
       document.removeEventListener('visibilitychange', wake)
       canvas.removeEventListener('webglcontextlost', contextLost)
+      themeObserver.disconnect()
       disposables.forEach(item => item.dispose())
       renderer.dispose()
     },

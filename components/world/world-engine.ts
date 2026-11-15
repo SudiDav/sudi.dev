@@ -5,10 +5,11 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js'
 import { collectSignals, moveRover, moveTowardSignal, type WorldPoint } from '@/lib/world-game'
 import { cosmosIntro, yinYangImpulse } from '@/lib/world-motion'
 import { WORLD_SECTORS, type SectorId } from './world-data'
-import { buildWorld } from './world-model'
+import { buildWorld, HOME_CAMERA, SYMBOL_HEIGHT } from './world-model'
 
 type Options = {
-  onProject?: (points: { id: SectorId; x: number; y: number }[]) => void
+  /** Screen positions (0..1) of each planet, and of the base of the S for its "I am" label. */
+  onProject?: (points: { id: SectorId; x: number; y: number }[], self: { x: number; y: number }) => void
   onHover?: (id: SectorId | null) => void
   onSelect: (id: SectorId) => void
   onCollect: (ids: string[]) => void
@@ -29,7 +30,7 @@ export function createWorldEngine(canvas: HTMLCanvasElement, cosmos: GLTF, optio
   renderer.outputColorSpace = THREE.SRGBColorSpace
   const scene = new THREE.Scene()
   const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 100)
-  const home = new THREE.Vector3(10, 10, 12)
+  const home = HOME_CAMERA.clone()
   camera.position.copy(home)
   const controls = new OrbitControls(camera, canvas)
   controls.target.set(0, 0.3, 0)
@@ -86,11 +87,7 @@ export function createWorldEngine(canvas: HTMLCanvasElement, cosmos: GLTF, optio
   function applyIntro(pose: ReturnType<typeof cosmosIntro>) {
     introScale = pose.symbolScale
     introTurn = pose.symbolTurn
-    model.logo.scale.setScalar(Math.max(pose.logoScale, 0.0001))
-    for (const { half, rest, restTurn: turn, turn: direction, from } of model.logoHalves) {
-      half.position.copy(rest).addScaledVector(from, pose.logoApart)
-      half.rotation.z = turn + direction * pose.logoApart * Math.PI
-    }
+    model.logo.scale.setScalar(Math.max(pose.symbolScale, 0.0001))
     WORLD_SECTORS.forEach((sector, index) => planetScale.set(sector.id, Math.max(pose.planetScale(index), 0.0001)))
     model.setStars(pose.stars)
     updateBeacons()
@@ -98,13 +95,14 @@ export function createWorldEngine(canvas: HTMLCanvasElement, cosmos: GLTF, optio
 
   function render() {
     if (disposed) return
+    // The S always turns to face the viewer, however the universe is dragged.
+    model.logo.rotation.y = Math.atan2(camera.position.x, camera.position.z)
     renderer.render(scene, camera)
     if (options.onProject) {
       const point = new THREE.Vector3()
-      options.onProject([...model.beacons].map(([id, beacon]) => {
-        beacon.getWorldPosition(point).project(camera)
-        return { id, x: (point.x + 1) / 2, y: (1 - point.y) / 2 }
-      }))
+      const toScreen = (vector: THREE.Vector3) => ({ x: (vector.x + 1) / 2, y: (1 - vector.y) / 2 })
+      const self = toScreen(model.logo.localToWorld(point.copy(model.logoBase)).project(camera))
+      options.onProject([...model.beacons].map(([id, beacon]) => ({ id, ...toScreen(beacon.getWorldPosition(point).project(camera)) })), self)
     }
   }
 
@@ -151,7 +149,7 @@ export function createWorldEngine(canvas: HTMLCanvasElement, cosmos: GLTF, optio
     }
     const impulse = impulseStarted === null ? null : yinYangImpulse((now - impulseStarted) / 1000)
     const bounce = impulse?.bounce ?? 0
-    model.processor.position.y = 2.3 + Math.sin(elapsed * 1.3) * 0.22 + bounce
+    model.processor.position.y = SYMBOL_HEIGHT + Math.sin(elapsed * 1.3) * 0.22 + bounce
     model.processor.rotation.z = (impulse ? impulseBase + impulse.turn : restTurn + Math.sin(elapsed * 0.65) * 0.07) + introTurn
     model.processor.scale.set((1 - bounce * 0.08) * introScale, (1 + bounce * 0.12) * introScale, introScale)
     if (impulse && !impulse.active) impulseStarted = null
@@ -262,6 +260,7 @@ export function createWorldEngine(canvas: HTMLCanvasElement, cosmos: GLTF, optio
       introStarted = null
       applyIntro(cosmosIntro(Infinity))
       model.processor.scale.setScalar(1)
+      model.processor.position.y = SYMBOL_HEIGHT
       cancelAnimationFrame(frame)
       frame = 0
       render()

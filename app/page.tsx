@@ -10,14 +10,13 @@ import {
 import { OutboundLink } from '@/components/outbound-link'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
-import { ProjectShowcase } from '@/components/project-showcase/project-showcase'
+import { FeaturedProjects } from '@/components/featured-projects/featured-projects'
 import { ArticleItem } from '@/components/article-item'
 import { TechBadge } from '@/components/tech-badge'
 import { PortfolioWorld } from '@/components/world/portfolio-world'
 import { PhilosophicalIdentity } from '@/components/philosophical-identity'
 import { getPublishedPosts, getProjects } from '@/lib/content'
 import { getSettings, socialUrl } from '@/lib/site'
-import { coverTexture } from '@/lib/cover-texture'
 
 /** Design: Sidebar → "Tech Stack", three rows of badges. */
 const TECH_ROWS = [
@@ -40,14 +39,11 @@ export default async function HomePage() {
       { kind: 'instagram' as const, label: 'Instagram', Icon: InstagramIcon },
     ] as const
   ).filter(({ kind }) => Boolean(settings.social[kind]))
-  // The first three projects stand on the showcase's monoliths. Covers go
-  // through the image optimiser: several originals are megabytes, far too
-  // large for a GPU texture.
   const featuredProjects = projects.slice(0, 3).map(({ slug, title, shortDescription, description, cover, tech, year, category }) => ({
     slug,
     title,
     blurb: shortDescription ?? description,
-    cover: cover ? coverTexture(cover) : undefined,
+    cover,
     tech,
     year,
     category,
@@ -72,7 +68,7 @@ export default async function HomePage() {
             <div className="flex flex-wrap items-center gap-4">
               <Link
                 href="/work"
-                className="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
               >
                 View My Work
                 <ArrowRight size={16} />
@@ -89,7 +85,7 @@ export default async function HomePage() {
           <PortfolioWorld />
         </section>
 
-        <ProjectShowcase projects={featuredProjects} />
+        <FeaturedProjects projects={featuredProjects} />
 
         {/* Content Area — ROW, padding [0,48], gap 48 */}
         <div id="portfolio" className="flex scroll-mt-8 flex-col gap-12 px-4 md:px-6 lg:flex-row lg:px-12">
@@ -135,7 +131,7 @@ export default async function HomePage() {
                   key={label}
                   href={socialUrl(kind, settings.social[kind] ?? '')}
                   aria-label={label}
-                  className="flex size-9 items-center justify-center rounded-lg border border-border bg-bg-card text-text-secondary transition-colors hover:border-border-hover hover:text-text-primary"
+                  className="flex size-9 items-center justify-center rounded-full border border-border bg-bg-card text-text-secondary transition-colors hover:border-border-hover hover:text-text-primary"
                 >
                   <Icon size={16} />
                 </OutboundLink>

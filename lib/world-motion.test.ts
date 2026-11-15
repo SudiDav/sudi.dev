@@ -14,27 +14,23 @@ describe('yin and yang impulse', () => {
 })
 
 describe('cosmos intro', () => {
-  it('starts with everything gathered at the core and the logo apart', () => {
+  it('starts with everything gathered at the core', () => {
     const start = cosmosIntro(0)
     expect(start.symbolScale).toBe(0)
-    expect(start.logoScale).toBe(0)
-    expect(start.logoApart).toBe(1)
     expect(start.planetScale(0)).toBe(0)
     expect(start.stars).toBe(0)
     expect(start.active).toBe(true)
   })
 
-  it('locks the logo halves together and reveals planets one after another', () => {
+  it('reveals planets one after another', () => {
     const middle = cosmosIntro(1.1)
-    expect(middle.logoApart).toBeGreaterThan(0)
-    expect(middle.logoApart).toBeLessThan(1)
     expect(middle.planetScale(0)).toBeGreaterThan(middle.planetScale(4))
   })
 
   it('rests at the final pose, including when a hidden tab resumes late', () => {
     for (const seconds of [3, 60]) {
       const end = cosmosIntro(seconds)
-      expect(end).toMatchObject({ symbolScale: 1, symbolTurn: 0, logoScale: 1, logoApart: 0, stars: 1, active: false })
+      expect(end).toMatchObject({ symbolScale: 1, symbolTurn: 0, stars: 1, active: false })
       expect(end.planetScale(4)).toBe(1)
     }
   })

@@ -69,7 +69,7 @@ export default async function WorkPage({
   // The warp tours every project whatever the filter: it stays put above the
   // pills, so changing filter (which keeps the scroll position) never shifts
   // the list under the visitor.
-  const warpProjects = allProjects.map(({ slug, title, shortDescription, description, cover, tech, year, category }) => ({
+  const warpProjects = allProjects.map(({ slug, title, shortDescription, description, cover, tech, year, category, links }) => ({
     slug,
     title,
     blurb: shortDescription ?? description,
@@ -77,6 +77,7 @@ export default async function WorkPage({
     tech,
     year,
     category,
+    links,
   }))
 
   return (
@@ -95,7 +96,7 @@ export default async function WorkPage({
               <div key={label} className="flex items-center">
                 {index > 0 ? <span className="h-12 w-px bg-border" aria-hidden /> : null}
                 <div className="flex flex-col items-center gap-2 px-7">
-                  <span className="flex size-8 items-center justify-center rounded-lg bg-accent-dim">
+                  <span className="flex size-8 items-center justify-center rounded-full bg-accent-dim">
                     <Icon size={16} className="text-accent" />
                   </span>
                   <span className="font-mono text-[28px] font-bold text-text-primary">{number}</span>
@@ -106,8 +107,12 @@ export default async function WorkPage({
           </div>
         </PageIntro>
 
-        {warpProjects.length > 0 && <ProjectWarp projects={warpProjects} listId="all-projects" />}
+        {warpProjects.length > 0 && <ProjectWarp projects={warpProjects} />}
 
+        {/* The plain list. While the warp tour runs it already shows every
+            project, so the list only appears when the tour steps aside
+            (reduced motion, or no WebGL). */}
+        <div className="work-project-list">
         {/* Filters — ROW, padding [0,120], gap 8 */}
         <div id="all-projects" className={`scroll-mt-20 ${PAGE_GUTTER}`}>
           <FilterBar
@@ -132,6 +137,7 @@ export default async function WorkPage({
             </div>
           )}
         </section>
+        </div>
 
         <CompanyShowcase />
       </main>

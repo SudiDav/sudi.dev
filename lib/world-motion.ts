@@ -19,8 +19,8 @@ export const COSMOS_INTRO_SECONDS = 2.6
 
 /**
  * The opening of the homepage cosmos, as a pure function of time: the symbol
- * spins up out of nothing, the two halves of the logo fly in and lock, the
- * planets pop in one after another, and the stars fade up.
+ * spins up out of nothing, the planets pop in one after another, and the
+ * stars fade up.
  */
 export function cosmosIntro(seconds: number) {
   const time = Math.max(0, seconds)
@@ -28,8 +28,6 @@ export function cosmosIntro(seconds: number) {
   return {
     symbolScale: pop(symbol),
     symbolTurn: (easeOut(clamp01(time / 1.7)) - 1) * Math.PI * 2,
-    logoScale: easeOut(clamp01((time - 0.2) / 0.8)),
-    logoApart: 1 - easeOut(clamp01((time - 0.3) / 1.6)),
     planetScale: (index: number) => pop(clamp01((time - 0.7 - index * 0.16) / 0.6)),
     stars: easeOut(clamp01(time / 2.2)),
     active: time < COSMOS_INTRO_SECONDS,

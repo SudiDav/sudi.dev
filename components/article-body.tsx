@@ -54,7 +54,7 @@ export const mdxComponents = {
     const lines = highlight(String(child?.props?.children ?? '').replace(/\n$/, ''), language)
 
     return (
-      <div className="flex flex-col rounded-lg border border-border bg-bg-card p-6">
+      <div className="flex flex-col rounded-2xl border border-border bg-bg-card p-6">
         <div className="flex items-center justify-between pb-3">
           <span className="font-mono text-[11px] font-semibold text-text-tertiary">{language}</span>
           <Copy size={14} className="text-text-tertiary" />

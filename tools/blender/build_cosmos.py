@@ -33,13 +33,14 @@ LOGO = json.loads(pathlib.Path(__file__).with_name('logo-mark.json').read_text()
 FPS = 12
 LOOP_FRAMES = 48 * FPS
 TAU = math.tau
+LOGO_TALL = 2.2  # height of the S at the centre; world-model.ts anchors its label to the base
 SECTORS = {
-    # id: (colour, body radius, has ring, moon period in seconds)
-    'emotion': ('#E86A92', 0.24, False, 6),
-    'energy': ('#F2A541', 0.2, True, 8),
-    'vibration': ('#8B6CEF', 0.27, True, 12),
-    'frequency': ('#3FC1C9', 0.22, False, 16),
-    'reality': ('#7C9BE0', 0.3, True, 24),
+    # id: (colour, body radius)
+    'emotion': ('#E86A92', 0.24),
+    'energy': ('#F2A541', 0.2),
+    'vibration': ('#8B6CEF', 0.27),
+    'frequency': ('#3FC1C9', 0.22),
+    'reality': ('#7C9BE0', 0.3),
 }
 
 
@@ -78,7 +79,14 @@ def mesh_object(name, mesh, parent=None, mat=None, location=(0, 0, 0)):
     return obj
 
 
-def slab(name, outline, depth, bevel):
+def chrome_edges(piece):
+    """Smooth shading with hardened bevel normals: crisp faces, glossy rounded edges."""
+    smooth_primitive(piece)
+    piece.modifiers['Bevel'].harden_normals = True
+    return piece
+
+
+def slab(name, outline, depth, bevel, segments=2):
     """A flat outline in the XZ plane, given thickness along Y with rounded edges."""
     mesh = bpy.data.meshes.new(name)
     bm = bmesh.new()
@@ -92,7 +100,7 @@ def slab(name, outline, depth, bevel):
     solidify.offset = 0
     rounded = obj.modifiers.new('Bevel', 'BEVEL')
     rounded.width = bevel
-    rounded.segments = 2
+    rounded.segments = segments
     rounded.limit_method = 'ANGLE'
     rounded.angle_limit = math.radians(40)
     return obj
@@ -181,29 +189,21 @@ def build_yin_yang(mats):
         seed = sphere(f'Seed{seed_colour}', 0.27, half, mats[seed_colour], (0, 0, -radius / 2))
         key_every_frame(seed, 'scale', lambda p: [1 + 0.18 * math.sin(p * 12 * TAU) ** 2] * 3)
     torus('YinYangRim', radius + 0.11, 0.03, turning, mats['Accent'], (math.pi / 2, 0, 0))
-    # A gyroscope of rings tumbling around the symbol on different axes.
-    for index, (major, axis, turns, tilt) in enumerate(((2.75, 0, 3, 0.4), (3.0, 1, -2, 1.1), (3.25, 2, 1, -0.7))):
-        gimbal = empty(f'Gyro{index + 1}', root)
-        gimbal.rotation_euler = (tilt, tilt * 0.5, 0)
-        ring = torus(f'GyroRing{index + 1}', major, 0.014, gimbal, mats['Accent'])
-        spin(ring, axis, turns)
-        sphere(f'GyroSpark{index + 1}', 0.06, ring, mats['Glow'], (major, 0, 0))
     return root
 
 
 def build_logo(mats):
+    """The S stands at the centre beneath the symbol, swaying to show its depth."""
     width, height = LOGO['size']
-    scale = 2.0 / width
+    scale = LOGO_TALL / height
     root = empty('Logo')
-    root.rotation_euler = (0.1, 0, 0)  # a gently tilted orbit, clear of the planets
-    orbit = empty('LogoOrbit', root)
-    spin(orbit, 2, 3)  # three laps of the symbol per loop
-    pivot = empty('LogoPivot', orbit, (4.0, 0, 0))
-    turning = empty('LogoSpin', pivot)
-    spin(turning, 2, -4)  # against the orbit: mostly facing out, turning once per loop
+    turning = empty('LogoSpin', root)
+    # A sway rather than a full turn, so it always reads as an S: four a loop.
+    key_every_frame(turning, 'rotation_euler', lambda p: (0, 0, 0.55 * math.sin(p * 4 * TAU)))
     for name, part in zip(('LogoTop', 'LogoBottom'), LOGO['parts']):
         outline = [((x - width / 2) * scale, -(y - height / 2) * scale) for x, y in part]
-        piece = slab(name, outline, 0.2, 0.035)
+        # Deep, softly rounded edges catch the light like a modern chrome mark.
+        piece = chrome_edges(slab(name, outline, 0.34, 0.07, 6))
         piece.parent = turning
         piece.data.materials.append(mats['Logo'])
     return root
@@ -219,7 +219,7 @@ def export_logo_mark(mats):
     root = empty('LogoMark')
     for name, part in zip(('MarkTop', 'MarkBottom'), LOGO['parts']):
         outline = [((x - width / 2) * scale, -(y - height / 2) * scale) for x, y in part]
-        piece = slab(name, outline, 0.22, 0.03)
+        piece = chrome_edges(slab(name, outline, 0.24, 0.045, 5))
         piece.parent = root
         piece.data.materials.append(mats['Logo'])
     bpy.ops.export_scene.gltf(
@@ -232,44 +232,63 @@ def export_logo_mark(mats):
     bpy.data.collections.remove(collection)
 
 
-def build_planets(mats):
-    for sector, (colour, radius, has_ring, moon_period) in SECTORS.items():
-        body_mat = material(f'Planet_{sector}', colour, 0.15, 0.45, 0.35)
+def build_planets():
+    for sector, (colour, radius) in SECTORS.items():
         root = empty(f'Planet_{sector}')
-        sphere(f'{sector}_Body', radius, root, body_mat)
-        if has_ring:
-            torus(f'{sector}_Ring', radius * 1.9, 0.012, root, mats['Accent'], (0.45, 0.2, 0))
-        moon_orbit = empty(f'{sector}_MoonOrbit', root)
-        moon_orbit.rotation_euler = (0.3, 0, 0)
-        spin(moon_orbit, 2, 48 // moon_period)
-        sphere(f'{sector}_Moon', 0.055, moon_orbit, mats['Glow'], (radius + 0.28, 0, 0))
+        sphere(f'{sector}_Body', radius, root, material(f'Planet_{sector}', colour, 0.15, 0.45, 0.35))
 
 
 def build_universe():
     rng = random.Random(7)
     arm = []
-    for _ in range(950):
+    for _ in range(3400):
         t = rng.random() ** 0.8
-        radius = 5.4 + t * 10
+        radius = 6 + t * 22
         angle = t * 3.4 + rng.gauss(0, 0.16 + 0.1 * t)
-        arm.append((radius + rng.gauss(0, 0.35), angle, rng.gauss(0, 0.12 + 0.18 * t)))
+        arm.append((radius + rng.gauss(0, 0.5), angle, rng.gauss(0, 0.15 + 0.3 * t)))
     # Four identical arms make the galaxy symmetric under a quarter turn, so a
     # quarter turn per loop repeats seamlessly.
     coordinates = [(r * math.cos(a + k * TAU / 4), r * math.sin(a + k * TAU / 4), h)
                    for k in range(4) for r, a, h in arm]
+    # A dense bulge of old stars around the centre.
+    for _ in range(2400):
+        r = 4.5 + abs(rng.gauss(0, 3.2))
+        a = rng.uniform(0, TAU)
+        coordinates.append((r * math.cos(a), r * math.sin(a), rng.gauss(0, 0.35)))
     galaxy = points('Galaxy', coordinates)
     galaxy.location = (0, 0, -0.6)
     spin(galaxy, 2, 0.25)
     shell = []
-    for _ in range(1400):
+    for _ in range(2600):
         z = rng.uniform(-1, 1)
         a = rng.uniform(0, TAU)
-        r = rng.uniform(26, 48)
+        r = rng.uniform(30, 52)
         shell.append((r * math.sqrt(1 - z * z) * math.cos(a), r * math.sqrt(1 - z * z) * math.sin(a), r * z))
     points('Starfield', shell)
+    # Small two-armed galaxies far behind the scene, spread across the website
+    # camera's view (it sits at (10, -12, 10) looking at the centre), each
+    # tilted its own way.
+    look = (-10 / 18.5, 12 / 18.5, -10 / 18.5)
+    right = (look[1], -look[0], 0)
+    norm = math.hypot(*right)
+    right = (right[0] / norm, right[1] / norm, 0)
+    up = (right[1] * look[2], -right[0] * look[2], right[0] * look[1] - right[1] * look[0])
+    far = []
+    for u, v in ((-19, 9), (-8, 13), (9, 12), (20, 4), (-18, -6), (19, -8), (8, -14), (-7, -14)):
+        depth = rng.uniform(30, 40)
+        centre = [look[k] * depth + right[k] * (u + rng.gauss(0, 1.5)) + up[k] * (v + rng.gauss(0, 1.5)) for k in range(3)]
+        tilt, turn, size = rng.uniform(0.3, 1.1), rng.uniform(0, TAU), rng.uniform(2.0, 3.2)
+        for i in range(700):
+            t = rng.random() ** 0.7
+            a = t * 4 + (i % 2) * math.pi + rng.gauss(0, 0.2 + 0.25 * t)
+            x, y, h = size * t * math.cos(a), size * t * math.sin(a), rng.gauss(0, 0.08)
+            y, h = y * math.cos(tilt) - h * math.sin(tilt), y * math.sin(tilt) + h * math.cos(tilt)
+            x, y = x * math.cos(turn) - y * math.sin(turn), x * math.sin(turn) + y * math.cos(turn)
+            far.append((centre[0] + x, centre[1] + y, centre[2] + h))
+    points('FarGalaxies', far)
 
 
-def render_stars(mat, names=('Galaxy', 'Starfield'), radius=0.035):
+def render_stars(mat, names=('Galaxy', 'Starfield', 'FarGalaxies'), radius=0.035):
     """Point clouds don't render in Blender; instance tiny spheres on them for preview only."""
     tree = bpy.data.node_groups.new('StarPoints', 'GeometryNodeTree')
     tree.interface.new_socket('Geometry', in_out='INPUT', socket_type='NodeSocketGeometry')
@@ -309,7 +328,7 @@ def stage():
         light.constraints.new('TRACK_TO').target = bpy.data.objects['YinYang']
         scene.collection.objects.link(light)
     bpy.data.objects['YinYang'].location = (0, 0, 2.3)
-    bpy.data.objects['Logo'].location = (0, 0, 2.6)
+    bpy.data.objects['Logo'].location = (0, 0, 0.1)
     for sector, (x, z) in zip(SECTORS, ((-4, 0.5), (-4.1, -2.8), (2.5, -3.6), (4, 0.5), (0, 4.3))):
         bpy.data.objects[f'Planet_{sector}'].location = (x, -z, 0.7)
     camera.data.lens = 30
@@ -337,7 +356,7 @@ def main():
     }
     build_yin_yang(mats)
     build_logo(mats)
-    build_planets(mats)
+    build_planets()
     build_universe()
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     bpy.ops.export_scene.gltf(

@@ -58,7 +58,7 @@ export function NewsletterLink({ children }: { children?: React.ReactNode }) {
                   type="button"
                   aria-label="Close"
                   onClick={close}
-                  className="absolute top-3 right-3 flex size-9 items-center justify-center rounded-md text-text-tertiary transition-colors hover:text-text-primary focus-visible:outline-2 focus-visible:outline-accent"
+                  className="absolute top-3 right-3 flex size-9 items-center justify-center rounded-full text-text-tertiary transition-colors hover:text-text-primary focus-visible:outline-2 focus-visible:outline-accent"
                 >
                   <X size={18} />
                 </button>

@@ -113,7 +113,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
 
         {/* Cover Wrap — ROW, padding [0,120], centred; image 400h, radius 12 */}
         <div className="px-4 md:px-8 lg:px-30">
-          <div className="relative h-60 w-full overflow-hidden rounded-xl bg-bg-elevated lg:h-100">
+          <div className="relative h-60 w-full overflow-hidden rounded-2xl bg-bg-elevated lg:h-100">
             <Image
               src={post.cover}
               alt={post.title}
@@ -146,7 +146,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
           ) : null}
 
           {/* Author Bio Card — ROW, padding 24, gap 20, radius 12 */}
-          <div className="flex items-center gap-5 rounded-xl border border-border bg-bg-card p-6">
+          <div className="flex items-center gap-5 rounded-2xl border border-border bg-bg-card p-6">
             <Image
               src={settings.avatar}
               alt=""

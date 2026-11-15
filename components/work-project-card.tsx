@@ -18,7 +18,7 @@ export function WorkProjectCard({ project }: { project: Project }) {
   return (
     <article
       id={project.slug}
-      className="flex flex-1 flex-col overflow-hidden rounded-lg border border-border bg-bg-card shadow-[0_4px_16px_#00000015] transition-colors hover:border-border-hover"
+      className="flex flex-1 flex-col overflow-hidden rounded-2xl border border-border bg-bg-card shadow-[0_4px_16px_#00000015] transition-colors hover:border-border-hover"
     >
       <div className="relative h-50 w-full bg-bg-elevated">
         <Image
@@ -50,7 +50,7 @@ export function WorkProjectCard({ project }: { project: Project }) {
           {project.links.github ? (
             <OutboundLink
               href={project.links.github}
-              className="inline-flex items-center gap-1.5 rounded-md border border-border px-3.5 py-2 text-xs font-medium text-text-secondary transition-colors hover:border-border-hover hover:text-text-primary"
+              className="inline-flex items-center gap-1.5 rounded-full border border-border px-3.5 py-2 text-xs font-medium text-text-secondary transition-colors hover:border-border-hover hover:text-text-primary"
             >
               <GithubIcon size={14} />
               Source
@@ -59,7 +59,7 @@ export function WorkProjectCard({ project }: { project: Project }) {
           {project.links.live ? (
             <OutboundLink
               href={project.links.live}
-              className="inline-flex items-center gap-1.5 rounded-md border border-border px-3.5 py-2 text-xs font-medium text-text-secondary transition-colors hover:border-border-hover hover:text-text-primary"
+              className="inline-flex items-center gap-1.5 rounded-full border border-border px-3.5 py-2 text-xs font-medium text-text-secondary transition-colors hover:border-border-hover hover:text-text-primary"
             >
               <ExternalLink size={14} />
               Live Demo

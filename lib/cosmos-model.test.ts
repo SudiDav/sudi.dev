@@ -1,7 +1,6 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { WORLD_SECTORS } from '@/components/world/world-data'
-import { SHOWCASE_SLOTS } from './project-showcase'
 
 /** The JSON chunk of a model in public/models, built by the scripts in tools/blender. */
 function readGlb(name = 'cosmos.glb') {
@@ -17,33 +16,34 @@ function readGlb(name = 'cosmos.glb') {
   }
 }
 
+/** Names in the model matching any of these patterns, which a minimal scene must not contain. */
+function decoration(names: string[], patterns: RegExp[]) {
+  return names.filter(name => patterns.some(pattern => pattern.test(name)))
+}
+
 describe('Blender cosmos model', () => {
   const glb = readGlb()
   const names = glb.nodes.map(node => node.name)
 
-  it('has every node the homepage world places and animates', () => {
-    expect(names).toEqual(expect.arrayContaining(['YinYang', 'Logo', 'LogoTop', 'LogoBottom', 'Galaxy', 'Starfield']))
+  it('holds the yin-yang, the centred S, the five planets, the galaxy and a starfield', () => {
+    expect(names).toEqual(expect.arrayContaining(['YinYang', 'YinYangRim', 'Logo', 'LogoTop', 'LogoBottom', 'Galaxy', 'Starfield', 'FarGalaxies']))
     for (const sector of WORLD_SECTORS) expect(names).toContain(`Planet_${sector.id}`)
-    expect(glb.materials.map(material => material.name)).toEqual(expect.arrayContaining(['Yin', 'Yang', 'Accent', 'Glow', 'Logo']))
+    expect(glb.materials.map(material => material.name)).toEqual(expect.arrayContaining(['Yin', 'Yang', 'Accent', 'Logo']))
+    for (const name of ['Galaxy', 'Starfield', 'FarGalaxies']) expect(glb.meshes.find(mesh => mesh.name === name)?.primitives[0].mode).toBe(0)
   })
 
-  it('exports the galaxy and starfield as point clouds', () => {
-    for (const name of ['Galaxy', 'Starfield']) {
-      expect(glb.meshes.find(mesh => mesh.name === name)?.primitives[0].mode).toBe(0)
-    }
+  it('stays minimal: no orbit for the S, no gyroscope, moons or planet rings', () => {
+    expect(decoration(names, [/^LogoOrbit/, /^Gyro/, /_Moon/, /_Ring$/])).toEqual([])
   })
 
-  it('keys one seamless loop on every frame for the spinning parts', () => {
+  it('keys one seamless loop on every frame, leaving the code-driven parts unkeyed', () => {
     expect(glb.animations).toHaveLength(1)
     const [loop] = glb.animations!
     const animated = new Set(loop.channels.map(channel => names[channel.target.node]))
-    for (const name of ['YinYangSpin', 'LogoOrbit', 'LogoSpin', 'Galaxy']) expect(animated).toContain(name)
+    for (const name of ['YinYangSpin', 'LogoSpin', 'Galaxy']) expect(animated).toContain(name)
     // Full turns sampled sparsely collapse to no motion; every frame must be keyed.
     for (const sampler of loop.samplers) expect(glb.accessors[sampler.input].count).toBeGreaterThan(500)
-    // The code-driven parts must stay free of keyframes.
-    for (const name of ['YinYang', 'Logo', 'LogoTop', 'LogoBottom', ...WORLD_SECTORS.map(s => `Planet_${s.id}`)]) {
-      expect(animated).not.toContain(name)
-    }
+    for (const name of ['YinYang', 'Logo', ...WORLD_SECTORS.map(s => `Planet_${s.id}`)]) expect(animated).not.toContain(name)
   })
 })
 
@@ -56,24 +56,3 @@ describe('menu bar logo model', () => {
   })
 })
 
-describe('featured projects showcase model', () => {
-  const glb = readGlb('showcase.glb')
-  const names = glb.nodes.map(node => node.name)
-
-  it('holds a monolith with a cover screen for every slot, and the 3D S crowning them', () => {
-    for (let index = 0; index < SHOWCASE_SLOTS; index++) {
-      expect(names).toEqual(expect.arrayContaining([`Monolith_${index}`, `Screen_${index}`, `EnergyRing_${index}`, `Beam_${index}`]))
-      expect(glb.materials.map(material => material.name)).toContain(`Screen_${index}`)
-    }
-    expect(names).toEqual(expect.arrayContaining(['Crown', 'CrownTop', 'CrownBottom']))
-  })
-
-  it('animates in one loop, leaving the code-driven parts unkeyed', () => {
-    expect(glb.animations).toHaveLength(1)
-    const animated = new Set(glb.animations![0].channels.map(channel => names[channel.target.node]))
-    for (const name of ['CrownSpin', 'CrownTop', 'Hover_0', 'Crystal_2']) expect(animated).toContain(name)
-    for (const name of ['Crown', ...Array.from({ length: SHOWCASE_SLOTS }, (_, index) => `Monolith_${index}`)]) {
-      expect(animated).not.toContain(name)
-    }
-  })
-})

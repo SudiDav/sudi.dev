@@ -18,7 +18,7 @@ import type { PublishResult } from '@/lib/publish'
 import { DeploymentStatus } from '@/components/admin/deployment-status'
 
 const inputClass =
-  'w-full rounded-lg border border-admin-border bg-admin-input px-3.5 py-2.5 text-[13px] text-admin-text focus:border-accent focus:outline-none'
+  'w-full border border-admin-border bg-admin-input px-3.5 py-2.5 text-[13px] text-admin-text focus:border-accent focus:outline-none'
 
 function Field({
   label,
@@ -43,14 +43,14 @@ function Field({
           rows={3}
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          className={inputClass}
+          className={`${inputClass} rounded-2xl`}
         />
       ) : (
         <input
           id={id}
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          className={inputClass}
+          className={`${inputClass} rounded-full`}
         />
       )}
     </div>
@@ -118,28 +118,28 @@ export function SettingsForm({
           type="button"
           onClick={save}
           disabled={pending || !canPublish}
-          className="rounded-lg bg-accent px-4 py-2 text-[13px] font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+          className="rounded-full bg-accent px-4 py-2 text-[13px] font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
         >
           {pending ? 'Saving…' : 'Save changes'}
         </button>
       </div>
 
       {!canPublish ? (
-        <p className="flex items-center gap-2 rounded-lg bg-[#F59E0B15] p-3 text-[13px] text-admin-warning">
+        <p className="flex items-center gap-2 rounded-2xl bg-[#F59E0B15] p-3 text-[13px] text-admin-warning">
           <TriangleAlert size={14} />
           Saving is disabled — set GITHUB_TOKEN and GITHUB_REPO to publish from a deployed site.
         </p>
       ) : null}
 
       {error ? (
-        <p className="flex items-center gap-2 rounded-lg bg-[#EF444415] p-3 text-[13px] text-admin-danger">
+        <p className="flex items-center gap-2 rounded-2xl bg-[#EF444415] p-3 text-[13px] text-admin-danger">
           <TriangleAlert size={14} />
           {error}
         </p>
       ) : null}
 
       {saved && !pending ? (
-        <p className="flex items-center gap-2 rounded-lg bg-[#10B98115] p-3 text-[13px] text-admin-success">
+        <p className="flex items-center gap-2 rounded-2xl bg-[#10B98115] p-3 text-[13px] text-admin-success">
           <Check size={14} />
           Saved to content/site.json
         </p>
@@ -163,7 +163,7 @@ export function SettingsForm({
                   type="button"
                   onClick={() => setEditingAvatar((open) => !open)}
                   aria-expanded={editingAvatar}
-                  className="inline-flex w-fit items-center gap-1.5 rounded-md bg-accent px-3.5 py-1.5 text-xs font-medium text-white transition-opacity hover:opacity-90"
+                  className="inline-flex w-fit items-center gap-1.5 rounded-full bg-accent px-3.5 py-1.5 text-xs font-medium text-white transition-opacity hover:opacity-90"
                 >
                   <Upload size={14} />
                   Change photo
@@ -235,7 +235,7 @@ export function SettingsForm({
                     onChange={(event) =>
                       set('social', { ...settings.social, [kind]: event.target.value })
                     }
-                    className={inputClass}
+                    className={`${inputClass} rounded-full`}
                   />
                 </div>
               )
@@ -297,7 +297,7 @@ export function SettingsForm({
             <form action={signOutAction}>
               <button
                 type="submit"
-                className="inline-flex w-fit items-center gap-2 rounded-lg border border-admin-border px-4 py-2 text-[13px] font-medium text-admin-text-secondary hover:bg-admin-bg"
+                className="inline-flex w-fit items-center gap-2 rounded-full border border-admin-border px-4 py-2 text-[13px] font-medium text-admin-text-secondary hover:bg-admin-bg"
               >
                 <LogOut size={14} />
                 Log Out

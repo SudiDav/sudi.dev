@@ -25,6 +25,7 @@ import {
 } from '@/components/brand-icons'
 import { PAGE_GUTTER } from '@/components/layout'
 import { getSettings, socialUrl } from '@/lib/site'
+import { CareerStepper } from '@/components/career-stepper/career-stepper'
 
 export const metadata: Metadata = {
   title: 'About | Sudi M. David',
@@ -172,7 +173,7 @@ export default async function AboutPage() {
 
         {/* Hero Section — ROW, padding [48,120], gap 56, centred */}
         <section className={`flex flex-col items-center gap-14 py-12 lg:flex-row ${PAGE_GUTTER}`}>
-          <div className="relative h-[420px] w-full shrink-0 overflow-hidden rounded-xl border border-border bg-bg-elevated lg:w-[340px]">
+          <div className="relative h-[420px] w-full shrink-0 overflow-hidden rounded-2xl border border-border bg-bg-elevated lg:w-[340px]">
             <Image
               src={settings.portrait ?? settings.avatar}
               alt={settings.displayName}
@@ -218,32 +219,7 @@ export default async function AboutPage() {
           <div className="flex flex-col gap-2">
             <SectionHeading label="EXPERIENCE" title="Where I've Worked" />
           </div>
-          <ol className="flex flex-col">
-            {TIMELINE.map((entry, index) => (
-              <li key={entry.company} className="flex gap-6">
-                <div className="flex w-6 flex-col items-center">
-                  <span
-                    className={`mt-1.5 size-3 shrink-0 rounded-full border ${
-                      index === 0 ? 'border-accent bg-accent' : 'border-border bg-bg-card'
-                    }`}
-                  />
-                  {index < TIMELINE.length - 1 ? (
-                    <span className="w-px flex-1 bg-border" aria-hidden />
-                  ) : null}
-                </div>
-                <div className="flex flex-1 flex-col gap-2 pb-8">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <h3 className="font-display text-base font-semibold text-text-primary">
-                      {entry.role}
-                    </h3>
-                    <span className="font-mono text-xs text-text-tertiary">{entry.period}</span>
-                  </div>
-                  <p className="text-sm font-semibold text-accent">{entry.company}</p>
-                  <p className="text-sm leading-[1.6] text-text-secondary">{entry.description}</p>
-                </div>
-              </li>
-            ))}
-          </ol>
+          <CareerStepper steps={TIMELINE} />
         </section>
 
         <Divider />
@@ -257,7 +233,7 @@ export default async function AboutPage() {
             {SKILLS.map(({ Icon, title, items }) => (
               <div
                 key={title}
-                className="flex flex-col gap-4 rounded-lg border border-border bg-bg-card p-6"
+                className="flex flex-col gap-4 rounded-2xl border border-border bg-bg-card p-6"
               >
                 <div className="flex items-center gap-2.5">
                   <Icon size={18} className="text-accent" />
@@ -294,9 +270,9 @@ export default async function AboutPage() {
             {INTERESTS.map(({ Icon, title, description }) => (
               <div
                 key={title}
-                className="flex gap-4 rounded-lg border border-border bg-bg-card p-5"
+                className="flex gap-4 rounded-2xl border border-border bg-bg-card p-5"
               >
-                <span className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-accent-dim">
+                <span className="flex size-9 shrink-0 items-center justify-center rounded-full bg-accent-dim">
                   <Icon size={18} className="text-accent" />
                 </span>
                 <div className="flex flex-col gap-1">
@@ -325,14 +301,14 @@ export default async function AboutPage() {
           <div className="flex flex-wrap items-center justify-center gap-4">
             <a
               href={`mailto:${settings.email}`}
-              className="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+              className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
             >
               <Mail size={16} />
               Get in Touch
             </a>
             <a
               href={`tel:${settings.phone.replace(/[^+\d]/g, '')}`}
-              className="inline-flex items-center gap-2 rounded-lg border border-border bg-bg-card px-6 py-3 text-sm font-semibold text-text-primary transition-colors hover:border-border-hover"
+              className="inline-flex items-center gap-2 rounded-full border border-border bg-bg-card px-6 py-3 text-sm font-semibold text-text-primary transition-colors hover:border-border-hover"
             >
               <Phone size={16} />
               {settings.phone}
@@ -344,7 +320,7 @@ export default async function AboutPage() {
                 key={label}
                 href={socialUrl(kind, settings.social[kind] ?? '')}
                 aria-label={label}
-                className="flex size-10 items-center justify-center rounded-lg border border-border bg-bg-card text-text-secondary transition-colors hover:border-border-hover hover:text-text-primary"
+                className="flex size-10 items-center justify-center rounded-full border border-border bg-bg-card text-text-secondary transition-colors hover:border-border-hover hover:text-text-primary"
               >
                 <Icon size={16} />
               </OutboundLink>

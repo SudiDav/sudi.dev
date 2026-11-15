@@ -233,7 +233,7 @@ export function PostEditor({
         <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-4">
           <Link
             href="/admin/posts"
-            className="inline-flex min-h-11 items-center gap-1.5 rounded-md px-2.5 py-1.5 text-[13px] text-admin-text-secondary hover:bg-admin-bg"
+            className="inline-flex min-h-11 items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[13px] text-admin-text-secondary hover:bg-admin-bg"
           >
             <ArrowLeft size={16} />
             Posts
@@ -253,7 +253,7 @@ export function PostEditor({
           {post ? (
             <Link
               href={`/admin/posts/${post.slug}/preview`}
-              className="inline-flex min-h-11 items-center gap-1.5 rounded-[7px] border border-admin-border px-3.5 py-1.5 text-[13px] text-admin-text-secondary hover:bg-admin-bg"
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-admin-border px-3.5 py-1.5 text-[13px] text-admin-text-secondary hover:bg-admin-bg"
             >
               <Eye size={14} />
               Preview
@@ -263,7 +263,7 @@ export function PostEditor({
             type="button"
             onClick={() => save()}
             disabled={pending || conflicted || (post !== undefined && !expectedVersion) || !canPublish || !title.trim()}
-            className="inline-flex min-h-11 items-center gap-1.5 rounded-[7px] border border-admin-border px-3.5 py-1.5 text-[13px] text-admin-text-secondary hover:bg-admin-bg disabled:opacity-50"
+            className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-admin-border px-3.5 py-1.5 text-[13px] text-admin-text-secondary hover:bg-admin-bg disabled:opacity-50"
           >
             {creating ? 'Create draft' : 'Save'}
           </button>
@@ -273,7 +273,7 @@ export function PostEditor({
               onClick={() => publishReviewed(persistedStatus === 'Published')}
               disabled={pending || conflicted || !canPublish || dirty || !expectedVersion}
               title={dirty ? 'Save your changes before publishing.' : undefined}
-              className="inline-flex min-h-11 items-center gap-1.5 rounded-[7px] bg-accent px-4 py-1.5 text-[13px] font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+              className="inline-flex min-h-11 items-center gap-1.5 rounded-full bg-accent px-4 py-1.5 text-[13px] font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
             >
               <Send size={14} />
               {persistedStatus === 'Published' ? 'Unpublish' : 'Publish'}
@@ -293,7 +293,7 @@ export function PostEditor({
           <button
             type="button"
             onClick={() => window.location.reload()}
-            className="min-h-11 rounded-md border border-admin-border px-3 py-1.5 font-medium hover:bg-admin-bg"
+            className="min-h-11 rounded-full border border-admin-border px-3 py-1.5 font-medium hover:bg-admin-bg"
           >
             Reload and review latest draft
           </button>
@@ -315,7 +315,7 @@ export function PostEditor({
             <button
               type="button"
               onClick={() => window.location.reload()}
-              className="min-h-11 rounded-md border border-admin-danger/30 px-3 py-1.5 font-medium text-admin-danger hover:bg-[#EF444415]"
+              className="min-h-11 rounded-full border border-admin-danger/30 px-3 py-1.5 font-medium text-admin-danger hover:bg-[#EF444415]"
             >
               Reload and review latest draft
             </button>
@@ -345,7 +345,7 @@ export function PostEditor({
               <div key={groupIndex} className="flex items-center gap-0.5">
                 {groupIndex > 0 ? <span className="mx-2 h-4 w-px bg-admin-border" /> : null}
                 {group.map((Icon, index) => (
-                  <span key={index} className="rounded p-1.5 text-admin-text-secondary">
+                  <span key={index} className="rounded-full p-1.5 text-admin-text-secondary">
                     <Icon size={18} />
                   </span>
                 ))}
@@ -357,7 +357,7 @@ export function PostEditor({
           </div>
 
           <div className="mx-auto flex w-full max-w-[720px] flex-col gap-6 px-4 py-6 sm:px-6 sm:py-8">
-            <div className="flex flex-col items-center gap-2 rounded-xl border border-dashed border-admin-border px-4 py-6 text-center sm:px-6 sm:py-8">
+            <div className="flex flex-col items-center gap-2 rounded-2xl border border-dashed border-admin-border px-4 py-6 text-center sm:px-6 sm:py-8">
               <ImageIcon size={22} className="text-admin-text-tertiary" />
               <span className="text-sm text-admin-text-tertiary">
                 {cover || 'Click to add a cover image'}
@@ -375,7 +375,7 @@ export function PostEditor({
                 placeholder="/images/…"
                 disabled={pending}
                 onChange={(event) => setCover(event.target.value)}
-                className="mt-1 w-full max-w-sm rounded-md border border-admin-border px-3 py-1.5 text-center text-xs text-admin-text placeholder:text-admin-text-tertiary focus:border-accent focus:outline-none"
+                className="mt-1 w-full max-w-sm rounded-full border border-admin-border px-3 py-1.5 text-center text-xs text-admin-text placeholder:text-admin-text-tertiary focus:border-accent focus:outline-none"
               />
             </div>
 
@@ -418,7 +418,7 @@ export function PostEditor({
               value={status}
               disabled={pending}
               onChange={(event) => setStatus(event.target.value as Post['status'])}
-              className="rounded-lg border border-admin-border bg-admin-input px-3 py-2 text-[13px] text-admin-text focus:border-accent focus:outline-none"
+              className="rounded-full border border-admin-border bg-admin-input px-3 py-2 text-[13px] text-admin-text focus:border-accent focus:outline-none"
             >
               {POST_STATUSES.map((option) => (
                 <option
@@ -444,7 +444,7 @@ export function PostEditor({
                 type="button"
                 onClick={() => publishReviewed()}
                 disabled={pending || conflicted || !canPublish || dirty || !expectedVersion}
-                className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-lg bg-accent px-3 py-2 text-[13px] font-medium text-white hover:opacity-90 disabled:opacity-50"
+                className="inline-flex min-h-11 items-center justify-center gap-1.5 rounded-full bg-accent px-3 py-2 text-[13px] font-medium text-white hover:opacity-90 disabled:opacity-50"
               >
                 <Send size={14} />
                 Publish post
@@ -457,7 +457,7 @@ export function PostEditor({
               value={category}
               disabled={pending}
               onChange={(event) => setCategory(event.target.value)}
-              className="rounded-lg border border-admin-border bg-admin-input px-3 py-2 text-[13px] text-admin-text focus:border-accent focus:outline-none"
+              className="rounded-full border border-admin-border bg-admin-input px-3 py-2 text-[13px] text-admin-text focus:border-accent focus:outline-none"
             >
               {POST_CATEGORIES.map((option) => (
                 <option key={option} value={option}>
