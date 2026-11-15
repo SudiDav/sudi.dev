@@ -5,7 +5,7 @@ import { WORLD_SECTORS, type SectorId } from './world-data'
 const STAR_TINTS = ['#FFFFFF', '#DCE6FF', '#9DB4F0', '#F2A541', '#E86A92', '#8B6CEF']
 
 /** A soft round dot, so point-cloud stars read as light rather than squares. */
-function starSprite() {
+export function starSprite() {
   const canvas = document.createElement('canvas')
   canvas.width = canvas.height = 64
   const context = canvas.getContext('2d')!

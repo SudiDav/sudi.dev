@@ -10,8 +10,12 @@ points at -Y here points at the viewer (+Z) in Three.js.
 
 One seamless loop is keyed on every frame: each motion completes a whole
 number of cycles in LOOP_FRAMES, so the clip repeats without a seam. Node
-names are the contract with components/world/world-model.ts and
-lib/cosmos-model.test.ts.
+names are the contract with components/world/world-model.ts,
+components/logo-3d.ts and lib/cosmos-model.test.ts.
+
+shortcut: the exporter's output bytes vary slightly between runs (internal
+ordering), so a rebuild shows a binary diff even when nothing changed;
+revisit: if model churn in review becomes a nuisance.
 """
 import json
 import math
@@ -24,6 +28,7 @@ import bpy
 
 ROOT = pathlib.Path(__file__).resolve().parents[2]
 OUTPUT = ROOT / 'public/models/cosmos.glb'
+LOGO_OUTPUT = ROOT / 'public/models/logo.glb'
 LOGO = json.loads(pathlib.Path(__file__).with_name('logo-mark.json').read_text())
 FPS = 12
 LOOP_FRAMES = 48 * FPS
@@ -204,6 +209,29 @@ def build_logo(mats):
     return root
 
 
+def export_logo_mark(mats):
+    """A small, deeper-cut logo on its own for the menu bar, so other pages skip the cosmos."""
+    width, height = LOGO['size']
+    scale = 1.0 / height
+    collection = bpy.data.collections.new('HeaderLogo')
+    bpy.context.scene.collection.children.link(collection)
+    bpy.context.view_layer.active_layer_collection = bpy.context.view_layer.layer_collection.children['HeaderLogo']
+    root = empty('LogoMark')
+    for name, part in zip(('MarkTop', 'MarkBottom'), LOGO['parts']):
+        outline = [((x - width / 2) * scale, -(y - height / 2) * scale) for x, y in part]
+        piece = slab(name, outline, 0.22, 0.03)
+        piece.parent = root
+        piece.data.materials.append(mats['Logo'])
+    bpy.ops.export_scene.gltf(
+        filepath=str(LOGO_OUTPUT), export_format='GLB', export_apply=True, export_animations=False,
+        use_active_collection=True, export_cameras=False, export_lights=False, export_yup=True,
+    )
+    print(f'exported {LOGO_OUTPUT.relative_to(ROOT)} ({LOGO_OUTPUT.stat().st_size // 1024} KB)')
+    for obj in list(collection.objects):
+        bpy.data.objects.remove(obj)
+    bpy.data.collections.remove(collection)
+
+
 def build_planets(mats):
     for sector, (colour, radius, has_ring, moon_period) in SECTORS.items():
         body_mat = material(f'Planet_{sector}', colour, 0.15, 0.45, 0.35)
@@ -319,6 +347,7 @@ def main():
         use_mesh_vertices=True, export_cameras=False, export_lights=False, export_yup=True,
     )
     print(f'exported {OUTPUT.relative_to(ROOT)} ({OUTPUT.stat().st_size // 1024} KB)')
+    export_logo_mark(mats)
     # Staging happens after export so the preview camera, lights and star
     # instancing never reach the website's model.
     if '--preview' in args or '--blend' in args:

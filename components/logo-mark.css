@@ -1,0 +1,5 @@
+.logo-mark { position: relative; display: block; width: 80px; height: 33px; }
+/* The S occupies the left 45% of the PNG; the canvas is centred on it with room to tilt. */
+.logo-mark-canvas { position: absolute; top: -12px; left: -12px; width: 60px; height: 57px; pointer-events: none; opacity: 0; transition: opacity .3s; }
+.logo-mark[data-ready='true'] .logo-mark-canvas { opacity: 1; }
+.logo-mark[data-ready='true'] .logo-mark-image { clip-path: inset(0 0 0 45%); }

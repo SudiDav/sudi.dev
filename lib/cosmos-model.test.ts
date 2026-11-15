@@ -2,9 +2,9 @@ import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { WORLD_SECTORS } from '@/components/world/world-data'
 
-/** The JSON chunk of public/models/cosmos.glb, built by tools/blender/build_cosmos.py. */
-function readGlb() {
-  const file = readFileSync(new URL('../public/models/cosmos.glb', import.meta.url))
+/** The JSON chunk of a model in public/models, built by tools/blender/build_cosmos.py. */
+function readGlb(name = 'cosmos.glb') {
+  const file = readFileSync(new URL(`../public/models/${name}`, import.meta.url))
   expect(file.toString('ascii', 0, 4)).toBe('glTF')
   const length = file.readUInt32LE(12)
   return JSON.parse(file.toString('utf8', 20, 20 + length)) as {
@@ -12,7 +12,7 @@ function readGlb() {
     meshes: { name: string; primitives: { mode?: number }[] }[]
     materials: { name: string }[]
     accessors: { count: number }[]
-    animations: { channels: { target: { node: number } }[]; samplers: { input: number }[] }[]
+    animations?: { channels: { target: { node: number } }[]; samplers: { input: number }[] }[]
   }
 }
 
@@ -34,7 +34,7 @@ describe('Blender cosmos model', () => {
 
   it('keys one seamless loop on every frame for the spinning parts', () => {
     expect(glb.animations).toHaveLength(1)
-    const [loop] = glb.animations
+    const [loop] = glb.animations!
     const animated = new Set(loop.channels.map(channel => names[channel.target.node]))
     for (const name of ['YinYangSpin', 'LogoOrbit', 'LogoSpin', 'Galaxy']) expect(animated).toContain(name)
     // Full turns sampled sparsely collapse to no motion; every frame must be keyed.
@@ -43,5 +43,14 @@ describe('Blender cosmos model', () => {
     for (const name of ['YinYang', 'Logo', 'LogoTop', 'LogoBottom', ...WORLD_SECTORS.map(s => `Planet_${s.id}`)]) {
       expect(animated).not.toContain(name)
     }
+  })
+})
+
+describe('menu bar logo model', () => {
+  it('holds only the two halves of the mark, unanimated', () => {
+    const glb = readGlb('logo.glb')
+    expect(glb.nodes.map(node => node.name).sort()).toEqual(['LogoMark', 'MarkBottom', 'MarkTop'])
+    expect(glb.animations ?? []).toHaveLength(0)
+    expect(glb.materials.map(material => material.name)).toEqual(['Logo'])
   })
 })
