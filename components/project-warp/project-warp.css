@@ -30,7 +30,6 @@
 .project-warp-stop[data-side='left'] { left: clamp(24px, 8vw, 140px); }
 .project-warp-stop[data-side='right'] { right: clamp(24px, 8vw, 140px); }
 .project-warp-stop[aria-current='step'] { pointer-events: auto; }
-.project-warp-cover { display: none; }
 .project-warp-index {
   position: absolute;
   z-index: -1;
@@ -75,10 +74,13 @@
 /* Only the current stop shows its name; the rest stay compact numbers. */
 .project-warp-rail-name { overflow: hidden; max-width: 0; white-space: nowrap; transition: max-width .35s, margin .35s; }
 .project-warp-rail button[aria-current='true'] .project-warp-rail-name { max-width: 220px; margin-left: 8px; font-family: var(--font-body, sans-serif); font-weight: 600; }
+.project-warp-skip { padding: 7px 14px; border: 1px solid #ffffff26; border-radius: 999px; background: #0b0b11b3; color: #dce6ff; font: 500 12px/1 var(--font-mono); backdrop-filter: blur(10px); transition: background .2s, color .2s; }
+.project-warp-skip:hover { background: #ffffff1a; color: #fff; }
+.project-warp-skip:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
 @keyframes project-warp-bob { 50% { translate: 0 6px; } }
 
 @media (max-width: 900px), (max-aspect-ratio: 19/20) {
-  .project-warp-stop, .project-warp-stop[data-side] { top: auto; right: 20px; bottom: 112px; left: 20px; width: auto; transform: translateY(calc((1 - var(--show)) * 28px)); }
+  .project-warp-stop, .project-warp-stop[data-side] { top: auto; right: 20px; bottom: 156px; left: 20px; width: auto; transform: translateY(calc((1 - var(--show)) * 28px)); }
   .project-warp-index { font-size: 72px; }
   .project-warp-blurb { display: -webkit-box; overflow: hidden; font-size: 14px; -webkit-box-orient: vertical; -webkit-line-clamp: 3; }
   .project-warp-rail { bottom: 16px; }
@@ -88,30 +90,7 @@
   .project-warp-cta { margin-top: 12px; padding: 8px 14px; }
 }
 
-/* ── Static: without WebGL or with reduced motion, the same stops as cards ── */
-.project-warp[data-mode='static'] .project-warp-track { height: auto; }
-.project-warp[data-mode='static'] .project-warp-viewport { position: static; height: auto; overflow: visible; background: none; color: inherit; }
-.project-warp[data-mode='static'] .project-warp-viewport::after,
-.project-warp[data-mode='static'] .project-warp-canvas,
-.project-warp[data-mode='static'] .project-warp-rail { display: none; }
-.project-warp[data-mode='static'] .project-warp-stops { position: static; display: grid; gap: 16px; padding: 0 16px; pointer-events: auto; }
-@media (min-width: 768px) { .project-warp[data-mode='static'] .project-warp-stops { grid-template-columns: repeat(2, 1fr); padding: 0 24px; } }
-@media (min-width: 1024px) { .project-warp[data-mode='static'] .project-warp-stops { grid-template-columns: repeat(3, 1fr); padding: 0 48px; } }
-.project-warp[data-mode='static'] .project-warp-stop {
-  position: relative;
-  inset: auto;
-  width: auto;
-  overflow: hidden;
-  padding: 0 20px 20px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--bg-card);
-  opacity: 1;
-  transform: none;
-}
-.project-warp[data-mode='static'] .project-warp-cover { display: block; width: calc(100% + 40px); aspect-ratio: 16 / 9; margin: 0 -20px 16px; object-fit: cover; }
-.project-warp[data-mode='static'] .project-warp-index { display: none; }
-.project-warp[data-mode='static'] .project-warp-meta { color: var(--accent); }
-.project-warp[data-mode='static'] .project-warp-stop h3 { color: var(--text-primary); font-size: 20px; clip-path: none; text-shadow: none; }
-.project-warp[data-mode='static'] .project-warp-blurb { color: var(--text-secondary); font-size: 14px; }
-.project-warp[data-mode='static'] .project-warp-tags li { border-color: transparent; background: var(--accent-dim); color: var(--accent); }
+/* ── Static: without WebGL or with reduced motion the list below is the whole story ── */
+.project-warp[data-mode='static'] { display: none; }
+/* Hidden from first paint, so arriving at /work#project never has the tunnel vanish above it. */
+@media (prefers-reduced-motion: reduce) { .project-warp { display: none; } }

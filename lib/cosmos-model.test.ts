@@ -1,8 +1,9 @@
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 import { WORLD_SECTORS } from '@/components/world/world-data'
+import { SHOWCASE_SLOTS } from './project-showcase'
 
-/** The JSON chunk of a model in public/models, built by tools/blender/build_cosmos.py. */
+/** The JSON chunk of a model in public/models, built by the scripts in tools/blender. */
 function readGlb(name = 'cosmos.glb') {
   const file = readFileSync(new URL(`../public/models/${name}`, import.meta.url))
   expect(file.toString('ascii', 0, 4)).toBe('glTF')
@@ -52,5 +53,27 @@ describe('menu bar logo model', () => {
     expect(glb.nodes.map(node => node.name).sort()).toEqual(['LogoMark', 'MarkBottom', 'MarkTop'])
     expect(glb.animations ?? []).toHaveLength(0)
     expect(glb.materials.map(material => material.name)).toEqual(['Logo'])
+  })
+})
+
+describe('featured projects showcase model', () => {
+  const glb = readGlb('showcase.glb')
+  const names = glb.nodes.map(node => node.name)
+
+  it('holds a monolith with a cover screen for every slot, and the 3D S crowning them', () => {
+    for (let index = 0; index < SHOWCASE_SLOTS; index++) {
+      expect(names).toEqual(expect.arrayContaining([`Monolith_${index}`, `Screen_${index}`, `EnergyRing_${index}`, `Beam_${index}`]))
+      expect(glb.materials.map(material => material.name)).toContain(`Screen_${index}`)
+    }
+    expect(names).toEqual(expect.arrayContaining(['Crown', 'CrownTop', 'CrownBottom']))
+  })
+
+  it('animates in one loop, leaving the code-driven parts unkeyed', () => {
+    expect(glb.animations).toHaveLength(1)
+    const animated = new Set(glb.animations![0].channels.map(channel => names[channel.target.node]))
+    for (const name of ['CrownSpin', 'CrownTop', 'Hover_0', 'Crystal_2']) expect(animated).toContain(name)
+    for (const name of ['Crown', ...Array.from({ length: SHOWCASE_SLOTS }, (_, index) => `Monolith_${index}`)]) {
+      expect(animated).not.toContain(name)
+    }
   })
 })

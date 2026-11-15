@@ -18,12 +18,13 @@ export type WarpProject = {
 }
 
 /**
- * Featured projects as a flight through space: scrolling the section moves a
- * camera down a tunnel, each project materialises as a holographic portal, and
- * its story appears beside it. Without WebGL, or with reduced motion, the same
- * stops render as a plain list of cards.
+ * The Work page's flight through space: scrolling the section moves a camera
+ * down a tunnel, each project materialises as a holographic portal, and its
+ * story appears beside it. A skip link jumps straight to the plain list
+ * (`listId`) below. Without WebGL, or with reduced motion, the warp steps aside
+ * entirely, since that list already holds every project.
  */
-export function ProjectWarp({ projects }: { projects: WarpProject[] }) {
+export function ProjectWarp({ projects, listId }: { projects: WarpProject[]; listId: string }) {
   const trackRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const stopsRef = useRef<(HTMLLIElement | null)[]>([])
@@ -39,9 +40,10 @@ export function ProjectWarp({ projects }: { projects: WarpProject[] }) {
     let disposed = false
     let cleanup = () => {}
 
-    import('./warp-engine').then(({ createWarpEngine }) => {
+    // Decide before downloading three.js, so reduced motion never waits on it.
+    const load = reduce.matches ? Promise.reject(new Error('reduced motion')) : import('./warp-engine')
+    load.then(({ createWarpEngine }) => {
       if (disposed) return
-      if (reduce.matches) { setMode('static'); return }
       let engine: ReturnType<typeof createWarpEngine>
       try {
         const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#607EBC'
@@ -98,13 +100,13 @@ export function ProjectWarp({ projects }: { projects: WarpProject[] }) {
   }
 
   return (
-    <section className="project-warp" data-mode={mode} aria-labelledby="featured-projects">
+    <section className="project-warp" data-mode={mode} aria-labelledby="project-warp-title">
       <div className="project-warp-heading">
         <div>
-          <p className="project-warp-kicker">Selected work · {String(count).padStart(2, '0')} stops</p>
-          <h2 id="featured-projects">Featured Projects</h2>
+          <p className="project-warp-kicker">Warp tour · {String(count).padStart(2, '0')} stops</p>
+          <h2 id="project-warp-title">Fly through the work</h2>
         </div>
-        <Link href="/work">View all →</Link>
+        <a href={`#${listId}`}>Skip to the list ↓</a>
       </div>
       <div ref={trackRef} className="project-warp-track" style={{ '--count': count } as React.CSSProperties}>
         <div className="project-warp-viewport">
@@ -118,10 +120,6 @@ export function ProjectWarp({ projects }: { projects: WarpProject[] }) {
                 data-side={index % 2 === 0 ? 'left' : 'right'}
                 aria-current={mode === 'warp' && active === index ? 'step' : undefined}
               >
-                {project.cover && (
-                  // eslint-disable-next-line @next/next/no-img-element -- already an optimised URL from getImageProps
-                  <img className="project-warp-cover" src={project.cover} alt="" loading="lazy" decoding="async" />
-                )}
                 <span className="project-warp-index" aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
                 <p className="project-warp-meta">{project.category ?? 'Project'} · {project.year}</p>
                 <h3>{project.title}</h3>
@@ -148,6 +146,7 @@ export function ProjectWarp({ projects }: { projects: WarpProject[] }) {
                 </li>
               ))}
             </ol>
+            <a className="project-warp-skip" href={`#${listId}`}>Skip to the list ↓</a>
           </nav>
         </div>
       </div>

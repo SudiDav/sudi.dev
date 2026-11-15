@@ -104,10 +104,10 @@ def smooth_primitive(obj):
     return obj
 
 
-def sphere(name, radius, parent, mat, location=(0, 0, 0)):
+def sphere(name, radius, parent, mat, location=(0, 0, 0), segments=(32, 16)):
     mesh = bpy.data.meshes.new(name)
     bm = bmesh.new()
-    bmesh.ops.create_uvsphere(bm, u_segments=32, v_segments=16, radius=radius)
+    bmesh.ops.create_uvsphere(bm, u_segments=segments[0], v_segments=segments[1], radius=radius)
     bm.to_mesh(mesh)
     bm.free()
     return smooth_primitive(mesh_object(name, mesh, parent, mat, location))
@@ -269,7 +269,7 @@ def build_universe():
     points('Starfield', shell)
 
 
-def render_stars(mat):
+def render_stars(mat, names=('Galaxy', 'Starfield'), radius=0.035):
     """Point clouds don't render in Blender; instance tiny spheres on them for preview only."""
     tree = bpy.data.node_groups.new('StarPoints', 'GeometryNodeTree')
     tree.interface.new_socket('Geometry', in_out='INPUT', socket_type='NodeSocketGeometry')
@@ -277,13 +277,13 @@ def render_stars(mat):
     nodes, links = tree.nodes, tree.links
     source, result = nodes.new('NodeGroupInput'), nodes.new('NodeGroupOutput')
     to_points = nodes.new('GeometryNodeMeshToPoints')
-    to_points.inputs['Radius'].default_value = 0.035
+    to_points.inputs['Radius'].default_value = radius
     shade = nodes.new('GeometryNodeSetMaterial')
     shade.inputs['Material'].default_value = mat
     links.new(source.outputs[0], to_points.inputs['Mesh'])
     links.new(to_points.outputs[0], shade.inputs['Geometry'])
     links.new(shade.outputs[0], result.inputs[0])
-    for name in ('Galaxy', 'Starfield'):
+    for name in names:
         bpy.data.objects[name].modifiers.new('StarPoints', 'NODES').node_group = tree
 
 
@@ -358,4 +358,5 @@ def main():
         bpy.ops.wm.save_as_mainfile(filepath=args[args.index('--blend') + 1])
 
 
-main()
+if __name__ == '__main__':
+    main()

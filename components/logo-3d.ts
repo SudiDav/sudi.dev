@@ -12,9 +12,10 @@ const easeOutBack = (t: number) => 1 + 2.70158 * (t - 1) ** 3 + 1.70158 * (t - 1
  * The menu bar's S-mark as a real 3D object (public/models/logo.glb, built in
  * Blender). It renders only while something moves: it leans toward the
  * pointer, and spins with its halves splitting apart when the link is hovered
- * or focused. Reduced motion draws one still frame.
+ * or focused. Reduced motion draws one still frame. `onLost` fires if the GPU
+ * context goes, so the flat PNG can take over again.
  */
-export async function createLogo3d(canvas: HTMLCanvasElement) {
+export async function createLogo3d(canvas: HTMLCanvasElement, onLost: () => void) {
   const gltf = await new GLTFLoader().loadAsync('/models/logo.glb')
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true })
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
@@ -117,11 +118,20 @@ export async function createLogo3d(canvas: HTMLCanvasElement) {
 
   function resize() {
     const { width, height } = canvas.getBoundingClientRect()
-    if (!width || !height) return
+    if (disposed || !width || !height) return
     renderer.setSize(width, height, false)
     camera.aspect = width / height
     camera.updateProjectionMatrix()
+    // setSize clears the canvas; draw now, even in a background tab, so the
+    // PNG's S is never hidden behind an empty canvas.
+    render(performance.now())
     wake()
+  }
+
+  function contextLost() {
+    disposed = true
+    cancelAnimationFrame(frame)
+    onLost()
   }
 
   const sizer = new ResizeObserver(resize)
@@ -129,6 +139,8 @@ export async function createLogo3d(canvas: HTMLCanvasElement) {
   window.addEventListener('pointermove', pointerMove, { passive: true })
   link?.addEventListener('pointerenter', spin)
   link?.addEventListener('focus', spin)
+  document.addEventListener('visibilitychange', wake)
+  canvas.addEventListener('webglcontextlost', contextLost)
   resize()
 
   return {
@@ -139,6 +151,8 @@ export async function createLogo3d(canvas: HTMLCanvasElement) {
       window.removeEventListener('pointermove', pointerMove)
       link?.removeEventListener('pointerenter', spin)
       link?.removeEventListener('focus', spin)
+      document.removeEventListener('visibilitychange', wake)
+      canvas.removeEventListener('webglcontextlost', contextLost)
       mark.traverse(object => {
         if (object instanceof THREE.Mesh) {
           object.geometry.dispose()

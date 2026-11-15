@@ -6,10 +6,12 @@ import { PageIntro } from '@/components/page-intro'
 import { FilterBar } from '@/components/filter-bar'
 import { WorkProjectCard } from '@/components/work-project-card'
 import { CompanyShowcase } from '@/components/company-showcase'
+import { ProjectWarp } from '@/components/project-warp/project-warp'
 import { PAGE_GUTTER } from '@/components/layout'
 import { getProjects } from '@/lib/content'
 import type { Project } from '@/lib/content.types'
 import { filterProjects, PROJECT_FILTERS } from '@/lib/filters'
+import { coverTexture } from '@/lib/cover-texture'
 
 export const metadata: Metadata = {
   title: 'Work | Sudi M. David',
@@ -64,6 +66,18 @@ export default async function WorkPage({
   // The stat row describes the whole portfolio, so it counts every project
   // rather than the filtered view.
   const stats = buildStats(allProjects, new Date().getFullYear())
+  // The warp tours every project whatever the filter: it stays put above the
+  // pills, so changing filter (which keeps the scroll position) never shifts
+  // the list under the visitor.
+  const warpProjects = allProjects.map(({ slug, title, shortDescription, description, cover, tech, year, category }) => ({
+    slug,
+    title,
+    blurb: shortDescription ?? description,
+    cover: cover ? coverTexture(cover) : undefined,
+    tech,
+    year,
+    category,
+  }))
 
   return (
     <div className="flex min-h-screen flex-col bg-bg-primary">
@@ -92,8 +106,10 @@ export default async function WorkPage({
           </div>
         </PageIntro>
 
+        {warpProjects.length > 0 && <ProjectWarp projects={warpProjects} listId="all-projects" />}
+
         {/* Filters — ROW, padding [0,120], gap 8 */}
-        <div className={PAGE_GUTTER}>
+        <div id="all-projects" className={`scroll-mt-20 ${PAGE_GUTTER}`}>
           <FilterBar
             options={PROJECT_FILTERS}
             active={active}

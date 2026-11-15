@@ -18,7 +18,7 @@ export function LogoMark() {
     let disposed = false
     let engine: { dispose(): void } | null = null
     import('./logo-3d')
-      .then(({ createLogo3d }) => (canvas.current ? createLogo3d(canvas.current) : null))
+      .then(({ createLogo3d }) => (canvas.current ? createLogo3d(canvas.current, () => setReady(false)) : null))
       .then(created => {
         if (!created) return
         if (disposed) created.dispose()

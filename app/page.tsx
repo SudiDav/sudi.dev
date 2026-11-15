@@ -1,4 +1,4 @@
-import Image, { getImageProps } from 'next/image'
+import Image from 'next/image'
 import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import {
@@ -10,13 +10,14 @@ import {
 import { OutboundLink } from '@/components/outbound-link'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
-import { ProjectWarp } from '@/components/project-warp/project-warp'
+import { ProjectShowcase } from '@/components/project-showcase/project-showcase'
 import { ArticleItem } from '@/components/article-item'
 import { TechBadge } from '@/components/tech-badge'
 import { PortfolioWorld } from '@/components/world/portfolio-world'
 import { PhilosophicalIdentity } from '@/components/philosophical-identity'
 import { getPublishedPosts, getProjects } from '@/lib/content'
 import { getSettings, socialUrl } from '@/lib/site'
+import { coverTexture } from '@/lib/cover-texture'
 
 /** Design: Sidebar → "Tech Stack", three rows of badges. */
 const TECH_ROWS = [
@@ -39,13 +40,14 @@ export default async function HomePage() {
       { kind: 'instagram' as const, label: 'Instagram', Icon: InstagramIcon },
     ] as const
   ).filter(({ kind }) => Boolean(settings.social[kind]))
-  // Every project is a stop on the warp; covers go through the image optimiser
-  // because several originals are megabytes, far too large for a GPU texture.
-  const warpProjects = projects.map(({ slug, title, shortDescription, description, cover, tech, year, category }) => ({
+  // The first three projects stand on the showcase's monoliths. Covers go
+  // through the image optimiser: several originals are megabytes, far too
+  // large for a GPU texture.
+  const featuredProjects = projects.slice(0, 3).map(({ slug, title, shortDescription, description, cover, tech, year, category }) => ({
     slug,
     title,
     blurb: shortDescription ?? description,
-    cover: cover ? getImageProps({ src: cover, alt: '', width: 768, height: 432, quality: 70 }).props.src : undefined,
+    cover: cover ? coverTexture(cover) : undefined,
     tech,
     year,
     category,
@@ -87,7 +89,7 @@ export default async function HomePage() {
           <PortfolioWorld />
         </section>
 
-        <ProjectWarp projects={warpProjects} />
+        <ProjectShowcase projects={featuredProjects} />
 
         {/* Content Area — ROW, padding [0,48], gap 48 */}
         <div id="portfolio" className="flex scroll-mt-8 flex-col gap-12 px-4 md:px-6 lg:flex-row lg:px-12">
