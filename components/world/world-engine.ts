@@ -254,14 +254,19 @@ export function createWorldEngine(canvas: HTMLCanvasElement, cosmos: GLTF, optio
     } else schedule()
   }
 
+  /** Stop every automatic motion at its resting pose: the intro, a tap's bounce and the float. */
+  function settle() {
+    impulseStarted = null
+    introStarted = null
+    applyIntro(cosmosIntro(Infinity))
+    model.processor.scale.setScalar(1)
+    model.processor.position.y = SYMBOL_HEIGHT
+  }
+
   function motionChanged() {
     paused = reducedMotion.matches
     if (paused) {
-      impulseStarted = null
-      introStarted = null
-      applyIntro(cosmosIntro(Infinity))
-      model.processor.scale.setScalar(1)
-      model.processor.position.y = SYMBOL_HEIGHT
+      settle()
       cancelAnimationFrame(frame)
       frame = 0
       render()
@@ -364,6 +369,8 @@ export function createWorldEngine(canvas: HTMLCanvasElement, cosmos: GLTF, optio
     },
     setPaused(value: boolean) {
       paused = value
+      // Pausing during the intro must stop it too, not let it play out.
+      if (paused) settle()
       cancelAnimationFrame(frame)
       frame = 0
       render()
