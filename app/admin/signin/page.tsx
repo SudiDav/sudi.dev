@@ -44,7 +44,7 @@ export default async function AdminSignInPage({
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-admin-bg px-6">
-      <div className="flex w-full max-w-sm flex-col gap-6 rounded-xl border border-admin-border bg-admin-card p-8">
+      <div className="flex w-full max-w-sm flex-col gap-6 rounded-2xl border border-admin-border bg-admin-card p-8">
         <div className="flex flex-col gap-2">
           <h1 className="font-display text-2xl font-bold text-admin-text">Admin</h1>
           <p className="text-[13px] text-admin-text-secondary">
@@ -53,7 +53,7 @@ export default async function AdminSignInPage({
         </div>
 
         {error ? (
-          <p className="flex items-start gap-2 rounded-lg bg-[#EF444415] p-3 text-[13px] text-admin-danger">
+          <p className="flex items-start gap-2 rounded-2xl bg-[#EF444415] p-3 text-[13px] text-admin-danger">
             <ShieldAlert size={16} className="mt-0.5 shrink-0" />
             That account isn&apos;t authorised for this site.
           </p>
@@ -67,7 +67,7 @@ export default async function AdminSignInPage({
         >
           <button
             type="submit"
-            className="inline-flex w-full items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+            className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
           >
             <GithubIcon size={16} />
             Continue with GitHub
@@ -84,7 +84,7 @@ export default async function AdminSignInPage({
           >
             <button
               type="submit"
-              className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-admin-border px-4 py-2.5 text-sm font-medium text-admin-text-secondary transition-colors hover:bg-admin-bg"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-admin-border px-4 py-2.5 text-sm font-medium text-admin-text-secondary transition-colors hover:bg-admin-bg"
             >
               Continue without GitHub (dev)
             </button>

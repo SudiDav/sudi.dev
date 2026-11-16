@@ -32,7 +32,7 @@ export function NewsletterForm() {
   }
 
   return (
-    <div className="flex flex-col gap-4 rounded-lg border border-border bg-bg-card p-6">
+    <div className="flex flex-col gap-4 rounded-2xl border border-border bg-bg-card p-6">
       <Mail size={20} className="text-accent" />
       <h2 className="font-display text-base font-bold text-text-primary">Stay Updated</h2>
       <p className="text-[13px] leading-[1.5] text-text-secondary">
@@ -56,14 +56,14 @@ export function NewsletterForm() {
             value={email}
             onChange={(event) => setEmail(event.target.value)}
             onKeyDown={(event) => event.key === 'Enter' && submit()}
-            className="rounded-md border border-border bg-bg-primary px-3.5 py-2.5 text-[13px] text-text-primary placeholder:text-text-tertiary focus:border-border-hover focus:outline-none"
+            className="rounded-full border border-border bg-bg-primary px-3.5 py-2.5 text-[13px] text-text-primary placeholder:text-text-tertiary focus:border-border-hover focus:outline-none"
           />
           {error ? <p className="text-xs text-[#EF4444]">{error}</p> : null}
           <button
             type="button"
             onClick={submit}
             disabled={pending}
-            className="rounded-md bg-accent py-2.5 text-[13px] font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="rounded-full bg-accent py-2.5 text-[13px] font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             {pending ? 'Subscribing…' : 'Subscribe'}
           </button>

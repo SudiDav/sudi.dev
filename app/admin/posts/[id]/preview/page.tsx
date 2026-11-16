@@ -32,7 +32,7 @@ export default async function AdminPostPreviewPage({
           </div>
           <Link
             href={`/admin/posts/${post.slug}/edit`}
-            className="inline-flex min-h-11 items-center rounded-md border border-border px-3.5 text-sm text-text-secondary hover:bg-bg-secondary"
+            className="inline-flex min-h-11 items-center rounded-full border border-border px-3.5 text-sm text-text-secondary hover:bg-bg-secondary"
           >
             Back to editor
           </Link>

@@ -11,6 +11,8 @@ export function PortfolioWorld() {
   const engine = useRef<WorldEngine | null>(null)
   const labels = useRef(new Map<SectorId, HTMLButtonElement>())
   const leaders = useRef(new Map<SectorId, SVGLineElement>())
+  const selfLabel = useRef<HTMLSpanElement>(null)
+  const selfLeader = useRef<SVGLineElement>(null)
   const dismissTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const [status, setStatus] = useState<'loading' | 'ready' | 'unavailable'>('loading')
   const [selected, setSelected] = useState<SectorId | null>(null)
@@ -36,13 +38,23 @@ export function PortfolioWorld() {
     const motion = window.matchMedia('(prefers-reduced-motion: reduce)')
     const motionChanged = () => setPaused(motion.matches)
     motion.addEventListener('change', motionChanged)
-    import('./world-engine').then(({ createWorldEngine }) => {
+    import('./world-engine').then(async ({ createWorldEngine, loadCosmos }) => {
+      const cosmos = await loadCosmos()
       if (disposed || !canvas.current) return
       try {
-        engine.current = createWorldEngine(canvas.current, {
-          onProject: points => {
+        engine.current = createWorldEngine(canvas.current, cosmos, {
+          onProject: (points, self) => {
             const width = canvas.current?.clientWidth ?? 0
             const height = canvas.current?.clientHeight ?? 0
+            // "I am" hangs just beneath the S at the centre.
+            const selfX = self.x * width
+            const selfY = Math.min(height - 16, self.y * height + 30)
+            selfLabel.current?.style.setProperty('left', `${selfX}px`)
+            selfLabel.current?.style.setProperty('top', `${selfY}px`)
+            selfLeader.current?.setAttribute('x1', String(selfX))
+            selfLeader.current?.setAttribute('y1', String(self.y * height + 4))
+            selfLeader.current?.setAttribute('x2', String(selfX))
+            selfLeader.current?.setAttribute('y2', String(selfY - 10))
             for (const side of [-1, 1]) {
               const group = points.filter(point => (point.x < 0.5 ? -1 : 1) === side).sort((a, b) => a.y - b.y)
               let previousY = 30
@@ -113,7 +125,7 @@ export function PortfolioWorld() {
           </div>
         )}
         <canvas ref={canvas} className="world-canvas" tabIndex={status === 'ready' ? 0 : -1}
-          aria-label="3D yin and yang symbol. Drag to rotate. Tap the symbol or press Space to bounce."
+          aria-label="3D universe: a yin and yang symbol above the Sudi logo, labelled I am, among five planets over a spiral galaxy. Drag to rotate. Tap the symbol or press Space to bounce."
           aria-describedby="world-instructions" />
         {status === 'ready' && (
           <button className="world-motion-toggle" type="button" aria-label={paused ? 'Resume ambient motion' : 'Pause ambient motion'} title={paused ? 'Resume ambient motion' : 'Pause ambient motion'} aria-pressed={paused}
@@ -121,7 +133,9 @@ export function PortfolioWorld() {
         )}
         <svg className="world-label-leaders" aria-hidden="true">
           {WORLD_SECTORS.map(item => <line key={item.id} ref={node => { if (node) leaders.current.set(item.id, node); else leaders.current.delete(item.id) }} />)}
+          <line ref={selfLeader} />
         </svg>
+        <span ref={selfLabel} className="world-self-label" aria-hidden="true">I am</span>
       <div className="world-sector-list" role="group" aria-label="Emotion to reality: a personal philosophy">
         {WORLD_SECTORS.map(item => (
           <button type="button" key={item.id} ref={node => { if (node) labels.current.set(item.id, node); else labels.current.delete(item.id) }} aria-label={item.label} aria-describedby={`reflection-${item.id}`} aria-pressed={selected === item.id}
@@ -139,7 +153,7 @@ export function PortfolioWorld() {
       </div>
       </div>
       <p id="world-instructions" className="sr-only">
-        {status === 'unavailable' ? 'A static yin and yang symbol is shown because 3D is unavailable.' : 'Drag to orbit. Tap yin and yang or press Space to bounce. Hover an orbiting world to read its reflection, or focus a label with the keyboard.'}
+        {status === 'unavailable' ? 'A static yin and yang symbol is shown because 3D is unavailable.' : 'Drag to orbit the universe. Tap yin and yang or press Space to bounce. Hover a planet to read its reflection, or focus a label with the keyboard.'}
       </p>
     </div>
   )

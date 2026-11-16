@@ -175,7 +175,7 @@ body {
 }
 
 .hero-constellation:focus-visible {
-  border-radius: 1rem;
+  border-radius: 1.5rem;
   box-shadow: 0 0 0 3px var(--accent-dim);
 }
 
@@ -183,7 +183,7 @@ body {
   position: absolute;
   inset: 10px 0;
   border: 1px solid var(--border);
-  border-radius: 1rem;
+  border-radius: 1.5rem;
   opacity: 0.38;
   background-image: linear-gradient(var(--border) 1px, transparent 1px),
     linear-gradient(90deg, var(--border) 1px, transparent 1px);
@@ -234,7 +234,7 @@ body {
   justify-content: center;
   gap: 7px;
   border: 1px solid var(--border-hover);
-  border-radius: 0.85rem;
+  border-radius: 1.25rem;
   background: var(--bg-card);
   box-shadow: 0 12px 34px #00000020, inset 0 1px 0 #ffffff08;
   transform: translate(-50%, -50%);
@@ -277,7 +277,7 @@ body {
   min-width: 82px;
   padding: 0.55rem 0.75rem;
   border: 1px solid var(--border);
-  border-radius: 0.55rem;
+  border-radius: 999px;
   background: var(--bg-card);
   color: var(--text-secondary);
   font-size: 0.65rem;

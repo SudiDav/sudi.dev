@@ -55,7 +55,7 @@ export function CoverUpload({
       />
 
       {value ? (
-        <div className="relative overflow-hidden rounded-lg border border-admin-border">
+        <div className="relative overflow-hidden rounded-2xl border border-admin-border">
           {/* Unoptimised: the file may not be deployed yet, so the optimiser
               would 404 on it until the next build. */}
           <Image
@@ -70,7 +70,7 @@ export function CoverUpload({
             type="button"
             onClick={() => onChange('')}
             aria-label="Remove cover image"
-            className="absolute top-2 right-2 rounded-lg bg-[#000000aa] p-1.5 text-white transition-opacity hover:opacity-80"
+            className="absolute top-2 right-2 rounded-full bg-[#000000aa] p-1.5 text-white transition-opacity hover:opacity-80"
           >
             <X size={14} />
           </button>
@@ -91,7 +91,7 @@ export function CoverUpload({
             if (file) send(file)
           }}
           disabled={pending}
-          className={`flex w-full flex-col items-center gap-2 rounded-lg border border-dashed px-4 py-10 text-center transition-colors ${
+          className={`flex w-full flex-col items-center gap-2 rounded-2xl border border-dashed px-4 py-10 text-center transition-colors ${
             dragging ? 'border-accent bg-accent-dim' : 'border-admin-border hover:border-accent'
           }`}
         >

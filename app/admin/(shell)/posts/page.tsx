@@ -38,13 +38,13 @@ export default async function AdminPostsPage({
   return (
     <>
       <AdminTopBar title="Posts">
-        <div className="flex items-center gap-2 rounded-lg border border-admin-border bg-admin-card px-3.5 py-2">
+        <div className="flex items-center gap-2 rounded-full border border-admin-border bg-admin-card px-3.5 py-2">
           <Search size={16} className="text-admin-text-tertiary" />
           <span className="text-[13px] text-admin-text-tertiary">Search posts...</span>
         </div>
         <Link
           href="/admin/posts/new/edit"
-          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-accent px-4 py-2 text-[13px] font-medium text-white transition-opacity hover:opacity-90"
+          className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-accent px-4 py-2 text-[13px] font-medium text-white transition-opacity hover:opacity-90"
         >
           <Plus size={16} />
           New Post
@@ -71,7 +71,7 @@ export default async function AdminPostsPage({
             >
               <span>{tab.label}</span>
               <span
-                className={`rounded-[10px] px-2 py-0.5 text-[11px] font-normal ${
+                className={`rounded-full px-2 py-0.5 text-[11px] font-normal ${
                   active ? 'bg-accent-dim text-accent' : 'bg-admin-border text-admin-text-secondary'
                 }`}
               >
@@ -84,12 +84,12 @@ export default async function AdminPostsPage({
 
       <div className="grid gap-3 lg:hidden" aria-label="Posts on small screens">
         {posts.length === 0 ? (
-          <div className="rounded-xl border border-admin-border bg-admin-card px-4 py-10 text-center text-[13px] text-admin-text-secondary">
+          <div className="rounded-2xl border border-admin-border bg-admin-card px-4 py-10 text-center text-[13px] text-admin-text-secondary">
             No {activeTab === 'All Posts' ? 'posts' : activeTab.toLowerCase()} yet.
           </div>
         ) : null}
         {posts.map((post) => (
-          <article key={post.id} className="rounded-xl border border-admin-border bg-admin-card p-4">
+          <article key={post.id} className="rounded-2xl border border-admin-border bg-admin-card p-4">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <Link
@@ -129,13 +129,13 @@ export default async function AdminPostsPage({
         ))}
       </div>
 
-      <div className="hidden overflow-x-auto rounded-xl border border-admin-border bg-admin-card lg:block">
+      <div className="hidden overflow-x-auto rounded-2xl border border-admin-border bg-admin-card lg:block">
         <table className="w-full min-w-[680px] border-collapse text-left">
           <thead>
             <tr className="bg-admin-subtle">
               <th scope="col" className="w-10 px-5 py-3">
                 <span className="sr-only">Select</span>
-                <span className="block size-4 rounded border-[1.5px] border-admin-border" />
+                <span className="block size-4 rounded-full border-[1.5px] border-admin-border" />
               </th>
               {['TITLE', 'STATUS', 'DATE', 'VIEWS', 'COMMENTS'].map((heading) => (
                 <th
@@ -164,7 +164,7 @@ export default async function AdminPostsPage({
             {posts.map((post) => (
               <tr key={post.id} className="border-t border-admin-border">
                 <td className="px-3 py-4 xl:px-5">
-                  <span className="block size-4 rounded border-[1.5px] border-admin-border" />
+                  <span className="block size-4 rounded-full border-[1.5px] border-admin-border" />
                 </td>
                 <td className="px-3 py-4 xl:px-5">
                   <div className="flex flex-col gap-0.5">

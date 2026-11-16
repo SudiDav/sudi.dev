@@ -35,7 +35,7 @@ export function SubscriberList({
       </div>
 
       {contacts.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-admin-border bg-admin-card p-10 text-center">
+        <div className="rounded-2xl border border-dashed border-admin-border bg-admin-card p-10 text-center">
           <Mail size={22} className="mx-auto text-admin-text-tertiary" />
           <p className="mt-3 text-sm text-admin-text-secondary">No subscribers yet.</p>
           <p className="mt-1 text-xs text-admin-text-tertiary">
@@ -43,7 +43,7 @@ export function SubscriberList({
           </p>
         </div>
       ) : (
-        <div className="overflow-hidden rounded-xl border border-admin-border bg-admin-card">
+        <div className="overflow-hidden rounded-2xl border border-admin-border bg-admin-card">
           <div className="grid grid-cols-[minmax(0,1fr)_auto_auto] gap-4 border-b border-admin-border px-5 py-3 text-[11px] font-medium uppercase tracking-wide text-admin-text-tertiary">
             <span>Email</span>
             <span>Status</span>
@@ -59,7 +59,7 @@ export function SubscriberList({
                 >
                   <span className="min-w-0 truncate text-admin-text">{contact.email}</span>
                   <span
-                    className={`rounded-xl px-2.5 py-1 text-[11px] font-medium capitalize ${STATUS_STYLES[status]}`}
+                    className={`rounded-full px-2.5 py-1 text-[11px] font-medium capitalize ${STATUS_STYLES[status]}`}
                   >
                     {status}
                   </span>

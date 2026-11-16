@@ -36,7 +36,7 @@ export function NewsletterList({ broadcasts }: { broadcasts: NewsletterBroadcast
 
   if (items.length === 0) {
     return (
-      <div className="rounded-xl border border-dashed border-admin-border bg-admin-card p-10 text-center">
+      <div className="rounded-2xl border border-dashed border-admin-border bg-admin-card p-10 text-center">
         <Mail size={22} className="mx-auto text-admin-text-tertiary" />
         <p className="mt-3 text-sm text-admin-text-secondary">No newsletter drafts yet.</p>
         <p className="mt-1 text-xs text-admin-text-tertiary">
@@ -49,7 +49,7 @@ export function NewsletterList({ broadcasts }: { broadcasts: NewsletterBroadcast
   return (
     <div className="flex flex-col gap-3">
       {error ? (
-        <div className="flex items-center gap-2 rounded-lg bg-[#EF444415] px-4 py-3 text-[13px] text-admin-danger">
+        <div className="flex items-center gap-2 rounded-2xl bg-[#EF444415] px-4 py-3 text-[13px] text-admin-danger">
           <TriangleAlert size={15} />
           {error}
         </div>
@@ -57,7 +57,7 @@ export function NewsletterList({ broadcasts }: { broadcasts: NewsletterBroadcast
       {items.map((broadcast) => (
         <article
           key={broadcast.id}
-          className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-admin-border bg-admin-card p-5"
+          className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-admin-border bg-admin-card p-5"
         >
           <div className="flex min-w-0 items-start gap-3">
             <Mail size={18} className="mt-0.5 shrink-0 text-accent" />
@@ -70,7 +70,7 @@ export function NewsletterList({ broadcasts }: { broadcasts: NewsletterBroadcast
           </div>
           <div className="flex items-center gap-3">
             <span
-              className={`rounded-xl px-2.5 py-1 text-[11px] font-medium uppercase ${STATUS_STYLES[broadcast.status]}`}
+              className={`rounded-full px-2.5 py-1 text-[11px] font-medium uppercase ${STATUS_STYLES[broadcast.status]}`}
             >
               {broadcast.status}
             </span>
@@ -88,7 +88,7 @@ export function NewsletterList({ broadcasts }: { broadcasts: NewsletterBroadcast
                 type="button"
                 onClick={() => send(broadcast.id)}
                 disabled={pendingId === broadcast.id}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-accent px-3 py-1.5 text-[12px] font-medium text-white hover:opacity-90 disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 rounded-full bg-accent px-3 py-1.5 text-[12px] font-medium text-white hover:opacity-90 disabled:opacity-50"
               >
                 <Send size={13} />
                 {pendingId === broadcast.id ? 'Sending…' : 'Send'}

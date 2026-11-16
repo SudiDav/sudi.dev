@@ -20,7 +20,7 @@ const TOGGLES = [
 ]
 
 const inputClass =
-  'rounded-lg border border-admin-border bg-admin-input px-3.5 py-2.5 text-[13px] text-admin-text placeholder:text-admin-text-tertiary focus:border-accent focus:outline-none'
+  'border border-admin-border bg-admin-input px-3.5 py-2.5 text-[13px] text-admin-text placeholder:text-admin-text-tertiary focus:border-accent focus:outline-none'
 
 function Field({
   label,
@@ -50,7 +50,7 @@ function Field({
           value={value}
           placeholder={placeholder}
           onChange={(event) => onChange(event.target.value)}
-          className={inputClass}
+          className={`${inputClass} rounded-2xl`}
         />
       ) : (
         <input
@@ -58,7 +58,7 @@ function Field({
           value={value}
           placeholder={placeholder}
           onChange={(event) => onChange(event.target.value)}
-          className={inputClass}
+          className={`${inputClass} rounded-full`}
         />
       )}
     </div>
@@ -150,7 +150,7 @@ export function ProjectForm({
         <div className="flex flex-wrap items-center gap-3">
           <Link
             href="/admin/projects"
-            className="rounded-lg border border-admin-border px-4 py-2 text-[13px] font-medium text-admin-text-secondary"
+            className="rounded-full border border-admin-border px-4 py-2 text-[13px] font-medium text-admin-text-secondary"
           >
             Cancel
           </Link>
@@ -158,7 +158,7 @@ export function ProjectForm({
             type="button"
             onClick={submit}
             disabled={pending || !canPublish}
-            className="rounded-lg bg-accent px-4 py-2 text-[13px] font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+            className="rounded-full bg-accent px-4 py-2 text-[13px] font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
           >
             {pending ? 'Saving…' : editing ? 'Save Changes' : 'Save & Publish'}
           </button>
@@ -166,14 +166,14 @@ export function ProjectForm({
       </div>
 
       {!canPublish ? (
-        <p className="flex items-center gap-2 rounded-lg bg-[#F59E0B15] p-3 text-[13px] text-admin-warning">
+        <p className="flex items-center gap-2 rounded-2xl bg-[#F59E0B15] p-3 text-[13px] text-admin-warning">
           <TriangleAlert size={14} />
           Saving is disabled — set GITHUB_TOKEN and GITHUB_REPO to publish from a deployed site.
         </p>
       ) : null}
 
       {error ? (
-        <p className="flex items-center gap-2 rounded-lg bg-[#EF444415] p-3 text-[13px] text-admin-danger">
+        <p className="flex items-center gap-2 rounded-2xl bg-[#EF444415] p-3 text-[13px] text-admin-danger">
           <TriangleAlert size={14} />
           {error}
         </p>
@@ -212,7 +212,7 @@ export function ProjectForm({
                   id="field-category"
                   value={category}
                   onChange={(event) => setCategory(event.target.value)}
-                  className={inputClass}
+                  className={`${inputClass} rounded-full`}
                 >
                   {PROJECT_CATEGORIES.map((option) => (
                     <option key={option} value={option}>
@@ -225,7 +225,7 @@ export function ProjectForm({
 
             <div className="flex flex-col gap-1.5">
               <span className="text-xs font-medium text-admin-text-secondary">Tech Stack</span>
-              <div className="flex flex-wrap items-center gap-2 rounded-lg border border-admin-border bg-admin-input p-2.5">
+              <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-admin-border bg-admin-input p-2.5">
                 {tech.map((item) => (
                   <span
                     key={item}
@@ -301,7 +301,7 @@ export function ProjectForm({
                   <span className="text-[13px] font-medium text-admin-text">{label}</span>
                   <span className="text-[11px] text-admin-text-tertiary">{hint}</span>
                 </div>
-                <span className="flex h-6 w-11 items-center justify-end rounded-xl bg-accent p-[3px]">
+                <span className="flex h-6 w-11 items-center justify-end rounded-full bg-accent p-[3px]">
                   <span className="size-[18px] rounded-full bg-admin-knob" />
                 </span>
               </div>
