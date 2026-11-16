@@ -63,15 +63,15 @@ bulge = [(4.5 + abs(gauss(0, 3.2)), uniform(0, TAU), gauss(0, 0.35))
 
 Here is the part I am most happy with. Fixing the bug was not enough. I wanted a test that would fail if anyone, including me, ever broke the symmetry again.
 
-A `.glb` file is just bytes: some JSON describing the scene, then a binary chunk with the actual positions. So the test opens the file, reads every star of the galaxy, turns each one a quarter turn and checks that a star already sits there:
+A `.glb` file is just bytes: some JSON describing the scene, then a binary chunk with the actual positions. So the test opens the file, reads every star of the galaxy, turns the whole set a quarter turn (the same way for every star) and checks that each one lands on a star that is already there, allowing a tiny tolerance for rounding:
 
 ```ts
 const points = readPoints('Galaxy')
-const stars = new Set(points.map(key))
-const unmatched = points.filter(([x, y, z]) =>
-  !stars.has(key([z, y, -x])) && !stars.has(key([-z, y, x])))
-expect(unmatched).toHaveLength(0)
+// Turn every star the same quarter turn; each must land on an existing star.
+expect(unmatchedAfterQuarterTurn(points)).toHaveLength(0)
 ```
+
+The "same way for every star" part matters. My first version let each star match a neighbour in either direction, and an automated reviewer pointed out that two stars can pass that check by pointing at each other while the set as a whole still changes. So there is a second, tiny test that feeds it exactly that trick and expects it to be caught.
 
 Before the fix, this test found 2,400 unmatched stars. After it, zero.
 
