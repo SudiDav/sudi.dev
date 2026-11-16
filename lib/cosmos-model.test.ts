@@ -34,6 +34,28 @@ function readPoints(name: string) {
     [0, 1, 2].map(axis => file.readFloatLE(start + i * stride + axis * 4)) as [number, number, number])
 }
 
+/**
+ * The points that land on no other point when the whole set turns a quarter about Y, the
+ * same way for every point. Matches allow a small tolerance for float rounding.
+ */
+function unmatchedAfterQuarterTurn(points: [number, number, number][], tolerance = 1e-3) {
+  const cell = (value: number) => Math.round(value / tolerance)
+  const grid = new Map<string, [number, number, number][]>()
+  for (const point of points) {
+    const key = point.map(cell).join()
+    grid.set(key, [...(grid.get(key) ?? []), point])
+  }
+  const has = (target: [number, number, number]) => {
+    const [cx, cy, cz] = target.map(cell)
+    for (const dx of [-1, 0, 1]) for (const dy of [-1, 0, 1]) for (const dz of [-1, 0, 1]) {
+      const near = grid.get([cx + dx, cy + dy, cz + dz].join()) ?? []
+      if (near.some(point => point.every((value, axis) => Math.abs(value - target[axis]) <= tolerance))) return true
+    }
+    return false
+  }
+  return points.filter(([x, y, z]) => !has([z, y, -x]))
+}
+
 /** Names in the model matching any of these patterns, which a minimal scene must not contain. */
 function decoration(names: string[], patterns: RegExp[]) {
   return names.filter(name => patterns.some(pattern => pattern.test(name)))
@@ -54,14 +76,16 @@ describe('Blender cosmos model', () => {
     expect(decoration(names, [/^LogoOrbit/, /^Gyro/, /_Moon/, /_Ring$/])).toEqual([])
   })
 
-  it('turns the galaxy a quarter per loop, so every star, core included, must match itself a quarter turn on', () => {
-    // The loop spins the galaxy about its vertical axis (three's Y) by a quarter turn; the
-    // clip only repeats seamlessly if that rotation maps the star set onto itself.
-    const key = ([x, y, z]: [number, number, number]) => [x, y, z].map(value => value.toFixed(2)).join()
-    const points = readPoints('Galaxy')
-    const stars = new Set(points.map(key))
-    const unmatched = points.filter(([x, y, z]) => !stars.has(key([z, y, -x])) && !stars.has(key([-z, y, x])))
-    expect(unmatched).toHaveLength(0)
+  it('turns the galaxy a quarter per loop, so the whole star set, core included, must match itself a quarter turn on', () => {
+    // The loop turns the galaxy a quarter about its vertical axis (three's Y). The clip only
+    // repeats seamlessly if that one rotation, applied to every star, maps the set onto itself.
+    expect(unmatchedAfterQuarterTurn(readPoints('Galaxy'))).toHaveLength(0)
+  })
+
+  it('rejects a star set where each star matches only in its own direction', () => {
+    // Each star has a neighbour a quarter turn away, but in opposite directions, so turning
+    // the whole set one way does not map it onto itself.
+    expect(unmatchedAfterQuarterTurn([[1, 2, 3], [3, 2, -1]])).toHaveLength(1)
   })
 
   it('keys one seamless loop on every frame, leaving the code-driven parts unkeyed', () => {
