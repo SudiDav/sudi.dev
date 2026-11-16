@@ -71,7 +71,7 @@ export function ThemePicker() {
     <div
       role="radiogroup"
       aria-label="Colour theme"
-      className="flex w-fit items-center gap-1 rounded-lg border border-admin-border bg-admin-subtle p-1"
+      className="flex w-fit items-center gap-1 rounded-full border border-admin-border bg-admin-subtle p-1"
     >
       {OPTIONS.map(({ value, label, Icon }) => {
         const selected = preference === value
@@ -82,7 +82,7 @@ export function ThemePicker() {
             role="radio"
             aria-checked={selected}
             onClick={() => choose(value)}
-            className={`inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 text-[13px] font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
+            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[13px] font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent ${
               selected
                 ? 'bg-admin-card text-admin-text shadow-[0_1px_2px_#0000000f]'
                 : 'text-admin-text-secondary hover:text-admin-text'

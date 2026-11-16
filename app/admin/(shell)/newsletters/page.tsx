@@ -19,7 +19,7 @@ export default async function AdminNewslettersPage() {
         {subscriberResult.ok ? (
           <SubscriberList contacts={subscriberResult.contacts} hasMore={subscriberResult.hasMore} />
         ) : (
-          <div className="rounded-lg bg-[#EF444415] px-4 py-3 text-[13px] text-admin-danger">
+          <div className="rounded-2xl bg-[#EF444415] px-4 py-3 text-[13px] text-admin-danger">
             Could not load subscribers: {subscriberResult.error}
           </div>
         )}
@@ -31,7 +31,7 @@ export default async function AdminNewslettersPage() {
           {newsletterResult.ok ? (
             <NewsletterList broadcasts={newsletterResult.broadcasts} />
           ) : (
-            <div className="rounded-lg bg-[#EF444415] px-4 py-3 text-[13px] text-admin-danger">
+            <div className="rounded-2xl bg-[#EF444415] px-4 py-3 text-[13px] text-admin-danger">
               Could not load broadcasts: {newsletterResult.error}
             </div>
           )}

@@ -8,11 +8,18 @@
 .world-atmosphere { position: absolute; inset: 12% 0 0; pointer-events: none; background: radial-gradient(ellipse at 50% 42%, var(--accent-dim), transparent 62%); }
 .world-atmosphere::after { content: ''; position: absolute; inset: 8% 0; background-image: radial-gradient(var(--accent) .7px, transparent .7px); background-size: 25px 25px; opacity: .12; mask-image: radial-gradient(ellipse, #000 15%, transparent 65%); }
 .world-canvas { display: block; position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: grab; }
+/* The galaxy fades into the page rather than stopping at the canvas edge. */
+.world-canvas {
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 20%, #000 80%, transparent), linear-gradient(to bottom, transparent, #000 6%, #000 70%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image: linear-gradient(to right, transparent, #000 20%, #000 80%, transparent), linear-gradient(to bottom, transparent, #000 6%, #000 70%, transparent);
+  mask-composite: intersect;
+}
 [data-ready='true'] .world-canvas { opacity: 1; }
 .world-canvas:active { cursor: grabbing; }
 .world-canvas:focus-visible { outline: none; }
 .portfolio-world:has(.world-canvas:focus-visible) .world-sector-list { text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 5px; }
-.world-motion-toggle { position: absolute; top: 8px; right: 20px; display: grid; place-items: center; width: 44px; height: 44px; color: var(--text-secondary); cursor: pointer; }
+.world-motion-toggle { position: absolute; top: 8px; right: 20px; display: grid; place-items: center; width: 44px; height: 44px; border-radius: 999px; color: var(--text-secondary); cursor: pointer; }
 .world-motion-toggle:hover { color: var(--accent); }
 .world-sector-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 16px; position: absolute; bottom: 0; left: 0; right: 0; }
 .world-sector-list button { position: relative; color: var(--text-secondary); font: 11px/1.5 var(--font-mono); padding: 7px 8px; cursor: pointer; white-space: nowrap; }
@@ -22,6 +29,9 @@
 .world-label-leaders { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; visibility: hidden; }
 [data-ready='true'] .world-label-leaders { visibility: visible; }
 .world-label-leaders line { stroke: var(--accent); stroke-width: .6; opacity: .4; }
+/* The centre of the five reflections: the S, and the self it stands for. */
+.world-self-label { position: absolute; z-index: 2; translate: -50% -50%; padding: 3px 10px; border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent); border-radius: 999px; background: color-mix(in srgb, var(--bg-primary) 70%, transparent); color: var(--accent); font: 600 12px/1.4 var(--font-mono); letter-spacing: 1.5px; white-space: nowrap; pointer-events: none; visibility: hidden; backdrop-filter: blur(6px); }
+[data-ready='true'] .world-self-label { visibility: visible; }
 .world-fallback { position: absolute; inset: 0; display: grid; place-items: center; overflow: hidden; }
 .world-fallback-symbol { width: 210px; color: var(--accent); transform: rotate(-15deg); filter: drop-shadow(0 15px 20px var(--accent-dim)); }
 @media (min-width: 1440px) { .world-viewport { height: 470px; } }
@@ -33,6 +43,6 @@
 @media (max-width: 600px) { .world-sector-list button { font-size: 10px; } }
 
 .world-sector-list button:has(.world-explanation:not([hidden])) { z-index: 3; }
-.world-explanation { position: absolute; bottom: 100%; left: 0; width: 220px; max-width: calc(100vw - 40px); padding: 13px 15px; border-radius: 8px; background: var(--bg-secondary); box-shadow: 0 8px 28px #00000020; color: var(--text-primary); font: 12px/1.65 var(--font-body, sans-serif); text-align: left; text-shadow: none; white-space: normal; cursor: default; }
+.world-explanation { position: absolute; bottom: 100%; left: 0; width: 220px; max-width: calc(100vw - 40px); padding: 13px 15px; border-radius: 16px; background: var(--bg-secondary); box-shadow: 0 8px 28px #00000020; color: var(--text-primary); font: 12px/1.65 var(--font-body, sans-serif); text-align: left; text-shadow: none; white-space: normal; cursor: default; }
 [data-side='right'] .world-explanation { left: auto; right: 0; }
 @media (hover: none) { .world-explanation { pointer-events: none; } }

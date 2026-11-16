@@ -32,11 +32,11 @@ export function AdminTopBar({
       >
         {children ?? (
           <>
-            <div className="flex min-h-11 items-center gap-2 rounded-lg border border-admin-border bg-admin-card px-3.5 py-2">
+            <div className="flex min-h-11 items-center gap-2 rounded-full border border-admin-border bg-admin-card px-3.5 py-2">
               <Search size={16} className="text-admin-text-tertiary" />
               <span className="text-[13px] text-admin-text-tertiary">Search...</span>
             </div>
-            <span className="flex size-11 items-center justify-center rounded-lg border border-admin-border bg-admin-card">
+            <span className="flex size-11 items-center justify-center rounded-full border border-admin-border bg-admin-card">
               <Bell size={18} className="text-admin-text-secondary" />
             </span>
           </>
@@ -67,7 +67,7 @@ export function StatCard({
   trendTone?: 'success' | 'accent'
 }) {
   return (
-    <div className="flex min-w-0 flex-col gap-3 rounded-xl border border-admin-border bg-admin-card p-5 sm:p-6">
+    <div className="flex min-w-0 flex-col gap-3 rounded-2xl border border-admin-border bg-admin-card p-5 sm:p-6">
       <div className="flex items-center justify-between">
         <span className="text-[13px] text-admin-text-secondary">{label}</span>
         <Icon size={18} className="text-admin-text-tertiary" />
@@ -103,7 +103,7 @@ export function StatusBadge({ status }: { status: AdminPostStatus }) {
   const style = STATUS_STYLES[status]
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-xl px-2.5 py-1 text-xs font-medium ${style.wrap}`}
+      className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${style.wrap}`}
     >
       <span className={`size-1.5 rounded-full ${style.dot}`} />
       {status}
@@ -125,7 +125,7 @@ export function AdminCard({
 }) {
   return (
     <section
-      className={`flex min-w-0 flex-col gap-5 rounded-xl border border-admin-border bg-admin-card p-4 sm:p-6 ${className}`}
+      className={`flex min-w-0 flex-col gap-5 rounded-2xl border border-admin-border bg-admin-card p-4 sm:p-6 ${className}`}
     >
       {title ? (
         <div className="flex items-center justify-between gap-3">

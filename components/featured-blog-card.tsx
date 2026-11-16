@@ -15,7 +15,7 @@ export function FeaturedBlogCard({ post }: { post: Post }) {
   return (
     <Link
       href={`/blog/${post.slug}`}
-      className="group flex flex-col overflow-hidden rounded-lg border border-border bg-bg-card shadow-[0_4px_16px_#00000015] transition-colors hover:border-border-hover md:h-80 md:flex-row"
+      className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-bg-card shadow-[0_4px_16px_#00000015] transition-colors hover:border-border-hover md:h-80 md:flex-row"
     >
       <div className="relative h-48 w-full shrink-0 bg-bg-elevated md:h-auto md:w-[380px]">
         <Image

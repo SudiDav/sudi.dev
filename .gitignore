@@ -59,3 +59,6 @@ content/comments.json
 .cloudflare/
 .wrangler/
 .dev.vars*
+
+# Python bytecode from the Blender build scripts
+__pycache__/

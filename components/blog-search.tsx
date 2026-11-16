@@ -34,7 +34,7 @@ export function BlogSearch({ query }: { query: string }) {
   }
 
   return (
-    <div className="flex w-full items-center gap-2.5 rounded-lg border border-border bg-bg-card px-4 py-2.5 focus-within:border-border-hover sm:w-[280px]">
+    <div className="flex w-full items-center gap-2.5 rounded-full border border-border bg-bg-card px-4 py-2.5 focus-within:border-border-hover sm:w-[280px]">
       <Search size={16} className="shrink-0 text-text-tertiary" />
       <input
         ref={inputRef}
