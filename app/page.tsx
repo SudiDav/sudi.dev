@@ -39,11 +39,10 @@ export default async function HomePage() {
       { kind: 'instagram' as const, label: 'Instagram', Icon: InstagramIcon },
     ] as const
   ).filter(({ kind }) => Boolean(settings.social[kind]))
-  const featuredProjects = projects.slice(0, 3).map(({ slug, title, shortDescription, description, cover, tech, year, category }) => ({
+  const featuredProjects = projects.slice(0, 3).map(({ slug, title, shortDescription, description, tech, year, category }) => ({
     slug,
     title,
     blurb: shortDescription ?? description,
-    cover,
     tech,
     year,
     category,

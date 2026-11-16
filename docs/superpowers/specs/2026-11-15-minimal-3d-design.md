@@ -26,7 +26,9 @@ projects and the name.
     reflections turn around.
   - **Removed:** the gyroscope rings, the planets' moons and rings, the orbiting
     S, and the ground rings and wave contours.
-- **Featured Projects:** cards only, no 3D. The Blender showcase is removed.
+- **Featured Projects:** text cards only, no 3D and no cover images (the
+  covers were other sites' screenshots and clashed with the page). Each card
+  shows its number (01–03) in the cover's place. The Blender showcase is removed.
 - **Menu bar S:** stays 3D, with the same chrome finish as the hero S.
 - **Work page warp:**
   - **Kept:** the star streaks and the project portals.
