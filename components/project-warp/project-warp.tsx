@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { ArrowRight } from 'lucide-react'
 import { OutboundLink } from '@/components/outbound-link'
-import { activeStop, stopVisibility } from '@/lib/project-warp'
+import { activeStop, stepStop, stopVisibility, swipeStep } from '@/lib/project-warp'
 import './project-warp.css'
 
 export type WarpProject = {
@@ -21,7 +21,8 @@ export type WarpProject = {
 /**
  * The Work page's flight through space. It sits in the page like any other
  * section and scrolls with it; picking a project on the rail flies the camera
- * to that project's holographic portal, and its story fades in beside it.
+ * to that project's holographic portal, and its story fades in beside it. The
+ * arrow keys (while the tour is on screen) and a sideways swipe step along it.
  * While it runs it is the page's only project list (the plain list below is
  * hidden by CSS). Without WebGL, or with reduced motion, the warp steps aside
  * and the plain list takes its place.
@@ -34,6 +35,7 @@ export function ProjectWarp({ projects }: { projects: WarpProject[] }) {
   const [mode, setMode] = useState<'pending' | 'warp' | 'static'>('pending')
   /** The picked project (the rail), and the one the camera is nearest (the story). */
   const [picked, setPicked] = useState(0)
+  const pickedRef = useRef(0)
   const [shown, setShown] = useState(0)
   const count = projects.length
 
@@ -70,16 +72,61 @@ export function ProjectWarp({ projects }: { projects: WarpProject[] }) {
       const found = projects.findIndex(project => `#${project.slug}` === window.location.hash)
       const start = Math.max(0, found)
       engine.jump(start)
+      pickedRef.current = start
       setPicked(start)
       // The browser may have scrolled to that project's card in the plain list, which is now hidden.
       if (found >= 0) section.scrollIntoView()
       engineRef.current = engine
-      const observer = new IntersectionObserver(([entry]) => engine.setVisible(entry.isIntersecting))
+      const observer = new IntersectionObserver(entries => engine.setVisible(entries[entries.length - 1].isIntersecting))
       observer.observe(section)
+      const step = (delta: number) => {
+        const index = stepStop(pickedRef.current, delta, count)
+        pickedRef.current = index
+        setPicked(index)
+        engine.setTime(index)
+        // Focus inside the tour (a story's link or a rail dot) follows to the picked project's
+        // dot, so it never stays on a story that has faded out.
+        if (section.contains(document.activeElement)) {
+          section.querySelectorAll<HTMLButtonElement>('.project-warp-rail button')[index]?.focus({ preventScroll: true })
+        }
+      }
+      // The arrow keys belong to the tour only while most of it is on screen (or, in a very
+      // short window, while it fills most of the screen).
+      const track = canvas.parentElement!
+      const onScreen = () => {
+        const box = track.getBoundingClientRect()
+        const shown = Math.min(box.bottom, window.innerHeight) - Math.max(box.top, 0)
+        return shown >= 0.5 * Math.min(box.height, window.innerHeight)
+      }
+      const onKey = (event: KeyboardEvent) => {
+        const delta = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0
+        if (!delta || event.defaultPrevented || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return
+        if ((event.target as HTMLElement | null)?.closest('input, textarea, select, [contenteditable]') || !onScreen()) return
+        event.preventDefault()
+        step(delta)
+      }
+      let touch: { x: number; y: number } | null = null
+      const onTouchStart = (event: TouchEvent) => {
+        touch = event.touches.length === 1 ? { x: event.touches[0].clientX, y: event.touches[0].clientY } : null
+      }
+      const onTouchEnd = (event: TouchEvent) => {
+        const end = event.changedTouches[0]
+        if (touch && end) {
+          const delta = swipeStep(end.clientX - touch.x, end.clientY - touch.y)
+          if (delta) step(delta)
+        }
+        touch = null
+      }
+      window.addEventListener('keydown', onKey)
+      track.addEventListener('touchstart', onTouchStart, { passive: true })
+      track.addEventListener('touchend', onTouchEnd, { passive: true })
       const leave = () => { cleanup(); setMode('static') }
       reduce.addEventListener('change', leave)
       cleanup = () => {
         observer.disconnect()
+        window.removeEventListener('keydown', onKey)
+        track.removeEventListener('touchstart', onTouchStart)
+        track.removeEventListener('touchend', onTouchEnd)
         reduce.removeEventListener('change', leave)
         engine.dispose()
         engineRef.current = null
@@ -98,6 +145,7 @@ export function ProjectWarp({ projects }: { projects: WarpProject[] }) {
 
   /** Fly to a project: from the rail, or when keyboard focus reaches its links. */
   function visit(index: number) {
+    pickedRef.current = index
     setPicked(index)
     engineRef.current?.setTime(index)
   }
@@ -168,6 +216,11 @@ export function ProjectWarp({ projects }: { projects: WarpProject[] }) {
           </nav>
         </div>
       </div>
+      {/* The rail is the way in for screen readers; this hint is for keyboard and touch. */}
+      <p className="project-warp-hint" aria-hidden="true">
+        <span className="project-warp-hint-keys"><kbd>←</kbd> <kbd>→</kbd> to move between projects</span>
+        <span className="project-warp-hint-touch">Swipe to move between projects</span>
+      </p>
     </section>
   )
 }

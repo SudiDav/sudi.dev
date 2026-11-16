@@ -7,7 +7,14 @@
 
 /* ── Warp: a window into space on the page's own background; it scrolls with the page ── */
 .project-warp-track { position: relative; height: clamp(520px, 86svh, 780px); }
-.project-warp-viewport { position: absolute; inset: 0; overflow: hidden; color: var(--text-primary); }
+.project-warp-viewport { position: absolute; inset: 0; overflow: hidden; color: var(--text-primary); touch-action: pan-y pinch-zoom; }
+.project-warp-hint { margin-top: 12px; color: var(--text-tertiary); font: 400 12px/1.4 var(--font-mono); text-align: center; }
+.project-warp-hint kbd { display: inline-block; min-width: 22px; padding: 2px 6px; border: 1px solid var(--border); border-radius: 999px; font: inherit; }
+.project-warp-hint-touch { display: none; }
+@media (hover: none) and (pointer: coarse) {
+  .project-warp-hint-keys { display: none; }
+  .project-warp-hint-touch { display: inline; }
+}
 /* The canvas is transparent and fades out at every edge, so there is no box around it. */
 .project-warp-canvas {
   position: absolute;
@@ -103,7 +110,7 @@
 }
 
 /* Until the tour runs, its stories and stepper do nothing, so keep them out of sight and out of the tab order. */
-.project-warp:not([data-mode='warp']) :is(.project-warp-stops, .project-warp-rail) { visibility: hidden; }
+.project-warp:not([data-mode='warp']) :is(.project-warp-stops, .project-warp-rail, .project-warp-hint) { visibility: hidden; }
 
 /* ── Static: without WebGL or with reduced motion the plain list is the whole story ── */
 .project-warp[data-mode='static'] { display: none; }
