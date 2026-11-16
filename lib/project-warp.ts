@@ -15,3 +15,14 @@ export function stopVisibility(time: number, index: number) {
 export function activeStop(time: number, count: number) {
   return Math.min(count - 1, Math.max(0, Math.round(time)))
 }
+
+/** The stop one step from `current` (delta -1 or 1), staying on the first or last at the ends. */
+export function stepStop(current: number, delta: number, count: number) {
+  return Math.min(count - 1, Math.max(0, current + delta))
+}
+
+/** A clear horizontal swipe is a step: left (negative dx) goes on, right goes back. */
+export function swipeStep(dx: number, dy: number) {
+  if (Math.abs(dx) < 50 || Math.abs(dx) < Math.abs(dy) * 1.5) return 0
+  return dx < 0 ? 1 : -1
+}
