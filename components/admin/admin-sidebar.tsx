@@ -84,7 +84,7 @@ function NavLinks({ pathname, onNavigate }: { pathname: string; onNavigate?: () 
             href={href}
             aria-current={active ? 'page' : undefined}
             onClick={onNavigate}
-            className={`flex min-h-11 items-center gap-3 rounded-lg px-4 py-2.5 text-sm transition-colors ${
+            className={`flex min-h-11 items-center gap-3 rounded-full px-4 py-2.5 text-sm transition-colors ${
               active
                 ? 'bg-admin-sidebar-active text-admin-sidebar-text-active'
                 : 'text-admin-sidebar-text hover:bg-admin-sidebar-hover'
@@ -152,7 +152,7 @@ export function AdminSidebar({ name, email }: { name: string; email: string }) {
             aria-haspopup="dialog"
             aria-expanded={menuOpen}
             onClick={openMenu}
-            className="flex size-11 items-center justify-center rounded-lg text-admin-sidebar-text-active transition-colors hover:bg-admin-sidebar-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            className="flex size-11 items-center justify-center rounded-full text-admin-sidebar-text-active transition-colors hover:bg-admin-sidebar-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           >
             <Menu size={22} />
           </button>
@@ -175,7 +175,7 @@ export function AdminSidebar({ name, email }: { name: string; email: string }) {
               type="button"
               aria-label="Close admin navigation"
               onClick={closeMenu}
-              className="flex size-11 items-center justify-center rounded-lg text-admin-sidebar-text-active transition-colors hover:bg-admin-sidebar-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+              className="flex size-11 items-center justify-center rounded-full text-admin-sidebar-text-active transition-colors hover:bg-admin-sidebar-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
             >
               <X size={22} />
             </button>

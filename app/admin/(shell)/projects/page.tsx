@@ -31,7 +31,7 @@ export default async function AdminProjectsPage() {
       <AdminTopBar title="Projects">
         <Link
           href="/admin/projects/new"
-          className="inline-flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-[13px] font-medium text-white transition-opacity hover:opacity-90"
+          className="inline-flex items-center gap-2 rounded-full bg-accent px-4 py-2 text-[13px] font-medium text-white transition-opacity hover:opacity-90"
         >
           <Plus size={16} />
           Add Project
@@ -42,7 +42,7 @@ export default async function AdminProjectsPage() {
         {projects.map((project) => (
           <article
             key={project.name}
-            className="flex flex-col gap-3.5 rounded-xl border border-admin-border bg-admin-card p-5"
+            className="flex flex-col gap-3.5 rounded-2xl border border-admin-border bg-admin-card p-5"
           >
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
@@ -52,7 +52,7 @@ export default async function AdminProjectsPage() {
                 </h2>
               </div>
               <span
-                className={`rounded-xl px-2.5 py-1 text-xs font-medium ${PROJECT_STATUS[project.status]}`}
+                className={`rounded-full px-2.5 py-1 text-xs font-medium ${PROJECT_STATUS[project.status]}`}
               >
                 {project.status}
               </span>

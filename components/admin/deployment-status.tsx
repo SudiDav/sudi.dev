@@ -11,7 +11,7 @@ const labels: Record<Status, string> = {
   queued: 'Deployment queued…',
   building: 'Deployment in progress…',
   ready: 'Deployment complete — changes are live.',
-  error: 'Deployment failed. The commit is safe; check Vercel for details.',
+  error: 'Deployment failed. The commit is safe; check the hosting dashboard for details.',
   unavailable: 'Deployment status is unavailable. The commit was created successfully.',
 }
 

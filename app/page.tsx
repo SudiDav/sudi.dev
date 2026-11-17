@@ -10,7 +10,7 @@ import {
 import { OutboundLink } from '@/components/outbound-link'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
-import { ProjectCard } from '@/components/project-card'
+import { FeaturedProjects } from '@/components/featured-projects/featured-projects'
 import { ArticleItem } from '@/components/article-item'
 import { TechBadge } from '@/components/tech-badge'
 import { PortfolioWorld } from '@/components/world/portfolio-world'
@@ -39,7 +39,14 @@ export default async function HomePage() {
       { kind: 'instagram' as const, label: 'Instagram', Icon: InstagramIcon },
     ] as const
   ).filter(({ kind }) => Boolean(settings.social[kind]))
-  const featuredProjects = projects.slice(0, 3)
+  const featuredProjects = projects.slice(0, 3).map(({ slug, title, shortDescription, description, tech, year, category }) => ({
+    slug,
+    title,
+    blurb: shortDescription ?? description,
+    tech,
+    year,
+    category,
+  }))
   const latestPosts = posts.slice(0, 4)
 
   return (
@@ -60,7 +67,7 @@ export default async function HomePage() {
             <div className="flex flex-wrap items-center gap-4">
               <Link
                 href="/work"
-                className="inline-flex items-center gap-2 rounded-lg bg-accent px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
               >
                 View My Work
                 <ArrowRight size={16} />
@@ -76,6 +83,8 @@ export default async function HomePage() {
           </div>
           <PortfolioWorld />
         </section>
+
+        <FeaturedProjects projects={featuredProjects} />
 
         {/* Content Area — ROW, padding [0,48], gap 48 */}
         <div id="portfolio" className="flex scroll-mt-8 flex-col gap-12 px-4 md:px-6 lg:flex-row lg:px-12">
@@ -121,7 +130,7 @@ export default async function HomePage() {
                   key={label}
                   href={socialUrl(kind, settings.social[kind] ?? '')}
                   aria-label={label}
-                  className="flex size-9 items-center justify-center rounded-lg border border-border bg-bg-card text-text-secondary transition-colors hover:border-border-hover hover:text-text-primary"
+                  className="flex size-9 items-center justify-center rounded-full border border-border bg-bg-card text-text-secondary transition-colors hover:border-border-hover hover:text-text-primary"
                 >
                   <Icon size={16} />
                 </OutboundLink>
@@ -131,22 +140,6 @@ export default async function HomePage() {
 
           {/* Main Content — COLUMN, padding [32,0,48,0], gap 48 */}
           <div className="flex flex-1 flex-col gap-12 pb-12 lg:pt-8">
-            <section className="flex flex-col gap-5">
-              <div className="flex items-center justify-between">
-                <h2 className="font-display text-2xl font-bold text-text-primary">
-                  Featured Projects
-                </h2>
-                <Link href="/work" className="text-[13px] font-medium text-accent hover:underline">
-                  View all →
-                </Link>
-              </div>
-              <div className="flex flex-col gap-4 md:flex-row">
-                {featuredProjects.map((project) => (
-                  <ProjectCard key={project.slug} project={project} />
-                ))}
-              </div>
-            </section>
-
             <section className="flex flex-col gap-1">
               <div className="flex items-center justify-between pb-4">
                 <h2 className="font-display text-2xl font-bold text-text-primary">

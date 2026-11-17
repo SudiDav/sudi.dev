@@ -64,7 +64,7 @@ function Notice({
   if (dismissed) return null
 
   return (
-    <div className="flex items-start gap-3 rounded-lg border border-admin-success/30 bg-admin-success/10 px-4 py-3">
+    <div className="flex items-start gap-3 rounded-2xl border border-admin-success/30 bg-admin-success/10 px-4 py-3">
       <CheckCircle2 size={16} className="mt-0.5 shrink-0 text-admin-success" />
       <div className="flex flex-1 flex-col gap-0.5">
         <span className="text-[13px] font-medium text-admin-text">
@@ -80,7 +80,7 @@ function Notice({
         type="button"
         onClick={() => setDismissed(true)}
         aria-label="Dismiss"
-        className="rounded p-1 text-admin-text-tertiary transition-colors hover:text-admin-text"
+        className="rounded-full p-1 text-admin-text-tertiary transition-colors hover:text-admin-text"
       >
         <X size={14} />
       </button>

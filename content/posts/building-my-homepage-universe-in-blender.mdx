@@ -1,0 +1,115 @@
+---
+title: "I Built My Homepage's Universe in Blender, With Code"
+excerpt: "A galaxy, five planets and a chrome S, built by a Python script instead of a mouse. What it taught me about treating 3D like infrastructure."
+date: "2026-11-16"
+readingTime: 7 min read
+category: Craft
+cover: /images/blog/building-my-homepage-universe.png
+featured: false
+status: Published
+tags: ["Blender", "Three.js", "WebGL"]
+---
+
+If you open my homepage, you land in a small universe. A yin-yang floats in the middle. Five planets turn around it: Energy, Emotion, Vibration, Frequency and Reality. Under it, a chrome **S** keeps turning to face you, and behind everything a spiral galaxy slowly spins.
+
+I built all of it in Blender. But I almost never touched Blender's mouse. 😂
+
+Every star, every planet and every frame of the animation comes from one Python script. This post is about why I did it that way, and what my day job in DevOps taught me about 3D.
+
+------------------------------------------------------------------------
+
+## A galaxy as code
+
+In my work, we stopped clicking servers into existence years ago. We write Terraform, we commit it, and anyone can rebuild the same environment from the repository. If something breaks, we read the diff.
+
+I wanted the same thing for my homepage. A scene I click together by hand lives in one `.blend` file on one laptop. Nobody can review it, and six months later even I won't remember why a planet sits where it does.
+
+So the whole scene is a script, `tools/blender/build_cosmos.py`, and Blender runs it without even opening a window:
+
+```bash
+/Applications/Blender.app/Contents/MacOS/Blender -b --factory-startup \
+  --python tools/blender/build_cosmos.py
+```
+
+`-b` means no interface. `--factory-startup` ignores my personal Blender settings, so the result is the same on any machine. The script builds the scene from nothing and exports `public/models/cosmos.glb`, a single file of about 700 KB that the browser loads with Three.js.
+
+One small trap on the way: Blender thinks "up" is the Z axis, while the web thinks "up" is Y. The glTF exporter converts it for you, but the first time a planet appeared where I didn't expect it, I lost an evening. Now the very top of the script says it in plain words, so the next person (probably me) doesn't lose that evening again.
+
+------------------------------------------------------------------------
+
+## One loop that never shows its seam
+
+The animation runs for 48 seconds and then starts again. The goal is that you never see the restart.
+
+The rule is simple: every moving thing has to finish a whole number of cycles in those 48 seconds. A planet that goes around once, or twice, is fine. A planet that goes around one and a half times would jump back to its start every 48 seconds, and your eye would catch it.
+
+The galaxy was the tricky one. It turns only a quarter of a circle per loop, because a full turn in 48 seconds looks like a washing machine. A quarter turn only hides the seam if the galaxy looks exactly the same after a quarter turn. So I built it with four identical arms.
+
+And then I got it wrong.
+
+The arms were symmetric, but the bright core in the middle was 2,400 stars scattered at random. Every 48 seconds, all 2,400 of them jumped back to where they started. It was subtle enough that I missed it. An automated code reviewer caught it on my pull request.
+
+The fix was to build one quarter of the core and copy it four times:
+
+```python
+bulge = [(4.5 + abs(gauss(0, 3.2)), uniform(0, TAU), gauss(0, 0.35))
+         for _ in range(600)]
+# The same 600 stars at each quarter turn, so a quarter turn maps the core onto itself.
+```
+
+------------------------------------------------------------------------
+
+## Testing a 3D model like any other output
+
+Here is the part I am most happy with. Fixing the bug was not enough. I wanted a test that would fail if anyone, including me, ever broke the symmetry again.
+
+A `.glb` file is just bytes: some JSON describing the scene, then a binary chunk with the actual positions. So the test opens the file, reads every star of the galaxy, turns the whole set a quarter turn (the same way for every star) and checks that each one lands on a star that is already there, allowing a tiny tolerance for rounding:
+
+```ts
+const points = readPoints('Galaxy')
+// Turn every star the same quarter turn; each must land on an existing star.
+expect(unmatchedAfterQuarterTurn(points)).toHaveLength(0)
+```
+
+The "same way for every star" part matters. My first version let each star match a neighbour in either direction, and an automated reviewer pointed out that two stars can pass that check by pointing at each other while the set as a whole still changes. So there is a second, tiny test that feeds it exactly that trick and expects it to be caught.
+
+Before the fix, this test found 2,400 unmatched stars. After it, zero.
+
+The same test file also checks that the scene still holds what the design promised: the yin-yang, the centred S, the five planets, and none of the busy extras I removed. The node names in the model are a contract between the Blender script and the website code, and the test guards that contract. It is the same idea as testing an API response, just with stars instead of JSON fields.
+
+------------------------------------------------------------------------
+
+## Respecting the person reading
+
+A 3D scene is a guest on the page. It should not make the page worse for anyone.
+
+**Reduced motion.** Some people turn on "reduce motion" in their system settings because animation makes them dizzy. On the homepage, the universe still appears for them, but it stands still in its resting pose. If they switch the setting on while the intro is playing, it settles straight into that pose. On the Work page, the site decides *before* downloading Three.js, so they never pay for a library they won't use.
+
+**The theme.** On the Work page, the canvas is transparent and takes its fog colour from the page's own CSS variable. When you switch between light and dark, a small observer notices the change and repaints the scene. In dark mode the stars glow; in light mode they are drawn as dark ink, because glowing white stars on a white page simply disappear.
+
+**Memory.** Graphics memory is not cleaned up for you like normal JavaScript memory. When you leave the page, every geometry, material and texture has to be released by hand. I missed one: the chrome S's reflections come from a texture generated at startup, and I was releasing the texture but not the buffer it was rendered into. Small leak, but on a site you visit page after page, small leaks add up.
+
+------------------------------------------------------------------------
+
+## The Work page: a tour, not a hijack
+
+The Work page has a second scene: you fly through space, and each project is a glowing portal with its story beside it.
+
+My first version tied the flight to the scroll bar. Scroll down, fly forward. It looked impressive for about ten seconds, and then it felt like the page had taken my scroll wheel hostage. So I changed it. The page scrolls normally, and a small numbered stepper lets you pick a project. The camera flies there, and you stay in control.
+
+There is also a quiet rule underneath: while the tour runs, it is the only project list. If the tour cannot run (no WebGL, reduced motion, or it simply hasn't loaded yet), a plain HTML list takes its place. Nobody gets an empty page.
+
+------------------------------------------------------------------------
+
+## What I would tell you
+
+If you want 3D on your site, here is what I learned:
+
+1. **Build the scene from code** if you can. You can review it, rebuild it and test it like everything else.
+2. **Make loops whole.** Every motion should finish a whole number of cycles, or the seam will show.
+3. **Test the model file.** It is just data. Read it and check what matters.
+4. **Let the 3D be an accent, not a wall.** The real content (who I am, what I built, what I write) is still plain HTML that loads fast, reads well and works for everyone.
+
+The universe on my homepage is decoration with a meaning. But the part I am proudest of is the boring part: that I can delete it, run one command, and get the exact same universe back.
+
+That is infrastructure as code. It just happens to have a galaxy in it. ✨

@@ -49,6 +49,7 @@ function repository() {
 function headers(includeToken = true) {
   const token = includeToken ? process.env.GITHUB_TOKEN : undefined
   return {
+    'User-Agent': 'sudi.dev',
     Accept: 'application/vnd.github+json',
     'X-GitHub-Api-Version': '2022-11-28',
     ...(token ? { Authorization: `Bearer ${token}` } : {}),

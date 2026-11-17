@@ -1,0 +1,26 @@
+---
+title: Bcash — Big Cash Trivia Engine
+year: "2026"
+shortDescription: The engine behind Big Cash, YDOT Games' trivia with daily cash and airtime prizes, built for KHM Technology.
+description: Consulting for KHM Technology on Bcash — the trivia engine behind YDOT Games' Big Cash, from the question flow and scoring to mobile network billing and prize payouts.
+tech: [C#, .NET, Node.js, TypeScript, PostgreSQL, SQL Server, Redis]
+category: Platforms
+cover: /images/khm-technology-6647f836.jpg
+links:
+  live: https://play.ydot.io
+---
+
+KHM Technology builds mobile services for African networks. YellowDot Africa, one of its companies, runs games and value-added services for mobile operators. PISI, another, connects those services to the operators themselves.
+
+**Big Cash** is one of those games: trivia on general knowledge, football, the Premier League and more, with daily cash and airtime prizes. Players in South Africa play it on the web at play.ydot.io, or over SMS by texting a keyword to a shortcode.
+
+I work with KHM as a consultant on **Bcash**, the trivia engine behind it.
+
+Players come from a mobile network, not an app store. The game recognises a player by their phone number, which the network passes along when it can, and asks for it when it can't. From there, everything happens inside the engine:
+
+- **Game engine**: the question flow, answer checking, scoring, and each player's session
+- **SMS and network integration**: shortcodes, subscriptions, and billing through the mobile operators
+- **Prizes and rewards**: the daily cash and airtime draws, and getting rewards paid out
+- **Player support**: onboarding and help flows, so a player who is stuck still gets back into the game
+
+Most of the work is about the player who has never seen the game before. Whether they arrive from a text message or a link, the next step has to be obvious.

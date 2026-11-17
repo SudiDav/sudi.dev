@@ -13,7 +13,7 @@
   <div class="preview-note"><span data-t="preview">Family setup preview</span><span data-t="previewDomain">stream.sudi.dev · Personal invitations coming soon</span></div>
   <div class="top"><header class="wrap">
     <a class="brand" href="#main" aria-label="Sudi Stream home"><span class="brand-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="m9 6 9 6-9 6V6Z" fill="currentColor"/><path d="M5 6v12" stroke="currentColor" stroke-width="1.5"/></svg></span><span>Sudi <span class="light">Stream</span></span></a>
-    <nav aria-label="Main navigation"><a href="#setup" data-t="navSetup">Get started</a><a href="#devices" data-t="navDevices">Your device</a><a href="#help" data-t="navHelp">Need a hand?</a><div class="language" aria-label="Language"><button type="button" data-lang="en" aria-pressed="true" aria-label="English">EN</button><button type="button" data-lang="fr" aria-pressed="false" aria-label="Français">FR</button></div></nav>
+    <nav aria-label="Main navigation"><a href="#movies" data-movie-t="nav">Movie picks</a><a href="#setup" data-t="navSetup">Get started</a><a href="#devices" data-t="navDevices">Your device</a><a href="#help" data-t="navHelp">Need a hand?</a><div class="language" aria-label="Language"><button type="button" data-lang="en" aria-pressed="true" aria-label="English">EN</button><button type="button" data-lang="fr" aria-pressed="false" aria-label="Français">FR</button></div></nav>
   </header></div>
   <main id="main" class="wrap">
     <section class="hero" aria-labelledby="hero-title">
@@ -23,6 +23,12 @@
       </div>
     </section>
     <div class="intro-strip"><p data-t="stripCopy"><strong>A simpler start.</strong> One invitation, a few easy steps, and you’re ready to explore.</p><span class="strip-symbol" data-t="stripTag">Bring the popcorn.</span></div>
+    <section id="movies" class="movies" aria-labelledby="movie-title">
+      <div class="section-head movie-heading"><div><p class="eyebrow" data-movie-t="label">Highly rated movies</p><h2 id="movie-title" data-movie-t="heading">A good story is waiting.</h2></div><p data-movie-t="intro">Movies worth making time for. IMDb scores of 7 or higher, with at least 10,000 votes.</p></div>
+      <div class="movie-status"><p id="movie-message" role="status" aria-live="polite">Finding a few good stories…</p><button id="movie-retry" class="btn secondary" type="button" data-movie-t="retry" hidden>Try again</button><p id="movie-updated"></p></div>
+      <div id="movie-grid" class="movie-grid" aria-busy="true"></div>
+      <div class="movie-credits"><p data-movie-t="scope">A selection discovered with TMDB, ranked by IMDb score. Availability depends on your streaming services.</p><p data-movie-t="credits">Movie information and ratings via OMDb. Posters and discovery from TMDB.</p><a href="https://www.themoviedb.org" target="_blank" rel="noopener noreferrer" aria-label="TMDB"><img class="tmdb-logo" src="tmdb-logo.svg" alt="TMDB" width="100" height="14"></a><p>This product uses the TMDB API but is not endorsed or certified by TMDB.</p></div>
+    </section>
     <section id="setup" aria-labelledby="setup-title"><div class="section-head"><h2 id="setup-title" data-t="setupTitle">Three steps to settle in.</h2><p data-t="setupCopy">Start here, in this order. You only need to do this once for your account.</p></div><div class="setup">
       <article class="step"><span class="step-num" aria-hidden="true">01</span><h3 data-t="step1Title">Get Stremio</h3><p data-t="step1Copy">Install the app on your device, then create your own Stremio account or sign in to the one you have.</p><a class="plain-link" href="#devices" data-t="step1Action">Find my device</a></article>
       <article class="step"><span class="step-num" aria-hidden="true">02</span><h3 data-t="step2Title">Use your invitation</h3><p data-t="step2Copy">Ask Sudi for your personal setup invitation. Invitations will connect your account to the family setup when access is ready.</p><button type="button" data-invite data-t="step2Action">Request an invitation</button></article>
@@ -40,5 +46,6 @@
   <dialog id="invite-dialog" aria-labelledby="invite-title" aria-describedby="invite-copy"><button class="dialog-close" type="button" data-close aria-label="Close">×</button><div class="dialog-icon" aria-hidden="true">✧</div><h2 id="invite-title" data-t="inviteTitle">An invitation, from Sudi.</h2><p id="invite-copy" data-t="inviteCopy">Automatic invitations are being prepared. You can email Sudi to ask about access. The button opens your email app; nothing is sent until you choose to send it.</p><a class="btn" id="contact-link" href="mailto:contact@sudi.dev?subject=Sudi%20Stream%20invitation" data-t="contactAction">Email Sudi</a><button type="button" class="btn secondary dialog-dismiss" data-close data-t="inviteAction">Close</button><span class="dialog-foot" data-t="inviteFoot">No password or API key is needed on this page.</span></dialog>
   <script src="app.js" defer></script>
   <script src="analytics.js" defer></script>
+  <script src="movies.js" defer></script>
 </body>
 </html>

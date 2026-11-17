@@ -1,0 +1,43 @@
+/* A track joins the dots (measured in JS); an accent fill grows down it as the reader scrolls. */
+.career-stepper { --career-start: 12px; --career-length: 0px; --career-fill: 0px; position: relative; list-style: none; }
+.career-stepper::before,
+.career-stepper::after {
+  content: '';
+  position: absolute;
+  top: var(--career-start);
+  left: 11.5px;
+  width: 1px;
+}
+.career-stepper::before { height: var(--career-length); background: var(--border); }
+.career-stepper::after { height: var(--career-fill); background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+
+.career-stepper-step { position: relative; display: flex; gap: 24px; }
+.career-stepper-dot {
+  position: relative;
+  z-index: 1;
+  flex: none;
+  width: 12px;
+  height: 12px;
+  margin: 6px 6px 0;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--bg-card);
+  transition: background .3s, border-color .3s, box-shadow .3s, transform .3s;
+}
+.career-stepper-step[data-reached] .career-stepper-dot { border-color: var(--accent); background: var(--accent); }
+/* The current role: a larger dot with a ring that breathes. */
+.career-stepper-step:first-child .career-stepper-dot { transform: scale(1.25); box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 22%, transparent); animation: career-stepper-pulse 2.4s ease-in-out infinite; }
+@keyframes career-stepper-pulse { 50% { box-shadow: 0 0 0 9px color-mix(in srgb, var(--accent) 8%, transparent); } }
+
+.career-stepper-body { display: flex; flex: 1; flex-direction: column; gap: 8px; padding-bottom: 32px; }
+.career-stepper-heading { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
+.career-stepper-heading h3 { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; color: var(--text-primary); font: 600 16px/1.4 var(--font-display); }
+.career-stepper-now { padding: 2px 8px; border: 1px solid var(--accent); border-radius: 999px; color: var(--accent); font: 500 10px/1.4 var(--font-mono); letter-spacing: 1px; text-transform: uppercase; }
+.career-stepper-period { color: var(--text-tertiary); font: 400 12px/1.4 var(--font-mono); }
+.career-stepper-company { color: var(--accent); font-size: 14px; font-weight: 600; }
+.career-stepper-description { color: var(--text-secondary); font-size: 14px; line-height: 1.6; }
+
+@media (prefers-reduced-motion: reduce) {
+  .career-stepper-dot { transition: none; }
+  .career-stepper-step:first-child .career-stepper-dot { animation: none; }
+}

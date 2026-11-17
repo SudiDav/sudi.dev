@@ -17,6 +17,12 @@ afterEach(() => {
 })
 
 describe('Vercel Web Analytics view counts', () => {
+  it('does not present old Vercel counts as current Cloudflare analytics', async () => {
+    vi.stubEnv('HOSTING_PROVIDER', 'cloudflare')
+    expect(await getPostViewCounts(['post'])).toMatchObject({ counts: {}, available: false })
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
   it('queries each exact blog path and returns page views', async () => {
     fetchMock
       .mockResolvedValueOnce(new Response(JSON.stringify({ data: { pageviews: 1250 } }), { status: 200 }))

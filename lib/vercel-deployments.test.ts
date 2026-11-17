@@ -12,6 +12,16 @@ describe('Vercel deployment status', () => {
     vi.unstubAllGlobals()
   })
 
+  it('does not report a Vercel deployment as the Cloudflare production deployment', async () => {
+    process.env.HOSTING_PROVIDER = 'cloudflare'
+    process.env.VERCEL_TOKEN = 'vercel-test-token'
+    process.env.VERCEL_PROJECT_ID = 'prj_test'
+    const fetchMock = vi.fn(() => { throw new Error('Vercel must not be queried') })
+    vi.stubGlobal('fetch', fetchMock)
+    expect(await getDeploymentStatus('abc123')).toMatchObject({ status: 'unavailable' })
+    expect(fetchMock).not.toHaveBeenCalled()
+  })
+
   it('finds a ready deployment by GitHub commit SHA', async () => {
     process.env.VERCEL_TOKEN = 'vercel-test-token'
     process.env.VERCEL_PROJECT_ID = 'prj_test'

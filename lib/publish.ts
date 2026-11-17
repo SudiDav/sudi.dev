@@ -46,6 +46,7 @@ async function gh(path: string, init: RequestInit = {}) {
   const response = await fetch(`${API}${path}`, {
     ...init,
     headers: {
+      'User-Agent': 'sudi.dev',
       Authorization: `Bearer ${token}`,
       Accept: 'application/vnd.github+json',
       'X-GitHub-Api-Version': '2022-11-28',

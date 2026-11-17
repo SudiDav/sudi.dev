@@ -1,82 +1,108 @@
 import * as THREE from 'three'
+import type { GLTF } from 'three/addons/loaders/GLTFLoader.js'
 import { WORLD_SECTORS, type SectorId } from './world-data'
+import { chromeMaterial } from '@/components/chrome-material'
 
-/** A sculptural taijitu and five reflections, made entirely from geometry. */
-export function buildWorld(scene: THREE.Scene) {
-  const yin = new THREE.MeshStandardMaterial({ roughness: 0.3, metalness: 0.35 })
-  const yang = new THREE.MeshStandardMaterial({ roughness: 0.3, metalness: 0.15 })
-  const accent = new THREE.MeshStandardMaterial({ roughness: 0.25, metalness: 0.5 })
-  const glow = new THREE.MeshBasicMaterial()
-  const line = new THREE.LineBasicMaterial({ transparent: true, opacity: 0.26 })
+const STAR_TINTS = ['#FFFFFF', '#DCE6FF', '#9DB4F0', '#F2A541', '#E86A92', '#8B6CEF']
+
+/** A soft round dot, so point-cloud stars read as light rather than squares. */
+export function starSprite() {
+  const canvas = document.createElement('canvas')
+  canvas.width = canvas.height = 64
+  const context = canvas.getContext('2d')!
+  const gradient = context.createRadialGradient(32, 32, 0, 32, 32, 32)
+  gradient.addColorStop(0, 'rgba(255,255,255,1)')
+  gradient.addColorStop(0.35, 'rgba(255,255,255,0.55)')
+  gradient.addColorStop(1, 'rgba(255,255,255,0)')
+  context.fillStyle = gradient
+  context.fillRect(0, 0, 64, 64)
+  return new THREE.CanvasTexture(canvas)
+}
+
+/** Replace a glTF point cloud's 1px default material with tinted, round, sized stars. */
+function stars(points: THREE.Points, size: number, sprite: THREE.Texture) {
+  const count = points.geometry.getAttribute('position').count
+  const colours = new Float32Array(count * 3)
+  const colour = new THREE.Color()
+  for (let i = 0; i < count; i++) {
+    // Mostly white-blue, with a deterministic sprinkle of the planets' hues.
+    const pick = (i * 2654435761) >>> 0
+    colour.set(STAR_TINTS[pick % 23 < 3 ? 3 + (pick % 3) : pick % 3])
+    colours.set([colour.r, colour.g, colour.b], i * 3)
+  }
+  points.geometry.setAttribute('color', new THREE.BufferAttribute(colours, 3))
+  const material = new THREE.PointsMaterial({ size, map: sprite, vertexColors: true, transparent: true, depthWrite: false })
+  ;(points.material as THREE.Material).dispose()
+  points.material = material
+  return material
+}
+
+/**
+ * The homepage cosmos. The sculpted pieces and their looping motion come from
+ * Blender (tools/blender/build_cosmos.py); this places them on the five
+ * reflections and adds the parts that respond to the page.
+ */
+/**
+ * The symbol floats high enough that, from the camera's angle, the S standing
+ * at the centre shows beneath it rather than behind it.
+ */
+export const SYMBOL_HEIGHT = 3.2
+/** Where the camera rests; the engine starts it here. */
+export const HOME_CAMERA = new THREE.Vector3(10, 10, 12)
+const LOGO_HEIGHT = -0.75
+/** Half the S's height (LOGO_TALL in build_cosmos.py): its base, where the "I am" label points. */
+const LOGO_HALF = 1.1
+
+export function buildWorld(scene: THREE.Scene, cosmos: GLTF) {
+  // Index everything before pieces are moved out of the loaded scene.
+  const nodes = new Map<string, THREE.Object3D>()
+  const materials = new Map<string, THREE.MeshStandardMaterial>()
+  cosmos.scene.traverse(object => {
+    nodes.set(object.name, object)
+    if (object instanceof THREE.Mesh && object.material instanceof THREE.MeshStandardMaterial) materials.set(object.material.name, object.material)
+  })
+  const node = (name: string) => {
+    const found = nodes.get(name)
+    if (!found) throw new Error(`cosmos.glb is missing ${name}`)
+    return found
+  }
+  const material = (name: string) => materials.get(name) ?? new THREE.MeshStandardMaterial()
+  const accent = material('Accent')
+  const logoMaterial = chromeMaterial('#607EBC')
+  const glow = material('Glow')
+  const yang = material('Yang')
   const world = new THREE.Group()
   scene.add(world)
 
-  function ring(parent: THREE.Object3D, radius: number, y: number, material: THREE.Material = accent, thickness = 0.015) {
-    const mesh = new THREE.Mesh(new THREE.TorusGeometry(radius, thickness, 8, 128), material)
+  function ring(parent: THREE.Object3D, radius: number, y: number, ringMaterial: THREE.Material = accent, thickness = 0.015) {
+    const mesh = new THREE.Mesh(new THREE.TorusGeometry(radius, thickness, 8, 128), ringMaterial)
     mesh.rotation.x = Math.PI / 2
     mesh.position.y = y
     parent.add(mesh)
     return mesh
   }
 
-  // Two complementary S-shaped solids; each carries a seed of its opposite.
-  const radius = 2.15
-  const half = new THREE.Shape()
-  half.moveTo(0, radius)
-  half.absarc(0, 0, radius, Math.PI / 2, -Math.PI / 2, true)
-  half.absarc(0, -radius / 2, radius / 2, -Math.PI / 2, Math.PI / 2, true)
-  half.absarc(0, radius / 2, radius / 2, -Math.PI / 2, Math.PI / 2, false)
-  half.closePath()
-  const geometry = new THREE.ExtrudeGeometry(half, {
-    depth: 0.24, bevelEnabled: true, bevelThickness: 0.055, bevelSize: 0.035,
-    bevelSegments: 4, steps: 1, curveSegments: 64,
-  })
+  // The taijitu floats above the planets.
   const processor = new THREE.Group()
-  processor.position.y = 2.3
+  processor.position.y = SYMBOL_HEIGHT
   processor.rotation.set(-0.55, 0.48, 0)
-  const lightHalf = new THREE.Mesh(geometry, yang)
-  const darkHalf = new THREE.Mesh(geometry, yin)
-  darkHalf.rotation.z = Math.PI
-  processor.add(lightHalf, darkHalf)
-  for (const side of [-1, 1]) {
-    const dot = new THREE.Mesh(new THREE.CylinderGeometry(0.27, 0.27, 0.028, 48), side > 0 ? yang : yin)
-    dot.rotation.x = Math.PI / 2
-    dot.position.set(0, side * radius / 2, 0.315)
-    processor.add(dot)
-  }
-  const rim = new THREE.Mesh(new THREE.TorusGeometry(radius + 0.075, 0.025, 12, 128), accent)
-  rim.position.z = 0.11
-  processor.add(rim)
+  processor.add(node('YinYang'))
   world.add(processor)
 
-  const orbit = ring(world, 3.05, 2.1, accent, 0.012)
-  orbit.rotation.set(0.9, 0.3, -0.35)
-  ring(world, 4.95, -0.2)
-  ring(world, 5.08, -0.2, accent, 0.006)
+  // The S stands at the centre, beneath the symbol.
+  const logo = node('Logo')
+  logo.position.set(0, LOGO_HEIGHT, 0)
+  world.add(logo)
+  logo.traverse(object => { if (object instanceof THREE.Mesh) object.material = logoMaterial })
 
-  // Concentric wave contours connect the symbol to the five reflections.
-  for (let row = 0; row < 7; row++) {
-    const points = []
-    for (let i = 0; i <= 160; i++) {
-      const angle = i / 160 * Math.PI * 2
-      const r = 1.2 + row * 0.48 + Math.sin(angle * 3 + row * 0.5) * 0.14
-      points.push(new THREE.Vector3(Math.cos(angle) * r, -0.28, Math.sin(angle) * r))
-    }
-    world.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(points), line))
-  }
-
-  const beacons = new Map<SectorId, THREE.Group>()
+  // Each reflection is a planet.
+  const beacons = new Map<SectorId, THREE.Object3D>()
   const targets: THREE.Object3D[] = []
   for (const sector of WORLD_SECTORS) {
-    const beacon = new THREE.Group()
-    beacon.position.set(sector.x, 0.7, sector.z)
-    beacon.add(new THREE.Mesh(new THREE.SphereGeometry(0.11, 20, 16), glow))
-    ring(beacon, 0.26, 0, accent, 0.018)
-    ring(beacon, 0.42, -0.55, accent, 0.008)
-    const arc = ring(beacon, 0.2, 0, accent, 0.009)
-    arc.rotation.set(0, 0, Math.PI / 3)
-    world.add(beacon)
-    beacons.set(sector.id, beacon)
+    const planet = node(`Planet_${sector.id}`)
+    planet.position.set(sector.x, 0.7, sector.z)
+    world.add(planet)
+    beacons.set(sector.id, planet)
     const hit = new THREE.Mesh(new THREE.SphereGeometry(0.7), new THREE.MeshBasicMaterial({ visible: false }))
     hit.position.set(sector.x, 0.7, sector.z)
     hit.userData.sector = sector.id
@@ -84,18 +110,19 @@ export function buildWorld(scene: THREE.Scene) {
     targets.push(hit)
   }
 
-  const stars = new Float32Array(120 * 3)
-  for (let i = 0; i < 120; i++) {
-    const angle = i * 2.399963
-    const distance = 4.7 + (i % 11) * 0.25
-    stars[i * 3] = Math.cos(angle) * distance
-    stars[i * 3 + 1] = (i % 13) * 0.31 - 0.5
-    stars[i * 3 + 2] = Math.sin(angle) * distance
-  }
-  const starGeometry = new THREE.BufferGeometry()
-  starGeometry.setAttribute('position', new THREE.BufferAttribute(stars, 3))
-  const starMaterial = new THREE.PointsMaterial({ size: 0.035, transparent: true, opacity: 0.45 })
-  world.add(new THREE.Points(starGeometry, starMaterial))
+  // A spiral galaxy turns beneath everything, inside a sky of distant stars.
+  const sprite = starSprite()
+  const galaxy = node('Galaxy') as THREE.Points
+  const starfield = node('Starfield') as THREE.Points
+  const farGalaxies = node('FarGalaxies') as THREE.Points
+  scene.add(galaxy, starfield, farGalaxies)
+  // A soft halo of light behind the S. It rides on the S, so it stays behind it
+  // as the S turns to the camera and grows in with it during the intro.
+  const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: sprite, transparent: true, depthWrite: false }))
+  halo.position.set(0, 0, -0.4)
+  halo.scale.setScalar(3.6)
+  logo.add(halo)
+  const starMaterials = [stars(galaxy, 0.16, sprite), stars(starfield, 0.55, sprite), stars(farGalaxies, 0.24, sprite)]
 
   // A small spark is the player, carrying attention between reflections.
   const rover = new THREE.Group()
@@ -112,19 +139,37 @@ export function buildWorld(scene: THREE.Scene) {
   shadow.visible = false
   world.add(shadow)
 
+  let starOpacity = 1
+  let light = false
+  function setStars(opacity: number) {
+    starOpacity = opacity
+    for (const starMaterial of starMaterials) starMaterial.opacity = opacity * (light ? 0.55 : 0.9)
+  }
+
   function setPalette() {
     const css = getComputedStyle(document.documentElement)
-    const color = (name: string) => css.getPropertyValue(name).trim()
-    // The symbol always retains its dark/light contrast in either page theme.
-    yin.color.set('#13131B')
-    yang.color.set('#EDEDF0')
-    accent.color.set(color('--accent'))
-    accent.emissive.set(color('--accent'))
-    accent.emissiveIntensity = 0.15
-    glow.color.set(color('--accent'))
-    line.color.set(color('--accent'))
-    starMaterial.color.set(color('--accent'))
+    const colour = css.getPropertyValue('--accent').trim()
+    light = document.documentElement.classList.contains('light')
+    accent.color.set(colour)
+    accent.emissive.set(colour)
+    logoMaterial.color.set(colour).lerp(new THREE.Color('#ffffff'), 0.35)
+    logoMaterial.emissive.set(colour)
+    // Additive glow vanishes on white; the light theme uses a faint tint instead.
+    halo.material.color.set(colour)
+    halo.material.blending = light ? THREE.NormalBlending : THREE.AdditiveBlending
+    halo.material.opacity = light ? 0.22 : 0.5
+    halo.material.needsUpdate = true
+    glow.color.set(light ? colour : '#B9CBF2')
+    glow.emissive.set(light ? colour : '#B9CBF2')
+    // Additive light glows on the dark theme but vanishes on white, so the
+    // light theme draws ordinary accent-tinted dots instead.
+    for (const starMaterial of starMaterials) {
+      starMaterial.blending = light ? THREE.NormalBlending : THREE.AdditiveBlending
+      starMaterial.color.set(light ? colour : '#FFFFFF')
+      starMaterial.needsUpdate = true
+    }
+    setStars(starOpacity)
   }
   setPalette()
-  return { world, processor, orbit, rover, shadow, beacons, targets, setPalette }
+  return { world, processor, logo, logoBase: new THREE.Vector3(0, -LOGO_HALF, 0), rover, shadow, beacons, targets, setPalette, setStars, sprite }
 }

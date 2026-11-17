@@ -54,3 +54,11 @@ next-env.d.ts
 # comments live in Discussions.
 content/subscribers.json
 content/comments.json
+/dist/
+.vinext/
+.cloudflare/
+.wrangler/
+.dev.vars*
+
+# Python bytecode from the Blender build scripts
+__pycache__/

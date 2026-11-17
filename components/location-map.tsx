@@ -70,7 +70,7 @@ export function LocationMap({ location, onClose }: { location: string; onClose: 
         aria-modal="true"
         aria-label={`Map showing ${location}`}
         onClick={(e) => e.stopPropagation()}
-        className="flex w-full max-w-[640px] flex-col gap-3 rounded-2xl border border-border bg-bg-card p-4 shadow-[0_24px_64px_#00000060]"
+        className="flex w-full max-w-[640px] flex-col gap-3 rounded-3xl border border-border bg-bg-card p-4 shadow-[0_24px_64px_#00000060]"
       >
         <div className="flex items-center justify-between">
           <span className="inline-flex items-center gap-2 text-sm font-medium text-text-primary">
@@ -82,20 +82,20 @@ export function LocationMap({ location, onClose }: { location: string; onClose: 
             type="button"
             onClick={onClose}
             aria-label="Close map"
-            className="rounded-lg p-1.5 text-text-tertiary transition-colors hover:bg-bg-secondary hover:text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            className="rounded-full p-1.5 text-text-tertiary transition-colors hover:bg-bg-secondary hover:text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           >
             <X size={16} />
           </button>
         </div>
 
         {failed ? (
-          <p className="rounded-xl bg-bg-secondary p-8 text-center text-sm text-text-secondary">
+          <p className="rounded-2xl bg-bg-secondary p-8 text-center text-sm text-text-secondary">
             The map could not be loaded. {location} sits at 11.66°S, 27.48°E.
           </p>
         ) : (
           <div
             ref={holder}
-            className="h-[420px] w-full overflow-hidden rounded-xl bg-bg-secondary"
+            className="h-[420px] w-full overflow-hidden rounded-2xl bg-bg-secondary"
           />
         )}
 
