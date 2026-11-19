@@ -61,7 +61,15 @@ describe('GitHub owner sign-in', () => {
     expect(profile.email).toBe('owner@example.com')
   })
 
-  it('does not promote an unverified primary or a verified secondary address', async () => {
+  it('finds the configured verified secondary address even when the primary appears first', async () => {
+    const profile = await resolveProfile(
+      [{ email: 'private-primary@example.com', primary: true, verified: true }],
+      [{ email: 'OWNER@example.com', primary: false, verified: true }],
+    )
+    expect(profile.email).toBe('owner@example.com')
+  })
+
+  it('rejects an unverified owner address and unrelated verified addresses', async () => {
     const profile = await resolveProfile([
       { email: 'owner@example.com', primary: true, verified: false },
       { email: 'secondary@example.com', primary: false, verified: true },

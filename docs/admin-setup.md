@@ -15,7 +15,7 @@ environment settings), never in the repo.
 3. Generate a client secret. Set the following values privately in the deployment environment or the local worktree's ignored `.env.local`, then restart the app:
 
 ```
-ADMIN_EMAIL=your-verified-primary-address@example.com
+ADMIN_EMAIL=your-verified-github-address@example.com
 AUTH_GITHUB_ID=...
 AUTH_GITHUB_SECRET=...
 AUTH_SECRET=            # openssl rand -base64 32

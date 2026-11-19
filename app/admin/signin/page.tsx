@@ -49,7 +49,7 @@ export default async function AdminSignInPage({
       ? 'Set AUTH_GITHUB_ID, AUTH_GITHUB_SECRET, AUTH_SECRET and ADMIN_EMAIL in .env.local, then restart the server.'
       : 'GitHub sign-in is unavailable on this deployment. Check the server’s sign-in settings.'
   } else if (error === 'AccessDenied') {
-    message = 'Choose the site owner’s GitHub account. Its verified primary email must match the configured admin email.'
+    message = 'Choose the site owner’s GitHub account. It must have the configured admin email verified on GitHub.'
   } else if (error) {
     message = 'GitHub sign-in could not be completed. Try again, or check the OAuth callback and server settings.'
   }
