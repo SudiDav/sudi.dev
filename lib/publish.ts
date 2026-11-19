@@ -290,7 +290,7 @@ function preparePostSave(slug: string, raw: Buffer, changes: PostDraft, expected
   }
 
   const { body, ...frontmatterChanges } = changes
-  const frontmatter = { ...existing.data, ...frontmatterChanges }
+  const frontmatter: Record<string, unknown> = { ...existing.data, ...frontmatterChanges }
   if (changes.featured === true && !existingPost.featured) {
     frontmatter.featuredAt = new Date().toISOString()
   }
