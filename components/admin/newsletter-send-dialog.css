@@ -1,0 +1,22 @@
+.newsletter-send-dialog {
+  width: min(30rem, calc(100% - 2rem));
+  max-height: calc(100dvh - 2rem);
+  background-image: radial-gradient(
+    ellipse 105% 55% at 80% 0%,
+    color-mix(in srgb, var(--accent) 16%, transparent),
+    transparent 78%
+  );
+  box-shadow: 0 28px 100px rgb(5 8 18 / 0.42);
+}
+
+.newsletter-send-dialog::before {
+  display: block;
+  height: 2px;
+  background: linear-gradient(90deg, #47659d, #9db7ed 43%, #576b95 79%, transparent);
+  content: '';
+}
+
+.newsletter-send-dialog::backdrop {
+  background: rgb(8 10 19 / 0.7);
+  backdrop-filter: blur(4px);
+}
