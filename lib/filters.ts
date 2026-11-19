@@ -34,13 +34,18 @@ export function searchPosts(posts: Post[], query: string): Post[] {
   )
 }
 
-/**
- * Build the article list for the blog page without hiding a featured post
- * when the reader selects its category. The featured post is only reserved
- * for the pinned slot on the unfiltered, empty-search view.
- */
+/** Choose the latest explicit pin, falling back to the existing publication order. */
+export function selectFeaturedPost(posts: Post[]): Post | undefined {
+  return posts.reduce<Post | undefined>((selected, post) => {
+    if (post.featured && (!selected || (post.featuredAt ?? '') > (selected.featuredAt ?? ''))) return post
+    return selected
+  }, undefined)
+}
+
+/** Reserve only the selected post for the featured slot on the unfiltered Blog. */
 export function listBlogPosts(posts: Post[], category: string, query: string): Post[] {
-  const candidates = category === 'All' && !query.trim() ? posts.filter((post) => !post.featured) : posts
+  const featured = category === 'All' && !query.trim() ? selectFeaturedPost(posts) : undefined
+  const candidates = featured ? posts.filter((post) => post.slug !== featured.slug) : posts
   return searchPosts(filterPostsByCategory(candidates, category), query)
 }
 

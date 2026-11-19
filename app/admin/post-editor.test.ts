@@ -55,7 +55,9 @@ import { PostEditor } from '@/app/admin/posts/[id]/edit/post-editor'
 
 type ElementProps = {
   children?: ReactNode
+  role?: string
   'aria-label'?: string
+  'aria-checked'?: boolean
   label?: string
   value?: string
   disabled?: boolean
@@ -131,6 +133,25 @@ describe('reviewed post editor wiring', () => {
     vi.restoreAllMocks()
   })
 
+  it('saves the featured switch while keeping the post a draft', async () => {
+    updatePostMock.mockResolvedValueOnce({ ok: true, publish: {
+      target: 'local', postVersion: 'after-pin', post: { ...reviewedPost, featured: true },
+    } })
+    const before = render()
+    expect(field(before, 'Featured Post')['aria-checked']).toBe(false)
+    field(before, 'Featured Post').onClick!()
+    const edited = render()
+    expect(field(edited, 'Featured Post')['aria-checked']).toBe(true)
+    expect(button(edited, 'Publish').disabled).toBe(true)
+    button(edited, 'Save').onClick!()
+    await settle()
+    expect(updatePostMock).toHaveBeenCalledWith('reviewed-post', expect.objectContaining({
+      featured: true, status: 'Draft',
+    }), 'original-review')
+    expect(field(render(), 'Featured Post')['aria-checked']).toBe(true)
+    expect(publishReviewedPostMock).not.toHaveBeenCalled()
+  })
+
   it('disables dirty publication and guards even a direct call to its handler', async () => {
     let tree = render()
     field(tree, 'Post title').onChange!({ target: { value: 'Unsaved title' } })
@@ -183,7 +204,7 @@ describe('reviewed post editor wiring', () => {
 
     expect(updatePostMock).toHaveBeenCalledExactlyOnceWith('reviewed-post', {
       title: 'Reviewed title', excerpt: 'Reviewed excerpt', body: 'My unsaved body.',
-      category: 'Craft', cover: '/images/reviewed.png', status: 'Draft', readingTime: '1 min read',
+      category: 'Craft', cover: '/images/reviewed.png', featured: false, status: 'Draft', readingTime: '1 min read',
     }, 'original-review')
     expect(field(tree, 'Post body (MDX)').value).toBe('My unsaved body.')
     expect(button(tree, 'Save').disabled).toBe(true)
@@ -244,7 +265,8 @@ describe('reviewed post editor wiring', () => {
     const options = elements(statusSelect(tree).props.children)
     expect(options.map((option) => option.props.value)).toEqual(['Draft', 'Published', 'Archived'])
     expect(options.filter((option) => !option.props.disabled).map((option) => option.props.value)).toEqual(['Draft', 'Archived'])
-    expect(elements(tree).filter((element) => element.type === 'button').map((element) => text(element.props.children))).toEqual(['Create draft'])
+    expect(elements(tree).filter((element) => element.type === 'button' && element.props.role !== 'switch').map((element) => text(element.props.children))).toEqual(['Create draft'])
+    field(tree, 'Featured Post').onClick!()
     field(tree, 'Post title').onChange!({ target: { value: 'New title' } })
 
     for (const [selected, expected] of [['Draft', 'Draft'], ['Archived', 'Archived'], ['Published', 'Draft']]) {
@@ -254,7 +276,7 @@ describe('reviewed post editor wiring', () => {
       button(tree, 'Create draft').onClick!()
       await settle()
       expect(addPostMock).toHaveBeenLastCalledWith({
-        title: 'New title', excerpt: '', body: '', category: '.NET', cover: '', status: expected,
+        title: 'New title', excerpt: '', body: '', category: '.NET', cover: '', status: expected, featured: true,
       })
     }
     expect(addPostMock).toHaveBeenCalledTimes(3)

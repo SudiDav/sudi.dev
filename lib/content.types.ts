@@ -10,6 +10,7 @@ export type Post = {
   category: string
   cover: string // path under /public
   featured: boolean
+  featuredAt?: string
   // Editorial state, surfaced in the admin. Absent means Published, so existing
   // content needs no migration.
   status?: 'Published' | 'Draft' | 'Archived'

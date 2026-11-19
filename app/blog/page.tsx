@@ -12,7 +12,7 @@ import { NewsletterForm } from '@/components/newsletter-form'
 import { PAGE_GUTTER } from '@/components/layout'
 import { getPublishedPosts } from '@/lib/content'
 import type { Post } from '@/lib/content.types'
-import { listBlogPosts, POST_FILTERS } from '@/lib/filters'
+import { listBlogPosts, POST_FILTERS, selectFeaturedPost } from '@/lib/filters'
 import './blog-room.css'
 
 export const metadata: Metadata = {
@@ -94,7 +94,7 @@ export default async function BlogPage({
   // Describes the whole blog, so it counts every post rather than the filtered view.
   const blogStats = buildBlogStats(posts)
   const topicRows = buildTopicRows(posts)
-  const featured = posts.find((post) => post.featured)
+  const featured = selectFeaturedPost(posts)
   const listed = listBlogPosts(posts, active, query)
   // The pinned post is the design's featured slot; it is hidden once the reader
   // narrows the list, since it would otherwise ignore their filter.

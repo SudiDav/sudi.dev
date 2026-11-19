@@ -177,6 +177,22 @@ describe('publishing metadata', () => {
     })
   })
 
+  it('records when a draft is featured and retains the pin time on later edits', async () => {
+    vi.stubEnv('NODE_ENV', 'development')
+    vi.stubEnv('GITHUB_TOKEN', '')
+    vi.stubEnv('GITHUB_REPO', '')
+    await withLocalPosts(async directory => {
+      const path = join(directory, 'content', 'posts', 'reviewed-post.mdx')
+      await writeFile(path, remotePostRaw)
+      const pinned = await savePost('reviewed-post', { featured: true }, 'test: feature draft')
+      const featuredAt = matter(await readFile(path, 'utf8')).data.featuredAt
+      expect(pinned.post).toMatchObject({ featured: true, status: 'Draft' })
+      expect(new Date(featuredAt).toISOString()).toBe(featuredAt)
+      await savePost('reviewed-post', { featured: true, title: 'Retitled' }, 'test: edit draft', pinned.postVersion)
+      expect(matter(await readFile(path, 'utf8')).data.featuredAt).toBe(featuredAt)
+    })
+  })
+
   it('checks only matching GitHub filenames and verifies their generated week frontmatter', async () => {
     vi.stubEnv('NODE_ENV', 'production')
     vi.stubEnv('GITHUB_TOKEN', 'github-test-token')
