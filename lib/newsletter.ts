@@ -4,6 +4,7 @@ import type { Post } from './content.types'
 import { SITE_URL } from './site'
 
 const BROADCAST_PREFIX = 'sudi.dev post:'
+const BROADCAST_NAME_LIMIT = 70
 const UNSUBSCRIBE_TOKEN = '{{{RESEND_UNSUBSCRIBE_URL}}}'
 
 export type NewsletterBroadcastSummary = {
@@ -41,6 +42,17 @@ function absoluteCover(cover: string) {
 
 function postUrl(post: Post) {
   return `${SITE_URL}/blog/${post.slug}`
+}
+
+function broadcastName(slug: string, commitSha: string) {
+  const prefix = `${BROADCAST_PREFIX} `
+  const suffix = ` · ${commitSha}`
+  const name = `${prefix}${slug}${suffix}`
+  if (name.length <= BROADCAST_NAME_LIMIT) return name
+
+  const shortSuffix = ` · ${commitSha.slice(0, 12)}`
+  const slugLimit = BROADCAST_NAME_LIMIT - prefix.length - shortSuffix.length
+  return `${prefix}${slug.slice(0, slugLimit).replace(/-+$/, '')}${shortSuffix}`
 }
 
 function renderPostEmail(post: Post) {
@@ -104,7 +116,7 @@ export async function createPostBroadcast(post: Post, commitSha: string): Promis
   if (!audienceId) return { ok: false, error: 'RESEND_AUDIENCE_ID not set' }
   if (!from) return { ok: false, error: 'EMAIL_FROM not set' }
 
-  const name = `${BROADCAST_PREFIX} ${post.slug} · ${commitSha}`
+  const name = broadcastName(post.slug, commitSha)
   const { html, text } = renderPostEmail(post)
 
   try {
