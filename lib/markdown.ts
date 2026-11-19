@@ -6,8 +6,11 @@ import { Fragment, jsx, jsxs } from 'react/jsx-runtime'
 
 const processor = unified().use(remarkParse).use(remarkRehype)
 
+export function parseMarkdown(source: string) {
+  return processor.runSync(processor.parse(source))
+}
+
 /** Plain Markdown becomes React elements, without eval or generated functions. */
 export function Markdown({ source, components }: { source: string; components: Partial<Components> }) {
-  const tree = processor.runSync(processor.parse(source))
-  return toJsxRuntime(tree, { Fragment, jsx, jsxs, components })
+  return toJsxRuntime(parseMarkdown(source), { Fragment, jsx, jsxs, components })
 }

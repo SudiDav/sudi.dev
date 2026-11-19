@@ -75,7 +75,7 @@ is live:
 | `RESEND_API_KEY` | resend.com → API Keys |
 | `RESEND_AUDIENCE_ID` | resend.com → Audiences |
 | `CONTACT_EMAIL` | `contact@sudi.dev` |
-| `EMAIL_FROM` | `contact@sudi.dev` after the `sudi.dev` domain is verified |
+| `EMAIL_FROM` | `contact@sudi.dev` for owner notices after verifying the sending domain |
 
 `RESEND_API_KEY` and `RESEND_AUDIENCE_ID` are required to save a subscription
 and prepare a post announcement draft. `CONTACT_EMAIL` is only needed for the
@@ -92,8 +92,8 @@ within Resend's 24-hour retention window. The admission budget is process-local;
 it is not a shared quota across serverless instances or restarts. Use deployment
 firewall limits or a shared limiter if a cross-instance request quota is needed.
 
-When an admin publishes a post with status `Published`, the site creates a
-branded Resend broadcast draft for the audience. It never sends automatically.
+When an admin publishes a post with status `Published`, the site creates a Resend broadcast draft
+from `Sudi David <hello@sudi.dev>` with the full article and a link to the Blog.
 Review and send drafts from Admin → Newsletters after the Vercel deployment is
 ready. The same page also shows the first 100 contacts in the configured
 audience, including their subscription status and signup date. Broadcasts

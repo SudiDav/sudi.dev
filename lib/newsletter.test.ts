@@ -41,7 +41,7 @@ describe('newsletter broadcasts', () => {
 
   afterEach(() => {
     process.env = { ...environment }
-    vi.clearAllMocks()
+    vi.resetAllMocks()
   })
 
   it('creates a draft with the verified sender, audience, content, and unsubscribe token', async () => {
@@ -61,12 +61,12 @@ describe('newsletter broadcasts', () => {
     expect(broadcastCreateMock).toHaveBeenCalledWith(
       expect.objectContaining({
         audienceId: 'aud_123',
-        from: 'contact@sudi.dev',
+        from: 'Sudi David <hello@sudi.dev>',
         subject: 'New on sudi.dev: Observability 101',
         previewText: postFixture.excerpt,
         send: false,
         html: expect.stringContaining('{{{RESEND_UNSUBSCRIBE_URL}}}'),
-        text: expect.stringContaining('Read the post'),
+        text: expect.stringContaining('Read on sudi.dev'),
       }),
       { headers: { 'Idempotency-Key': 'sudi-post-newsletter-sha_123' } },
     )
@@ -108,7 +108,7 @@ describe('newsletter broadcasts', () => {
     )
   })
 
-  it('does not include a relative cover path in the email', async () => {
+  it('resolves a local cover to its public URL', async () => {
     process.env.RESEND_API_KEY = 're_test_key'
     process.env.RESEND_AUDIENCE_ID = 'aud_123'
     process.env.EMAIL_FROM = 'contact@sudi.dev'
@@ -117,7 +117,67 @@ describe('newsletter broadcasts', () => {
     await createPostBroadcast({ ...postFixture, cover: '/images/local.png' }, 'sha_123')
 
     const payload = broadcastCreateMock.mock.calls[0][0] as { html: string }
-    expect(payload.html).not.toContain('/images/local.png')
+    expect(payload.html).toContain('src="https://sudi.dev/images/local.png"')
+  })
+
+  it('includes the full Markdown article and places its blog button after the last section', async () => {
+    process.env.RESEND_API_KEY = 're_test_key'
+    process.env.RESEND_AUDIENCE_ID = 'aud_123'
+    delete process.env.EMAIL_FROM
+    broadcastCreateMock.mockResolvedValueOnce({ data: { id: 'br_article' }, error: null })
+
+    const body = [
+      '## First section',
+      'The **first** paragraph links to [the project](/work?source=email&part=1).',
+      '1. One item\n2. Another item',
+      '![Event flow](/images/event.png)',
+      '```ts\nconst sample = a < b && ready;\n```',
+      'The last paragraph is also in the email.',
+    ].join('\n\n')
+    const result = await createPostBroadcast({ ...postFixture, body }, 'sha_123')
+    expect(result.ok).toBe(true)
+    const payload = broadcastCreateMock.mock.calls[0][0]
+    const { html, text } = payload as { html: string; text: string }
+    expect(payload).toMatchObject({ from: 'Sudi David <hello@sudi.dev>', send: false })
+    expect(html).toContain('bgcolor="#ffffff"')
+    expect(html).toContain('>First section</h2>')
+    expect(html).toContain('<strong>first</strong>')
+    expect(html).toContain('href="https://sudi.dev/work?source=email&amp;part=1"')
+    expect(html).toContain('src="https://sudi.dev/images/event.png"')
+    expect(html).toContain('alt="Event flow"')
+    expect(html).toContain('const sample = a &lt; b &amp;&amp; ready;')
+    expect(html).toMatch(/The last paragraph is also in the email\.[\s\S]*href="https:\/\/sudi\.dev\/blog\/observability-101"[^>]*>Read on sudi\.dev<\/a>/)
+    expect(text).toContain(body)
+    expect(text).toMatch(/The last paragraph is also in the email\.[\s\S]*Read on sudi\.dev: https:\/\/sudi\.dev\/blog\/observability-101/)
+  })
+
+  it('escapes article text and excludes raw HTML and unsafe links from the rich email', async () => {
+    process.env.RESEND_API_KEY = 're_test_key'
+    process.env.RESEND_AUDIENCE_ID = 'aud_123'
+    broadcastCreateMock.mockResolvedValueOnce({ data: { id: 'br_safe' }, error: null })
+
+    await createPostBroadcast({
+      ...postFixture,
+      title: 'Title <with tags> {{{FIRST_NAME}}}',
+      excerpt: 'A preview with {{{LAST_NAME}}}',
+      cover: 'javascript:invalid',
+      body: 'A [bad link](javascript:invalid) and <span onclick="bad()">ordinary text</span>.\n\n`{{{EMAIL}}}`',
+    }, 'sha_123')
+
+    const { html, text, subject, previewText } = broadcastCreateMock.mock.calls[0][0] as {
+      html: string; text: string; subject: string; previewText: string
+    }
+    expect(html).toContain('Title &lt;with tags&gt;')
+    expect(html).toContain('bad link and ordinary text')
+    expect(html).not.toContain('javascript:')
+    expect(html).not.toContain('onclick=')
+    expect(html).not.toContain('{{{EMAIL}}}')
+    expect(html).toContain('href="{{{RESEND_UNSUBSCRIBE_URL}}}"')
+    expect(text).toContain('{{\u2060{EMAIL}}}')
+    expect(text.match(/\{\{\{/g)).toHaveLength(1)
+    expect(text).toContain('Unsubscribe: {{{RESEND_UNSUBSCRIBE_URL}}}')
+    expect(subject).toContain('{{\u2060{FIRST_NAME}}}')
+    expect(previewText).toContain('{{\u2060{LAST_NAME}}}')
   })
 
   it('returns a soft error when Resend draft creation fails', async () => {
