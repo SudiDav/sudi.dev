@@ -212,7 +212,7 @@ function serialise(data: Record<string, unknown>, body: string): string {
   return `---\n${lines.filter(Boolean).join('\n')}\n---\n\n${body.trim()}\n`
 }
 
-export type PostDraft = Partial<Omit<Post, 'slug' | 'body'>> & { body?: string }
+export type PostDraft = Partial<Omit<Post, 'slug' | 'body' | 'featuredAt'>> & { body?: string }
 
 /**
  * Merge changes into an existing post and commit it.
@@ -290,12 +290,16 @@ function preparePostSave(slug: string, raw: Buffer, changes: PostDraft, expected
   }
 
   const { body, ...frontmatterChanges } = changes
+  const frontmatter: Record<string, unknown> = { ...existing.data, ...frontmatterChanges }
+  if (changes.featured === true && !existingPost.featured) {
+    frontmatter.featuredAt = new Date().toISOString()
+  }
   // Publication changes only status. YAML's own serializer preserves all
   // frontmatter values. Remove the empty-body newline stringify adds, keeping
   // one newline after the closing delimiter before appending the exact body.
   const contents = publishing
     ? matter.stringify('', { ...existing.data, status: 'Published' }).trimEnd() + '\n' + existing.content
-    : serialise({ ...existing.data, ...frontmatterChanges }, body ?? existing.content)
+    : serialise(frontmatter, body ?? existing.content)
   const post = parsePost(slug, contents)
   // Check the persisted interpretation too: serializer bugs or malformed
   // metadata must never promote a non-publishing save into publication.
@@ -378,7 +382,8 @@ export async function createPost(slug: string, draft: PostDraft, message: string
   if (target === 'disabled') throw new Error(NOT_CONFIGURED)
 
   const path = `content/posts/${slug}.mdx`
-  const { body, ...frontmatter } = draft
+  const { body, ...fields } = draft
+  const frontmatter = { ...fields, ...(draft.featured ? { featuredAt: new Date().toISOString() } : {}) }
   const contents = serialise(frontmatter as Record<string, unknown>, body ?? '')
   const status = normaliseStatus(frontmatter.status)
   const savedPost = parsePost(slug, contents)
@@ -465,6 +470,7 @@ function parsePost(slug: string, raw: string): Post {
     category: String(data.category ?? ''),
     cover: String(data.cover ?? '/images/sudi.jpeg'),
     featured: Boolean(data.featured),
+    featuredAt: typeof data.featuredAt === 'string' ? data.featuredAt : undefined,
     status: normaliseStatus(data.status),
     generatedWeek: data.generatedWeek,
     subtitle: data.subtitle,
