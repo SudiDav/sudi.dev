@@ -28,6 +28,8 @@ export function createWorldEngine(canvas: HTMLCanvasElement, cosmos: GLTF, optio
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75))
   renderer.setClearColor(0x000000, 0)
   renderer.outputColorSpace = THREE.SRGBColorSpace
+  renderer.toneMapping = THREE.ACESFilmicToneMapping
+  renderer.toneMappingExposure = 0.9
   const scene = new THREE.Scene()
   const camera = new THREE.PerspectiveCamera(36, 1, 0.1, 100)
   const home = HOME_CAMERA.clone()
@@ -44,19 +46,21 @@ export function createWorldEngine(canvas: HTMLCanvasElement, cosmos: GLTF, optio
   // Vertical touch gestures remain available for scrolling the page.
   canvas.style.touchAction = 'pan-y'
 
-  scene.add(new THREE.AmbientLight(0xffffff, 1.9))
-  const key = new THREE.DirectionalLight(0xffffff, 3.5)
+  scene.add(new THREE.AmbientLight(0xffffff, 0.8))
+  const key = new THREE.DirectionalLight(0xfff6e8, 2.15)
   key.position.set(-5, 12, 8)
   scene.add(key)
-  const rim = new THREE.DirectionalLight(0x607ebc, 4)
+  const rim = new THREE.DirectionalLight(0xa5bbeb, 2.25)
   rim.position.set(4, 6, -8)
   scene.add(rim)
   // Soft studio reflections give the metal and gloss from Blender something to mirror.
   const pmrem = new THREE.PMREMGenerator(renderer)
   // Keep the whole render target: disposing only its texture would leave its framebuffer behind.
-  const environment = pmrem.fromScene(new RoomEnvironment(), 0.04)
+  const studio = new RoomEnvironment()
+  const environment = pmrem.fromScene(studio, 0.04)
+  studio.dispose()
   scene.environment = environment.texture
-  scene.environmentIntensity = 0.55
+  scene.environmentIntensity = 0.7
   const model = buildWorld(scene, cosmos)
   const mixer = new THREE.AnimationMixer(scene)
   for (const clip of cosmos.animations) mixer.clipAction(clip).play()

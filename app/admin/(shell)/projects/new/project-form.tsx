@@ -85,6 +85,7 @@ export function ProjectForm({
   const [year, setYear] = useState(project?.year ?? '2026')
   const [category, setCategory] = useState(project?.category ?? PROJECT_CATEGORIES[0])
   const [cover, setCover] = useState(project?.cover ?? '')
+  const [logo, setLogo] = useState(project?.logo ?? '')
   const [tech, setTech] = useState<string[]>(project?.tech ?? [])
   const [techDraft, setTechDraft] = useState('')
   const [liveUrl, setLiveUrl] = useState(project?.links?.live ?? '')
@@ -112,6 +113,7 @@ export function ProjectForm({
         category,
         tech,
         cover,
+        logo,
         liveUrl,
         githubUrl,
         body: [body, caseStudy && `Case study: ${caseStudy}`].filter(Boolean).join('\n\n'),
@@ -283,6 +285,9 @@ export function ProjectForm({
 
         <div className="flex w-full flex-col gap-5 xl:w-[360px]">
           <AdminCard title="Cover Image">
+            <p className="text-xs text-admin-text-secondary">
+              The Work gallery displays your artwork as a 3D folio. Leave the cover empty to use the project title.
+            </p>
             <CoverUpload value={cover} onChange={setCover} />
             {/* Still editable, so an image already in the repo can be reused
                 by path without uploading a second copy of it. */}
@@ -293,6 +298,13 @@ export function ProjectForm({
               placeholder="/images/generated-1784965527781.png"
             />
           </AdminCard>
+
+          {(!project?.coverPresentation || project.cover !== cover) && (
+            <AdminCard title="Company logo (optional)">
+              <p className="text-xs text-admin-text-secondary">Add a transparent logo to print on the front of this folio.</p>
+              <CoverUpload label="company logo" value={logo} onChange={setLogo} />
+            </AdminCard>
+          )}
 
           <AdminCard title="Display Settings">
             {TOGGLES.map(({ label, description: hint }) => (

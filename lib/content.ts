@@ -66,7 +66,9 @@ export async function getProjects(): Promise<Project[]> {
       shortDescription: data.shortDescription,
       tech: data.tech ?? [],
       category: data.category,
-      cover: data.cover,
+      cover: data.cover ?? '',
+      coverPresentation: data.coverPresentation,
+      logo: data.logo,
       links: data.links ?? {},
       body,
     }))

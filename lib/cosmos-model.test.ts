@@ -72,6 +72,11 @@ describe('Blender cosmos model', () => {
     for (const name of ['Galaxy', 'Starfield', 'FarGalaxies']) expect(glb.meshes.find(mesh => mesh.name === name)?.primitives[0].mode).toBe(0)
   })
 
+  it('exports the orbital traces and the sculpted two-tone mark', () => {
+    expect(names).toContain('OrbitTraces')
+    expect(glb.materials.map(material => material.name)).toEqual(expect.arrayContaining(['OrbitTrace', 'LogoPorcelain']))
+  })
+
   it('stays minimal: no orbit for the S, no gyroscope, moons or planet rings', () => {
     expect(decoration(names, [/^LogoOrbit/, /^Gyro/, /_Moon/, /_Ring$/])).toEqual([])
   })

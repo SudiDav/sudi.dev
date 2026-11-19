@@ -10,21 +10,12 @@ environment settings), never in the repo.
 
 ## 1. GitHub sign-in
 
-1. Go to GitHub → Settings → Developer settings → OAuth Apps → New OAuth App.
-   pick a project.
-2. **APIs & Services → OAuth consent screen** → choose **External**, fill in the
-   app name and your email. You can leave it in *Testing* mode — add your own
-   Gmail as a test user. There is no need to publish or get verified for a
-   single-user admin.
-3. **APIs & Services → Credentials → Create credentials → OAuth client ID**
-   - Application type: **Web application**
-   - Authorised redirect URIs:
-     - `http://localhost:3000/api/auth/callback/github`
-     - `https://YOUR-DOMAIN/api/auth/callback/github` (once deployed)
-4. Copy the Client ID and Client Secret into `.env.local`:
+1. Open [GitHub OAuth Apps](https://github.com/settings/developers) and register an OAuth app for the deployment.
+2. Use the site's origin as the homepage and its exact Auth.js callback as the authorization callback URL. Production uses `https://sudi.dev/api/auth/callback/github`. For a local development app use the origin of your development server, for example `http://localhost:3000/api/auth/callback/github`.
+3. Generate a client secret. Set the following values privately in the deployment environment or the local worktree's ignored `.env.local`, then restart the app:
 
 ```
-ADMIN_EMAIL=sudimayenge@gmail.com
+ADMIN_EMAIL=your-verified-primary-address@example.com
 AUTH_GITHUB_ID=...
 AUTH_GITHUB_SECRET=...
 AUTH_SECRET=            # openssl rand -base64 32

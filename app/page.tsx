@@ -17,6 +17,7 @@ import { PortfolioWorld } from '@/components/world/portfolio-world'
 import { PhilosophicalIdentity } from '@/components/philosophical-identity'
 import { getPublishedPosts, getProjects } from '@/lib/content'
 import { getSettings, socialUrl } from '@/lib/site'
+import './home-room.css'
 
 /** Design: Sidebar → "Tech Stack", three rows of badges. */
 const TECH_ROWS = [
@@ -50,11 +51,11 @@ export default async function HomePage() {
   const latestPosts = posts.slice(0, 4)
 
   return (
-    <div className="flex min-h-screen flex-col bg-bg-primary">
+    <div className="home-portfolio-page flex min-h-screen flex-col bg-bg-primary">
       <SiteHeader />
 
       <main className="mx-auto w-full max-w-[1440px] flex-1">
-        <section className="home-world-hero px-4 md:px-6 lg:px-12">
+        <section className="home-world-hero home-orbit-hero px-4 md:px-6 lg:px-12">
           <div className="home-world-intro">
             <PhilosophicalIdentity name={settings.displayName} />
 

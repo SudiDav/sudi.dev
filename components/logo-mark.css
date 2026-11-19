@@ -1,5 +1,49 @@
-.logo-mark { position: relative; display: block; width: 80px; height: 33px; }
-/* The S occupies the left 45% of the PNG; the canvas is centred on it with room to tilt. */
-.logo-mark-canvas { position: absolute; top: -12px; left: -12px; width: 60px; height: 57px; pointer-events: none; opacity: 0; transition: opacity .3s; }
+.logo-mark {
+  position: relative;
+  display: block;
+  width: 80px;
+  height: 33px;
+}
+
+.logo-mark-wordmark {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  clip-path: inset(0 0 0 45%);
+}
+
+/* The original PNG's mark occupied the first 36px of the lockup. */
+.logo-mark-sculpture {
+  position: absolute;
+  top: 50%;
+  left: 18px;
+  width: 64px;
+  aspect-ratio: 5 / 4;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+.logo-mark-still,
+.logo-mark-canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transition: opacity 180ms ease-out;
+}
+
+.logo-mark-still { object-fit: contain; }
+.logo-mark-canvas { opacity: 0; }
+.logo-mark[data-ready='true'] .logo-mark-still { opacity: 0; }
 .logo-mark[data-ready='true'] .logo-mark-canvas { opacity: 1; }
-.logo-mark[data-ready='true'] .logo-mark-image { clip-path: inset(0 0 0 45%); }
+
+/* Keep the porcelain silhouette and small lettering legible on white. */
+.light .logo-mark-sculpture { filter: brightness(.62) saturate(1.18); }
+.light .logo-mark-wordmark { filter: brightness(.76); }
+
+@media (prefers-reduced-motion: reduce) {
+  .logo-mark-still,
+  .logo-mark-canvas { transition: none; }
+}

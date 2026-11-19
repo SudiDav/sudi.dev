@@ -14,6 +14,7 @@ import { getPublishedPost, getPublishedPosts } from '@/lib/content'
 import { getSettings, socialUrl } from '@/lib/site'
 import { formatPostDate } from '@/lib/format'
 import { ArticleBody } from '@/components/article-body'
+import '../article-room.css'
 
 export async function generateStaticParams() {
   return (await getPublishedPosts()).map((post) => ({ slug: post.slug }))
@@ -64,9 +65,9 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
     <div className="flex min-h-screen flex-col bg-bg-primary">
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-[1440px] flex-1">
+      <main className="article-reading-room mx-auto w-full max-w-[1440px] flex-1">
         {/* Article Header — COLUMN, padding [48,360,32,360], gap 20, centred */}
-        <header className="flex flex-col items-center gap-5 px-4 pt-12 pb-8 text-center md:px-8 lg:px-40 xl:px-90">
+        <header className="article-reading-room__header flex flex-col items-center gap-5 px-4 pt-12 pb-8 text-center md:px-8 lg:px-40 xl:px-90">
           <nav className="flex items-center gap-3 font-mono text-xs" aria-label="Breadcrumb">
             <span className="text-text-tertiary">~</span>
             <span className="text-text-tertiary">/</span>
@@ -112,8 +113,8 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         </header>
 
         {/* Cover Wrap — ROW, padding [0,120], centred; image 400h, radius 12 */}
-        <div className="px-4 md:px-8 lg:px-30">
-          <div className="relative h-60 w-full overflow-hidden rounded-2xl bg-bg-elevated lg:h-100">
+        <div className="article-reading-room__cover-wrap px-4 md:px-8 lg:px-30">
+          <div className="article-reading-room__cover relative h-60 w-full overflow-hidden rounded-2xl bg-bg-elevated lg:h-100">
             <Image
               src={post.cover}
               alt={post.title}
@@ -126,7 +127,7 @@ export default async function ArticlePage({ params }: { params: Promise<{ slug: 
         </div>
 
         {/* Article Body — COLUMN, padding [48,360], gap 28 */}
-        <div className="flex flex-col gap-7 px-4 py-12 md:px-8 lg:px-40 xl:px-90">
+        <div className="article-reading-room__paper flex flex-col gap-7 px-4 py-12 md:px-8 lg:px-40 xl:px-90">
           <ArticleBody body={post.body} />
 
           {post.tags?.length ? (
