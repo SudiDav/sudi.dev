@@ -17,14 +17,18 @@ export function isGitHubSignInConfigured() {
   return Boolean(ownerEmail() && secret && process.env.AUTH_GITHUB_ID && process.env.AUTH_GITHUB_SECRET)
 }
 
-async function verifiedPrimaryEmail(headers: HeadersInit) {
+async function verifiedOwnerEmail(headers: HeadersInit) {
+  const owner = ownerEmail()
+  if (!owner) return null
+
   for (let page = 1; ; page++) {
     const url = `https://api.github.com/user/emails?per_page=100&page=${page}`
     const response = await fetch(url, { headers, cache: 'no-store' })
     if (!response.ok) throw new Error('GitHub email verification was unavailable.')
     const addresses: GitHubEmail[] = await response.json()
-    const primary = addresses.find(address => address.primary === true)
-    if (primary) return primary.verified === true ? primary.email : null
+    if (addresses.some(address => address.verified === true && address.email.trim().toLowerCase() === owner)) {
+      return owner
+    }
     if (!response.headers.get('link')?.includes('rel="next"')) return null
   }
 }
@@ -40,10 +44,10 @@ const github = GitHub({
         Accept: 'application/vnd.github+json',
         'User-Agent': 'sudi.dev',
       }
-      // Profile visibility can make /user.email public, private, or a secondary alias.
+      // Match the allowlisted address against GitHub's verified addresses, regardless of profile visibility.
       const [user, email] = await Promise.all([
         fetch('https://api.github.com/user', { headers, cache: 'no-store' }),
-        verifiedPrimaryEmail(headers),
+        verifiedOwnerEmail(headers),
       ])
       if (!user.ok) throw new Error('GitHub account verification was unavailable.')
       const profile: GitHubProfile = await user.json()
