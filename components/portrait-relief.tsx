@@ -8,6 +8,8 @@ type PortraitReliefProps = {
   src: string
   alt: string
   expectedSourceSha256: string
+  sizes?: string
+  priority?: boolean
 }
 
 type View = { yaw: number; pitch: number }
@@ -18,7 +20,9 @@ function limit(value: number) {
   return Math.max(-0.18, Math.min(0.18, value))
 }
 
-export function PortraitRelief({ src, alt, expectedSourceSha256 }: PortraitReliefProps) {
+export function PortraitRelief({
+  src, alt, expectedSourceSha256, sizes = '(max-width: 1024px) 100vw, 360px', priority = true,
+}: PortraitReliefProps) {
   const stageRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const target = useRef<View>({ yaw: 0, pitch: 0 })
@@ -241,9 +245,9 @@ export function PortraitRelief({ src, alt, expectedSourceSha256 }: PortraitRelie
         src={src}
         alt={loaded ? '' : alt}
         fill
-        sizes="(max-width: 1024px) 100vw, 360px"
+        sizes={sizes}
         className="portrait-relief__fallback"
-        priority
+        priority={priority}
       />
       <canvas
         ref={canvasRef}
