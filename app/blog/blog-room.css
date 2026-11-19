@@ -5,7 +5,7 @@
   display: grid;
   min-height: clamp(580px, 50vw, 740px);
   grid-template-columns: minmax(300px, 1fr) minmax(320px, 0.95fr);
-  grid-template-rows: 0.52fr 0.96fr;
+  grid-template-rows: auto minmax(0, 1fr);
   align-items: stretch;
   column-gap: clamp(48px, 8vw, 116px);
   margin-top: 16px;
@@ -21,22 +21,21 @@
 .reading-desk-featured__intro {
   position: relative;
   z-index: 1;
-  grid-column: 1;
+  grid-column: 1 / -1;
   grid-row: 1;
-  align-self: end;
-  max-width: 510px;
-  padding: 0 0 10px 5px;
+  justify-self: center;
+  padding: clamp(24px, 3.4vw, 46px) 0 14px;
+  text-align: center;
   text-shadow: 0 2px 16px rgb(0 0 0 / 52%);
 }
 
 .reading-desk-featured__title {
-  margin-top: 14px;
   color: #f7f5ef;
   font: 700 clamp(40px, 4.3vw, 60px)/1 var(--font-display), sans-serif;
 }
 
 .reading-desk-featured__intro p {
-  max-width: 370px;
+  max-width: 510px;
   margin-top: 12px;
   color: #d8dbe2;
   font-size: 15px;
@@ -50,7 +49,7 @@
   grid-column: 1;
   grid-row: 2;
   min-height: 100%;
-  align-items: center;
+  align-items: flex-end;
   justify-content: center;
   padding-bottom: 5px;
 }
@@ -59,8 +58,8 @@
   position: relative;
   z-index: 1;
   grid-column: 2;
-  grid-row: 1 / span 2;
-  align-self: center;
+  grid-row: 2;
+  align-self: start;
   width: 100%;
   max-width: 440px;
   padding: 30px 28px 32px;
@@ -125,8 +124,8 @@
     background-size: auto 100%;
   }
 
-  .reading-desk-featured__intro { grid-column: 1; grid-row: 1; align-self: center; padding-top: 10px; }
-  .reading-desk-featured__book { grid-column: 1; grid-row: 2; min-height: 410px; }
+  .reading-desk-featured__intro { grid-column: 1; grid-row: 1; justify-self: start; padding-top: 10px; text-align: left; }
+  .reading-desk-featured__book { grid-column: 1; grid-row: 2; min-height: 410px; align-items: center; }
   .reading-desk-featured__reading { grid-column: 1; grid-row: 3; width: min(100%, 520px); justify-self: end; }
 }
 
@@ -145,7 +144,14 @@
 }
 
 .reading-desk-featured--compact { min-height: 250px; grid-template-rows: 1fr; background-position: center 46%; }
-.reading-desk-featured--compact .reading-desk-featured__intro { grid-row: 1; }
+.reading-desk-featured--compact .reading-desk-featured__intro {
+  grid-column: 1;
+  grid-row: 1;
+  align-self: center;
+  justify-self: start;
+  padding-block: 14px;
+  text-align: left;
+}
 
 @media (prefers-reduced-motion: reduce) {
   .reading-desk-list__link,
