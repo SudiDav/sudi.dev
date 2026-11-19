@@ -54,4 +54,18 @@ describe('about page professional profile', () => {
     expect(html).toContain('href="tel:+243817334881"')
     expect(html).toContain('+243 817 334 881')
   })
+
+  it('keeps the configured portrait inside the portrait studio frame', async () => {
+    const html = await renderPage()
+
+    expect(html).toContain('about-portrait-studio')
+    expect(html).toContain('%2Fimages%2Fsudi.jpeg')
+  })
+
+  it('presents the configured portrait as a shallow, keyboard-operable relief', async () => {
+    const html = await renderPage()
+
+    expect(html).toContain('data-portrait-relief')
+    expect(html).toContain('Use arrow keys to change the portrait view')
+  })
 })

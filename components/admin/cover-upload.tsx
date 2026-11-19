@@ -18,9 +18,11 @@ import { uploadCoverImage } from '@/app/admin/actions'
 export function CoverUpload({
   value,
   onChange,
+  label = 'cover image',
 }: {
   value: string
   onChange: (path: string) => void
+  label?: string
 }) {
   const [pending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
@@ -60,7 +62,7 @@ export function CoverUpload({
               would 404 on it until the next build. */}
           <Image
             src={value}
-            alt="Cover preview"
+            alt={`Preview of ${label}`}
             width={360}
             height={190}
             unoptimized
@@ -69,7 +71,7 @@ export function CoverUpload({
           <button
             type="button"
             onClick={() => onChange('')}
-            aria-label="Remove cover image"
+            aria-label={`Remove ${label}`}
             className="absolute top-2 right-2 rounded-full bg-[#000000aa] p-1.5 text-white transition-opacity hover:opacity-80"
           >
             <X size={14} />
@@ -78,6 +80,7 @@ export function CoverUpload({
       ) : (
         <button
           type="button"
+          aria-label={`Upload ${label}`}
           onClick={() => input.current?.click()}
           onDragOver={(event) => {
             event.preventDefault()
@@ -103,7 +106,7 @@ export function CoverUpload({
           <span className="text-[13px] text-admin-text-secondary">
             {pending ? 'Uploading…' : 'Drop image here or click to upload'}
           </span>
-          <span className="text-[11px] text-admin-text-tertiary">PNG, JPG, WebP · Max 5MB</span>
+          <span className="text-[11px] text-admin-text-tertiary">PNG, JPG, WebP or AVIF · Up to 5 MB</span>
         </button>
       )}
 

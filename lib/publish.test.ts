@@ -512,6 +512,37 @@ describe('versioned project and settings publishing', () => {
     })
   })
 
+  it('keeps the rendered folio for a text edit and frames a replacement upload automatically', async () => {
+    vi.stubEnv('NODE_ENV', 'development')
+    vi.stubEnv('GITHUB_TOKEN', '')
+    vi.stubEnv('GITHUB_REPO', '')
+    await withLocalRecords(async (path) => {
+      await writeFile(path, projectRaw.replace('links: {}', 'coverPresentation: rendered-folio\nlinks: {}'))
+      const first = await getLatestProjectSnapshot('existing')
+      expect(first?.project.coverPresentation).toBe('rendered-folio')
+      const edit = projectChanges('Updated title')
+      const saved = await saveProject('existing', edit, 'test', first!.version)
+      expect((await getLatestProjectSnapshot('existing'))?.project.coverPresentation).toBe('rendered-folio')
+      await saveProject('existing', { ...edit, cover: '/images/uploads/new.jpg', logo: '/images/uploads/mark.png' }, 'test', saved.contentVersion!)
+      const current = await getLatestProjectSnapshot('existing')
+      expect(current?.project.coverPresentation).toBeUndefined()
+      expect(current?.project.logo).toBe('/images/uploads/mark.png')
+    })
+  })
+
+  it('creates an ordinary uploaded cover and its optional company logo without needing a rendered asset', async () => {
+    vi.stubEnv('NODE_ENV', 'development')
+    vi.stubEnv('GITHUB_TOKEN', '')
+    vi.stubEnv('GITHUB_REPO', '')
+    await withLocalRecords(async () => {
+      const draft = { ...projectChanges('New project'), cover: '/images/uploaded.jpg', logo: '/images/logo.png' }
+      await createProject('new-project', draft, 'test')
+      const saved = await getLatestProjectSnapshot('new-project')
+      expect(saved?.project).toMatchObject({ cover: draft.cover, logo: draft.logo })
+      expect(saved?.project.coverPresentation).toBeUndefined()
+    })
+  })
+
   it('requires fresh snapshots for project and settings and rejects stale sources without writing', async () => {
     vi.stubEnv('NODE_ENV', 'development')
     vi.stubEnv('GITHUB_TOKEN', '')

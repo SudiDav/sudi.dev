@@ -1,86 +1,101 @@
 import NextAuth from 'next-auth'
-import GitHub from 'next-auth/providers/github'
+import GitHub, { type GitHubEmail, type GitHubProfile } from 'next-auth/providers/github'
 import Credentials from 'next-auth/providers/credentials'
 
-/**
- * The single account allowed into the admin.
- *
- * This is the whole authorisation model: there is one author, so rather than a
- * user table there is one address, checked on every sign-in. Anyone else who
- * completes GitHub's flow is rejected before a session is ever issued.
- *
- * GitHub rather than Google because everything else here already runs through
- * it — comments are GitHub Discussions, publishing commits to the repo — so
- * this adds no new account, and no second place for access to be revoked.
- */
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL?.toLowerCase().trim()
+function ownerEmail() {
+  return process.env.ADMIN_EMAIL?.trim().toLowerCase()
+}
 
-/**
- * A development-only sign-in that skips GitHub entirely.
- *
- * This exists so the admin is usable before OAuth credentials are set up. It is
- * gated on TWO conditions that both have to hold: NODE_ENV must not be
- * production, and AUTH_DEV_BYPASS must be explicitly "true". `next build` sets
- * NODE_ENV=production, so the provider is not merely hidden in a deployed
- * build — it is not registered at all, and there is no route to reach it.
- *
- * Delete this block once GitHub sign-in is configured.
- */
-const devBypassEnabled =
+function isOwner(email: string | null | undefined) {
+  const owner = ownerEmail()
+  return Boolean(owner && email?.trim().toLowerCase() === owner)
+}
+
+export function isGitHubSignInConfigured() {
+  const secret = process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET ||
+    process.env.AUTH_SECRET_1 || process.env.AUTH_SECRET_2 || process.env.AUTH_SECRET_3
+  return Boolean(ownerEmail() && secret && process.env.AUTH_GITHUB_ID && process.env.AUTH_GITHUB_SECRET)
+}
+
+async function verifiedOwnerEmail(headers: HeadersInit) {
+  const owner = ownerEmail()
+  if (!owner) return null
+
+  for (let page = 1; ; page++) {
+    const url = `https://api.github.com/user/emails?per_page=100&page=${page}`
+    const response = await fetch(url, { headers, cache: 'no-store' })
+    if (!response.ok) throw new Error('GitHub email verification was unavailable.')
+    const addresses: GitHubEmail[] = await response.json()
+    if (addresses.some(address => address.verified === true && address.email.trim().toLowerCase() === owner)) {
+      return owner
+    }
+    if (!response.headers.get('link')?.includes('rel="next"')) return null
+  }
+}
+
+const github = GitHub({
+  authorization: { params: { scope: 'read:user user:email', prompt: 'select_account' } },
+  userinfo: {
+    url: 'https://api.github.com/user',
+    async request({ tokens }: { tokens: { access_token?: string } }) {
+      if (!tokens.access_token) throw new Error('GitHub did not return an access token.')
+      const headers = {
+        Authorization: `Bearer ${tokens.access_token}`,
+        Accept: 'application/vnd.github+json',
+        'User-Agent': 'sudi.dev',
+      }
+      // Match the allowlisted address against GitHub's verified addresses, regardless of profile visibility.
+      const [user, email] = await Promise.all([
+        fetch('https://api.github.com/user', { headers, cache: 'no-store' }),
+        verifiedOwnerEmail(headers),
+      ])
+      if (!user.ok) throw new Error('GitHub account verification was unavailable.')
+      const profile: GitHubProfile = await user.json()
+      return { ...profile, email }
+    },
+  },
+})
+
+export const isDevBypassEnabled =
   process.env.NODE_ENV !== 'production' && process.env.AUTH_DEV_BYPASS === 'true'
 
 const devBypass = Credentials({
   id: 'dev',
   name: 'Development bypass',
   credentials: {},
-  authorize: () =>
-    ADMIN_EMAIL ? { id: 'dev-admin', name: 'Sudi David', email: ADMIN_EMAIL } : null,
-})
-
-export const isDevBypassEnabled = devBypassEnabled
-
-export const { handlers, signIn, signOut, auth } = NextAuth({
-  providers: devBypassEnabled ? [GitHub, devBypass] : [GitHub],
-  session: { strategy: 'jwt' },
-  pages: { signIn: '/admin/signin', error: '/admin/signin' },
-  callbacks: {
-    /**
-     * Returning false here aborts the sign-in — no session, no cookie.
-     *
-     * GitHub does not return an `email_verified` claim the way Google does; it
-     * returns the account's primary email, which GitHub itself has verified.
-     * The address must match ADMIN_EMAIL exactly, so ADMIN_EMAIL has to be
-     * whichever address GitHub reports as primary — not necessarily the one on
-     * the public site.
-     */
-    signIn({ account, profile, user }) {
-      if (!ADMIN_EMAIL) return false
-
-      // The dev bypass mints the admin identity itself; it only exists when
-      // both guards above allow it.
-      if (account?.provider === 'dev') {
-        return devBypassEnabled && user?.email?.toLowerCase() === ADMIN_EMAIL
-      }
-
-      return typeof profile?.email === 'string' && profile.email.toLowerCase() === ADMIN_EMAIL
-    },
-    /**
-     * Re-check on every request. If ADMIN_EMAIL is later changed, existing
-     * sessions minted for the old address stop being treated as admin rather
-     * than lingering until they expire.
-     */
-    authorized({ auth: session }) {
-      return session?.user?.email?.toLowerCase() === ADMIN_EMAIL
-    },
+  authorize: () => {
+    const email = ownerEmail()
+    return email ? { id: 'dev-admin', name: 'Sudi David', email } : null
   },
 })
 
-/**
- * True when the caller is the admin. Every server action and the admin layout
- * calls this — the proxy is a redirect convenience, not the security boundary.
- */
+export const { handlers, signIn, signOut, auth } = NextAuth(() => ({
+  providers: isDevBypassEnabled ? [github, devBypass] : [github],
+  session: { strategy: 'jwt' },
+  pages: { signIn: '/admin/signin', error: '/admin/signin' },
+  callbacks: {
+    signIn({ account, user }) {
+      const allowedProvider = account?.provider === 'github' ||
+        (isDevBypassEnabled && account?.provider === 'dev')
+      return allowedProvider && isOwner(user.email)
+    },
+    authorized({ auth: session, request }) {
+      if (isOwner(session?.user?.email)) return true
+      if (process.env.NODE_ENV !== 'development' || !process.env.AUTH_URL) return false
+
+      // Auth.js builds its default redirect from NextURL, which aliases 127.0.0.1 to localhost.
+      const current = new URL(request.url)
+      if (current.hostname !== '127.0.0.1' || current.pathname === '/admin/signin') return false
+      const signInPage = new URL('/admin/signin', current.origin)
+      signInPage.searchParams.set('callbackUrl', current.pathname + current.search)
+      return Response.redirect(signInPage, 307)
+    },
+  },
+}))
+
+/** Used by the admin layout and each privileged server action. */
 export async function isAdmin(): Promise<boolean> {
-  if (!ADMIN_EMAIL) return false
+  if (!ownerEmail()) return false
   const session = await auth()
-  return session?.user?.email?.toLowerCase() === ADMIN_EMAIL
+  return isOwner(session?.user?.email)
 }

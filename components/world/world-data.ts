@@ -7,7 +7,7 @@ export const WORLD_SECTORS = [
     symbol: '01',
   },
   {
-    id: 'energy', label: 'Energy', x: -4.1, z: -2.8,
+    id: 'energy', label: 'Energy', x: -5.15, z: -0.64,
     title: 'Give the feeling a direction.',
     description: 'Let emotion become movement: a conversation, a question, a first step. Choose where your attention goes.',
     symbol: '02',

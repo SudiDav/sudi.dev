@@ -40,6 +40,9 @@ export type Project = {
   tech: string[]
   category: string // "Web Apps" | "CLI Tools" | "Libraries" | "Open Source"
   cover: string
+  /** An exported Blender still already includes its binding and perspective. */
+  coverPresentation?: 'rendered-folio'
+  logo?: string
   links: { github?: string; live?: string }
   body: string
 }

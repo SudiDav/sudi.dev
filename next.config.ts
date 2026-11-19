@@ -32,6 +32,11 @@ const nextConfig = {
   // during builds, so the setting applies only everywhere else.
   output: process.env.VERCEL ? undefined : 'standalone',
 
+  // GitHub must return to the same host that set the OAuth cookies. Next
+  // normally rewrites a literal 127.0.0.1 request URL to localhost.
+  skipProxyUrlNormalize: process.env.NODE_ENV === 'development' &&
+    /^https?:\/\/127\.0\.0\.1(?::\d+)?(?:\/|$)/.test(process.env.AUTH_URL ?? ''),
+
   // CoverUpload accepts images up to 5 MB. Leave room for multipart request
   // overhead while keeping the Server Action body bounded.
   experimental: {

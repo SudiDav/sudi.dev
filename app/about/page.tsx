@@ -16,7 +16,6 @@ import { LocationBadge } from '@/components/location-badge'
 import { OutboundLink } from '@/components/outbound-link'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
-import { PageIntro } from '@/components/page-intro'
 import {
   GithubIcon,
   TwitterIcon,
@@ -26,16 +25,21 @@ import {
 import { PAGE_GUTTER } from '@/components/layout'
 import { getSettings, socialUrl } from '@/lib/site'
 import { CareerStepper } from '@/components/career-stepper/career-stepper'
+import { PortraitRelief } from '@/components/portrait-relief'
+import portraitReliefManifest from '@/components/portrait-relief-manifest.json'
+import './about-room.css'
+
+const aboutDescription = 'Sudi M. David explores the systems behind everyday life through software, philosophy, writing and 3D design from Lubumbashi.'
 
 export const metadata: Metadata = {
   title: 'About | Sudi M. David',
-  description: 'Software engineer in Lubumbashi specializing in DevOps and cloud systems for banking, lending, agriculture and education.',
+  description: aboutDescription,
   alternates: { canonical: '/about' },
   openGraph: {
     type: 'website',
     url: '/about',
     title: 'About | Sudi M. David',
-    description: 'Software engineer in Lubumbashi specializing in DevOps and cloud systems for banking, lending, agriculture and education.',
+    description: aboutDescription,
   },
 }
 
@@ -155,6 +159,8 @@ function SectionHeading({ label, title }: { label: string; title: string }) {
 
 export default async function AboutPage() {
   const settings = await getSettings()
+  const portraitSrc = settings.portrait || settings.avatar
+  const portraitReliefReady = portraitSrc === portraitReliefManifest.source
   const socials = (
     [
       { kind: 'github' as const, label: 'GitHub', Icon: GithubIcon },
@@ -169,39 +175,16 @@ export default async function AboutPage() {
       <SiteHeader />
 
       <main className="mx-auto w-full max-w-[1440px] flex-1">
-        <PageIntro segment="about" title="About" />
-
         {/* Hero Section — ROW, padding [48,120], gap 56, centred */}
-        <section className={`flex flex-col items-center gap-14 py-12 lg:flex-row ${PAGE_GUTTER}`}>
-          <div className="relative h-[420px] w-full shrink-0 overflow-hidden rounded-2xl border border-border bg-bg-elevated lg:w-[340px]">
-            <Image
-              src={settings.portrait ?? settings.avatar}
-              alt={settings.displayName}
-              fill
-              sizes="(max-width: 1024px) 100vw, 340px"
-              className="object-cover"
-              priority
-            />
-          </div>
-
-          <div className="flex flex-1 flex-col gap-6">
-            <h2 className="font-display text-[28px] leading-[1.3] font-bold text-text-primary">
-              Refusing the official explanation.
+        <section className="about-portrait-studio" aria-label="Portrait studio">
+          <div className="about-portrait-studio__copy">
+            <h1 className="about-portrait-studio__title">About</h1>
+            <h2 className="font-display text-[28px] leading-[1.3] font-bold">
+              Explore the systems behind everything.
             </h2>
-            <p className="text-[15px] leading-[1.7] text-text-secondary">
-              Philosophy and conspiracy theories got there before software did. Both start from
-              the same refusal — that the surface account of how something works is the whole
-              account — and both go looking for the mechanism underneath. One of them taught me
-              to ask what would have to be true. The other taught me what happens when nobody
-              checks.
-            </p>
-            <p className="text-[15px] leading-[1.7] text-text-secondary">
-              Debugging is that instinct with a laboratory attached. The system insists it is
-              fine; the logs say otherwise; you get to find out who is right. I&apos;m Sudi
-              David, a software engineer specializing in DevOps and cloud systems in Lubumbashi, and I do it on software other
-              people&apos;s work depends on — banking bridges, loan management, school
-              administration, agricultural value chains. The kind of system where a bug is
-              somebody&apos;s afternoon, not just a failed request.
+            <p className="text-[16px] leading-[1.65]">
+              I’m Sudi. I build software, make things in 3D and write about technology and philosophy.
+              I’m as curious about how a thought takes shape as I am about how a machine works.
             </p>
             <div className="flex flex-wrap items-center gap-4">
               <span className="inline-flex items-center gap-2 rounded-full bg-accent-dim px-3.5 py-2 font-mono text-xs font-medium text-accent">
@@ -209,6 +192,45 @@ export default async function AboutPage() {
               </span>
               <LocationBadge location={settings.location} />
             </div>
+          </div>
+
+          <figure className="about-portrait-studio__frame">
+            <div className="about-portrait-studio__opening">
+              {portraitReliefReady ? (
+                <PortraitRelief
+                  key={portraitSrc}
+                  src={portraitSrc}
+                  alt={settings.displayName}
+                  expectedSourceSha256={portraitReliefManifest.sourceSha256}
+                />
+              ) : (
+                <Image
+                  src={portraitSrc}
+                  alt={settings.displayName}
+                  fill
+                  sizes="(max-width: 1024px) 100vw, 340px"
+                  className="about-portrait-studio__image"
+                  priority
+                />
+              )}
+            </div>
+            <figcaption className="about-portrait-studio__caption">{settings.displayName}</figcaption>
+          </figure>
+        </section>
+
+        <section aria-label="Biography" className={`flex flex-col gap-5 py-10 ${PAGE_GUTTER}`}>
+          <div className="max-w-[70ch] space-y-4">
+            <p className="text-[15px] leading-[1.7] text-text-secondary">
+              Philosophy got there before software did. It taught me to ask what would have to
+              be true for an explanation to hold. I still ask that question at work, especially
+              when a payment looks fine in the logs and the person waiting for it tells a different story.
+            </p>
+            <p className="text-[15px] leading-[1.7] text-text-secondary">
+              Some questions turn into essays. I’ve written about attention and about what we
+              give someone when we give them our time. Others are easier to explore by making
+              something. The little universe on my homepage is one of those experiments, built
+              in Blender with Python.
+            </p>
           </div>
         </section>
 
@@ -262,8 +284,9 @@ export default async function AboutPage() {
               <SectionHeading label="BEYOND CODE" title="The Rest of It" />
             </div>
             <p className="text-[15px] leading-[1.7] text-text-secondary">
-              Mostly in places where the software has to work the first time — banks, lenders,
-              schools. Here is the rest of the picture.
+              I studied in Kampala, speak several languages, and once built a chatbot to explain
+              legal procedures in everyday words. Each gave me a different way to think about
+              who gets to understand a system.
             </p>
           </div>
           <div className="flex flex-1 flex-col gap-4">

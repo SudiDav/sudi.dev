@@ -1,0 +1,127 @@
+.about-portrait-studio {
+  position: relative;
+  min-height: clamp(700px, 59vw, 840px);
+  overflow: hidden;
+  background-color: #d8cdbb;
+  background-image: url('/images/portrait-studio-room.webp');
+  background-position: center;
+  background-size: 100% 100%;
+}
+
+.about-portrait-studio__copy {
+  position: absolute;
+  top: 15%;
+  left: 8%;
+  z-index: 1;
+  display: flex;
+  width: min(47%, 620px);
+  flex-direction: column;
+  gap: 20px;
+  padding: 26px 28px;
+  border-left: 1px solid rgb(115 91 62 / 28%);
+  background: linear-gradient(90deg, rgb(244 237 224 / 84%), rgb(244 237 224 / 58%), transparent);
+  color: #252a2e;
+}
+
+.about-portrait-studio__copy h2 { color: #20262d; }
+.about-portrait-studio__copy p { color: #41474d; }
+
+.about-portrait-studio__title {
+  color: #20262d;
+  font: 700 clamp(40px, 4.3vw, 60px)/1 var(--font-display), sans-serif;
+}
+.about-portrait-studio__copy [aria-haspopup="dialog"] { background: #fcf8f0; color: #283544; }
+.about-portrait-studio__copy [aria-haspopup="dialog"] svg { color: #506070; }
+.about-portrait-studio__copy .text-accent { background: #dfebec; color: #29495c; }
+
+.about-portrait-studio__frame {
+  position: absolute;
+  top: 1.8%;
+  left: 63.8%;
+  width: 24.7%;
+  height: 56.9%;
+  margin: 0;
+  overflow: hidden;
+  background: transparent;
+}
+
+.about-portrait-studio__opening {
+  position: absolute;
+  inset: 0;
+}
+
+.about-portrait-studio__image {
+  object-fit: cover;
+  object-position: 50% 28%;
+}
+
+.about-portrait-studio__caption { display: none; }
+
+@media (min-width: 1441px) {
+  .about-portrait-studio { min-height: 850px; background-size: 100% 100%; }
+}
+
+@media (max-width: 900px) and (min-width: 641px) {
+  .about-portrait-studio {
+    min-height: 610px;
+    background-image:
+      radial-gradient(ellipse at 75% 18%, rgb(255 246 220 / 88%), transparent 38%),
+      linear-gradient(150deg, #e7ddcf 0%, #d6c9b8 58%, #bcae9a 100%);
+  }
+  .about-portrait-studio__copy { top: 11%; left: 5%; width: 54%; gap: 16px; padding: 20px; }
+  .about-portrait-studio__frame {
+    top: 15%;
+    left: 62%;
+    width: 34%;
+    height: 59%;
+    padding: 12px 12px 24px;
+    background: #f3ede2;
+    box-shadow: 0 18px 36px rgb(51 42 31 / 28%);
+  }
+  .about-portrait-studio__opening { position: relative; width: 100%; height: 100%; }
+}
+
+@media (max-width: 640px) {
+  .about-portrait-studio {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+    gap: 28px;
+    overflow: hidden;
+    padding: 32px 20px 38px;
+    background-color: #e2d8c9;
+    background-image:
+      radial-gradient(ellipse at 84% 8%, rgb(255 245 219 / 85%), transparent 42%),
+      linear-gradient(160deg, #e9dfd1 0%, #d9cdbc 48%, #c8b9a6 100%);
+  }
+
+  .about-portrait-studio__copy {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: 100%;
+    gap: 17px;
+    padding: 8px 2px 18px;
+    border: 0;
+    background: transparent;
+  }
+
+  .about-portrait-studio__frame {
+    position: relative;
+    top: auto;
+    left: auto;
+    align-self: center;
+    width: min(82%, 340px);
+    height: 440px;
+    padding: 12px 12px 24px;
+    background: #f3ede2;
+    box-shadow: 0 18px 34px rgb(51 42 31 / 28%);
+  }
+
+  .about-portrait-studio__opening { position: relative; width: 100%; height: 100%; }
+}
+
+@media (max-width: 390px) {
+  .about-portrait-studio { padding-right: 16px; padding-left: 16px; }
+  .about-portrait-studio__frame { width: min(88%, 320px); height: 405px; }
+}

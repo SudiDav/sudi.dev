@@ -1,70 +1,62 @@
-import Image from 'next/image'
-import { ArrowUpRight, ExternalLink } from 'lucide-react'
+import { ArrowRight, ChevronDown } from 'lucide-react'
 import { GithubIcon } from './brand-icons'
 import { OutboundLink } from './outbound-link'
 import { TechBadge } from './tech-badge'
+import { ProjectFolio } from './project-folio'
 import type { Project } from '@/lib/content.types'
 
-/**
- * Design: "Work Project Card" — COLUMN, clip, fill $bg-card, 1px $border,
- * cornerRadius 8, outer shadow 0/4/16 #00000015. A 200px image area, then a
- * card body of padding 24 / gap 16: title Geist 20/700, year Geist Mono 11/500
- * in $accent, description Inter 14/1.6, three tags, then the links row.
- *
- * The links row is gap 12 with two pills — padding [8,14], gap 6, 1px $border,
- * cornerRadius 6, labels Inter 12/500 and 14px icons.
- */
+const projectLinkClass = 'inline-flex items-center gap-2 rounded-sm text-sm font-semibold text-[color:color-mix(in_srgb,var(--accent)_72%,var(--text-primary))] underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent'
+
 export function WorkProjectCard({ project }: { project: Project }) {
+  const { slug, title, year, category, cover, description, tech, links } = project
+  const summary = project.shortDescription ?? description
+
   return (
-    <article
-      id={project.slug}
-      className="flex flex-1 flex-col overflow-hidden rounded-2xl border border-border bg-bg-card shadow-[0_4px_16px_#00000015] transition-colors hover:border-border-hover"
-    >
-      <div className="relative h-50 w-full bg-bg-elevated">
-        <Image
-          src={project.cover}
-          alt={project.title}
-          fill
-          sizes="(max-width: 768px) 100vw, 50vw"
-          className="object-cover"
+    <article id={slug} className="work-project-card flex min-w-0 scroll-mt-6 flex-col">
+      <div className="work-project-artwork">
+        <ProjectFolio
+          src={cover || undefined}
+          alt=""
+          title={title}
+          presentation={project.coverPresentation}
+          logo={project.logo}
+          sizes="(min-width: 1440px) 403px, (min-width: 1280px) calc((100vw - 232px) / 3), (min-width: 1024px) calc((100vw - 160px) / 3), (min-width: 768px) calc((100vw - 80px) / 2), (min-width: 640px) calc((100vw - 48px) / 2), calc(100vw - 32px)"
         />
       </div>
 
-      <div className="flex flex-col gap-4 p-6">
-        <div className="flex items-center justify-between">
-          <h2 className="font-display text-xl font-bold text-text-primary">{project.title}</h2>
-          <ArrowUpRight size={18} className="shrink-0 text-text-tertiary" />
-        </div>
+      <div className="flex flex-1 flex-col gap-1.5 px-4 pb-4 pt-3">
+        <h2 className="font-display text-lg leading-tight font-bold text-text-primary xl:text-xl">{title}</h2>
+        <p className="text-sm leading-relaxed text-text-secondary">{summary}</p>
 
-        <p className="font-mono text-[11px] font-medium text-accent">{project.year}</p>
-
-        <p className="text-sm leading-[1.6] text-text-secondary">{project.description}</p>
-
-        <div className="flex flex-wrap gap-2">
-          {project.tech.map((tech) => (
-            <TechBadge key={tech} label={tech} />
-          ))}
-        </div>
-
-        <div className="flex flex-wrap gap-3">
-          {project.links.github ? (
-            <OutboundLink
-              href={project.links.github}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border px-3.5 py-2 text-xs font-medium text-text-secondary transition-colors hover:border-border-hover hover:text-text-primary"
-            >
-              <GithubIcon size={14} />
+        <div className="mt-auto flex flex-wrap items-baseline gap-x-4 gap-y-2 pt-2">
+          {links.live && (
+            <OutboundLink href={links.live} aria-label={`View project: ${title} (opens in a new tab)`} className={projectLinkClass}>
+              View project
+              <ArrowRight size={15} aria-hidden="true" />
+            </OutboundLink>
+          )}
+          {links.github && (
+            <OutboundLink href={links.github} aria-label={`Source: ${title} (opens in a new tab)`} className={projectLinkClass}>
+              <GithubIcon size={15} aria-hidden="true" />
               Source
             </OutboundLink>
-          ) : null}
-          {project.links.live ? (
-            <OutboundLink
-              href={project.links.live}
-              className="inline-flex items-center gap-1.5 rounded-full border border-border px-3.5 py-2 text-xs font-medium text-text-secondary transition-colors hover:border-border-hover hover:text-text-primary"
-            >
-              <ExternalLink size={14} />
-              Live Demo
-            </OutboundLink>
-          ) : null}
+          )}
+
+          <details className="group open:basis-full">
+            <summary className="inline-flex cursor-pointer list-none items-center gap-1.5 rounded-sm text-sm text-text-secondary hover:text-text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent [&::-webkit-details-marker]:hidden">
+              Project details
+              <ChevronDown size={14} className="group-open:rotate-180" aria-hidden="true" />
+            </summary>
+            <div className="mt-2.5 space-y-2.5 border-l border-border pl-3">
+              <p className="font-mono text-xs text-text-secondary">{category} · {year}</p>
+              {summary !== description && <p className="text-sm leading-relaxed text-text-secondary">{description}</p>}
+              {tech.length > 0 && (
+                <ul className="flex flex-wrap gap-1.5" aria-label="Built with">
+                  {tech.map(value => <li key={value}><TechBadge label={value} /></li>)}
+                </ul>
+              )}
+            </div>
+          </details>
         </div>
       </div>
     </article>

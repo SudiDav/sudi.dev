@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { signIn, isAdmin, isDevBypassEnabled } from '@/auth'
+import { signIn, isAdmin, isDevBypassEnabled, isGitHubSignInConfigured } from '@/auth'
 import { ShieldAlert } from 'lucide-react'
 import { GithubIcon } from '@/components/brand-icons'
 
@@ -42,6 +42,18 @@ export default async function AdminSignInPage({
   const redirectTo = getAdminCallbackUrl(callbackUrl)
   if (await isAdmin()) redirect(redirectTo)
 
+  const configured = isGitHubSignInConfigured()
+  let message: string | undefined
+  if (!configured) {
+    message = process.env.NODE_ENV === 'development'
+      ? 'Set AUTH_GITHUB_ID, AUTH_GITHUB_SECRET, AUTH_SECRET and ADMIN_EMAIL in .env.local, then restart the server.'
+      : 'GitHub sign-in is unavailable on this deployment. Check the server’s sign-in settings.'
+  } else if (error === 'AccessDenied') {
+    message = 'Choose the site owner’s GitHub account. It must have the configured admin email verified on GitHub.'
+  } else if (error) {
+    message = 'GitHub sign-in could not be completed. Try again, or check the OAuth callback and server settings.'
+  }
+
   return (
     <div className="flex min-h-screen items-center justify-center bg-admin-bg px-6">
       <div className="flex w-full max-w-sm flex-col gap-6 rounded-2xl border border-admin-border bg-admin-card p-8">
@@ -52,10 +64,10 @@ export default async function AdminSignInPage({
           </p>
         </div>
 
-        {error ? (
-          <p className="flex items-start gap-2 rounded-2xl bg-[#EF444415] p-3 text-[13px] text-admin-danger">
+        {message ? (
+          <p role="alert" className="flex items-start gap-2 rounded-2xl bg-[#EF444415] p-3 text-[13px] text-admin-danger">
             <ShieldAlert size={16} className="mt-0.5 shrink-0" />
-            That account isn&apos;t authorised for this site.
+            {message}
           </p>
         ) : null}
 
@@ -67,7 +79,8 @@ export default async function AdminSignInPage({
         >
           <button
             type="submit"
-            className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
+            disabled={!configured}
+            className="disabled:cursor-not-allowed disabled:opacity-60 inline-flex w-full items-center justify-center gap-2 rounded-full bg-accent px-4 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90"
           >
             <GithubIcon size={16} />
             Continue with GitHub

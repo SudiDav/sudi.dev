@@ -1,8 +1,8 @@
 import type { Metadata } from 'next'
+import Link from 'next/link'
 import { FileText, Timer, Eye } from 'lucide-react'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
-import { PageIntro } from '@/components/page-intro'
 import { FilterBar } from '@/components/filter-bar'
 import { BlogSearch } from '@/components/blog-search'
 import { FeaturedBlogCard } from '@/components/featured-blog-card'
@@ -13,6 +13,7 @@ import { PAGE_GUTTER } from '@/components/layout'
 import { getPublishedPosts } from '@/lib/content'
 import type { Post } from '@/lib/content.types'
 import { listBlogPosts, POST_FILTERS } from '@/lib/filters'
+import './blog-room.css'
 
 export const metadata: Metadata = {
   title: 'Blog | Sudi M. David',
@@ -95,25 +96,55 @@ export default async function BlogPage({
   const topicRows = buildTopicRows(posts)
   const featured = posts.find((post) => post.featured)
   const listed = listBlogPosts(posts, active, query)
-
   // The pinned post is the design's featured slot; it is hidden once the reader
   // narrows the list, since it would otherwise ignore their filter.
   const showFeatured = featured && active === 'All' && !query.trim()
+  const deskReading = showFeatured
+    ? posts.filter((post) => post.slug !== featured.slug).slice(0, 3)
+    : []
+  const visibleArticles = showFeatured
+    ? listed.filter((post) => !deskReading.some((deskPost) => deskPost.slug === post.slug))
+    : listed
 
   return (
     <div className="flex min-h-screen flex-col bg-bg-primary">
       <SiteHeader />
 
-      <main className="mx-auto w-full max-w-[1440px] flex-1">
-        <PageIntro
-          segment="blog"
-          title="Blog"
-          subtitle="Thoughts on software engineering, developer tooling, and building for the web."
-        />
+      <main className="reading-desk-page mx-auto w-full max-w-[1440px] flex-1">
+        <section className={`reading-desk-featured ${PAGE_GUTTER} ${showFeatured ? '' : 'reading-desk-featured--compact'}`} aria-label="Blog reading desk">
+          <div className="reading-desk-featured__intro">
+            <h1 className="reading-desk-featured__title">Blog</h1>
+            <p>Thoughts on software, systems, and the human side of building things.</p>
+          </div>
+          {showFeatured ? (
+            <div className="reading-desk-featured__book">
+              <FeaturedBlogCard post={featured} />
+            </div>
+          ) : null}
+          {showFeatured ? (
+            <div className="reading-desk-featured__reading">
+              <h2 className="reading-desk-featured__heading">Recent articles</h2>
+              <ul className="reading-desk-list">
+                {deskReading.map((post) => (
+                  <li key={post.slug}>
+                    <Link href={`/blog/${post.slug}`} className="reading-desk-list__link">
+                      <span className="reading-desk-list__title">{post.title}</span>
+                      <span className="reading-desk-list__meta">
+                        {post.category} <span aria-hidden="true">·</span> {post.readingTime}
+                      </span>
+                      <span className="reading-desk-list__arrow" aria-hidden="true">↗</span>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+              <a className="reading-desk-featured__all" href="#all-articles">Browse the archive <span aria-hidden="true">→</span></a>
+            </div>
+          ) : null}
+        </section>
 
-        {/* Search & Filters — ROW, space-between, gap 16 */}
+        {/* Search & filters stay close to the room and remain ordinary form controls. */}
         <div
-          className={`flex flex-col justify-between gap-4 lg:flex-row lg:items-center ${PAGE_GUTTER}`}
+          className={`reading-desk-tools flex flex-col justify-between gap-4 pt-7 lg:flex-row lg:items-center ${PAGE_GUTTER}`}
         >
           <BlogSearch query={query} />
           <FilterBar
@@ -124,24 +155,17 @@ export default async function BlogPage({
           />
         </div>
 
-        {showFeatured ? (
-          <section className={`flex flex-col gap-3 pt-8 pb-4 ${PAGE_GUTTER}`}>
-            <h2 className="font-mono text-[11px] font-semibold tracking-[1.5px] text-text-tertiary">
-              PINNED
-            </h2>
-            <FeaturedBlogCard post={featured} />
-          </section>
-        ) : null}
-
         {/* Blog Content — ROW, gap 48: article list + 300px sidebar */}
-        <div className={`flex flex-col gap-12 pt-8 pb-12 lg:flex-row ${PAGE_GUTTER}`}>
+        <div id="all-articles" className={`reading-desk-index flex flex-col gap-12 pt-8 pb-12 lg:flex-row ${PAGE_GUTTER}`}>
           <div className="flex flex-1 flex-col gap-1">
-            {listed.length === 0 ? (
+            {visibleArticles.length === 0 ? (
+              showFeatured ? null : (
               <p className="py-12 text-sm text-text-secondary">
                 No articles match that search yet.
               </p>
+              )
             ) : (
-              listed.map((post) => <ArticleItem key={post.slug} post={post} />)
+              visibleArticles.map((post) => <ArticleItem key={post.slug} post={post} />)
             )}
           </div>
 

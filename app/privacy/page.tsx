@@ -4,6 +4,7 @@ import { SiteFooter } from '@/components/site-footer'
 import { PageIntro } from '@/components/page-intro'
 import { PAGE_GUTTER } from '@/components/layout'
 import { getSettings } from '@/lib/site'
+import './privacy-room.css'
 
 export const metadata: Metadata = {
   title: 'Privacy | Sudi M. David',
@@ -52,7 +53,13 @@ export default async function PrivacyPage() {
           subtitle="The short version: this site collects almost nothing, and what it does collect you hand over on purpose."
         />
 
-        <div className={`flex max-w-[720px] flex-col gap-10 pb-20 ${PAGE_GUTTER}`}>
+        <div className={`privacy-reading-room ${PAGE_GUTTER}`}>
+          <aside className="privacy-reading-room__margin" aria-label="Document details">
+            <span>FIELD NOTES</span>
+            <span>PRIVACY</span>
+            <span>UPDATED · {UPDATED}</span>
+          </aside>
+          <div className="privacy-reading-room__paper flex max-w-[720px] flex-col gap-10 pb-20">
           <Section title="What I collect">
             <P>
               <strong className="text-text-primary">If you subscribe</strong> — your email address,
@@ -149,6 +156,7 @@ export default async function PrivacyPage() {
               that date moves.
             </P>
           </Section>
+          </div>
         </div>
       </main>
 

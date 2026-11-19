@@ -1,0 +1,91 @@
+.portrait-relief {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  isolation: isolate;
+  touch-action: pan-y;
+  background: #d8d5cf;
+}
+
+.portrait-relief__fallback,
+.portrait-relief__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.portrait-relief__fallback {
+  z-index: 0;
+  object-fit: cover;
+  object-position: 50% 28%;
+  transition: opacity 180ms ease;
+}
+
+.portrait-relief--loaded .portrait-relief__fallback { opacity: 0; }
+
+.portrait-relief__canvas {
+  z-index: 1;
+  opacity: 0;
+  cursor: grab;
+  outline: none;
+  touch-action: pan-y;
+  transition: opacity 180ms ease;
+}
+
+.portrait-relief__canvas:active { cursor: grabbing; }
+.portrait-relief--loaded .portrait-relief__canvas { opacity: 1; }
+
+.portrait-relief__canvas:focus-visible {
+  outline: 3px solid #456fa8;
+  outline-offset: -5px;
+}
+
+.portrait-relief__controls {
+  position: absolute;
+  z-index: 2;
+  right: 12px;
+  bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 5px;
+  border: 1px solid rgb(255 255 255 / 48%);
+  border-radius: 999px;
+  background: rgb(28 35 42 / 68%);
+  box-shadow: 0 4px 14px rgb(0 0 0 / 22%);
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+.portrait-relief:hover .portrait-relief__controls,
+.portrait-relief:focus-within .portrait-relief__controls,
+.portrait-relief--loaded .portrait-relief__controls { opacity: 1; }
+
+.portrait-relief__controls button {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(255 255 255 / 14%);
+  color: white;
+  cursor: pointer;
+  font: 500 15px/1 var(--font-geist), sans-serif;
+}
+
+.portrait-relief__controls button:hover { background: rgb(255 255 255 / 26%); }
+.portrait-relief__controls button:focus-visible { outline: 2px solid #f4d393; outline-offset: 2px; }
+.portrait-relief__controls button:disabled { cursor: default; opacity: 0.5; }
+
+@media (max-width: 640px) {
+  .portrait-relief__controls { right: 8px; bottom: 8px; opacity: 1; }
+  .portrait-relief__controls button { width: 32px; height: 32px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .portrait-relief__canvas,
+  .portrait-relief__fallback,
+  .portrait-relief__controls { transition: none; }
+}

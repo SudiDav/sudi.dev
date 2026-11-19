@@ -15,15 +15,14 @@ import { ArticleItem } from '@/components/article-item'
 import { TechBadge } from '@/components/tech-badge'
 import { PortfolioWorld } from '@/components/world/portfolio-world'
 import { PhilosophicalIdentity } from '@/components/philosophical-identity'
+import { PortraitRelief } from '@/components/portrait-relief'
+import { PortraitPuzzle } from '@/components/portrait-puzzle'
+import portraitReliefManifest from '@/components/portrait-relief-manifest.json'
 import { getPublishedPosts, getProjects } from '@/lib/content'
 import { getSettings, socialUrl } from '@/lib/site'
+import './home-room.css'
 
-/** Design: Sidebar → "Tech Stack", three rows of badges. */
-const TECH_ROWS = [
-  ['C#', '.NET', 'TypeScript'],
-  ['React', 'NestJS', 'Vue'],
-  ['PostgreSQL', 'Docker', 'RabbitMQ'],
-]
+const TECH_STACK = ['C#', '.NET', 'TypeScript', 'React', 'NestJS', 'Vue', 'PostgreSQL', 'Docker', 'RabbitMQ']
 
 export default async function HomePage() {
   const [posts, projects, settings] = await Promise.all([
@@ -50,11 +49,11 @@ export default async function HomePage() {
   const latestPosts = posts.slice(0, 4)
 
   return (
-    <div className="flex min-h-screen flex-col bg-bg-primary">
+    <div className="home-portfolio-page flex min-h-screen flex-col bg-bg-primary">
       <SiteHeader />
 
       <main className="mx-auto w-full max-w-[1440px] flex-1">
-        <section className="home-world-hero px-4 md:px-6 lg:px-12">
+        <section className="home-world-hero home-orbit-hero px-4 md:px-6 lg:px-12">
           <div className="home-world-intro">
             <PhilosophicalIdentity name={settings.displayName} />
 
@@ -88,53 +87,54 @@ export default async function HomePage() {
 
         {/* Content Area — ROW, padding [0,48], gap 48 */}
         <div id="portfolio" className="flex scroll-mt-8 flex-col gap-12 px-4 md:px-6 lg:flex-row lg:px-12">
-          {/* Sidebar — COLUMN, 260w, gap 28, right border */}
-          <aside className="flex w-full shrink-0 flex-col gap-7 py-8 lg:w-[260px] lg:border-r lg:border-border lg:pr-8">
-            {/*
-              The design draws this at 80px. Enlarged deliberately — with a real
-              portrait rather than a placeholder, 80px was too small to read as
-              a face at a glance.
-            */}
-            <Image
-              src={settings.avatar}
-              alt={settings.displayName}
-              width={192}
-              height={192}
-              priority
-              className="size-48 rounded-full border border-border object-cover"
-            />
+          <aside aria-label="Profile" className="home-profile">
+            <PortraitPuzzle src={settings.avatar} name={settings.displayName}>
+              {settings.avatar === portraitReliefManifest.source ? (
+                <PortraitRelief
+                  src={settings.avatar}
+                  alt={settings.displayName}
+                  expectedSourceSha256={portraitReliefManifest.sourceSha256}
+                  sizes="(max-width: 639px) min(80vw, 276px), 272px"
+                  priority={false}
+                />
+              ) : (
+                <Image
+                  src={settings.avatar}
+                  alt={settings.displayName}
+                  fill
+                  sizes="(max-width: 639px) min(80vw, 276px), 272px"
+                  className="home-profile__photo"
+                />
+              )}
+            </PortraitPuzzle>
 
-            <div className="flex items-center gap-2">
-              <span className="size-2 rounded-full bg-accent" />
-              <span className="font-mono text-xs text-text-tertiary">Available for work</span>
-            </div>
+            <div className="home-profile__details">
+              <p className="home-profile__availability">Available for work</p>
+              <p className="text-sm leading-[1.65] text-text-secondary">{settings.bio}</p>
 
-            <p className="text-sm leading-[1.6] text-text-secondary">{settings.bio}</p>
+              <div className="home-profile__stack">
+                <h2 className="font-mono text-[11px] font-semibold uppercase tracking-[0.12em] text-text-secondary">
+                  Tech stack
+                </h2>
+                <ul className="flex flex-wrap gap-1.5">
+                  {TECH_STACK.map((tech) => <li key={tech}><TechBadge label={tech} /></li>)}
+                </ul>
+              </div>
 
-            <div className="flex flex-col gap-3">
-              <h2 className="font-mono text-[11px] font-semibold tracking-[1.5px] text-text-tertiary">
-                TECH STACK
-              </h2>
-              {TECH_ROWS.map((row) => (
-                <div key={row.join()} className="flex flex-wrap gap-2">
-                  {row.map((tech) => (
-                    <TechBadge key={tech} label={tech} />
+              {socials.length > 0 && (
+                <div className="home-profile__socials">
+                  {socials.map(({ kind, label, Icon }) => (
+                    <OutboundLink
+                      key={label}
+                      href={socialUrl(kind, settings.social[kind] ?? '')}
+                      aria-label={label}
+                      className="home-profile__social"
+                    >
+                      <Icon size={16} />
+                    </OutboundLink>
                   ))}
                 </div>
-              ))}
-            </div>
-
-            <div className="flex gap-4">
-              {socials.map(({ kind, label, Icon }) => (
-                <OutboundLink
-                  key={label}
-                  href={socialUrl(kind, settings.social[kind] ?? '')}
-                  aria-label={label}
-                  className="flex size-9 items-center justify-center rounded-full border border-border bg-bg-card text-text-secondary transition-colors hover:border-border-hover hover:text-text-primary"
-                >
-                  <Icon size={16} />
-                </OutboundLink>
-              ))}
+              )}
             </div>
           </aside>
 

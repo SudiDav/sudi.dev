@@ -1,0 +1,16 @@
+{
+  "source": "/images/sudi.jpeg",
+  "sourceSha256": "d55da712c70a72c98070477f8c8584ef563ca5daa92b63d56bbda55f70d3bd09",
+  "model": "/models/sudi-portrait-relief.glb",
+  "texture": {
+    "width": 513,
+    "height": 693,
+    "frameAspect": 0.74
+  },
+  "depth": {
+    "faceAndShoulderRelief": true,
+    "zRange": 0.1269
+  },
+  "vision": true,
+  "matte": "Vision person segmentation"
+}
