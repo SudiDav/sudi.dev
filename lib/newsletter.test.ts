@@ -72,6 +72,42 @@ describe('newsletter broadcasts', () => {
     )
   })
 
+  it('creates a draft for a long slug and full commit SHA without shortening the email', async () => {
+    process.env.RESEND_API_KEY = 're_test_key'
+    process.env.RESEND_AUDIENCE_ID = 'aud_123'
+    process.env.EMAIL_FROM = 'contact@sudi.dev'
+    const post = {
+      ...postFixture,
+      slug: 'outbox-and-inbox-pattern-dotnet-ef-core-postgres',
+      title: 'The Outbox and Inbox Pattern in .NET 10 with EF Core and PostgreSQL',
+    }
+    const sha = 'd1efd595c6bc442e783321bcc41b2bcfb7d955c6'
+    broadcastCreateMock.mockImplementationOnce(async ({ name }: { name: string }) =>
+      name.length > 70
+        ? { data: null, error: { message: 'The name field must not have more than 70 characters.' } }
+        : { data: { id: 'br_long' }, error: null },
+    )
+
+    const result = await createPostBroadcast(post, sha)
+
+    expect(result).toEqual({
+      ok: true,
+      id: 'br_long',
+      name: expect.stringMatching(/^sudi\.dev post: outbox-and-inbox-.* · d1efd595c6bc$/),
+      created: true,
+    })
+    expect(broadcastCreateMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: (result as { name: string }).name,
+        subject: `New on sudi.dev: ${post.title}`,
+        html: expect.stringContaining(post.title),
+        text: expect.stringContaining(`https://sudi.dev/blog/${post.slug}`),
+        send: false,
+      }),
+      { headers: { 'Idempotency-Key': `sudi-post-newsletter-${sha}` } },
+    )
+  })
+
   it('does not include a relative cover path in the email', async () => {
     process.env.RESEND_API_KEY = 're_test_key'
     process.env.RESEND_AUDIENCE_ID = 'aud_123'
