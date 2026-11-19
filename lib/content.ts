@@ -30,6 +30,7 @@ export async function getPosts(): Promise<Post[]> {
       category: data.category,
       cover: data.cover,
       featured: Boolean(data.featured),
+      featuredAt: typeof data.featuredAt === 'string' ? data.featuredAt : undefined,
       status: data.status,
       generatedWeek: data.generatedWeek,
       subtitle: data.subtitle,

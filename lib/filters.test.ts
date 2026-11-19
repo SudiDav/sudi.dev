@@ -61,6 +61,10 @@ describe('filterPostsByCategory', () => {
 })
 
 describe('listBlogPosts', () => {
+  it('reserves only the most recently pinned post for the featured slot', () => {
+    const pinned = { ...blogPosts[1], featured: true, featuredAt: '2026-11-19T18:45:00.000Z' }
+    expect(listBlogPosts([blogPosts[0], pinned], 'All', '')).toEqual([blogPosts[0]])
+  })
   it('includes the featured post when a category is selected', () => {
     expect(listBlogPosts(blogPosts, 'Life', '')).toEqual([blogPosts[0]])
   })

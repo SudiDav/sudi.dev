@@ -45,7 +45,7 @@ const TEXT_FORMAT = [Heading1, Heading2, Heading3, Pilcrow]
 const INLINE_FORMAT = [Bold, Italic, Underline, Strikethrough, CodeXml]
 const BLOCK_FORMAT = [List, ListOrdered, Quote, Minus]
 
-type EditablePost = Pick<Post, 'title' | 'excerpt' | 'body' | 'category' | 'cover' | 'status'>
+type EditablePost = Pick<Post, 'title' | 'excerpt' | 'body' | 'category' | 'cover' | 'status' | 'featured'>
 
 function editablePost(post: Post): EditablePost {
   return {
@@ -55,6 +55,7 @@ function editablePost(post: Post): EditablePost {
     category: post.category,
     cover: post.cover ?? '',
     status: post.status,
+    featured: post.featured,
   }
 }
 
@@ -97,6 +98,7 @@ export function PostEditor({
   const [status, setStatus] = useState<Post['status']>(post?.status ?? 'Draft')
   const [category, setCategory] = useState(post?.category ?? POST_CATEGORIES[0])
   const [cover, setCover] = useState(post?.cover ?? '')
+  const [featured, setFeatured] = useState(post?.featured ?? false)
   const [savedBaseline, setSavedBaseline] = useState<EditablePost | null>(
     post ? editablePost(post) : null,
   )
@@ -110,14 +112,15 @@ export function PostEditor({
 
   const words = wordCount(body)
   const minutes = Math.max(1, Math.round(words / 200))
-  const currentValues: EditablePost = { title, excerpt, body, category, cover, status }
+  const currentValues: EditablePost = { title, excerpt, body, category, cover, status, featured }
   const dirty = savedBaseline !== null &&
     (currentValues.title !== savedBaseline.title ||
       currentValues.excerpt !== savedBaseline.excerpt ||
       currentValues.body !== savedBaseline.body ||
       currentValues.category !== savedBaseline.category ||
       currentValues.cover !== savedBaseline.cover ||
-      currentValues.status !== savedBaseline.status)
+      currentValues.status !== savedBaseline.status ||
+      currentValues.featured !== savedBaseline.featured)
   const persistedStatus = savedBaseline?.status ?? null
 
   const acceptSavedPost = (savedPost: Post | undefined, fallback: EditablePost) => {
@@ -128,6 +131,7 @@ export function PostEditor({
     setCategory(persisted.category)
     setCover(persisted.cover)
     setStatus(persisted.status)
+    setFeatured(persisted.featured)
     setSavedBaseline(persisted)
   }
 
@@ -159,6 +163,7 @@ export function PostEditor({
           category,
           status: status === 'Archived' ? 'Archived' : 'Draft',
           cover,
+          featured: submitted.featured,
         })
         if (result.ok && result.slug) {
           const params = new URLSearchParams()
@@ -186,6 +191,7 @@ export function PostEditor({
           category: submitted.category,
           cover: submitted.cover,
           status: submitted.status,
+          featured: submitted.featured,
           readingTime: `${minutes} min read`,
         },
         expectedVersion,
@@ -527,19 +533,28 @@ export function PostEditor({
             </div>
           </div>
 
-          <div className="flex items-center justify-between border-t border-admin-border pt-5">
-            <div className="flex flex-col gap-0.5">
+          <button
+            type="button"
+            role="switch"
+            aria-label="Featured Post"
+            aria-checked={featured}
+            onClick={() => setFeatured(value => !value)}
+            disabled={pending || conflicted || !canPublish}
+            className="flex w-full items-center justify-between gap-3 border-t border-admin-border pt-5 text-left focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent disabled:opacity-50"
+          >
+            <span className="flex flex-col gap-0.5">
               <span className="text-[13px] font-medium text-admin-text">Featured Post</span>
-              <span className="text-[11px] text-admin-text-tertiary">Pin to blog homepage</span>
-            </div>
+              <span className="text-[11px] text-admin-text-tertiary">Pin to the Blog once published</span>
+            </span>
             <span
-              className={`flex h-5 w-9 items-center rounded-full p-0.5 ${
-                post?.featured ? 'justify-end bg-accent' : 'bg-admin-border'
+              aria-hidden="true"
+              className={`flex h-5 w-9 shrink-0 items-center rounded-full p-0.5 ${
+                featured ? 'justify-end bg-accent' : 'bg-admin-border'
               }`}
             >
               <span className="size-4 rounded-full bg-admin-knob" />
             </span>
-          </div>
+          </button>
         </aside>
       </div>
     </div>

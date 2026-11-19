@@ -76,6 +76,7 @@ export type NewPost = {
   category: string
   status: 'Published' | 'Draft' | 'Archived'
   cover: string
+  featured?: boolean
 }
 
 /** Create a post from the editor's "new" route. Returns the slug it minted. */
@@ -110,7 +111,7 @@ export async function addPost(input: NewPost): Promise<ActionResult & { slug?: s
         readingTime: `${Math.max(1, Math.round(words / 200))} min read`,
         category: input.category,
         cover: input.cover.trim() || '/images/sudi.jpeg',
-        featured: false,
+        featured: input.featured === true,
         status: input.status,
         body: input.body,
       },
