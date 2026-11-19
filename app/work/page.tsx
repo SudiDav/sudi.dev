@@ -1,17 +1,14 @@
 import type { Metadata } from 'next'
-import { FolderCode, GitFork, Activity } from 'lucide-react'
 import { SiteHeader } from '@/components/site-header'
 import { SiteFooter } from '@/components/site-footer'
 import { PageIntro } from '@/components/page-intro'
 import { FilterBar } from '@/components/filter-bar'
 import { WorkProjectCard } from '@/components/work-project-card'
 import { CompanyShowcase } from '@/components/company-showcase'
-import { ProjectWarp } from '@/components/project-warp/project-warp'
-import { PAGE_GUTTER } from '@/components/layout'
+import { WORK_GUTTER } from '@/components/layout'
 import { getProjects } from '@/lib/content'
-import type { Project } from '@/lib/content.types'
 import { filterProjects, PROJECT_FILTERS } from '@/lib/filters'
-import { coverTexture } from '@/lib/cover-texture'
+import '@/components/work-exhibition.css'
 
 export const metadata: Metadata = {
   title: 'Work | Sudi M. David',
@@ -25,30 +22,7 @@ export const metadata: Metadata = {
   },
 }
 
-/**
- * Design: Work Page → "Stats", drawn as 12 / 8 / 3 against six cards.
- *
- * Those were the design's own figures. They are counted from the content
- * instead — a portfolio that overstates its own size is worse than one that is
- * simply small, and a hardcoded number goes stale the first time a project is
- * added through the admin.
- *
- * "Years" replaces the design's "Open Source": most of this work is proprietary
- * client software, so an open-source count would read as zero and mean nothing.
- */
 const CAREER_START = 2017
-
-function buildStats(projects: Project[], currentYear: number) {
-  return [
-    { Icon: FolderCode, number: String(projects.length), label: 'Projects' },
-    { Icon: Activity, number: `${currentYear - CAREER_START}+`, label: 'Years' },
-    {
-      Icon: GitFork,
-      number: String(new Set(projects.map((p) => p.category)).size),
-      label: 'Domains',
-    },
-  ]
-}
 
 export default async function WorkPage({
   searchParams,
@@ -63,22 +37,8 @@ export default async function WorkPage({
   const allProjects = await getProjects()
   const projects = filterProjects(allProjects, active)
 
-  // The stat row describes the whole portfolio, so it counts every project
-  // rather than the filtered view.
-  const stats = buildStats(allProjects, new Date().getFullYear())
-  // The warp tours every project whatever the filter: it stays put above the
-  // pills, so changing filter (which keeps the scroll position) never shifts
-  // the list under the visitor.
-  const warpProjects = allProjects.map(({ slug, title, shortDescription, description, cover, tech, year, category, links }) => ({
-    slug,
-    title,
-    blurb: shortDescription ?? description,
-    cover: cover ? coverTexture(cover) : undefined,
-    tech,
-    year,
-    category,
-    links,
-  }))
+  const years = new Date().getFullYear() - CAREER_START
+  const domains = new Set(allProjects.map(project => project.category)).size
 
   return (
     <div className="flex min-h-screen flex-col bg-bg-primary">
@@ -86,58 +46,38 @@ export default async function WorkPage({
 
       <main className="mx-auto w-full max-w-[1440px] flex-1">
         <PageIntro
+          compact
           segment="work"
           title="Work"
           subtitle="A selection of projects I've built, contributed to, or am currently working on."
         >
-          {/* Stats — ROW, padding-top 20, 1px dividers between each */}
-          <div className="flex flex-wrap items-center pt-5">
-            {stats.map(({ Icon, number, label }, index) => (
-              <div key={label} className="flex items-center">
-                {index > 0 ? <span className="h-12 w-px bg-border" aria-hidden /> : null}
-                <div className="flex flex-col items-center gap-2 px-7">
-                  <span className="flex size-8 items-center justify-center rounded-full bg-accent-dim">
-                    <Icon size={16} className="text-accent" />
-                  </span>
-                  <span className="font-mono text-[28px] font-bold text-text-primary">{number}</span>
-                  <span className="text-xs font-medium text-text-tertiary">{label}</span>
-                </div>
-              </div>
-            ))}
-          </div>
+          <p className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-sm text-text-secondary">
+            <span>{allProjects.length} {allProjects.length === 1 ? 'project' : 'projects'}</span>
+            <span aria-hidden="true">·</span>
+            <span>{years}+ years</span>
+            <span aria-hidden="true">·</span>
+            <span>{domains} {domains === 1 ? 'domain' : 'domains'}</span>
+          </p>
         </PageIntro>
 
-        {warpProjects.length > 0 && <ProjectWarp projects={warpProjects} />}
-
-        {/* The plain list. While the warp tour runs it already shows every
-            project, so the list only appears when the tour steps aside
-            (reduced motion, or no WebGL). */}
-        <div className="work-project-list">
-        {/* Filters — ROW, padding [0,120], gap 8 */}
-        <div id="all-projects" className={`scroll-mt-20 ${PAGE_GUTTER}`}>
+        <section id="all-projects" aria-label="Project gallery" className={`scroll-mt-6 pb-14 ${WORK_GUTTER}`}>
           <FilterBar
             options={PROJECT_FILTERS}
             active={active}
             label="Filter projects by category"
             size="work"
           />
-        </div>
 
-        {/* Projects Section — COLUMN, padding [32,120,48,120], gap 20; rows of two */}
-        <section className={`flex flex-col gap-5 pt-8 pb-12 ${PAGE_GUTTER}`}>
           {projects.length === 0 ? (
             <p className="py-12 text-sm text-text-secondary">
               No projects in this category yet.
             </p>
           ) : (
-            <div className="grid gap-5 md:grid-cols-2">
-              {projects.map((project) => (
-                <WorkProjectCard key={project.slug} project={project} />
-              ))}
+            <div className="work-project-grid mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:gap-5">
+              {projects.map(project => <WorkProjectCard key={project.slug} project={project} />)}
             </div>
           )}
         </section>
-        </div>
 
         <CompanyShowcase />
       </main>

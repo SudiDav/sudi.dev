@@ -1,9 +1,8 @@
 import * as THREE from 'three'
 import type { GLTF } from 'three/addons/loaders/GLTFLoader.js'
 import { WORLD_SECTORS, type SectorId } from './world-data'
-import { chromeMaterial } from '@/components/chrome-material'
 
-const STAR_TINTS = ['#FFFFFF', '#DCE6FF', '#9DB4F0', '#F2A541', '#E86A92', '#8B6CEF']
+const STAR_TINTS = ['#DDE6F4', '#AFC2E3', '#849AC2', '#DAC2A6', '#C4A5BA', '#B4ADE0']
 
 /** A soft round dot, so point-cloud stars read as light rather than squares. */
 export function starSprite() {
@@ -31,7 +30,7 @@ function stars(points: THREE.Points, size: number, sprite: THREE.Texture) {
     colours.set([colour.r, colour.g, colour.b], i * 3)
   }
   points.geometry.setAttribute('color', new THREE.BufferAttribute(colours, 3))
-  const material = new THREE.PointsMaterial({ size, map: sprite, vertexColors: true, transparent: true, depthWrite: false })
+  const material = new THREE.PointsMaterial({ size, map: sprite, vertexColors: true, transparent: true, depthWrite: false, toneMapped: false })
   ;(points.material as THREE.Material).dispose()
   points.material = material
   return material
@@ -68,7 +67,6 @@ export function buildWorld(scene: THREE.Scene, cosmos: GLTF) {
   }
   const material = (name: string) => materials.get(name) ?? new THREE.MeshStandardMaterial()
   const accent = material('Accent')
-  const logoMaterial = chromeMaterial('#607EBC')
   const glow = material('Glow')
   const yang = material('Yang')
   const world = new THREE.Group()
@@ -93,7 +91,6 @@ export function buildWorld(scene: THREE.Scene, cosmos: GLTF) {
   const logo = node('Logo')
   logo.position.set(0, LOGO_HEIGHT, 0)
   world.add(logo)
-  logo.traverse(object => { if (object instanceof THREE.Mesh) object.material = logoMaterial })
 
   // Each reflection is a planet.
   const beacons = new Map<SectorId, THREE.Object3D>()
@@ -110,6 +107,9 @@ export function buildWorld(scene: THREE.Scene, cosmos: GLTF) {
     targets.push(hit)
   }
 
+  const orbitTraces = nodes.get('OrbitTraces')
+  if (orbitTraces) world.add(orbitTraces)
+
   // A spiral galaxy turns beneath everything, inside a sky of distant stars.
   const sprite = starSprite()
   const galaxy = node('Galaxy') as THREE.Points
@@ -120,9 +120,9 @@ export function buildWorld(scene: THREE.Scene, cosmos: GLTF) {
   // as the S turns to the camera and grows in with it during the intro.
   const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: sprite, transparent: true, depthWrite: false }))
   halo.position.set(0, 0, -0.4)
-  halo.scale.setScalar(3.6)
+  halo.scale.setScalar(3.3)
   logo.add(halo)
-  const starMaterials = [stars(galaxy, 0.16, sprite), stars(starfield, 0.55, sprite), stars(farGalaxies, 0.24, sprite)]
+  const starMaterials = [stars(galaxy, 0.14, sprite), stars(starfield, 0.4, sprite), stars(farGalaxies, 0.18, sprite)]
 
   // A small spark is the player, carrying attention between reflections.
   const rover = new THREE.Group()
@@ -143,7 +143,7 @@ export function buildWorld(scene: THREE.Scene, cosmos: GLTF) {
   let light = false
   function setStars(opacity: number) {
     starOpacity = opacity
-    for (const starMaterial of starMaterials) starMaterial.opacity = opacity * (light ? 0.55 : 0.9)
+    for (const starMaterial of starMaterials) starMaterial.opacity = opacity * (light ? 0.42 : 0.64)
   }
 
   function setPalette() {
@@ -152,12 +152,10 @@ export function buildWorld(scene: THREE.Scene, cosmos: GLTF) {
     light = document.documentElement.classList.contains('light')
     accent.color.set(colour)
     accent.emissive.set(colour)
-    logoMaterial.color.set(colour).lerp(new THREE.Color('#ffffff'), 0.35)
-    logoMaterial.emissive.set(colour)
     // Additive glow vanishes on white; the light theme uses a faint tint instead.
     halo.material.color.set(colour)
     halo.material.blending = light ? THREE.NormalBlending : THREE.AdditiveBlending
-    halo.material.opacity = light ? 0.22 : 0.5
+    halo.material.opacity = light ? 0.11 : 0.24
     halo.material.needsUpdate = true
     glow.color.set(light ? colour : '#B9CBF2')
     glow.emissive.set(light ? colour : '#B9CBF2')

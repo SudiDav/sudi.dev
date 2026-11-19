@@ -141,6 +141,7 @@ export type NewProject = {
   category: string
   tech: string[]
   cover: string
+  logo?: string
   liveUrl?: string
   githubUrl?: string
   body?: string
@@ -169,6 +170,7 @@ export async function addProject(
         tech: input.tech.filter(Boolean),
         category: input.category,
         cover: input.cover.trim(),
+        logo: input.logo?.trim() || undefined,
         links: { github: input.githubUrl?.trim(), live: input.liveUrl?.trim() },
         body: input.body?.trim() || description,
       },
@@ -207,6 +209,7 @@ export async function editProject(
         tech: input.tech.filter(Boolean),
         category: input.category,
         cover: input.cover.trim(),
+        ...(input.logo !== undefined && { logo: input.logo.trim() || undefined }),
         links: { github: input.githubUrl?.trim(), live: input.liveUrl?.trim() },
         body: input.body?.trim() || description,
       },

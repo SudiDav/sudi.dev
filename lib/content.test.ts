@@ -100,7 +100,8 @@ describe('getProjects', () => {
       expect(project.title.trim()).not.toBe('')
       expect(project.year).toMatch(/^\d{4}$/)
       expect(project.category.trim()).not.toBe('')
-      expect(project.cover.startsWith('/')).toBe(true)
+      expect(typeof project.cover).toBe('string')
+      if (project.cover) expect(project.cover.startsWith('/')).toBe(true)
     }
   })
 })

@@ -2,7 +2,7 @@
 
 Usage:
   /Applications/Blender.app/Contents/MacOS/Blender -b --factory-startup \
-    --python tools/blender/build_cosmos.py [-- --preview out.png --blend out.blend]
+    --python tools/blender/build_cosmos.py [-- --preview out.png --blend out.blend --cosmos-only]
 
 Everything is generated from code so the scene can be rebuilt and reviewed.
 Blender is Z-up; the glTF exporter converts to the web's Y-up, so a face that
@@ -184,11 +184,20 @@ def build_yin_yang(mats):
         half.parent = turning
         half.rotation_euler = (0, rotation, 0)
         half.data.materials.append(mats[name])
+        inset = slab(f'{name}Inlay', [(x * 0.91, z * 0.91) for x, z in outline], 0.055, 0.035, 4)
+        inset.parent = half
+        inset.location.y = -0.19
+        inset.data.materials.append(mats[f'{name}Inlay'])
         # The halves breathe apart along the face normal four times per loop.
         key_every_frame(half, 'location', lambda p, d=direction: (0, d * 0.22 * math.sin(p * 4 * math.pi) ** 2, 0))
         seed = sphere(f'Seed{seed_colour}', 0.27, half, mats[seed_colour], (0, 0, -radius / 2))
         key_every_frame(seed, 'scale', lambda p: [1 + 0.18 * math.sin(p * 12 * TAU) ** 2] * 3)
-    torus('YinYangRim', radius + 0.11, 0.03, turning, mats['Accent'], (math.pi / 2, 0, 0))
+    frame = torus('YinYangFrame', radius + 0.13, 0.075, turning, mats['FrameGraphite'], (math.pi / 2, 0, 0))
+    frame.location.y = -0.04
+    rim = torus('YinYangRim', radius + 0.115, 0.021, turning, mats['Accent'], (math.pi / 2, 0, 0))
+    rim.location.y = -0.115
+    fillet = torus('YinYangFillet', radius + 0.22, 0.012, turning, mats['FrameBronze'], (math.pi / 2, 0, 0))
+    fillet.location.y = -0.02
     return root
 
 
@@ -205,7 +214,7 @@ def build_logo(mats):
         # Deep, softly rounded edges catch the light like a modern chrome mark.
         piece = chrome_edges(slab(name, outline, 0.34, 0.07, 6))
         piece.parent = turning
-        piece.data.materials.append(mats['Logo'])
+        piece.data.materials.append(mats['LogoPorcelain'] if name == 'LogoTop' else mats['Logo'])
     return root
 
 
@@ -235,13 +244,37 @@ def export_logo_mark(mats):
 def build_planets():
     for sector, (colour, radius) in SECTORS.items():
         root = empty(f'Planet_{sector}')
-        sphere(f'{sector}_Body', radius, root, material(f'Planet_{sector}', colour, 0.15, 0.45, 0.35))
+        sphere(f'{sector}_Body', radius, root, material(f'Planet_{sector}', colour, 0.22, 0.2, 0.12))
+
+
+def build_orbit_traces(mat):
+    """Fine partial arcs, centered at the scene origin for optional web attachment."""
+    root = empty('OrbitTraces')
+    for name, radius, start, end, depth in (
+        ('OrbitTraceA', 5.65, math.radians(203), math.radians(339), -0.06),
+        ('OrbitTraceB', 6.15, math.radians(18), math.radians(142), 0.12),
+    ):
+        curve_data = bpy.data.curves.new(name, 'CURVE')
+        curve_data.dimensions = '3D'
+        curve_data.resolution_u = 2
+        curve_data.bevel_depth = 0.007
+        curve_data.bevel_resolution = 2
+        spline = curve_data.splines.new('POLY')
+        points = 96
+        spline.points.add(points - 1)
+        for i, point in enumerate(spline.points):
+            angle = start + (end - start) * i / (points - 1)
+            point.co = (radius * math.cos(angle), depth, 0.3 + radius * math.sin(angle), 1)
+        arc_obj = bpy.data.objects.new(name, curve_data)
+        bpy.context.collection.objects.link(arc_obj)
+        arc_obj.parent = root
+        curve_data.materials.append(mat)
 
 
 def build_universe():
     rng = random.Random(7)
     arm = []
-    for _ in range(3400):
+    for _ in range(320):
         t = rng.random() ** 0.8
         radius = 6 + t * 22
         angle = t * 3.4 + rng.gauss(0, 0.16 + 0.1 * t)
@@ -252,14 +285,14 @@ def build_universe():
                    for k in range(4) for r, a, h in arm]
     # A dense bulge of old stars around the centre, also repeated every quarter
     # turn so the whole galaxy, not just its arms, loops without a jump.
-    bulge = [(4.5 + abs(rng.gauss(0, 3.2)), rng.uniform(0, TAU), rng.gauss(0, 0.35)) for _ in range(600)]
+    bulge = [(4.5 + abs(rng.gauss(0, 3.2)), rng.uniform(0, TAU), rng.gauss(0, 0.35)) for _ in range(100)]
     coordinates += [(r * math.cos(a + k * TAU / 4), r * math.sin(a + k * TAU / 4), h)
                     for k in range(4) for r, a, h in bulge]
     galaxy = points('Galaxy', coordinates)
     galaxy.location = (0, 0, -0.6)
     spin(galaxy, 2, 0.25)
     shell = []
-    for _ in range(2600):
+    for _ in range(350):
         z = rng.uniform(-1, 1)
         a = rng.uniform(0, TAU)
         r = rng.uniform(30, 52)
@@ -278,7 +311,7 @@ def build_universe():
         depth = rng.uniform(30, 40)
         centre = [look[k] * depth + right[k] * (u + rng.gauss(0, 1.5)) + up[k] * (v + rng.gauss(0, 1.5)) for k in range(3)]
         tilt, turn, size = rng.uniform(0.3, 1.1), rng.uniform(0, TAU), rng.uniform(2.0, 3.2)
-        for i in range(700):
+        for i in range(80):
             t = rng.random() ** 0.7
             a = t * 4 + (i % 2) * math.pi + rng.gauss(0, 0.2 + 0.25 * t)
             x, y, h = size * t * math.cos(a), size * t * math.sin(a), rng.gauss(0, 0.08)
@@ -310,8 +343,11 @@ def stage():
     """Camera, lights and layout matching the website, for renders and the .blend."""
     scene = bpy.context.scene
     scene.render.engine = 'BLENDER_EEVEE'
-    scene.render.resolution_x, scene.render.resolution_y = 1280, 800
-    scene.render.film_transparent = False
+    scene.render.resolution_x, scene.render.resolution_y = 1200, 1000
+    scene.render.film_transparent = True
+    scene.render.image_settings.file_format = 'PNG'
+    scene.render.image_settings.color_mode = 'RGBA'
+    scene.render.resolution_percentage = 100
     scene.world = bpy.data.worlds.new('Space')
     scene.world.use_nodes = True
     scene.world.node_tree.nodes['Background'].inputs['Color'].default_value = srgb('#0B0B11')
@@ -319,20 +355,23 @@ def stage():
     scene.collection.objects.link(camera)
     camera.location = (10, -12, 10)
     track = camera.constraints.new('TRACK_TO')
-    track.target = bpy.data.objects['YinYang']
+    target = empty('PreviewTarget', location=(0, 0, 0.3))
+    track.target = target
     scene.camera = camera
-    for name, energy, location in (('Key', 4, (-5, -8, 12)), ('Rim', 6, (4, 8, 6))):
-        light = bpy.data.objects.new(name, bpy.data.lights.new(name, 'SUN'))
+    for name, energy, location, size in (('Key', 1250, (-6, -8, 11), 8), ('Rim', 1700, (4, 7, 7), 6)):
+        light = bpy.data.objects.new(name, bpy.data.lights.new(name, 'AREA'))
         light.data.energy = energy
+        light.data.shape = 'DISK'
+        light.data.size = size
         light.location = location
         light.constraints.new('TRACK_TO').target = bpy.data.objects['YinYang']
         scene.collection.objects.link(light)
-    bpy.data.objects['YinYang'].location = (0, 0, 2.3)
-    bpy.data.objects['Logo'].location = (0, 0, 0.1)
-    for sector, (x, z) in zip(SECTORS, ((-4, 0.5), (-4.1, -2.8), (2.5, -3.6), (4, 0.5), (0, 4.3))):
+    bpy.data.objects['YinYang'].location = (0, 0, 3.2)
+    bpy.data.objects['Logo'].location = (0, 0, -0.75)
+    for sector, (x, z) in zip(SECTORS, ((-4, 0.5), (-5.15, -0.64), (2.5, -3.6), (4, 0.5), (0, 4.3))):
         bpy.data.objects[f'Planet_{sector}'].location = (x, -z, 0.7)
-    camera.data.lens = 30
-    render_stars(bpy.data.materials['Glow'])
+    camera.data.lens = 36
+    render_stars(bpy.data.materials['Glow'], radius=0.014)
     scene.frame_set(LOOP_FRAMES // 7)
 
 
@@ -348,16 +387,23 @@ def main():
     scene.render.fps = FPS
     scene.frame_start, scene.frame_end = 0, LOOP_FRAMES
     mats = {
-        'Yin': material('Yin', '#13131B', 0.55, 0.22),
-        'Yang': material('Yang', '#EDEDF0', 0.1, 0.28),
-        'Accent': material('Accent', '#607EBC', 0.8, 0.25, 0.4),
-        'Glow': material('Glow', '#B9CBF2', 0, 0.5, 3),
-        'Logo': material('Logo', '#607EBC', 0.85, 0.18, 0.25),
+        'Yin': material('Yin', '#10213B', 0.18, 0.2),
+        'Yang': material('Yang', '#F0EEE9', 0.05, 0.22),
+        'YinInlay': material('YinInlay', '#263C5C', 0.16, 0.23),
+        'YangInlay': material('YangInlay', '#D6D0C5', 0.08, 0.24),
+        'Accent': material('Accent', '#7896D0', 0.62, 0.24, 0.08),
+        'FrameGraphite': material('FrameGraphite', '#252A34', 0.72, 0.26),
+        'FrameBronze': material('FrameBronze', '#9C7C51', 0.68, 0.28),
+        'OrbitTrace': material('OrbitTrace', '#8F7C62', 0.4, 0.38, 0.015),
+        'Glow': material('Glow', '#9EACC9', 0, 0.6, 1.4),
+        'Logo': material('Logo', '#607EBC', 0.58, 0.22, 0.06),
+        'LogoPorcelain': material('LogoPorcelain', '#E7E4DF', 0.08, 0.23),
     }
     build_yin_yang(mats)
     build_logo(mats)
     build_planets()
     build_universe()
+    build_orbit_traces(mats['OrbitTrace'])
     OUTPUT.parent.mkdir(parents=True, exist_ok=True)
     bpy.ops.export_scene.gltf(
         filepath=str(OUTPUT), export_format='GLB', export_apply=True,
@@ -366,7 +412,8 @@ def main():
         use_mesh_vertices=True, export_cameras=False, export_lights=False, export_yup=True,
     )
     print(f'exported {OUTPUT.relative_to(ROOT)} ({OUTPUT.stat().st_size // 1024} KB)')
-    export_logo_mark(mats)
+    if not ('--skip-logo' in args or '--cosmos-only' in args):
+        export_logo_mark(mats)
     # Staging happens after export so the preview camera, lights and star
     # instancing never reach the website's model.
     if '--preview' in args or '--blend' in args:

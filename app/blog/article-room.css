@@ -1,0 +1,58 @@
+.article-reading-room { overflow: clip; }
+
+.article-reading-room__header {
+  position: relative;
+  margin-inline: auto;
+  max-width: 1160px;
+}
+
+.article-reading-room__header::after {
+  position: absolute;
+  top: 52px;
+  right: 34px;
+  width: 112px;
+  height: 66px;
+  border: 5px solid var(--bg-card);
+  border-radius: 3px;
+  background: url('/images/reading-desk-room.webp') 20% 80% / 240px auto;
+  box-shadow: 0 8px 18px rgb(0 0 0 / 16%);
+  content: '';
+  opacity: 0.76;
+  transform: rotate(4deg);
+}
+
+.article-reading-room__cover-wrap {
+  position: relative;
+  padding-top: 8px;
+  padding-bottom: 36px;
+}
+
+.article-reading-room__cover {
+  border: 1px solid var(--border);
+  box-shadow: 0 24px 52px rgb(0 0 0 / 18%);
+}
+
+.article-reading-room__paper {
+  position: relative;
+  margin: 0 auto 48px;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: var(--bg-primary);
+  box-shadow: 0 14px 38px rgb(0 0 0 / 7%);
+}
+
+.article-reading-room__paper::before {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 3px;
+  background: linear-gradient(180deg, transparent, #b99562 18%, #b99562 84%, transparent);
+  content: '';
+  opacity: 0.72;
+}
+
+@media (max-width: 700px) {
+  .article-reading-room__header::after { display: none; }
+  .article-reading-room__paper { margin-bottom: 28px; }
+}

@@ -1,5 +1,6 @@
 'use client'
 
+import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
 import { Pause, Play } from 'lucide-react'
 import { WORLD_SECTORS, type SectorId } from './world-data'
@@ -119,9 +120,33 @@ export function PortfolioWorld() {
     <div className="portfolio-world" data-ready={status === 'ready'}>
       <div className="world-viewport">
         <div className="world-atmosphere" aria-hidden="true" />
+        <div className="world-room" aria-hidden="true">
+          <picture>
+            <source media="(max-width: 600px)" srcSet="/images/home-orbit-room-narrow.webp" />
+            <Image
+              src="/images/home-orbit-room-wide.webp"
+              alt=""
+              fill
+              unoptimized
+              sizes="(max-width: 600px) 100vw, 56vw"
+              className="world-room-image"
+              priority
+            />
+          </picture>
+        </div>
         {status !== 'ready' && (
           <div className="world-fallback" aria-hidden="true">
-            <svg className="world-fallback-symbol" viewBox="0 0 100 100"><circle cx="50" cy="50" r="47" fill="#13131B" /><path d="M50 3a47 47 0 0 0 0 94 23.5 23.5 0 0 0 0-47 23.5 23.5 0 0 1 0-47" fill="#EDEDF0" /><circle cx="50" cy="26.5" r="6" fill="#EDEDF0" /><circle cx="50" cy="73.5" r="6" fill="#13131B" /><circle cx="50" cy="50" r="47" fill="none" stroke="currentColor" strokeWidth=".5" /></svg>
+            <picture>
+              <source media="(max-width: 600px)" srcSet="/images/home-orbit-still-narrow.webp" />
+              <Image
+                src="/images/home-orbit-still-wide.webp"
+                alt=""
+                fill
+                unoptimized
+                sizes="(max-width: 899px) 100vw, (max-width: 1440px) 56vw, 750px"
+                className="world-fallback-image"
+              />
+            </picture>
           </div>
         )}
         <canvas ref={canvas} className="world-canvas" tabIndex={status === 'ready' ? 0 : -1}
@@ -153,7 +178,7 @@ export function PortfolioWorld() {
       </div>
       </div>
       <p id="world-instructions" className="sr-only">
-        {status === 'unavailable' ? 'A static yin and yang symbol is shown because 3D is unavailable.' : 'Drag to orbit the universe. Tap yin and yang or press Space to bounce. Hover a planet to read its reflection, or focus a label with the keyboard.'}
+        {status === 'unavailable' ? 'A still render of the cosmos is shown because 3D is unavailable.' : 'Drag to orbit the universe. Tap yin and yang or press Space to bounce. Hover a planet to read its reflection, or focus a label with the keyboard.'}
       </p>
     </div>
   )

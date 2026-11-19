@@ -1,93 +1,99 @@
 import * as THREE from 'three'
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js'
-import { chromeMaterial } from './chrome-material'
 
-const REST = { yaw: -0.28, pitch: 0.1 }
-const SPIN_SECONDS = 1.1
-const INTRO_KEY = 'logo-3d-intro'
+const REST = { x: 0.16, y: -0.37, z: 0.035 }
+const VERTICAL_RANGE = 1.48
 
-const easeOutBack = (t: number) => 1 + 2.70158 * (t - 1) ** 3 + 1.70158 * (t - 1) ** 2
-
-/**
- * The menu bar's S-mark as a real 3D object (public/models/logo.glb, built in
- * Blender). It renders only while something moves: it leans toward the
- * pointer, and spins with its halves splitting apart when the link is hovered
- * or focused. Reduced motion draws one still frame. `onLost` fires if the GPU
- * context goes, so the flat PNG can take over again.
- */
-export async function createLogo3d(canvas: HTMLCanvasElement, onLost: () => void) {
+/** The header S mark, enhanced only on pointer devices with motion enabled. */
+export async function createLogo3d(
+  canvas: HTMLCanvasElement,
+  stage: HTMLElement,
+  isCurrent: () => boolean,
+  onLost: () => void,
+  onFrameReady: () => void,
+) {
   const gltf = await new GLTFLoader().loadAsync('/models/logo.glb')
+  if (!isCurrent()) return null
+
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true })
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
   renderer.setClearColor(0x000000, 0)
+  renderer.outputColorSpace = THREE.SRGBColorSpace
+  renderer.toneMapping = THREE.ACESFilmicToneMapping
+  renderer.toneMappingExposure = 0.8
+
   const scene = new THREE.Scene()
   const pmrem = new THREE.PMREMGenerator(renderer)
-  // Keep the whole render target: disposing only its texture would leave its framebuffer behind.
-  const environment = pmrem.fromScene(new RoomEnvironment(), 0.04)
+  const room = new RoomEnvironment()
+  const environment = pmrem.fromScene(room, 0.04)
+  room.dispose()
   scene.environment = environment.texture
-  scene.environmentIntensity = 0.8
-  const key = new THREE.DirectionalLight(0xffffff, 2.2)
+  scene.environmentIntensity = 0.5
+  const key = new THREE.DirectionalLight(0xffffff, 1.3)
   key.position.set(-2, 3, 4)
-  scene.add(key, new THREE.AmbientLight(0xffffff, 0.6))
-  const camera = new THREE.PerspectiveCamera(30, 1, 0.1, 20)
-  camera.position.set(0, 0, 3.25)
+  const fill = new THREE.DirectionalLight(0xffffff, 0.4)
+  fill.position.set(3, 0.5, 2)
+  scene.add(key, fill, new THREE.AmbientLight(0xffffff, 0.3))
+
+  const halfRange = VERTICAL_RANGE / 2
+  const camera = new THREE.OrthographicCamera(-halfRange, halfRange, halfRange, -halfRange, 0.1, 30)
+  camera.position.set(0, 1.23, 8)
+  camera.lookAt(0, 0, 0)
 
   const mark = gltf.scene.getObjectByName('LogoMark') ?? gltf.scene
   scene.add(mark)
-  const halves = ['MarkTop', 'MarkBottom'].map((name, index) => {
-    const half = mark.getObjectByName(name)!
-    return { half, rest: half.position.clone(), away: new THREE.Vector3(index ? 0.22 : -0.22, index ? -0.16 : 0.16, index ? -0.12 : 0.12) }
-  })
-  const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#607EBC'
-  const chrome = chromeMaterial(accent)
+  mark.updateWorldMatrix(true, true)
+  const bounds = new THREE.Box3().setFromObject(mark)
+  mark.position.sub(bounds.getCenter(new THREE.Vector3()))
+  mark.rotation.order = 'YZX'
+  mark.rotation.set(REST.x, REST.y, REST.z, 'YZX')
+
+  const materials = new Set<THREE.Material>()
   mark.traverse(object => {
-    if (object instanceof THREE.Mesh) {
-      ;(object.material as THREE.Material).dispose()
-      object.material = chrome
+    if (!(object instanceof THREE.Mesh)) return
+    let partName = object.name
+    for (let parent = object.parent; parent; parent = parent.parent) {
+      if (parent.name === 'MarkTop' || parent.name === 'MarkBottom') {
+        partName = parent.name
+        break
+      }
     }
+    const material = new THREE.MeshPhysicalMaterial({
+      color: partName === 'MarkBottom' ? '#364F82' : '#E8E5DC',
+      metalness: partName === 'MarkBottom' ? 0.48 : 0.02,
+      roughness: partName === 'MarkBottom' ? 0.34 : 0.29,
+      clearcoat: partName === 'MarkBottom' ? 0.1 : 0.23,
+      clearcoatRoughness: 0.24,
+    })
+    materials.add(material)
+    if (Array.isArray(object.material)) {
+      object.material.forEach(previous => previous.dispose())
+    } else {
+      object.material.dispose()
+    }
+    object.material = material
   })
 
-  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)')
-  const link = canvas.closest('a')
-  const pose = { yaw: REST.yaw, pitch: REST.pitch, targetYaw: REST.yaw, targetPitch: REST.pitch }
-  let spinStarted: number | null = null
-  let introStarted: number | null = null
+  const pose = { x: REST.x, y: REST.y, targetX: REST.x, targetY: REST.y }
   let frame = 0
   let previous = 0
   let disposed = false
-
-  try {
-    if (!reduce.matches && !sessionStorage.getItem(INTRO_KEY)) {
-      introStarted = performance.now()
-      sessionStorage.setItem(INTRO_KEY, '1')
-    }
-  } catch { /* Storage can be unavailable; the intro is only a flourish. */ }
+  let frameDrawn = false
 
   function render(now: number) {
     const delta = previous ? Math.min((now - previous) / 1000, 0.1) : 1
     previous = now
     const follow = 1 - Math.exp(-7 * delta)
-    pose.yaw += (pose.targetYaw - pose.yaw) * follow
-    pose.pitch += (pose.targetPitch - pose.pitch) * follow
-    let spin = 0
-    let apart = 0
-    if (spinStarted !== null) {
-      const t = Math.min((now - spinStarted) / 1000 / SPIN_SECONDS, 1)
-      spin = Math.PI * 2 * easeOutBack(t)
-      apart = Math.sin(Math.PI * Math.min(t * 1.6, 1))
-      if (t >= 1) { spinStarted = null; spin = 0 }
-    }
-    if (introStarted !== null) {
-      const t = Math.min((now - introStarted) / 900, 1)
-      apart = Math.max(apart, (1 - t) ** 3 * 6)
-      if (t >= 1) introStarted = null
-    }
-    mark.rotation.set(pose.pitch, pose.yaw + spin, 0)
-    for (const { half, rest, away } of halves) half.position.copy(rest).addScaledVector(away, apart)
+    pose.x += (pose.targetX - pose.x) * follow
+    pose.y += (pose.targetY - pose.y) * follow
+    mark.rotation.set(pose.x, pose.y, REST.z, 'YZX')
     renderer.render(scene, camera)
-    const settled = Math.abs(pose.targetYaw - pose.yaw) < 0.001 && Math.abs(pose.targetPitch - pose.pitch) < 0.001
-    return !settled || spinStarted !== null || introStarted !== null
+    if (!frameDrawn) {
+      frameDrawn = true
+      onFrameReady()
+    }
+    return Math.abs(pose.targetX - pose.x) > 0.001 || Math.abs(pose.targetY - pose.y) > 0.001
   }
 
   function tick(now: number) {
@@ -102,19 +108,19 @@ export async function createLogo3d(canvas: HTMLCanvasElement, onLost: () => void
   }
 
   function pointerMove(event: PointerEvent) {
-    if (reduce.matches || event.pointerType !== 'mouse') return
-    const rect = canvas.getBoundingClientRect()
-    const x = (event.clientX - (rect.left + rect.width / 2)) / window.innerWidth
-    const y = (event.clientY - (rect.top + rect.height / 2)) / window.innerHeight
-    // A gentle lean: past about 20 degrees the S stops reading as an S.
-    pose.targetYaw = REST.yaw + Math.max(-0.32, Math.min(0.32, x * 0.8))
-    pose.targetPitch = REST.pitch + Math.max(-0.25, Math.min(0.25, y * 0.6))
+    if (event.pointerType !== 'mouse') return
+    const rect = stage.getBoundingClientRect()
+    if (!rect.width || !rect.height) return
+    const x = ((event.clientX - rect.left) / rect.width - 0.5) * 2
+    const y = ((event.clientY - rect.top) / rect.height - 0.5) * 2
+    pose.targetY = REST.y + Math.max(-0.12, Math.min(0.12, x * 0.12))
+    pose.targetX = REST.x + Math.max(-0.09, Math.min(0.09, y * 0.09))
     wake()
   }
 
-  function spin() {
-    if (reduce.matches || spinStarted !== null) return
-    spinStarted = performance.now()
+  function pointerLeave() {
+    pose.targetX = REST.x
+    pose.targetY = REST.y
     wake()
   }
 
@@ -122,50 +128,45 @@ export async function createLogo3d(canvas: HTMLCanvasElement, onLost: () => void
     const { width, height } = canvas.getBoundingClientRect()
     if (disposed || !width || !height) return
     renderer.setSize(width, height, false)
-    camera.aspect = width / height
+    camera.left = -(VERTICAL_RANGE * width / height) / 2
+    camera.right = (VERTICAL_RANGE * width / height) / 2
+    camera.top = halfRange
+    camera.bottom = -halfRange
     camera.updateProjectionMatrix()
-    // setSize clears the canvas; draw now, even in a background tab, so the
-    // PNG's S is never hidden behind an empty canvas.
     render(performance.now())
-    wake()
   }
 
-  function contextLost() {
-    disposed = true
-    cancelAnimationFrame(frame)
+  function contextLost(event: Event) {
+    event.preventDefault()
+    dispose()
     onLost()
   }
 
   const sizer = new ResizeObserver(resize)
   sizer.observe(canvas)
-  window.addEventListener('pointermove', pointerMove, { passive: true })
-  link?.addEventListener('pointerenter', spin)
-  link?.addEventListener('focus', spin)
+  stage.addEventListener('pointermove', pointerMove, { passive: true })
+  stage.addEventListener('pointerleave', pointerLeave)
   document.addEventListener('visibilitychange', wake)
   canvas.addEventListener('webglcontextlost', contextLost)
-  resize()
 
-  return {
-    dispose() {
-      disposed = true
-      cancelAnimationFrame(frame)
-      sizer.disconnect()
-      window.removeEventListener('pointermove', pointerMove)
-      link?.removeEventListener('pointerenter', spin)
-      link?.removeEventListener('focus', spin)
-      document.removeEventListener('visibilitychange', wake)
-      canvas.removeEventListener('webglcontextlost', contextLost)
-      mark.traverse(object => {
-        if (object instanceof THREE.Mesh) {
-          object.geometry.dispose()
-          ;(object.material as THREE.Material).dispose()
-        }
-      })
-      environment.dispose()
-      pmrem.dispose()
-      // No forceContextLoss: React may remount onto this same canvas, which
-      // would then inherit a dead context.
-      renderer.dispose()
-    },
+  function dispose() {
+    if (disposed) return
+    disposed = true
+    cancelAnimationFrame(frame)
+    sizer.disconnect()
+    stage.removeEventListener('pointermove', pointerMove)
+    stage.removeEventListener('pointerleave', pointerLeave)
+    document.removeEventListener('visibilitychange', wake)
+    canvas.removeEventListener('webglcontextlost', contextLost)
+    mark.traverse(object => {
+      if (object instanceof THREE.Mesh) object.geometry.dispose()
+    })
+    materials.forEach(material => material.dispose())
+    environment.dispose()
+    pmrem.dispose()
+    renderer.dispose()
   }
+
+  resize()
+  return { dispose }
 }

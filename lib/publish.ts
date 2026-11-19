@@ -599,6 +599,8 @@ function projectFromSource(slug: string, raw: Buffer): Project {
     tech: data.tech ?? [],
     category: String(data.category ?? ''),
     cover: String(data.cover ?? ''),
+    coverPresentation: data.coverPresentation,
+    logo: data.logo,
     links: data.links ?? {},
     body: content,
   }
@@ -742,8 +744,13 @@ export async function saveProject(
   requireFreshVersion(expectedVersion, snapshot.raw)
   const existing = matter(snapshot.raw.toString('utf8'))
   const { body, ...frontmatter } = changes
+  // A replacement upload is flat artwork, even if the previous cover was a Blender render.
+  const fields = { ...existing.data, ...frontmatter }
+  if (frontmatter.cover !== existing.data.cover && !frontmatter.coverPresentation) {
+    delete fields.coverPresentation
+  }
   const contents = serialise(
-    { ...existing.data, ...(frontmatter as Record<string, unknown>) },
+    fields,
     body ?? existing.content,
   )
 

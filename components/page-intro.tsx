@@ -1,4 +1,4 @@
-import { PAGE_GUTTER } from './layout'
+import { PAGE_GUTTER, WORK_GUTTER } from './layout'
 
 /**
  * Design: "Page Intro" on the Work / Blog / About frames — COLUMN,
@@ -12,14 +12,20 @@ export function PageIntro({
   title,
   subtitle,
   children,
+  compact = false,
 }: {
   segment: string
   title: string
   subtitle?: string
   children?: React.ReactNode
+  compact?: boolean
 }) {
+  const spacing = compact ? 'pt-10 pb-7 lg:pt-12 lg:pb-8' : 'pt-16 pb-12'
+
+  const gutter = compact ? WORK_GUTTER : PAGE_GUTTER
+
   return (
-    <section className={`flex flex-col gap-4 pt-16 pb-12 ${PAGE_GUTTER}`}>
+    <section className={`flex flex-col gap-4 ${spacing} ${gutter}`}>
       <div className="flex items-center gap-3 font-mono text-xs">
         <span className="text-text-tertiary">~</span>
         <span className="text-text-tertiary">/</span>

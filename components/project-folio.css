@@ -1,0 +1,126 @@
+.project-folio-stage {
+  position: relative;
+  container-type: inline-size;
+  isolation: isolate;
+  aspect-ratio: 2 / 1;
+  overflow: visible;
+}
+
+.project-folio {
+  position: absolute;
+  inset: 0 6% 5%;
+  transform: perspective(950px) rotateX(20deg) rotateY(-5deg) skewX(-5deg) rotateZ(2deg);
+  transform-origin: center bottom;
+  transform-style: preserve-3d;
+  filter: drop-shadow(0 13px 12px rgb(0 0 0 / 24%));
+}
+
+.project-folio-pages {
+  position: absolute;
+  z-index: -1;
+  inset: 1.2% -0.35% -2.6% 0.8%;
+  border: 1px solid #15191d;
+  border-radius: 4px;
+  background:
+    repeating-linear-gradient(180deg, #e4e1da 0 1px, #a6a4a0 1px 2px, #ece9e1 2px 3px),
+    #d6d3cd;
+  box-shadow:
+    inset 0 1px 1px rgb(255 255 255 / 42%),
+    0 2px 2px rgb(0 0 0 / 44%);
+}
+
+.project-folio-face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border: 1px solid #303840;
+  border-radius: 4px;
+  background:
+    linear-gradient(145deg, #77818a 0%, #272e35 5%, #11161b 13%, #090c10 100%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 68%),
+    inset 0 0 0 1px rgb(0 0 0 / 65%);
+}
+
+.project-folio-image {
+  object-fit: cover;
+  object-position: center;
+}
+
+.project-folio-face::after {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ffffff25, #0000001c 1%, transparent 2.5%, transparent 98%, #ffffff25);
+  content: '';
+  pointer-events: none;
+}
+
+.project-folio-fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 7%;
+  padding: 7% 8%;
+  overflow: hidden;
+  color: #f8f6f0;
+  background:
+    radial-gradient(ellipse at 82% 20%, rgb(67 110 162 / 40%), transparent 37%),
+    linear-gradient(135deg, #24313d, #111920 55%, #080c10);
+}
+
+.project-folio-fallback::before,
+.project-folio-fallback::after {
+  position: absolute;
+  top: -35%;
+  right: 8%;
+  width: 30%;
+  aspect-ratio: 1;
+  border: 1px solid rgb(205 221 232 / 16%);
+  border-radius: 50%;
+  content: '';
+}
+
+.project-folio-fallback::after {
+  top: -21%;
+  right: 16%;
+  width: 20%;
+  border-color: rgb(205 221 232 / 9%);
+}
+
+.project-folio-fallback-title {
+  max-width: 80%;
+  font: 700 clamp(1rem, 4.2cqi, 2rem)/1.05 var(--font-display), sans-serif;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+}
+
+.project-folio-logo {
+  position: absolute;
+  z-index: 1;
+  top: 4%;
+  right: 3.5%;
+  width: 9%;
+  height: 14%;
+  padding: 1%;
+  border: 1px solid rgb(255 255 255 / 52%);
+  border-radius: 3px;
+  background: rgb(248 248 245 / 91%);
+  box-shadow: 0 2px 5px rgb(0 0 0 / 22%);
+}
+
+.project-folio-logo img {
+  object-fit: contain;
+}
+
+.project-folio-stage--rendered {
+  z-index: 1;
+}
+
+.project-folio-rendered-artwork {
+  overflow: visible;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 7px rgb(0 0 0 / 20%));
+}
