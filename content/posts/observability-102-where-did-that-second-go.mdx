@@ -1,0 +1,116 @@
+---
+title: "Observability 102: Where Did That Second Go?"
+excerpt: "Follow one slow checkout request through a .NET API with OpenTelemetry and Grafana, then measure whether the fix gives customers their time back."
+date: "2026-11-20"
+readingTime: "4 min read"
+category: DevOps
+cover: /images/blog/observability-102-cover.webp
+featured: false
+status: Draft
+tags: ["OpenTelemetry", "Observability", "Tracing", ".NET", "Grafana"]
+---
+
+“Checkout is slow.”
+
+That’s the report. I can see the request took almost a second, but which part of checkout took it? In Part 1, I used a late package to explain why that question matters. This time, let’s follow an actual request. [Read Part 1](/blog/observability-101-stop-debugging-in-the-dark)
+
+## Make one request slow
+
+I’ll use one .NET 10 endpoint and one Docker container. The container runs the OpenTelemetry Collector and gives us Grafana, Tempo, Prometheus, and Loki. [Grafana’s local OpenTelemetry stack](https://github.com/grafana/docker-otel-lgtm)
+
+```bash
+docker run --rm \
+  -p 127.0.0.1:3902:3000 \
+  -p 127.0.0.1:14318:4318 \
+  grafana/otel-lgtm
+```
+
+In another terminal, create the API and add the OpenTelemetry packages. The same OTLP exporter sends all three signals. [OpenTelemetry .NET exporter setup](https://github.com/open-telemetry/opentelemetry-dotnet/tree/main/src/OpenTelemetry.Exporter.OpenTelemetryProtocol#enable-otlp-exporter-for-all-signals)
+
+```bash
+dotnet new web -n CheckoutDemo -f net10.0
+cd CheckoutDemo
+dotnet add package OpenTelemetry.Extensions.Hosting
+dotnet add package OpenTelemetry.Exporter.OpenTelemetryProtocol
+dotnet add package OpenTelemetry.Instrumentation.AspNetCore
+```
+
+Replace `Program.cs` with this:
+
+```csharp
+using System.Diagnostics;
+using OpenTelemetry;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
+
+var builder = WebApplication.CreateBuilder(args);
+using var shipping = new ActivitySource("CheckoutDemo");
+
+builder.Services.AddOpenTelemetry()
+    .ConfigureResource(r => r.AddService("checkout-api"))
+    .WithTracing(t => t.AddAspNetCoreInstrumentation().AddSource("CheckoutDemo"))
+    .WithMetrics(m => m.AddAspNetCoreInstrumentation())
+    .UseOtlpExporter();
+
+var app = builder.Build();
+
+app.MapGet("/checkout", async (bool? slow, CancellationToken ct) =>
+{
+    using var quote = shipping.StartActivity("shipping.quote");
+    var delayMs = slow is true ? 900 : 30;
+    quote?.SetTag("demo.delay_ms", delayMs);
+
+    if (slow is true)
+        app.Logger.LogWarning("Using the simulated slow shipping quote.");
+
+    await Task.Delay(delayMs, ct);
+    return Results.Ok(new { traceId = Activity.Current?.TraceId.ToString() });
+});
+
+app.Run();
+```
+
+Run the API, then call the endpoint both ways from a third terminal.
+
+```bash
+OTEL_EXPORTER_OTLP_PROTOCOL=http/protobuf \
+OTEL_EXPORTER_OTLP_ENDPOINT=http://127.0.0.1:14318 \
+OTEL_METRIC_EXPORT_INTERVAL=5000 \
+dotnet run --no-launch-profile -- --urls http://127.0.0.1:5080
+```
+
+```bash
+curl -sS -w '\nHTTP %{http_code} in %{time_total}s\n' http://127.0.0.1:5080/checkout
+curl -sS -w '\nHTTP %{http_code} in %{time_total}s\n' 'http://127.0.0.1:5080/checkout?slow=true'
+```
+
+## Find the missing time
+
+Open Grafana at `http://127.0.0.1:3902` and sign in with `admin` / `admin`. In **Explore**, choose **Tempo** and look up the trace ID returned by the slow call. Expand `GET /checkout`. The `shipping.quote` span accounts for about 900 ms.
+
+Now switch to **Loki** and paste the same trace ID into this query:
+
+```logql
+{service_name="checkout-api"} | trace_id="<paste the trace ID here>"
+```
+
+That brings up the warning from the same request. The span shows where the time went. The log tells us which path ran. [Grafana’s trace-to-log configuration](https://github.com/grafana/docker-otel-lgtm/blob/main/docker/grafana-datasources.yaml)
+
+If I want to know how often checkout is slow, I switch to **Prometheus**. This query counts requests that took more than 250 ms in the demo. Give the metrics a few seconds to arrive. [ASP.NET Core request-duration metric](https://learn.microsoft.com/en-us/aspnet/core/metrics/http?view=aspnetcore-10.0) · [Grafana’s Prometheus metric mapping](https://grafana.com/blog/an-opentelemetry-backend-in-a-docker-image-introducing-grafana-otel-lgtm/)
+
+```promql
+sum(http_server_request_duration_seconds_count{http_route="/checkout"})
+-
+sum(http_server_request_duration_seconds_bucket{http_route="/checkout",le="0.25"})
+```
+
+## Did the customer get their time back?
+
+Both checkout requests returned `200`. One took 33 ms. The other took 903 ms. An error dashboard would count two successes. One customer still waited nearly a second.
+
+The trace shows where to start. Almost all of that second went into `shipping.quote`. The log on the same trace confirms that the slow path ran. The metric answers the question that determines what I do next. **How often are customers waiting this long?**
+
+Try one last thing. Change the simulated delay from `900` to `100`, restart the API, and repeat the same requests. The shipping span should shrink, and the request should come in under 250 ms. In production, I’d compare the **share of checkouts over 250 ms** before and after the fix so changes in traffic volume don’t skew the comparison.
+
+That’s what I want from observability. When someone says checkout is slow, I want to know where to look, whether it’s worth fixing now, and whether customers got their time back after I shipped the fix.
