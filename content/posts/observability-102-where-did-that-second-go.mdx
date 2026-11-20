@@ -87,23 +87,44 @@ curl -sS -w '\nHTTP %{http_code} in %{time_total}s\n' 'http://127.0.0.1:5080/che
 
 ## Find the missing time
 
-Open Grafana at `http://127.0.0.1:3902` and sign in with `admin` / `admin`. In **Explore**, choose **Tempo** and look up the trace ID returned by the slow call. Expand `GET /checkout`. The `shipping.quote` span accounts for about 900 ms.
+Open Grafana at `http://127.0.0.1:3902`. If it asks you to sign in, use `admin` / `admin`. Open **Explore** from the side menu. The data source dropdown at the top left is where you switch between Tempo, Loki, and Prometheus. Set the time range to include the requests you just made. [Grafana Explore](https://grafana.com/docs/grafana/latest/visualizations/explore/)
 
-Now switch to **Loki** and paste the same trace ID into this query:
+![The data source dropdown at the top of Grafana Explore lists Prometheus, Loki, and Tempo.](/images/blog/observability-102-grafana-data-sources.webp)
+
+### Tempo — find the slow span
+
+Choose **Tempo** in the data source dropdown. Select **Trace ID**, paste the ID returned by the slow call into the field below it, then click **Run query**. In the trace below, `shipping.quote` takes about 900 ms and accounts for almost the entire `GET /checkout` request.
+
+![Tempo in Grafana Explore with the Trace ID field filled and a waterfall showing both checkout and shipping.quote taking about 900 ms.](/images/blog/observability-102-grafana-tempo.webp)
+
+### Loki — find the warning from the same request
+
+Switch the data source to **Loki** and choose **Code** at the right of the query row. Paste this into the editor, replace the placeholder with the same trace ID, and click **Run query**.
 
 ```logql
 {service_name="checkout-api"} | trace_id="<paste the trace ID here>"
+  |= "Using the simulated slow shipping quote."
 ```
 
-That brings up the warning from the same request. The span shows where the time went. The log tells us which path ran. [Grafana’s trace-to-log configuration](https://github.com/grafana/docker-otel-lgtm/blob/main/docker/grafana-datasources.yaml)
+The last line filters the results to the warning from the demo. The span shows where the time went. The warning confirms which path that request took. [Grafana’s trace-to-log configuration](https://github.com/grafana/docker-otel-lgtm/blob/main/docker/grafana-datasources.yaml)
 
-If I want to know how often checkout is slow, I switch to **Prometheus**. This query counts requests that took more than 250 ms in the demo. Give the metrics a few seconds to arrive. [ASP.NET Core request-duration metric](https://learn.microsoft.com/en-us/aspnet/core/metrics/http?view=aspnetcore-10.0) · [Grafana’s Prometheus metric mapping](https://grafana.com/blog/an-opentelemetry-backend-in-a-docker-image-introducing-grafana-otel-lgtm/)
+![Loki in Code mode with the trace ID query at the top and one matching slow shipping quote warning below.](/images/blog/observability-102-grafana-loki.webp)
+
+### Prometheus — see how often checkout is slow
+
+Switch to **Prometheus**. In **Builder**, open the **Metric** dropdown and search for `http_server_request_duration_seconds`. Grafana should show the `_count`, `_sum`, and `_bucket` series after the demo has exported metrics. [ASP.NET Core request-duration metric](https://learn.microsoft.com/en-us/aspnet/core/metrics/http?view=aspnetcore-10.0) · [Grafana’s Prometheus metric mapping](https://grafana.com/blog/an-opentelemetry-backend-in-a-docker-image-introducing-grafana-otel-lgtm/)
+
+![The Prometheus Builder metric dropdown shows the checkout request duration bucket, count, and sum series.](/images/blog/observability-102-grafana-metrics.webp)
+
+Now switch to **Code**, paste the query below into the editor beside **Metrics browser**, and click **Run query**. The query subtracts requests that finished in 250 ms or less from the total. That gives me the running count of slow checkouts. If you see **No data**, give the next export a few seconds and check the time range.
 
 ```promql
 sum(http_server_request_duration_seconds_count{http_route="/checkout"})
 -
 sum(http_server_request_duration_seconds_bucket{http_route="/checkout",le="0.25"})
 ```
+
+![The Prometheus Code editor shows the complete PromQL query, with Run query above and a graph of the slow checkout count below.](/images/blog/observability-102-grafana-promql.webp)
 
 ## Did the customer get their time back?
 
