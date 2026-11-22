@@ -58,27 +58,35 @@ export default async function HomePage() {
             <PhilosophicalIdentity name={settings.displayName} />
 
             <p className="max-w-[46ch] text-base leading-[1.7] text-text-secondary">
-              I build software that makes complex things feel simple.
-              Somewhere between logic and intuition, I find the balance
-              between code that works and experiences that feel human.
+              I help lending and PAYGO teams connect their systems and automate payment reconciliation.
             </p>
 
             <div className="flex flex-wrap items-center gap-4">
+              <a
+                href={`mailto:${settings.email}`}
+                className="home-world-contact inline-flex items-center gap-2 rounded-full px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+              >
+                Discuss a project
+                <ArrowRight size={16} aria-hidden="true" />
+              </a>
               <Link
                 href="/work"
-                className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-white transition-opacity hover:opacity-90"
+                className="home-world-work-link inline-flex items-center px-2 py-3 text-sm transition-colors"
               >
                 View My Work
-                <ArrowRight size={16} />
-              </Link>
-              <Link
-                href="/blog"
-                className="inline-flex items-center px-2 py-3 text-sm text-text-secondary transition-colors hover:text-text-primary"
-              >
-                Read Blog
               </Link>
             </div>
 
+            <ul aria-label="Selected client work" className="home-world-proof max-w-[46ch] space-y-2 border-t pt-4 text-sm leading-relaxed">
+              <li>
+                <Link href="/work#altech-paygo" className="font-semibold underline underline-offset-4">Altech PAYGO</Link>
+                {' · '}Connected field sales to accounting.
+              </li>
+              <li>
+                <Link href="/work#chequepoint" className="font-semibold underline underline-offset-4">Chequepoint</Link>
+                {' · '}Cut paperwork by 70% for AB Bank.
+              </li>
+            </ul>
           </div>
           <PortfolioWorld />
         </section>
