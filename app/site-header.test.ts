@@ -28,20 +28,18 @@ describe('public site header navigation', () => {
   })
 
   it.each([
-    ['en', '/blog/maybe-love-is-the-now', 'fr', '/fr/blog/maybe-love-is-the-now', 'Français', 'Toggle colour theme'],
-    ['fr', '/fr/blog/maybe-love-is-the-now', 'en', '/blog/maybe-love-is-the-now', 'English', 'Changer le thème'],
-  ] as const)('puts the flag beside the %s theme toggle and links to the paired article', (locale, path, otherLocale, target, name, themeLabel) => {
+    ['en', '/blog/maybe-love-is-the-now', 'fr', '/fr/blog/maybe-love-is-the-now', 'Français', 'English', 'Language', 'Toggle colour theme'],
+    ['fr', '/fr/blog/maybe-love-is-the-now', 'en', '/blog/maybe-love-is-the-now', 'English', 'Français', 'Langue', 'Changer le thème'],
+  ] as const)('shows both flags beside the %s theme toggle and links to the paired article', (locale, path, otherLocale, target, name, current, groupLabel, themeLabel) => {
     vi.mocked(usePathname).mockReturnValue(path)
     const header = renderToStaticMarkup(createElement<{ locale: typeof locale }>(SiteHeader, { locale }))
-    const languageLinks = header.match(/<a\b[^>]*\bhreflang="[^"]+"[^>]*>.*?<\/a>/gi) ?? []
-    expect(languageLinks).toHaveLength(1)
+    const group = header.match(/<div role="group" aria-label="(?:Language|Langue)"[^>]*>.*?<\/div>/)?.[0] ?? ''
 
-    const [flag] = languageLinks
-    expect(flag).toContain(`href="${target}"`)
-    expect(flag).toContain(`lang="${otherLocale}"`)
-    expect(flag).toContain(`aria-label="${name}"`)
-    expect(flag).toMatch(/<svg\b[^>]*aria-hidden="true"/)
-    expect(flag).not.toContain(`>${name}<`)
-    expect(header.slice(header.indexOf(`aria-label="${themeLabel}"`))).toContain(`</button>${flag}`)
+    expect(group).toContain(`aria-label="${groupLabel}"`)
+    expect(group.match(/<svg\b[^>]*aria-hidden="true"/g)).toHaveLength(2)
+    expect(group).toContain(`title="${current}" aria-current="true"`)
+    expect(group.indexOf('title="English"')).toBeLessThan(group.indexOf('title="Français"'))
+    expect(group).toContain(`href="${target}" hrefLang="${otherLocale}" lang="${otherLocale}" aria-label="${name}"`)
+    expect(header.slice(header.indexOf(`aria-label="${themeLabel}"`))).toContain(`</button>${group}`)
   })
 })
