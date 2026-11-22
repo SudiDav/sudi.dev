@@ -1,0 +1,88 @@
+---
+title: "Premiers pas avec les Minimal APIs d’ASP.NET Core 7"
+excerpt: "Une introduction accessible aux Minimal APIs d’ASP.NET Core 7, expliquées — pour changer — à travers la cuisine."
+readingTime: "4 min de lecture"
+---
+Imaginez que vous soyez un jeune chef, impatient de faire vos preuves dans le monde de la cuisine. Vous aimez cuisiner, mais vous débutez et manquez encore d’expérience. Vous voulez créer une recette qui mette votre talent en valeur, mais vous ne savez pas trop par où commencer.
+
+C’est là que les Minimal APIs entrent en jeu. Elles offrent une façon simplifiée de créer des API web légères et faciles à utiliser. Tout comme un jeune chef peut commencer par une recette simple, avec peu d’ingrédients et quelques étapes, les Minimal APIs permettent aux développeurs de créer des API avec un minimum de code et de configuration.
+
+Pour débuter avec les Minimal APIs, nul besoin d’être un développeur chevronné ni d’avoir de solides connaissances techniques. En quelques lignes de code, vous pouvez créer un point de terminaison qui répond aux requêtes HTTP : qu’il s’agisse d’un simple message « Hello World » ou d’une API plus complexe qui interagit avec une base de données.
+
+Les Minimal APIs sont aussi flexibles : vous pouvez les adapter à vos besoins. Que vous construisiez une petite application pour votre usage personnel ou un grand système d’entreprise, elles peuvent vous fournir les bases nécessaires à la création d’une API puissante et efficace.
+
+Ainsi, que vous débutiez ou que vous ayez déjà de l’expérience et souhaitiez découvrir les Minimal APIs, il vous suffit de connaître les bases de la programmation et d’avoir envie d’apprendre. Vous pouvez commencer modestement et faire évoluer votre API vers des usages plus complexes, tout en profitant de la simplicité et de la flexibilité de cette technologie.
+
+Voici donc ce dont vous aurez besoin pour commencer :
+
+1.  Un IDE ou un éditeur de code. Nous utiliserons Visual Studio Code, un outil très connu et gratuit, que vous trouverez [ici.](https://code.visualstudio.com/)
+
+2.  Le SDK .NET 7, disponible [ici.](https://dotnet.microsoft.com/en-us/download/dotnet/7.0)
+
+3.  Nous utiliserons C# comme langage de programmation ; je partirai donc du principe que vous en connaissez déjà un peu. Si vous ne connaissez pas C#, pas d’inquiétude : ce guide pourra tout de même vous être utile.
+
+Une fois tout installé, la commande `dotnet --version`, exécutée dans le terminal de VS Code, devrait afficher la version du SDK .NET installée, comme ceci :
+
+![](/images/blog/60f47311b3a8.png)
+
+Créons maintenant notre première API selon l’architecture Minimal API. Ouvrez un terminal et suivez les étapes ci-dessous :
+
+**Étape 1** : Créer un projet. Dans le terminal, placez-vous dans le répertoire où vous souhaitez créer le projet. Exécutez ensuite la commande suivante pour créer un projet Minimal API :
+
+`dotnet new web -n CookingAPI`
+
+La commande ci-dessus crée une API Minimal ASP.NET Core vide appelée **CookingAPI**, avec un seul point de terminaison qui renvoie un message Hello World à la racine.
+
+**Étape 2 :** Ouvrez le projet dans votre éditeur de code préféré, Visual Studio Code ou Rider dans mon cas, puis ouvrez le fichier `Program.cs`. C’est là que nous allons définir les routes et les actions de notre API.
+
+Supposons que vous souhaitiez créer un point de terminaison qui renvoie une liste de recettes. Ajoutez le code suivant dans le fichier `Program.cs` :
+
+```csharp
+var builder = WebApplication.CreateBuilder(args);
+var app = builder.Build();
+
+app.MapGet("/recipes", () =>
+{
+    // list of recipes
+    var recipes = new List<string>
+    {
+        "Patate Douce",
+        "Bugali na Sombe",
+        "Sambaza an chips"
+    };
+
+    return recipes;
+});
+
+app.Run();
+```
+
+Nous avons utilisé la méthode **MapGet** pour définir une route vers le point de terminaison `/recipes`. À l’intérieur de son action, vous pouvez ajouter la logique nécessaire pour récupérer la liste des recettes depuis une source de données. Pour simplifier, nous avons codé en dur une liste de recettes à titre d’exemple. Dans le prochain article du blog, nous connecterons une source de données pour récupérer les données depuis une base comme SQLite ou Postgres.
+
+**Étape 3 :** Exécutez l’API.
+
+Enregistrez vos modifications, puis retournez dans le terminal de VS Code. Placez-vous à la racine du projet et exécutez la commande suivante :
+
+`dotnet run`
+
+La commande `dotnet run` va compiler et lancer l’API. Une fois qu’elle est démarrée, ouvrons Postman ou l’outil de test de votre choix. Si vous utilisez Postman, vous devriez voir quelque chose de semblable à ceci :
+
+![](/images/blog/d062e0f4d6fd.png)
+
+Dans Postman, envoyez une requête GET à [http://localhost:5185/recipes](http://localhost:5185/recipes). Le numéro de port peut être différent du mien : adaptez-le à votre environnement. Envoyez la requête ; vous devriez recevoir une réponse contenant une liste de recettes, comme celle-ci :
+
+```csharp
+[
+    "Patate Douce",
+    "Bugali na Sombe",
+    "Sambaza an chips"
+]
+```
+
+Félicitations ! Vous avez créé votre première API avec l’architecture Minimal API. Vous pouvez maintenant la développer en ajoutant des routes, des actions et une connexion à une base de données ou à d’autres services externes.
+
+Comme en cuisine, c’est en pratiquant qu’on progresse. Essayez différentes routes, sources de données et fonctionnalités pour perfectionner vos compétences en développement d’API. Dans notre prochain article, nous verrons comment connecter une source de données.
+
+Continuez à mitonner de belles API avec ASP.NET Core 7 Minimal APIs ! Comme en cuisine, c’est en pratiquant qu’on progresse. Pour préparer de délicieuses API, commencez par cette introduction, puis passez à quelques [notions plus avancées](https://gist.github.com/davidfowl/ff1addd02d239d2d26f4648a06158727).
+
+Le code source de cette introduction est disponible [ici](https://github.com/Dotnet-Community-DRC/CookingAPI).

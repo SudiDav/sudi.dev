@@ -24,11 +24,13 @@ export function FilterBar({
   active,
   label,
   size,
+  labels,
 }: {
   options: readonly string[]
   active: string
   label: string
   size: keyof typeof SIZES
+  labels?: Record<string, string>
 }) {
   const router = useRouter()
   const pathname = usePathname()
@@ -59,7 +61,7 @@ export function FilterBar({
                 : 'border border-border bg-bg-card text-text-secondary hover:border-border-hover hover:text-text-primary'
             }`}
           >
-            {option}
+            {labels?.[option] ?? option}
           </button>
         )
       })}

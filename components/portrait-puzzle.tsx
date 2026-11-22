@@ -3,6 +3,7 @@
 import Image from 'next/image'
 import { useId, useRef, useState, type KeyboardEvent, type ReactNode } from 'react'
 import { Puzzle, RotateCcw } from 'lucide-react'
+import type { SiteLocale } from '@/lib/locale'
 import './portrait-puzzle.css'
 
 const SIDE = 3
@@ -59,7 +60,8 @@ function slide(game: Game | null, space: number | null) {
   return { pieces, moves: game.moves + 1 }
 }
 
-export function PortraitPuzzle({ src, name, children }: { src: string; name: string; children: ReactNode }) {
+export function PortraitPuzzle({ src, name, children, locale = 'en' }: { src: string; name: string; children: ReactNode; locale?: SiteLocale }) {
+  const french = locale === 'fr'
   const [game, setGame] = useState<Game | null>(() => ({ pieces: [...INITIAL_BOARD], moves: 0 }))
   const board = useRef<HTMLDivElement>(null)
   const instructions = useId()
@@ -88,7 +90,7 @@ export function PortraitPuzzle({ src, name, children }: { src: string; name: str
               className="portrait-puzzle__board"
               role="group"
               tabIndex={0}
-              aria-label={`Portrait puzzle of ${name}`}
+              aria-label={french ? `Puzzle du portrait de ${name}` : `Portrait puzzle of ${name}`}
               aria-describedby={instructions}
               data-solved={solved || undefined}
               onKeyDown={moveWithKey}
@@ -100,7 +102,7 @@ export function PortraitPuzzle({ src, name, children }: { src: string; name: str
                   const space = game.pieces.indexOf(piece)
                   const transform = `translate(${(space % SIDE) * 100}%, ${Math.floor(space / SIDE) * 100}%)`
                   if (piece === GAP) {
-                    return <span key={piece} className="portrait-puzzle__gap" style={{ transform }} role="img" aria-label={`Gap at space ${space + 1}`} />
+                    return <span key={piece} className="portrait-puzzle__gap" style={{ transform }} role="img" aria-label={french ? `Case vide à la position ${space + 1}` : `Gap at space ${space + 1}`} />
                   }
 
                   const movable = gap !== undefined && ARROWS.some(key => nextSpace(gap, key) === space)
@@ -111,7 +113,7 @@ export function PortraitPuzzle({ src, name, children }: { src: string; name: str
                       tabIndex={-1}
                       className="portrait-puzzle__tile"
                       style={{ transform }}
-                      aria-label={`Piece ${piece + 1} at space ${space + 1}`}
+                      aria-label={french ? `Pièce ${piece + 1} à la position ${space + 1}` : `Piece ${piece + 1} at space ${space + 1}`}
                       aria-disabled={!movable}
                       onClick={() => {
                         if (!movable) return
@@ -137,9 +139,15 @@ export function PortraitPuzzle({ src, name, children }: { src: string; name: str
       <div className="portrait-puzzle__controls">
         {game && (
           <p id={instructions} className="portrait-puzzle__instructions">
-            {solved ? 'Picture complete.' : 'Click a tile next to the gap, or focus the puzzle and use arrow keys to move the gap.'}
+            {solved
+              ? (french ? 'Portrait reconstitué.' : 'Picture complete.')
+              : (french
+                ? 'Touchez une pièce voisine de la case vide, ou sélectionnez le puzzle et utilisez les flèches du clavier.'
+                : 'Click a tile next to the gap, or focus the puzzle and use arrow keys to move the gap.')}
             <span aria-live="polite">
-              {solved ? 'Solved in ' : ''}{game.moves} {game.moves === 1 ? 'move' : 'moves'}{solved ? '!' : ''}
+              {solved ? (french ? 'Résolu en ' : 'Solved in ') : ''}
+              {game.moves} {game.moves === 1 ? (french ? 'coup' : 'move') : (french ? 'coups' : 'moves')}
+              {solved ? '!' : ''}
             </span>
           </p>
         )}
@@ -147,12 +155,12 @@ export function PortraitPuzzle({ src, name, children }: { src: string; name: str
         <div className="portrait-puzzle__actions">
           <button type="button" onClick={game ? () => setGame(null) : play}>
             <Puzzle size={14} aria-hidden="true" />
-            {game ? 'View portrait' : 'Play puzzle'}
+            {game ? (french ? 'Voir le portrait' : 'View portrait') : (french ? 'Jouer au puzzle' : 'Play puzzle')}
           </button>
           {game && (
             <button type="button" onClick={play}>
               <RotateCcw size={13} aria-hidden="true" />
-              {solved ? 'Play again' : 'Shuffle'}
+              {solved ? (french ? 'Rejouer' : 'Play again') : (french ? 'Mélanger' : 'Shuffle')}
             </button>
           )}
         </div>

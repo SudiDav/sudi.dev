@@ -1,0 +1,19 @@
+---
+title: Chequepoint — paiements interbancaires
+shortDescription: Compensation des chèques et paiements interbancaires, en service dans plus de 60 banques de huit pays.
+description: Le système interbancaire de paiement et de compensation de chèques de Fintech Group, qui relie les banques commerciales aux infrastructures des banques centrales et fournit des outils de rapport et de rapprochement.
+---
+
+Chequepoint est le système de paiement interbancaire et de compensation de chèques de Fintech Group. Il se situe entre les banques commerciales et les banques centrales pour compenser les transactions. Il est aujourd’hui utilisé par plus de 60 banques au Kenya, en Ouganda, en Tanzanie, en Éthiopie, au Malawi, au Rwanda, à Maurice et au Liberia. J’ai travaillé sur le système pendant deux ans, d’abord à Kampala puis à Kigali.
+
+La compensation des chèques peut sembler archaïque jusqu’à ce qu’on mesure tout ce qui en dépend encore. Le système remplace des tâches manuelles, lentes et exposées à la fraude par des processus plus sûrs et plus rapides.
+
+**Relier les banques à la banque centrale.** En Ouganda, le cœur du travail consistait à intégrer les banques à Chequepoint pour que leurs transactions soient compensées via l’infrastructure de la banque centrale. Chaque banque avait son propre système bancaire central et son propre format de fichier.
+
+**Migrer l’ancien système.** L’ancienne plateforme a été reconstruite avec MSSQL, ASP.NET et des services web. Les erreurs visibles par les utilisateurs ont diminué d’environ 85 %, principalement grâce à la suppression des modes de panne de l’ancien système.
+
+**Rapports pour AB Bank.** Une couche de rapports ajoutée à Chequepoint a réduit d’environ 70 % les tâches administratives des utilisateurs. Le résultat se mesurait à la quantité de documents imprimés et de données ressaisies en moins.
+
+**Automatisation chez NCBA.** La génération des fichiers de Chequepoint vers le système bancaire central a été automatisée. Un service web vérifiait également directement les soldes des comptes, remplaçant les rapprochements manuels.
+
+Le fil conducteur est le suivant : dans les systèmes bancaires, les difficultés intéressantes concernent rarement les transactions elles-mêmes. Elles se trouvent aux interfaces entre des systèmes qui se considèrent chacun comme la source de référence.

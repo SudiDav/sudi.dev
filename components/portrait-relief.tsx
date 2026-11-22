@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import type { SiteLocale } from '@/lib/locale'
 import './portrait-relief.css'
 
 type PortraitReliefProps = {
@@ -10,6 +11,7 @@ type PortraitReliefProps = {
   expectedSourceSha256: string
   sizes?: string
   priority?: boolean
+  locale?: SiteLocale
 }
 
 type View = { yaw: number; pitch: number }
@@ -21,7 +23,7 @@ function limit(value: number) {
 }
 
 export function PortraitRelief({
-  src, alt, expectedSourceSha256, sizes = '(max-width: 1024px) 100vw, 360px', priority = true,
+  src, alt, expectedSourceSha256, sizes = '(max-width: 1024px) 100vw, 360px', priority = true, locale = 'en',
 }: PortraitReliefProps) {
   const stageRef = useRef<HTMLDivElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -31,6 +33,22 @@ export function PortraitRelief({
   const [engaged, setEngaged] = useState(false)
   const [loaded, setLoaded] = useState(false)
   const [failed, setFailed] = useState(false)
+  const copy = locale === 'fr' ? {
+    canvas: `${alt}. Utilisez les flèches pour changer la vue du portrait.`,
+    help: 'Utilisez les boutons fléchés, les touches fléchées ou faites glisser le portrait pour changer de vue. Appuyez sur Origine pour réinitialiser.',
+    controls: 'Commandes de vue du portrait',
+    up: 'Incliner le portrait vers le haut', left: 'Incliner le portrait vers la gauche',
+    reset: 'Réinitialiser la vue du portrait', right: 'Incliner le portrait vers la droite',
+    down: 'Incliner le portrait vers le bas',
+    still: 'Le portrait reste visible sous forme d’image fixe.', active: 'La vue en relief du portrait est active.', loading: 'Chargement du relief du portrait.',
+  } : {
+    canvas: `${alt}. Use arrow keys to change the portrait view.`,
+    help: 'Use the arrow buttons, arrow keys, or drag the portrait to change the view. Press Home to reset.',
+    controls: 'Portrait view controls',
+    up: 'Tilt portrait up', left: 'Tilt portrait left', reset: 'Reset portrait view',
+    right: 'Tilt portrait right', down: 'Tilt portrait down',
+    still: 'The portrait remains visible as a still image.', active: 'Portrait depth view active.', loading: 'Loading portrait depth.',
+  }
 
   const moveTo = useCallback((yaw: number, pitch: number) => {
     target.current = { yaw: limit(yaw), pitch: limit(pitch) }
@@ -255,22 +273,22 @@ export function PortraitRelief({
         tabIndex={failed ? -1 : 0}
         role="img"
         aria-hidden={failed || undefined}
-        aria-label={`${alt}. Use arrow keys to change the portrait view.`}
+        aria-label={copy.canvas}
         aria-describedby="portrait-relief-help"
         onFocus={() => setEngaged(true)}
         onKeyDown={handleKeyDown}
         onPointerEnter={() => setEngaged(true)}
       />
-      <span id="portrait-relief-help" className="sr-only">Use the arrow buttons, arrow keys, or drag the portrait to change the view. Press Home to reset.</span>
-      <div className="portrait-relief__controls" aria-label="Portrait view controls">
-        <button type="button" aria-label="Tilt portrait up" onClick={() => moveTo(target.current.yaw, target.current.pitch + 0.1)} disabled={failed}>↑</button>
-        <button type="button" aria-label="Tilt portrait left" onClick={() => moveTo(target.current.yaw - 0.12, target.current.pitch)} disabled={failed}>←</button>
-        <button type="button" aria-label="Reset portrait view" onClick={() => moveTo(0, 0)} disabled={failed}>•</button>
-        <button type="button" aria-label="Tilt portrait right" onClick={() => moveTo(target.current.yaw + 0.12, target.current.pitch)} disabled={failed}>→</button>
-        <button type="button" aria-label="Tilt portrait down" onClick={() => moveTo(target.current.yaw, target.current.pitch - 0.1)} disabled={failed}>↓</button>
+      <span id="portrait-relief-help" className="sr-only">{copy.help}</span>
+      <div className="portrait-relief__controls" aria-label={copy.controls}>
+        <button type="button" aria-label={copy.up} onClick={() => moveTo(target.current.yaw, target.current.pitch + 0.1)} disabled={failed}>↑</button>
+        <button type="button" aria-label={copy.left} onClick={() => moveTo(target.current.yaw - 0.12, target.current.pitch)} disabled={failed}>←</button>
+        <button type="button" aria-label={copy.reset} onClick={() => moveTo(0, 0)} disabled={failed}>•</button>
+        <button type="button" aria-label={copy.right} onClick={() => moveTo(target.current.yaw + 0.12, target.current.pitch)} disabled={failed}>→</button>
+        <button type="button" aria-label={copy.down} onClick={() => moveTo(target.current.yaw, target.current.pitch - 0.1)} disabled={failed}>↓</button>
       </div>
       <span className="sr-only" aria-live="polite">
-        {failed ? 'The portrait remains visible as a still image.' : loaded ? 'Portrait depth view active.' : engaged ? 'Loading portrait depth.' : ''}
+        {failed ? copy.still : loaded ? copy.active : engaged ? copy.loading : ''}
       </span>
     </div>
   )

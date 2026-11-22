@@ -4,6 +4,7 @@ import { createContentReader } from './bundled-content'
 describe('bundled content reads in Workers', () => {
   const reader = createContentReader({
     'posts/hello.mdx': '---\ntitle: Hello\n---\nArticle body',
+    'fr/posts/hello.mdx': '---\ntitle: Bonjour\n---\nArticle en français',
     'projects/app.mdx': 'Project body',
     'site.json': '{"displayName":"Sudi"}',
   })
@@ -11,6 +12,8 @@ describe('bundled content reads in Workers', () => {
   it('reads the content snapshot without depending on a local content directory', async () => {
     expect(await reader.readdir('/bundle/content/posts')).toEqual(['hello.mdx'])
     expect(await reader.readFile('/bundle/content/posts/hello.mdx', 'utf8')).toContain('Article body')
+    expect(await reader.readdir('/bundle/content/fr/posts')).toEqual(['hello.mdx'])
+    expect(await reader.readFile('/bundle/content/fr/posts/hello.mdx', 'utf8')).toContain('Article en français')
     expect(await reader.readFile('/bundle/content/site.json', 'utf8')).toBe('{"displayName":"Sudi"}')
   })
 

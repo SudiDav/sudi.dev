@@ -1,0 +1,11 @@
+---
+title: Plateforme d’enchères automobiles
+shortDescription: Une plateforme d’enchères en microservices pour pratiquer les concepts de bout en bout.
+description: Une plateforme d’enchères .NET en microservices, avec des échanges entre services via RabbitMQ, des conteneurs Docker et une orchestration Kubernetes.
+---
+
+J’ai créé cette plateforme d’enchères automobiles pour mettre en pratique les modèles des microservices plutôt que de me contenter de les étudier.
+
+Les services communiquent de façon asynchrone avec RabbitMQ au lieu de s’appeler directement. Un service lent ou indisponible dégrade ainsi le système sans le faire tomber entièrement. Chaque service est conteneurisé avec Docker et l’ensemble s’exécute sur Kubernetes.
+
+La partie intéressante n’était pas la logique des enchères, mais tout ce qui l’entoure : comment les services se découvrent, ce qui arrive à une offre lorsqu’un consommateur est arrêté et comment maintenir la cohérence des données sans base de données centrale.

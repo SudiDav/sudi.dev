@@ -4,10 +4,12 @@ import { useEffect, useRef, useState } from 'react'
 import { MapPin, X } from 'lucide-react'
 import { CENTRE, tileUrl, ATTRIBUTION, MARKER_STYLE } from '@/lib/map'
 import 'leaflet/dist/leaflet.css'
+import type { SiteLocale } from '@/lib/locale'
 
 const START_ZOOM = 5
 
-export function LocationMap({ location, onClose }: { location: string; onClose: () => void }) {
+export function LocationMap({ location, onClose, locale = 'en' }: { location: string; onClose: () => void; locale?: SiteLocale }) {
+  const fr = locale === 'fr'
   const holder = useRef<HTMLDivElement>(null)
   const closeRef = useRef<HTMLButtonElement>(null)
   const [failed, setFailed] = useState(false)
@@ -68,7 +70,7 @@ export function LocationMap({ location, onClose }: { location: string; onClose: 
       <div
         role="dialog"
         aria-modal="true"
-        aria-label={`Map showing ${location}`}
+        aria-label={fr ? `Carte de ${location}` : `Map showing ${location}`}
         onClick={(e) => e.stopPropagation()}
         className="flex w-full max-w-[640px] flex-col gap-3 rounded-3xl border border-border bg-bg-card p-4 shadow-[0_24px_64px_#00000060]"
       >
@@ -81,7 +83,7 @@ export function LocationMap({ location, onClose }: { location: string; onClose: 
             ref={closeRef}
             type="button"
             onClick={onClose}
-            aria-label="Close map"
+            aria-label={fr ? 'Fermer la carte' : 'Close map'}
             className="rounded-full p-1.5 text-text-tertiary transition-colors hover:bg-bg-secondary hover:text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
           >
             <X size={16} />
@@ -90,7 +92,7 @@ export function LocationMap({ location, onClose }: { location: string; onClose: 
 
         {failed ? (
           <p className="rounded-2xl bg-bg-secondary p-8 text-center text-sm text-text-secondary">
-            The map could not be loaded. {location} sits at 11.66°S, 27.48°E.
+            {fr ? `La carte n’a pas pu être chargée. ${location} se situe à 11,66° S, 27,48° E.` : `The map could not be loaded. ${location} sits at 11.66°S, 27.48°E.`}
           </p>
         ) : (
           <div
@@ -100,7 +102,7 @@ export function LocationMap({ location, onClose }: { location: string; onClose: 
         )}
 
         <p className="text-[11px] leading-[1.5] text-text-tertiary">
-          Drag to pan, scroll to zoom.
+          {fr ? 'Faites glisser pour déplacer la carte et faites défiler pour zoomer.' : 'Drag to pan, scroll to zoom.'}
         </p>
       </div>
     </div>

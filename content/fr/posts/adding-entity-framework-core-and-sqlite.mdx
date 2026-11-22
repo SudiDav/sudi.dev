@@ -1,0 +1,196 @@
+---
+title: "Ajouter Entity Framework Core et SQLite"
+excerpt: "Ajoutez une vraie source de données à une Minimal API : configurez EF Core avec SQLite, du DbContext à l’injection de dépendances."
+readingTime: "5 min de lecture"
+---
+Après notre introduction aux [Minimal APIs](/fr/blog/getting-started-with-aspnet-core-7-minimal-apis), passons à l’étape suivante en ajoutant une source de données pour enregistrer et consulter des recettes. Nous utiliserons SQLite comme base de données et Entity Framework Core pour interagir avec elle.
+
+Commençons par ajouter les packages qui nous permettront d’utiliser SQLite et EF Core. Dans un terminal, placez-vous à la racine de votre projet et exécutez les commandes suivantes pour installer les packages nécessaires :
+
+`dotnet add package Microsoft.EntityFrameworkCore.Sqlite`
+
+`dotnet add package Microsoft.EntityFrameworkCore.Design`
+
+Ces packages sont nécessaires pour travailler avec SQLite et Entity Framework Core.
+
+Maintenant que les packages sont installés, ajoutons le modèle de recette. Créez un dossier nommé `Models` dans le répertoire de votre projet. Dans ce dossier, créez un fichier de classe nommé `Recipe.cs`. Ouvrez-le et définissez le modèle de recette comme suit :
+
+```csharp
+namespace CookingAPI;
+
+public class Recipe
+{
+    public int Id { get; set; }
+    public string Name { get; set; }
+    public string Description { get; set; }
+}
+```
+
+Nous avons ajouté le modèle `Recipe`, qui représente les données et la logique métier de notre application. Notre modèle est prêt ; configurons maintenant EF Core.
+
+L’étape suivante consiste à créer le `DbContext` de nos recettes. Il représente une session avec la base de données et sert de passerelle entre le code de notre application et la base. Pour en savoir plus sur `DbContext`, consultez [cette page](https://learn.microsoft.com/en-us/dotnet/api/system.data.entity.dbcontext?view=entity-framework-6.2.0).
+
+Créons un dossier `Data` dans le répertoire du projet. Dans ce dossier, ajoutez un fichier de classe nommé `AppDbContext.cs` (vous pouvez lui donner un autre nom ; par convention, beaucoup de développeurs .NET choisissent `AppDbContext`). Ouvrez le fichier et définissez le contexte de base de données ainsi :
+
+```csharp
+using Microsoft.EntityFrameworkCore;
+
+namespace CookingAPI.Data;
+
+public class AppDbContext: DbContext
+{
+    public AppDbContext(DbContextOptions<AppDbContext> options): base(options)
+    {  
+    }
+    public DbSet<Recipe> Recipes { get; set; }
+}
+```
+
+Il est temps de relier notre API à la base SQLite. Pour cela, ouvrez le fichier `Program.cs` dans l’éditeur de code ou l’IDE de votre choix. Ajoutez l’extrait suivant juste après la déclaration de la variable `builder` :
+
+```csharp
+using CookingAPI.Data;
+using Microsoft.EntityFrameworkCore;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
+
+var app = builder.Build();
+
+app.Run();
+```
+
+Vous remarquerez que nous avons ajouté la configuration d’EF Core et qu’elle utilise une chaîne de connexion nommée `DefaultConnection`. Nous devons encore la définir dans le fichier `appsettings.json`, situé à la racine du projet (ce fichier a été généré automatiquement lors de sa création). Nous avons également importé `Microsoft.EntityFrameworkCore`, indispensable pour travailler avec EF Core.
+
+La chaîne de connexion cherchera `DefaultConnection` dans le fichier `appsettings.json`, mais cette entrée n’y figure pas encore. Ouvrez ce fichier et ajoutez une section de chaîne de connexion comme celle-ci :
+
+```csharp
+    {
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "ConnectionStrings": {
+    "DefaultConnection": "Data Source=./Data/app.db"
+  }
+}
+```
+
+Nous avons ajouté, sous `"AllowedHosts": "*"`, une section `ConnectionStrings` qui contient `DefaultConnection`, la chaîne de connexion à notre base SQLite. Le fichier `app.db` contiendra nos données et sera placé dans le dossier `Data` du projet.
+
+Créons ensuite une migration pour notre modèle `Recipe`. Les migrations EF Core permettent de gérer les changements apportés au schéma de la base de données. Exécutez cette commande dans votre terminal :
+
+`dotnet ef migrations add InitialCreate`
+
+Cette commande crée une migration qui ajoutera la table `Recipes`, correspondant à notre modèle `Recipe`. Pour appliquer cette migration et créer le schéma de la base, exécutez ensuite :
+
+`dotnet ef database update`
+
+Une fois la migration appliquée, nous pouvons remplir la base avec quelques données initiales. Modifions notre `AppDbContext` pour insérer quelques recettes dans la table `Recipes`. Voici comment procéder :
+
+```csharp
+using Microsoft.EntityFrameworkCore;
+
+namespace CookingAPI.Data;
+
+public class AppDbContext: DbContext
+{
+    public AppDbContext(DbContextOptions<AppDbContext> options): base(options)
+    {  
+    }
+    public DbSet<Recipe> Recipes { get; set; }
+}
+
+protected override void OnModelCreating(ModelBuilder modelBuilder)
+{
+    modelBuilder.Entity<Recipe>().HasData(
+        new Recipe { Id = 1, Name = "Somba wali", Description = "Sweet and common meal eaten in the Central Africa." },
+        new Recipe { Id = 2, Name = "Wali Maharagwe", Description = "Rice and beans mostly in the Central African cuisine" }
+    );
+}
+```
+
+Enfin, définissons des points de terminaison d’API pour créer, consulter, mettre à jour et supprimer des recettes. Voici une façon simple de les créer :
+
+```csharp
+using CookingAPI.Data;
+using CookingAPI.Models;
+using Microsoft.EntityFrameworkCore;
+
+var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+{
+    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
+});
+
+var app = builder.Build();
+
+app.MapGet("/", async (AppDbContext db) => await db.Recipes.ToListAsync());
+
+app.MapGet("/recipes/{id}", async (AppDbContext db, int id) =>
+{
+    var recipe = await db.Recipes.FindAsync(id);
+    if (recipe is null)
+        return Results.NotFound($"Recipe with ID {id} not found");
+    return Results.Ok(recipe);
+});
+
+app.MapPost("/recipes", async (AppDbContext db, Recipe recipe) => {
+    await db.Recipes.AddAsync(recipe);
+    await db.SaveChangesAsync();
+    return Results.Created($"/recipes/{recipe.Id}", recipe);
+});
+
+app.MapPut("/recipes/{id}", async (AppDbContext db, int id, Recipe recipe) => {
+    var existingRecipe = await db.Recipes.FindAsync(id);
+
+    if (existingRecipe == null) 
+        return Results.NotFound($"Recipe with ID {id} not found");
+    existingRecipe.Name = recipe.Name;
+    existingRecipe.Description = recipe.Description;
+
+    await db.SaveChangesAsync();
+
+   return Results.Ok(new { message = "Recipe successfully Updated" });
+});
+
+app.MapDelete("/recipes/{id}", async (AppDbContext db, int id) => {
+    var recipe = await db.Recipes.FindAsync(id);
+    if (recipe == null) return Results.NotFound($"Recipe with ID {id} not found");
+    db.Recipes.Remove(recipe);
+    await db.SaveChangesAsync();
+    return Results.Ok(new { message = "Recipe successfully deleted" });
+});
+
+app.Run();
+```
+
+Dans cette dernière partie, nous avons créé les points de terminaison de notre API pour interagir avec les données `Recipe`. Nous avons utilisé l’injection de dépendances (DI) fournie par .NET. Cette technique consiste à fournir à un objet les autres objets dont il dépend, ce qui favorise un code plus modulaire et plus efficace.
+
+Dans notre exemple, nous avons injecté `AppDbContext` dans les points de terminaison. Nous pouvons ainsi récupérer, ajouter, mettre à jour et supprimer des recettes dans notre base SQLite. Lorsqu’une requête arrive sur un point de terminaison, .NET se charge de créer une instance de `AppDbContext` et de la fournir à la méthode. C’est ce qui se passe lorsque vous voyez `(AppDbContext db)` parmi les paramètres des méthodes de nos points de terminaison.
+
+Avant de conclure, voyons comment tester nos points de terminaison avec Postman. Cet outil permet d’envoyer des requêtes à notre API et d’examiner ses réponses. Pour tester l’API :
+
+Ouvrez Postman et envoyez une requête GET. Ici, nous récupérons toutes les recettes.
+
+![](/images/blog/bf7d9fd3460c.png)
+
+Pour aller plus vite, vous pouvez tester les autres points de terminaison. Si quelque chose ne fonctionne pas comme prévu, n’hésitez pas à le signaler dans les commentaires.
+
+## **Conclusion**
+
+Dans cet article, nous avons vu comment configurer une Minimal API avec SQLite et EF Core dans .NET. Nous avons parcouru les étapes de configuration de la base de données, de définition d’un modèle et d’un `DbContext`, puis de création et de test des points de terminaison de l’API. Nous avons également présenté l’injection de dépendances et son utilisation dans notre application.
+
+Dans le prochain article, nous approfondirons la structuration du code d’accès aux données en introduisant le modèle Repository. Ce modèle permet d’abstraire l’implémentation sous-jacente de l’accès aux données, pour obtenir un code plus clair et plus facile à maintenir.
+
+Nous verrons aussi comment intégrer Swagger à notre Minimal API. Swagger est un excellent outil pour concevoir et documenter des API RESTful ; il permet également de générer automatiquement une documentation interactive de l’API.
+
+Restez à l’affût de ces prochains sujets ! Nous continuerons à faire évoluer notre API, à appliquer les bonnes pratiques et à découvrir des outils puissants. Nous aborderons également des notions importantes du développement logiciel, comme l’injection de dépendances et son utilisation dans des projets réels.

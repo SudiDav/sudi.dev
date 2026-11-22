@@ -1,9 +1,9 @@
 {
   "displayName": "Sudi M. David",
   "avatar": "/images/sudi.jpeg",
-  "email": "contact@sudi.dev",
+  "email": "hello@sudi.dev",
   "phone": "+243 817 334 881",
-  "bio": "Software engineer specializing in DevOps and cloud systems for fintech, lending, agriculture and school administration.",
+  "bio": "Software engineer in Lubumbashi building applications, connecting systems, and helping teams run reliable software.",
   "location": "Lubumbashi, DRC",
   "website": "sudi.dev",
   "social": {
@@ -14,7 +14,7 @@
   },
   "seo": {
     "title": "Sudi M. David — Software Engineer | DevOps & Cloud",
-    "description": "Software engineer in Lubumbashi specializing in DevOps and cloud systems for fintech, lending, agriculture and school administration."
+    "description": "Sudi M. David builds applications, connects systems, and helps teams improve the software they already use."
   },
   "writingProfile": {
     "interests": "",

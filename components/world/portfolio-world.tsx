@@ -3,11 +3,22 @@
 import Image from 'next/image'
 import { useEffect, useRef, useState } from 'react'
 import { Pause, Play } from 'lucide-react'
+import type { SiteLocale } from '@/lib/locale'
 import { WORLD_SECTORS, type SectorId } from './world-data'
 import type { WorldEngine } from './world-engine'
 import './world.css'
 
-export function PortfolioWorld() {
+const FRENCH_SECTORS: Record<SectorId, { label: string; description: string }> = {
+  emotion: { label: 'Émotion', description: 'Accueillez ce que vous ressentez avant de le nommer. Il y a de la place pour la lumière comme pour l’ombre.' },
+  energy: { label: 'Énergie', description: 'Laissez l’émotion devenir un mouvement, une conversation, une question ou un premier pas. Choisissez où porter votre attention.' },
+  vibration: { label: 'Vibration', description: 'Certains moments invitent au calme. D’autres vous mettent en mouvement. Prenez le temps d’écouter les deux.' },
+  frequency: { label: 'Fréquence', description: 'Ce que vous pratiquez devient familier. Revenez aux habitudes et aux intentions qui comptent pour vous.' },
+  reality: { label: 'Réalité', description: 'Faites une place à la réflexion dans le quotidien. Un petit geste conscient suffit pour commencer.' },
+}
+
+export function PortfolioWorld({ locale = 'en' }: { locale?: SiteLocale } = {}) {
+  const french = locale === 'fr'
+  const sectors = french ? WORLD_SECTORS.map(item => ({ ...item, ...FRENCH_SECTORS[item.id] })) : WORLD_SECTORS
   const canvas = useRef<HTMLCanvasElement>(null)
   const engine = useRef<WorldEngine | null>(null)
   const labels = useRef(new Map<SectorId, HTMLButtonElement>())
@@ -18,6 +29,9 @@ export function PortfolioWorld() {
   const [status, setStatus] = useState<'loading' | 'ready' | 'unavailable'>('loading')
   const [selected, setSelected] = useState<SectorId | null>(null)
   const [paused, setPaused] = useState(false)
+  const motionLabel = paused
+    ? (french ? 'Reprendre l’animation' : 'Resume ambient motion')
+    : (french ? 'Mettre l’animation en pause' : 'Pause ambient motion')
   const [explained, setExplained] = useState<SectorId | null>(null)
 
   useEffect(() => {
@@ -150,19 +164,21 @@ export function PortfolioWorld() {
           </div>
         )}
         <canvas ref={canvas} className="world-canvas" tabIndex={status === 'ready' ? 0 : -1}
-          aria-label="3D universe: a yin and yang symbol above the Sudi logo, labelled I am, among five planets over a spiral galaxy. Drag to rotate. Tap the symbol or press Space to bounce."
+          aria-label={french
+            ? 'Univers en 3D. Le yin et le yang surplombent le logo Sudi, entouré de cinq planètes au-dessus d’une galaxie spirale.'
+            : '3D universe: a yin and yang symbol above the Sudi logo, labelled I am, among five planets over a spiral galaxy. Drag to rotate. Tap the symbol or press Space to bounce.'}
           aria-describedby="world-instructions" />
         {status === 'ready' && (
-          <button className="world-motion-toggle" type="button" aria-label={paused ? 'Resume ambient motion' : 'Pause ambient motion'} title={paused ? 'Resume ambient motion' : 'Pause ambient motion'} aria-pressed={paused}
+          <button className="world-motion-toggle" type="button" aria-label={motionLabel} title={motionLabel} aria-pressed={paused}
             onClick={() => { engine.current?.setPaused(!paused); setPaused(!paused) }}>{paused ? <Play size={14} /> : <Pause size={14} />}</button>
         )}
         <svg className="world-label-leaders" aria-hidden="true">
           {WORLD_SECTORS.map(item => <line key={item.id} ref={node => { if (node) leaders.current.set(item.id, node); else leaders.current.delete(item.id) }} />)}
           <line ref={selfLeader} />
         </svg>
-        <span ref={selfLabel} className="world-self-label" aria-hidden="true">I am</span>
-      <div className="world-sector-list" role="group" aria-label="Emotion to reality: a personal philosophy">
-        {WORLD_SECTORS.map(item => (
+        <span ref={selfLabel} className="world-self-label" aria-hidden="true">{french ? 'Je suis' : 'I am'}</span>
+      <div className="world-sector-list" role="group" aria-label={french ? 'De l’émotion à la réalité, une philosophie personnelle' : 'Emotion to reality: a personal philosophy'}>
+        {sectors.map(item => (
           <button type="button" key={item.id} ref={node => { if (node) labels.current.set(item.id, node); else labels.current.delete(item.id) }} aria-label={item.label} aria-describedby={`reflection-${item.id}`} aria-pressed={selected === item.id}
             onFocus={event => { if (event.currentTarget.matches(':focus-visible')) { clearTimeout(dismissTimer.current); setExplained(item.id) } }}
             onBlur={() => setExplained(null)}
@@ -178,7 +194,11 @@ export function PortfolioWorld() {
       </div>
       </div>
       <p id="world-instructions" className="sr-only">
-        {status === 'unavailable' ? 'A still render of the cosmos is shown because 3D is unavailable.' : 'Drag to orbit the universe. Tap yin and yang or press Space to bounce. Hover a planet to read its reflection, or focus a label with the keyboard.'}
+        {status === 'unavailable'
+          ? (french ? 'Une image fixe du cosmos s’affiche lorsque la 3D est indisponible.' : 'A still render of the cosmos is shown because 3D is unavailable.')
+          : (french
+            ? 'Faites glisser pour tourner autour de l’univers. Touchez le yin et le yang ou appuyez sur Espace pour les faire rebondir. Survolez une planète ou sélectionnez son nom au clavier pour lire sa réflexion.'
+            : 'Drag to orbit the universe. Tap yin and yang or press Space to bounce. Hover a planet to read its reflection, or focus a label with the keyboard.')}
       </p>
     </div>
   )
