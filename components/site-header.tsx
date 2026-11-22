@@ -45,17 +45,8 @@ export function SiteHeader({ locale = 'en', languagePath }: {
   }, [menuOpen])
 
   const otherLocale = french ? 'en' : 'fr'
+  const languageName = french ? 'English' : 'Français'
   const switchHref = localePath(otherLocale, languagePath ?? publicPath(pathname))
-  const switchLanguage = (
-    <a
-      href={switchHref}
-      hrefLang={otherLocale}
-      lang={otherLocale}
-      className="rounded-full px-2.5 py-1.5 text-sm font-medium text-text-secondary hover:text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
-    >
-      {french ? 'English' : 'Français'}
-    </a>
-  )
   const isCurrent = (href: string) => pathname === href || pathname.startsWith(`${href}/`)
   const navLink = (item: typeof NAV[number]) => {
     const href = localePath(locale, item.href)
@@ -86,7 +77,6 @@ export function SiteHeader({ locale = 'en', languagePath }: {
         <nav aria-label={french ? 'Navigation principale' : 'Main navigation'} className="flex items-center gap-3 md:gap-8">
           <div className="hidden items-center gap-4 md:flex md:gap-8">
             {NAV.map(navLink)}
-            {switchLanguage}
           </div>
           <Link
             href={localePath(locale, '/blog?focus=search')}
@@ -95,7 +85,35 @@ export function SiteHeader({ locale = 'en', languagePath }: {
           >
             <Search size={18} />
           </Link>
-          <ThemeToggle locale={locale} />
+          <div className="flex shrink-0 items-center gap-1.5">
+            <ThemeToggle locale={locale} />
+            <a
+              href={switchHref}
+              hrefLang={otherLocale}
+              lang={otherLocale}
+              aria-label={languageName}
+              title={languageName}
+              className="grid size-10 place-items-center rounded-full transition-colors hover:bg-bg-card focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+            >
+              <svg aria-hidden="true" width="24" height="16" viewBox="0 0 60 30" preserveAspectRatio="none" className="rounded-sm">
+                {french ? (
+                  <>
+                    <path fill="#012169" d="M0 0h60v30H0z" />
+                    <path stroke="#fff" strokeWidth="6" d="M0 0l60 30m0-30L0 30" />
+                    <path fill="#c8102e" d="M0 0v2.24L25.53 15H30zM60 0h-4.47L30 12.76V15zM60 30v-2.24L34.47 15H30zM0 30h4.47L30 17.24V15z" />
+                    <path stroke="#fff" strokeWidth="10" d="M30 0v30M0 15h60" />
+                    <path stroke="#c8102e" strokeWidth="6" d="M30 0v30M0 15h60" />
+                  </>
+                ) : (
+                  <>
+                    <path fill="#002654" d="M0 0h20v30H0z" />
+                    <path fill="#fff" d="M20 0h20v30H20z" />
+                    <path fill="#ce1126" d="M40 0h20v30H40z" />
+                  </>
+                )}
+              </svg>
+            </a>
+          </div>
           <button
             ref={menuButton}
             type="button"
@@ -116,7 +134,6 @@ export function SiteHeader({ locale = 'en', languagePath }: {
       >
         <nav aria-label={french ? 'Navigation mobile' : 'Mobile navigation'} className="mx-auto flex max-w-[1440px] flex-col items-start gap-1">
           {NAV.map(navLink)}
-          {switchLanguage}
         </nav>
       </div>
     </header>

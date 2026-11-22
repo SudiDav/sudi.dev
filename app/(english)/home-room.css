@@ -66,17 +66,11 @@
 .home-world-intro .identity-terminal { color: #b4c5e4; }
 .home-world-intro > p { color: #c4cfde; }
 .home-world-contact { background-color: color-mix(in srgb, var(--accent) 85%, #172537); }
-.home-world-work-link,
-.home-world-proof a { color: #dbe3ef; }
-.home-world-work-link:hover,
-.home-world-proof a:hover { color: #fff; }
+.home-world-work-link { color: #dbe3ef; }
+.home-world-work-link:hover { color: #fff; }
 .home-world-intro a:focus-visible {
   outline: 2px solid #aac3ff;
   outline-offset: 4px;
-}
-.home-world-proof {
-  border-color: rgb(255 255 255 / 20%);
-  color: #c4cfde;
 }
 .home-world-hero .portfolio-world { z-index: 1; }
 .home-world-hero .world-viewport { overflow: hidden; }
