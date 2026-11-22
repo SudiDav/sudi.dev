@@ -82,17 +82,6 @@ export async function HomeView({ locale }: { locale: SiteLocale }) {
                 {french ? 'Voir mes projets' : 'View My Work'}
               </Link>
             </div>
-
-            <ul aria-label={french ? 'Quelques projets clients' : 'Selected client work'} className="home-world-proof max-w-[46ch] space-y-2 border-t pt-4 text-sm leading-relaxed">
-              <li>
-                <Link href={localePath(locale, '/work#altech-paygo')} className="font-semibold underline underline-offset-4">Altech PAYGO</Link>
-                {' · '}{french ? 'Relié les ventes sur le terrain à la comptabilité.' : 'Connected field sales to accounting.'}
-              </li>
-              <li>
-                <Link href={localePath(locale, '/work#chequepoint')} className="font-semibold underline underline-offset-4">Chequepoint</Link>
-                {' · '}{french ? 'Réduit de 70 % le travail administratif pour AB Bank.' : 'Cut paperwork by 70% for AB Bank.'}
-              </li>
-            </ul>
           </div>
           <PortfolioWorld locale={locale} />
         </section>

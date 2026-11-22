@@ -1,6 +1,7 @@
 import { renderToReadableStream } from 'react-dom/server'
 import { beforeAll, describe, expect, it, vi } from 'vitest'
 import HomePage from './page'
+import FrenchHomePage from '@/app/fr/page'
 import { getSettings } from '@/lib/site'
 
 vi.mock('next/navigation', () => ({
@@ -36,10 +37,12 @@ describe('homepage project invitations', () => {
     expect(markup).toContain(`href="mailto:${email}?subject=Free%2030-minute%20project%20call"`)
   })
 
-  it('links to relevant project evidence before the 3D scene', () => {
-    expect(intro).toContain('href="/work#altech-paygo"')
-    expect(intro).toContain('Connected field sales to accounting.')
-    expect(intro).toContain('href="/work#chequepoint"')
-    expect(intro).toContain('Cut paperwork by 70% for AB Bank.')
+  it('omits the client proof lines from both homepages', async () => {
+    const frenchStream = await renderToReadableStream(await FrenchHomePage())
+    await frenchStream.allReady
+    const frenchMarkup = await new Response(frenchStream).text()
+
+    expect(markup).not.toContain('Selected client work')
+    expect(frenchMarkup).not.toContain('Quelques projets clients')
   })
 })
