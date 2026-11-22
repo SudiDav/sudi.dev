@@ -1,6 +1,6 @@
 # French public site and project bookings checklist
 
-**Status** Implemented locally. Workers crawler metadata verification is pending.
+**Status** Verified in local previews. The production release is authorized.
 **Requirements** [PRD](./prd.md)
 
 ## Implementation
@@ -33,7 +33,7 @@
   **Done means** Each homepage opens an email to `hello@sudi.dev`. Tests also exercise the localized booking button with a configured Cal.com link.
   **Maps to** AC-6. **Depends on** 2. **Touches** Homepage contact section, public booking-link settings and contact tests.
 
-- [ ] **8. Localize discovery and sharing.** Add self-canonical and reciprocal language metadata for each public pair, French Open Graph copy, bilingual sitemap entries, and a French RSS feed at `/fr/rss.xml`. Keep the existing English feed and direct links.
+- [x] **8. Localize discovery and sharing.** Add self-canonical and reciprocal language metadata for each public pair, French Open Graph copy, bilingual sitemap entries, and a French RSS feed at `/fr/rss.xml`. Keep the existing English feed and direct links.
   **Done means** Both runtimes send crawler-readable canonical and language alternate links. The sitemap and both feeds name the intended public URLs. French entries in the sitemap and feed represent published translations.
   **Maps to** AC-4, AC-5. **Depends on** 3, 4, 5, 6. **Touches** Page metadata, `app/sitemap.ts`, RSS routes and SEO tests.
 
@@ -46,8 +46,8 @@
 - The 39-test English baseline passed. Four new route checks failed for the expected reason before French routes were added. The integrated candidate passed 107 targeted tests on Next.js and eight rendered-route tests on the Workers preview. Both production builds, type checking, changed-file lint and the diff whitespace check passed.
 - Chrome verified the localized 3D controls and still-image fallback, Work filters, keyboard access to the contact section, and the email link at desktop and phone sizes. French blog search, navigation between article languages and the newsletter dialog passed on both runtimes.
 - All 10 article pairs and seven Work entries were checked against the published inventory. The French versions preserve all 27 fenced code blocks. Both runtimes serve the bilingual sitemap and the English and French feeds.
-- Next.js serves the canonical link in the HTML head. The Workers preview placed it in the body on the French homepage and on both language versions of a sampled article. The HTTP responses also lacked a canonical Link header. Steps 8 and 9 remain open. [Google Search canonical link guidance](https://developers.google.com/search/docs/crawling-indexing/consolidate-duplicate-urls)
-- The changes are in the local `feat/french-public-site` worktree. Production deployment is pending separate authorization.
+- The original Workers candidate streamed canonical links into the document body. In the authorized follow-up attempt, the Worker renders metadata in the head before caching the response. The regression test failed on the original candidate and passed after the fix across all English and French page pairs, including the 10 article pairs.
+- After the fix, both production builds passed. The Worker HTTP suite passed 10 tests and the targeted Next.js suite passed 18. Chrome verified article language switching with the corrected canonical link in place. Production smoke checks are tracked in step 9.
 
 ## Cal.com activation
 

@@ -15,13 +15,38 @@ const launchArticles = new Set([
   'the-crucial-role-of-english-proficiency-in-software-development',
 ])
 
-async function read(path: string, status = 200) {
-  const response = await fetch(new URL(path, base), { signal: AbortSignal.timeout(15000) })
+async function read(path: string, status = 200, userAgent?: string) {
+  const response = await fetch(new URL(path, base), {
+    headers: userAgent === undefined ? undefined : { 'user-agent': userAgent },
+    signal: AbortSignal.timeout(15000),
+  })
   expect(response.status, path).toBe(status)
   return response.text()
 }
 
+function expectHeadLinks(html: string, path: string, english: string, french: string) {
+  const head = html.match(/<head\b[^>]*>([\s\S]*?)<\/head>/i)?.[1] ?? ''
+  const links = head.match(/<link\b[^>]*>/gi) ?? []
+  const hrefs = (rel: string, language?: string) => links.flatMap((tag) => {
+    const href = tag.match(/\shref="([^"]+)"/i)?.[1]
+    const actualRel = tag.match(/\srel="([^"]+)"/i)?.[1]
+    const actualLanguage = tag.match(/\shreflang="([^"]+)"/i)?.[1]
+    return href && actualRel === rel && actualLanguage === language ? [new URL(href).href] : []
+  })
+  const url = (pathname: string) => new URL(pathname, 'https://sudi.dev').href
+
+  expect(hrefs('canonical'), path).toEqual([url(path)])
+  expect(hrefs('alternate', 'en'), path).toEqual([url(english)])
+  expect(hrefs('alternate', 'fr'), path).toEqual([url(french)])
+}
+
 describe.skipIf(!base)('public French version', () => {
+  it('keeps metadata in the head when a static page is first requested without a user agent', async () => {
+    const path = '/fr/about'
+    expectHeadLinks(await read(path, 200, ''), path, '/about', path)
+    expectHeadLinks(await read(path, 200, 'Googlebot'), path, '/about', path)
+  })
+
   it('serves paired public pages with the correct document language', async () => {
     for (const path of pages) {
       const french = path === '/' ? '/fr' : '/fr' + path
@@ -48,6 +73,22 @@ describe.skipIf(!base)('public French version', () => {
       const frenchTitle = html.match(heading)?.[1]
       expect(frenchTitle, path).toBeTruthy()
       expect(frenchTitle, path).not.toBe(english.match(heading)?.[1])
+    }
+  }, 25000)
+
+  it('puts canonical and reciprocal language links in the crawler HTML head', async () => {
+    const sitemap = await read('/sitemap.xml')
+    const frenchArticles = [...sitemap.matchAll(/<loc>https:\/\/sudi\.dev(\/fr\/blog\/[^<]+)<\/loc>/g)]
+      .map(([, path]) => path)
+    const pairs = [
+      ...pages.map((path) => [path, path === '/' ? '/fr' : '/fr' + path]),
+      ...frenchArticles.map((path) => [path.slice(3), path]),
+    ]
+
+    for (const [english, french] of pairs) {
+      for (const path of [english, french]) {
+        expectHeadLinks(await read(path, 200, 'Googlebot'), path, english, french)
+      }
     }
   }, 25000)
 

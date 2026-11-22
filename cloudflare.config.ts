@@ -15,7 +15,7 @@ export default defineConfig(({ mode, isPreview }) => ({
         issues: { enabled: true },
       },
     }),
-    entrypoint: "vinext/server/fetch-handler",
+    entrypoint: "./worker.ts",
     compatibilityDate: "2026-10-30",
     compatibilityFlags: ["nodejs_compat"],
     assets: {
