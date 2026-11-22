@@ -3,6 +3,7 @@
 import { useCallback, useSyncExternalStore } from 'react'
 import { Sun, Moon } from 'lucide-react'
 import { applyPreference, LIGHT_CLASS } from '@/lib/theme'
+import type { SiteLocale } from '@/lib/locale'
 
 /**
  * The theme lives on `<html>`, applied by the inline bootstrap script in the
@@ -33,7 +34,7 @@ const getServerSnapshot = () => false
  * explicit preference. The third option — following the OS — lives in the
  * admin's Appearance settings, where there is room to name it.
  */
-export function ThemeToggle() {
+export function ThemeToggle({ locale = 'en' }: { locale?: SiteLocale } = {}) {
   const isLight = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot)
 
   const toggle = useCallback(() => {
@@ -44,7 +45,7 @@ export function ThemeToggle() {
     <button
       type="button"
       onClick={toggle}
-      aria-label="Toggle colour theme"
+      aria-label={locale === 'fr' ? 'Changer le thème' : 'Toggle colour theme'}
       aria-pressed={isLight}
       className="flex items-center gap-1.5 rounded-full border border-border bg-bg-card px-2 py-1.5 transition-colors hover:border-border-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
     >

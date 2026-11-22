@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { SiteDocument } from '@/app/site-document'
 
 export const metadata: Metadata = {
   title: 'Admin | Sudi M. David',
@@ -11,5 +12,5 @@ export const metadata: Metadata = {
  * Post Editor, which the design draws without a sidebar, can opt out of it.
  */
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  return children
+  return <SiteDocument locale="en">{children}</SiteDocument>
 }

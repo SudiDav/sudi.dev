@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 import { Search } from 'lucide-react'
+import type { SiteLocale } from '@/lib/locale'
 
 /**
  * Design: Blog Page → "Search Box" — ROW, width 280, padding [10,16], gap 10,
@@ -13,7 +14,7 @@ import { Search } from 'lucide-react'
  * The header's search icon links here with `?focus=search`, which focuses the
  * input on arrival.
  */
-export function BlogSearch({ query }: { query: string }) {
+export function BlogSearch({ query, locale = 'en' }: { query: string; locale?: SiteLocale }) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -39,8 +40,8 @@ export function BlogSearch({ query }: { query: string }) {
       <input
         ref={inputRef}
         type="search"
-        aria-label="Search articles"
-        placeholder="Search articles..."
+        aria-label={locale === 'fr' ? 'Rechercher des articles' : 'Search articles'}
+        placeholder={locale === 'fr' ? 'Rechercher des articles…' : 'Search articles...'}
         defaultValue={query}
         onChange={(event) => update(event.target.value)}
         className="w-full bg-transparent text-[13px] text-text-primary placeholder:text-text-tertiary focus:outline-none"

@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import { PAGE_GUTTER } from '@/components/layout'
+import type { SiteLocale } from '@/lib/locale'
 
 /**
  * Logos use each company's own brand colours, taken from their websites.
@@ -30,14 +31,14 @@ function Logo({ file, className = '' }: { file: string; className?: string }) {
   )
 }
 
-export function CompanyShowcase() {
+export function CompanyShowcase({ locale = 'en' }: { locale?: SiteLocale }) {
   return (
     <section
       aria-labelledby="companies-heading"
       className={`py-14 text-center sm:py-20 ${PAGE_GUTTER}`}
     >
       <h2 id="companies-heading" className="font-display text-2xl font-semibold text-text-primary sm:text-3xl">
-        Companies I have worked with
+        {locale === 'fr' ? 'Entreprises avec lesquelles j’ai travaillé' : 'Companies I have worked with'}
       </h2>
       <ul role="list" className="mt-8 flex flex-wrap justify-center gap-x-4 gap-y-7 lg:flex-nowrap">
         {COMPANIES.map(({ name, logo, darkLogo }) => (

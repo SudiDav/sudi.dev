@@ -19,7 +19,7 @@ export function createContentReader(files: Record<string, string>) {
     },
     async readdir(path: string): Promise<string[]> {
       const key = relative(`${path}/`)
-      if (!key || !['posts/', 'projects/'].includes(key)) return missing(path)
+      if (!key || !['posts/', 'projects/', 'fr/posts/', 'fr/projects/'].includes(key)) return missing(path)
       return Object.keys(files).filter((file) => file.startsWith(key)).map((file) => file.slice(key.length)).sort()
     },
   }

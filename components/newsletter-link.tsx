@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import { X } from 'lucide-react'
 import { NewsletterForm } from '@/components/newsletter-form'
+import { localePath, type SiteLocale } from '@/lib/locale'
 
 // True in the browser, false during server rendering, so the portal only
 // targets document.body once it exists.
@@ -24,7 +25,7 @@ const useIsClient = () =>
  * The dialog is portalled to <body> because the link sits inside a paragraph,
  * and a <dialog> there would be invalid HTML.
  */
-export function NewsletterLink({ children }: { children?: React.ReactNode }) {
+export function NewsletterLink({ children, locale = 'en' }: { children?: React.ReactNode; locale?: SiteLocale }) {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const isClient = useIsClient()
 
@@ -33,7 +34,7 @@ export function NewsletterLink({ children }: { children?: React.ReactNode }) {
   return (
     <>
       <Link
-        href="/blog"
+        href={localePath(locale, '/blog')}
         aria-haspopup="dialog"
         onClick={(event) => {
           event.preventDefault()
@@ -47,7 +48,7 @@ export function NewsletterLink({ children }: { children?: React.ReactNode }) {
         ? createPortal(
             <dialog
               ref={dialogRef}
-              aria-label="Subscribe to the newsletter"
+              aria-label={locale === 'fr' ? 'S’inscrire à la newsletter' : 'Subscribe to the newsletter'}
               onClick={(event) => {
                 if (event.target === event.currentTarget) close()
               }}
@@ -56,13 +57,13 @@ export function NewsletterLink({ children }: { children?: React.ReactNode }) {
               <div className="relative">
                 <button
                   type="button"
-                  aria-label="Close"
+                  aria-label={locale === 'fr' ? 'Fermer' : 'Close'}
                   onClick={close}
                   className="absolute top-3 right-3 flex size-9 items-center justify-center rounded-full text-text-tertiary transition-colors hover:text-text-primary focus-visible:outline-2 focus-visible:outline-accent"
                 >
                   <X size={18} />
                 </button>
-                <NewsletterForm />
+                <NewsletterForm locale={locale} />
               </div>
             </dialog>,
             document.body,

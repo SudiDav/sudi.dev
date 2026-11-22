@@ -1,0 +1,265 @@
+---
+title: "Les patterns Outbox et Inbox avec .NET 10, EF Core et PostgreSQL"
+excerpt: >-
+  Enregistrer des données et publier un événement sont deux écritures distinctes ;
+  tôt ou tard, l’une d’elles échoue. Voici comment les patterns Outbox et Inbox
+  règlent le problème avec EF Core et PostgreSQL.
+date: '2026-10-19'
+readingTime: 9 min de lecture
+category: .NET
+cover: /images/blog/outbox-inbox-cover.png
+featured: false
+status: Published
+tags:
+  - .NET
+  - EF Core
+  - PostgreSQL
+  - Distributed Systems
+  - Messaging
+---
+
+## Pourquoi ces patterns existent
+
+Aujourd’hui, la plupart des systèmes ne sont pas constitués d’une seule application. Un service de commandes, un service de paiement, un service de facturation et un service de notifications gèrent chacun leurs propres données et se tiennent mutuellement au courant en envoyant des messages par l’intermédiaire d’un broker comme RabbitMQ ou Azure Service Bus.
+
+Tout fonctionne bien jusqu’à ce qu’un message se perde ou arrive deux fois. Les conséquences ne sont alors plus seulement techniques. Un client paie avec de l’argent mobile ; l’argent quitte son compte, mais le service chargé d’envoyer le reçu n’en entend jamais parler. Le client appelle alors le support, persuadé d’avoir été escroqué. Ou bien un message de décaissement de prêt est livré deux fois et le même client reçoit deux versements. Ces bogues ne font pas planter le système. On les découvre des semaines plus tard dans un rapport de rapprochement ou quand un client se plaint.
+
+Les patterns Outbox et Inbox existent parce qu’une base de données et un broker ne peuvent pas partager une même transaction. Outbox garantit qu’un message ne se perd pas au moment d’enregistrer les données. Inbox garantit qu’un message reçu plusieurs fois n’est traité qu’une seule fois. Ensemble, ils permettent à des services distincts de s’accorder sur ce qui s’est passé, même en cas de redémarrage des pods ou de panne réseau.
+
+Voici comment le problème se manifeste dans le code.
+
+## Le bogue en deux lignes
+
+Beaucoup de code événementiel .NET ressemble à ceci :
+
+```csharp
+db.Orders.Add(order);
+await db.SaveChangesAsync();
+
+await bus.PublishAsync(new OrderPlaced(order.Id, order.CustomerEmail, order.Total));
+```
+
+Le code semble correct et les tests passent. En production, il finira pourtant par perdre un événement sans vous prévenir.
+
+Imaginons que le pod redémarre ou que le broker soit indisponible pendant dix secondes, juste après `SaveChangesAsync`. La commande est enregistrée dans la base de données, mais l’événement ne quitte jamais le processus. Le client ne reçoit jamais sa facture et aucun e-mail de confirmation n’est envoyé. Aucune exception n’a été levée : il n’y a donc aucune erreur à repérer dans les journaux.
+
+Inverser les deux lignes crée le problème opposé. L’événement est envoyé, l’enregistrement échoue et un autre service commence à traiter une commande qui n’existe pas.
+
+C’est le problème des doubles écritures. Vous écrivez dans la base de données et dans le broker, sans qu’une transaction puisse couvrir les deux. Le pattern Outbox corrige le côté émission ; le pattern Inbox, le côté réception.
+
+![Flux Outbox et Inbox : la commande et son événement sont enregistrés dans une même transaction, publiés au moins une fois et traités une seule fois par consommateur](/images/blog/outbox-inbox-pattern.png)
+
+## Outbox : intégrer l’événement à la transaction
+
+Au lieu de publier l’événement directement, vous l’enregistrez dans une table de la même base de données et de la même transaction que la commande. Les deux lignes sont enregistrées ensemble, ou aucune ne l’est.
+
+```csharp
+public sealed class OutboxMessage
+{
+    public Guid Id { get; init; }
+    public string Type { get; init; } = "";
+    public string Payload { get; init; } = "";
+    public DateTime OccurredAt { get; init; }
+    public DateTime? ProcessedAt { get; set; }
+    public int Attempts { get; set; }
+    public DateTime? NextAttemptAt { get; set; }
+    public string? Error { get; set; }
+
+    public static OutboxMessage From<T>(T message) => new()
+    {
+        Id = Guid.CreateVersion7(),
+        Type = typeof(T).Name,
+        Payload = JsonSerializer.Serialize(message),
+        OccurredAt = DateTime.UtcNow
+    };
+}
+```
+
+`Guid.CreateVersion7()` génère des identifiants triés dans l’ordre chronologique. Les nouvelles lignes sont ajoutées à la fin de l’index de clé primaire, au lieu d’être dispersées aléatoirement, ce qui rend les insertions moins coûteuses.
+
+Dans le modèle, je stocke le contenu du message au format `jsonb` et j’ajoute un index partiel qui ne porte que sur les messages qui n’ont pas encore été envoyés. L’index reste ainsi compact, même si la table contient des millions d’anciennes lignes.
+
+```csharp
+b.Entity<OutboxMessage>(e =>
+{
+    e.Property(x => x.Payload).HasColumnType("jsonb");
+    e.HasIndex(x => x.OccurredAt).HasFilter("processed_at IS NULL");
+});
+```
+
+Le SQL de cet article utilise des noms au format snake_case, comme `outbox_messages` et `processed_at`. EF Core ne les génère pas ainsi par défaut : il nommerait la table `OutboxMessages` et la colonne `ProcessedAt`. L’exemple configure donc le contexte avec `UseSnakeCaseNamingConvention()` du package `EFCore.NamingConventions` :
+
+```csharp
+builder.Services.AddDbContext<AppDbContext>(o => o
+    .UseNpgsql(builder.Configuration.GetConnectionString("Default"))
+    .UseSnakeCaseNamingConvention());
+```
+
+Si vous omettez cette ligne, l’index partiel et le SQL brut échoueront avec l’erreur « relation does not exist ».
+
+Le point de terminaison n’appelle pas du tout le broker :
+
+```csharp
+app.MapPost("/orders", async (PlaceOrder request, AppDbContext db) =>
+{
+    var order = new Order
+    {
+        Id = Guid.CreateVersion7(),
+        CustomerEmail = request.Email,
+        Total = request.Total,
+        CreatedAt = DateTime.UtcNow
+    };
+
+    db.Orders.Add(order);
+    db.OutboxMessages.Add(OutboxMessage.From(
+        new OrderPlaced(order.Id, order.CustomerEmail, order.Total)));
+
+    await db.SaveChangesAsync();
+    return Results.Created($"/orders/{order.Id}", new { order.Id });
+});
+```
+
+EF Core englobe un appel à `SaveChangesAsync` dans une transaction de base de données. En cas de succès, la commande et son événement sont tous deux enregistrés. En cas d’échec, aucun des deux ne l’est. Vous n’avez plus qu’une écriture au lieu de deux.
+
+## Envoyer les messages de l’Outbox
+
+Il faut encore transférer ces lignes vers le broker. Pour la plupart des systèmes, un `BackgroundService` qui interroge la table toutes les secondes suffit :
+
+```csharp
+private async Task PublishBatchAsync(CancellationToken ct)
+{
+    await using var scope = scopes.CreateAsyncScope();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await using var tx = await db.Database.BeginTransactionAsync(ct);
+
+    var batch = await db.OutboxMessages
+        .FromSql($"""
+            SELECT * FROM outbox_messages
+            WHERE processed_at IS NULL
+              AND (next_attempt_at IS NULL OR next_attempt_at <= now())
+            ORDER BY occurred_at
+            LIMIT {BatchSize}
+            FOR UPDATE SKIP LOCKED
+            """)
+        .ToListAsync(ct);
+
+    foreach (var message in batch)
+    {
+        try
+        {
+            await bus.PublishAsync(new Envelope(message.Id, message.Type, message.Payload), ct);
+            message.ProcessedAt = DateTime.UtcNow;
+        }
+        catch (Exception ex)
+        {
+            message.Attempts++;
+            message.Error = ex.Message;
+            message.NextAttemptAt = DateTime.UtcNow + Backoff(message.Attempts);
+            break;
+        }
+    }
+
+    await db.SaveChangesAsync(ct);
+    await tx.CommitAsync(ct);
+}
+
+private static TimeSpan Backoff(int attempts) =>
+    TimeSpan.FromSeconds(Math.Min(Math.Pow(2, attempts), MaxBackoff.TotalSeconds));
+```
+
+La ligne importante est `FOR UPDATE SKIP LOCKED`. Votre API tourne probablement sur plusieurs instances. Sans cette clause, deux instances liraient les mêmes lignes et publieraient chaque événement en double. Avec elle, chaque instance verrouille les lignes qu’elle a sélectionnées, et les autres instances les ignorent pour prendre les suivantes. PostgreSQL coordonne le tout : vous n’avez donc pas besoin d’un verrou distribué.
+
+Avec `FromSql` et une chaîne interpolée, `BatchSize` est tout de même transmis comme paramètre SQL, et non comme texte brut.
+
+Lorsqu’une publication échoue, le processus ne renonce jamais à la ligne. Il enregistre l’erreur et programme une nouvelle tentative avec un délai exponentiel : 2 secondes, puis 4, puis 8, jusqu’à une limite de cinq minutes (`MaxBackoff`). Il arrête ensuite le lot, car la cause la plus fréquente est l’indisponibilité du broker ; les lignes suivantes échoueraient probablement elles aussi.
+
+Une première version de ce code ignorait les lignes après cinq échecs. Je l’ai testée en arrêtant le broker pendant huit secondes. Chaque ligne en attente a atteint cinq tentatives et, quand le broker est revenu, aucune n’a été envoyée. Avec le délai exponentiel plutôt qu’une limite de tentatives, la même panne s’est terminée par la facturation des trois commandes.
+
+Observons maintenant l’ordre des opérations. Le processus publie le message, marque la ligne comme traitée, puis valide la transaction. Si l’application s’arrête après la publication, mais avant la validation, la ligne est toujours marquée comme non traitée et l’exécution suivante la publiera de nouveau. Outbox ne garantit donc pas une livraison exactement une fois. Il garantit une livraison **au moins une fois**. Aucun message n’est perdu, mais certains arrivent plusieurs fois.
+
+C’est pourquoi le consommateur a besoin d’une Inbox.
+
+## Inbox : rendre les consommateurs tolérants aux doublons
+
+Les brokers produisent eux aussi des doublons. RabbitMQ, Azure Service Bus et Kafka livrent de nouveau un message lorsqu’un accusé de réception est perdu. Votre consommateur doit donc s’attendre à recevoir plusieurs fois le même message.
+
+L’Inbox est une table qui enregistre les messages déjà traités par chaque consommateur. Sa clé primaire combine l’identifiant du message et le nom du consommateur :
+
+```csharp
+b.Entity<InboxMessage>().HasKey(x => new { x.MessageId, x.Consumer });
+```
+
+Le consommateur commence par réclamer le message et n’effectue le travail réel que si cette réclamation réussit :
+
+```csharp
+private async Task HandleAsync(Envelope envelope, CancellationToken ct)
+{
+    await using var scope = scopes.CreateAsyncScope();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await using var tx = await db.Database.BeginTransactionAsync(ct);
+
+    var claimed = await db.Database.ExecuteSqlAsync($"""
+        INSERT INTO inbox_messages (message_id, consumer, processed_at)
+        VALUES ({envelope.MessageId}, {Name}, {DateTime.UtcNow})
+        ON CONFLICT DO NOTHING
+        """, ct);
+
+    if (claimed == 0)
+    {
+        logger.LogWarning("Duplicate {MessageId} ignored", envelope.MessageId);
+        return;
+    }
+
+    var placed = JsonSerializer.Deserialize<OrderPlaced>(envelope.Payload)!;
+    db.Invoices.Add(new Invoice { Id = Guid.CreateVersion7(), OrderId = placed.OrderId, Amount = placed.Total });
+
+    await db.SaveChangesAsync(ct);
+    await tx.CommitAsync(ct);
+}
+```
+
+Si le message a déjà été traité, `ON CONFLICT DO NOTHING` ne modifie aucune ligne. Vous n’avez aucune exception à intercepter et aucune course entre une requête de vérification et une requête d’insertion. La ligne de l’Inbox et la facture sont validées dans la même transaction : l’une ne peut donc pas exister sans l’autre. Si l’enregistrement de la facture échoue, la réclamation est annulée avec lui et, lors de la prochaine livraison du broker, le gestionnaire traite de nouveau le message.
+
+Le nom du consommateur dans la clé permet à plusieurs services de traiter le même événement. Si un service d’e-mail écoute également `OrderPlaced`, il enregistre sa propre ligne dans l’Inbox et envoie son e-mail indépendamment du service de facturation.
+
+## Je l’ai exécuté pour vérifier
+
+J’ai construit une petite application .NET 10 avec EF Core 10, Npgsql et PostgreSQL 17, puis j’ai volontairement provoqué des erreurs. J’ai créé trois commandes et obtenu trois factures. Ensuite, j’ai réinitialisé une ligne de l’Outbox pour que le processus publie le message une seconde fois, comme lors d’une nouvelle livraison du broker au consommateur.
+
+Voici les journaux :
+
+```text
+Published 3 outbox message(s)
+Invoiced order 01a150f1-27a0-78da-a99f-b7a9aca4b49e
+Invoiced order 01a150f1-27db-75fc-9566-55c6a6a1d719
+Invoiced order 01a150f1-27e3-752b-85c6-9e538ffb5c65
+Duplicate 01a150f1-27b0-7b50-920b-9cd2aa313018 ignored
+Published 1 outbox message(s)
+```
+
+La ligne signalant le doublon apparaît avant celle de publication parce que le processus ne consigne la publication qu’après la validation de sa transaction. À ce moment-là, le consommateur a déjà reçu le message.
+
+Le nombre de factures est resté égal à trois. Aucune commande n’a été facturée deux fois.
+
+## Avant la mise en production
+
+Le code ci-dessus couvre le pattern lui-même. Un service de production a besoin de quelques éléments supplémentaires :
+
+- **Supprimer les anciennes lignes.** Les lignes traitées s’accumulent rapidement. Une tâche quotidienne exécutant `DELETE FROM outbox_messages WHERE processed_at < now() - interval '7 days'` suffit. Faites de même pour l’Inbox, mais conservez ces lignes plus longtemps que la période pendant laquelle votre broker peut relivrer un message.
+- **Déclencher une alerte en cas d’accumulation.** Suivez l’ancienneté du plus vieux message non envoyé. Si elle augmente, votre processus de publication est bloqué ou votre broker est indisponible.
+- **Repérer les messages impossibles à traiter.** Une ligne qui échoue est réessayée toutes les cinq minutes, indéfiniment. Déclenchez une alerte lorsque `attempts` dépasse un seuil, afin que quelqu’un examine le message au lieu de le laisser repartir sans surveillance.
+- **Connaître les garanties d’ordre.** `ORDER BY occurred_at` donne un ordre approximatif, mais pas un ordre strict lorsque plusieurs processus de publication fonctionnent simultanément. Si l’ordre doit être strict pour chaque commande ou client, publiez avec une clé de partition ou faites en sorte que le consommateur gère les événements reçus dans le désordre.
+- **Déterminer la latence acceptable.** Une interrogation toutes les secondes convient à la plupart des cas. Si vous avez besoin d’une livraison plus rapide, PostgreSQL `LISTEN/NOTIFY` peut réveiller le processus de publication dès qu’une ligne est insérée.
+- **Utiliser des migrations.** Mon exemple appelle `EnsureCreated` pour rester court. Un vrai service doit utiliser des migrations.
+
+## Faut-il le construire soi-même ?
+
+Ce n’est pas obligatoire. MassTransit fournit un Outbox et une Inbox transactionnels pour EF Core ; Wolverine et NServiceBus proposent aussi un Outbox persistant pour PostgreSQL. Si vous utilisez déjà l’une de ces bibliothèques, activez son Outbox. Vérifiez la licence avant d’ajouter MassTransit à un nouveau projet : les versions récentes sont passées à une licence commerciale.
+
+Je recommande tout de même de le construire à la main une fois, comme nous venons de le faire. L’exemple complet, points de terminaison compris, fait environ 250 lignes. Après avoir vu `SKIP LOCKED` et `ON CONFLICT DO NOTHING` à l’œuvre, vous saurez quelles tables interroger si l’Outbox d’une bibliothèque cesse d’envoyer des messages.
+
+En bref : enregistrez l’événement dans la même transaction que les données, partez du principe que le processus de publication l’enverra plusieurs fois et faites vérifier son Inbox à chaque consommateur avant tout traitement. Vous éviterez ainsi aussi bien la perte d’événements que leur traitement en double.
+
+---
+
+Je publie chaque semaine un article pratique sur .NET, avec du code fonctionnel et les bogues rencontrés pendant mes essais. Pour recevoir le prochain dans votre boîte de réception, [abonnez-vous à la newsletter](#newsletter).

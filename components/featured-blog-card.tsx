@@ -2,6 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import type { Post } from '@/lib/content.types'
 import { formatPostDate } from '@/lib/format'
+import { localePath, type SiteLocale } from '@/lib/locale'
 import './featured-blog-card.css'
 
 /**
@@ -12,12 +13,16 @@ import './featured-blog-card.css'
  * The category badge shows "DEVELOPMENT" while the blog's filter pills read
  * "Development" — same stored value, uppercased here in CSS.
  */
-export function FeaturedBlogCard({ post }: { post: Post }) {
+export function FeaturedBlogCard({ post, locale = 'en' }: { post: Post; locale?: SiteLocale }) {
+  const french = locale === 'fr'
+  const category = french
+    ? ({ Craft: 'Pratiques', Life: 'Vie', Philosophy: 'Philosophie' }[post.category] ?? post.category)
+    : post.category
   return (
     <Link
-      href={`/blog/${post.slug}`}
+      href={localePath(locale, `/blog/${post.slug}`)}
       className="featured-book group"
-      aria-label={`Read ${post.title}`}
+      aria-label={french ? `Lire ${post.title}` : `Read ${post.title}`}
     >
       <span className="featured-book__pages" aria-hidden="true" />
       <span className="featured-book__cover">
@@ -30,7 +35,7 @@ export function FeaturedBlogCard({ post }: { post: Post }) {
         />
         <span className="featured-book__shade" />
         <span className="featured-book__cover-copy">
-          <span className="featured-book__category">{post.category}</span>
+          <span className="featured-book__category">{category}</span>
           <span className="featured-book__title">{post.title}</span>
           <span className="featured-book__rule" />
           <span className="featured-book__author">Sudi M. David</span>
@@ -38,7 +43,7 @@ export function FeaturedBlogCard({ post }: { post: Post }) {
       </span>
       <span className="featured-book__spine" aria-hidden="true" />
       <span className="sr-only">
-        {post.title}. {post.excerpt} Published {formatPostDate(post.date)} · {post.readingTime}.
+        {post.title}. {post.excerpt} {french ? 'Publié le' : 'Published'} {formatPostDate(post.date, locale)} · {post.readingTime}.
       </span>
     </Link>
   )

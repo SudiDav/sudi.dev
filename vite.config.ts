@@ -8,8 +8,15 @@ import { fileURLToPath } from 'node:url';
 export default defineConfig({
   plugins: [
     bundledContent(fileURLToPath(new URL('.', import.meta.url))),
-    // Cloudflare emits a Worker bundle; standalone is only for the Node fallback.
-    vinext({ nextConfig: { ...nextConfig, output: undefined } }),
+    vinext({
+      nextConfig: {
+        ...nextConfig,
+        // Cloudflare emits a Worker bundle. Standalone is only for the Node fallback.
+        output: undefined,
+        // Cached documents are shared across user agents. Always render metadata in the head.
+        htmlLimitedBots: /.*/,
+      },
+    }),
     cloudflare({
       viteEnvironment: {
         name: "rsc",

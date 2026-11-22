@@ -1,5 +1,6 @@
 import { readFile } from 'node:fs/promises'
 import { join } from 'node:path'
+import type { SiteLocale } from './locale'
 
 /**
  * Site settings live in `content/site.json`, alongside the MDX — the same
@@ -13,6 +14,7 @@ export type SiteSettings = {
   /** The larger About-page portrait. Falls back to `avatar` when unset. */
   portrait?: string
   email: string
+  bookingUrls?: Partial<Record<SiteLocale, string>>
   phone: string
   bio: string
   location: string
@@ -35,9 +37,9 @@ export type SiteSettingsInput = Omit<
 export const DEFAULT_SETTINGS: SiteSettings = {
   displayName: 'Sudi M. David',
   avatar: '/images/sudi.jpeg',
-  email: 'contact@sudi.dev',
+  email: 'hello@sudi.dev',
   phone: '+243 817 334 881',
-  bio: 'Software engineer specializing in DevOps and cloud systems for fintech, lending, agriculture and school administration.',
+  bio: 'Software engineer in Lubumbashi building applications, connecting systems, and helping teams run reliable software.',
   location: 'Lubumbashi, DRC',
   website: 'sudi.dev',
   social: {
@@ -48,7 +50,7 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   },
   seo: {
     title: 'Sudi M. David — Software Engineer | DevOps & Cloud',
-    description: 'Software engineer in Lubumbashi specializing in DevOps and cloud systems for fintech, lending, agriculture and school administration.',
+    description: 'Sudi M. David builds applications, connects systems, and helps teams improve the software they already use.',
   },
   writingProfile: {
     interests: '',
@@ -75,6 +77,35 @@ export async function getSettings(): Promise<SiteSettings> {
     return mergeSiteSettings(parsed)
   } catch {
     return DEFAULT_SETTINGS
+  }
+}
+
+export async function getLocalizedSiteSettings(locale: SiteLocale): Promise<SiteSettings> {
+  const settings = await getSettings()
+  if (locale === 'en') return settings
+
+  return {
+    ...settings,
+    bio: 'Ingénieur logiciel à Lubumbashi. Je crée des applications, je relie des systèmes et j’aide les équipes à faire fonctionner leurs logiciels de manière fiable.',
+    location: 'Lubumbashi, RDC',
+    seo: {
+      title: `${settings.displayName} — Ingénieur logiciel | DevOps et cloud`,
+      description: 'Sudi M. David crée des applications, relie des systèmes et aide les équipes à améliorer les logiciels qu’elles utilisent au quotidien.',
+    },
+  }
+}
+
+export function getBookingUrl(settings: SiteSettings, locale: SiteLocale): string | undefined {
+  const value = settings.bookingUrls?.[locale]
+  if (typeof value !== 'string' || !value.trim()) return
+  try {
+    const url = new URL(value)
+    if (url.protocol === 'https:' && url.hostname === 'cal.com' && !url.username && !url.password &&
+        /^\/[\w-]+\/[\w-]+\/?$/.test(url.pathname) && !url.port) {
+      return url.href
+    }
+  } catch {
+    return undefined
   }
 }
 

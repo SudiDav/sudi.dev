@@ -2,6 +2,7 @@ import { readFile, readdir } from 'node:fs/promises'
 import { join, basename } from 'node:path'
 import matter from 'gray-matter'
 import type { Post, Project } from './content.types'
+import type { SiteLocale } from './locale'
 
 const CONTENT = join(process.cwd(), 'content')
 
@@ -46,19 +47,49 @@ export async function getPost(slug: string): Promise<Post | null> {
   return (await getPosts()).find((p) => p.slug === slug) ?? null
 }
 
-/** Posts safe to expose on public pages, feeds, and indexes. */
-export async function getPublishedPosts(): Promise<Post[]> {
-  return (await getPosts()).filter((post) => post.status === undefined || post.status === 'Published')
+async function readTranslations(collection: 'posts' | 'projects') {
+  try {
+    const entries = await readCollection('fr/' + collection)
+    return new Map(entries.map((entry) => [entry.slug, entry]))
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return new Map()
+    throw error
+  }
 }
 
-/** Resolve a post only when it is published (legacy posts without status count as published). */
-export async function getPublishedPost(slug: string): Promise<Post | null> {
-  return (await getPublishedPosts()).find((post) => post.slug === slug) ?? null
+function hasText(value: unknown): value is string {
+  return typeof value === 'string' && value.trim().length > 0
 }
 
-export async function getProjects(): Promise<Project[]> {
+export async function getPublishedPosts(locale: SiteLocale = 'en'): Promise<Post[]> {
+  const posts = (await getPosts()).filter((post) => post.status === undefined || post.status === 'Published')
+  if (locale === 'en') return posts
+
+  const translations = await readTranslations('posts')
+  return posts.flatMap((post) => {
+    const translation = translations.get(post.slug)
+    if (!translation) return []
+    const { data, body } = translation
+    if (![data.title, data.excerpt, data.readingTime, body].every(hasText)) return []
+    return [{
+      ...post, body,
+      title: data.title,
+      excerpt: data.excerpt,
+      readingTime: data.readingTime,
+      subtitle: data.subtitle,
+      breadcrumb: data.breadcrumb,
+      home: data.home,
+    }]
+  })
+}
+
+export async function getPublishedPost(slug: string, locale: SiteLocale = 'en'): Promise<Post | null> {
+  return (await getPublishedPosts(locale)).find((post) => post.slug === slug) ?? null
+}
+
+export async function getProjects(locale: SiteLocale = 'en'): Promise<Project[]> {
   const entries = await readCollection('projects')
-  return entries
+  const projects = entries
     .map(({ slug, data, body }) => ({
       slug,
       title: data.title,
@@ -74,6 +105,20 @@ export async function getProjects(): Promise<Project[]> {
       body,
     }))
     .sort((a, b) => b.year.localeCompare(a.year))
+
+  if (locale === 'en') return projects
+  const translations = await readTranslations('projects')
+  return projects.flatMap((project) => {
+    const entry = translations.get(project.slug)
+    if (!entry || !hasText(entry.data.title) || !hasText(entry.data.description)) return []
+    return [{
+      ...project,
+      body: entry.body,
+      title: entry.data.title,
+      description: entry.data.description,
+      shortDescription: entry.data.shortDescription,
+    }]
+  })
 }
 
 export async function getProject(slug: string): Promise<Project | null> {

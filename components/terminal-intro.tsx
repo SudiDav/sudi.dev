@@ -1,11 +1,13 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import type { SiteLocale } from '@/lib/locale'
 
 const COMMAND = 'whoami'
 
 /** Introduce the name once; repeat only the terminal command after a reading pause. */
-export function TerminalIntro({ name }: { name: string }) {
+export function TerminalIntro({ name, locale = 'en' }: { name: string; locale?: SiteLocale }) {
+  const french = locale === 'fr'
   const [frame, setFrame] = useState({ command: COMMAND, name, phase: 'pending' })
 
   useEffect(() => {
@@ -66,7 +68,7 @@ export function TerminalIntro({ name }: { name: string }) {
   return (
     <div className="identity-sequence" data-phase={frame.phase}>
       <p className="identity-terminal">
-        <span className="sr-only">Terminal command: whoami</span>
+        <span className="sr-only">{french ? 'Commande du terminal : whoami' : 'Terminal command: whoami'}</span>
         <span className="identity-prompt" aria-hidden="true">~$</span>
         <span className="identity-command" aria-hidden="true">
           <span className="identity-command-text">{frame.command}</span>
@@ -74,8 +76,8 @@ export function TerminalIntro({ name }: { name: string }) {
         </span>
       </p>
       <h1 className="identity-name">
-        <span className="sr-only">Hi, I&apos;m {name}</span>
-        <span aria-hidden="true">Hi, I&apos;m</span>
+        <span className="sr-only">{french ? 'Bonjour, je suis' : "Hi, I'm"} {name}</span>
+        <span aria-hidden="true">{french ? 'Bonjour, je suis' : "Hi, I'm"}</span>
         <span className="identity-name-line" aria-hidden="true">
           <span className="identity-name-reserve">&lt;{name} /&gt;</span>
           <span className="identity-name-text"><span className="identity-tag">&lt;</span>{frame.name}{frame.phase === 'name' && <span className="identity-name-caret" />}<span className="identity-tag"> /&gt;</span></span>

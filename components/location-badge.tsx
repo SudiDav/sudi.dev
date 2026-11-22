@@ -4,6 +4,7 @@ import { useRef, useState } from 'react'
 import { MapPin } from 'lucide-react'
 import { LocationMap } from './location-map'
 import { MapPreview } from './map-preview'
+import type { SiteLocale } from '@/lib/locale'
 
 /**
  * The location badge from the design, made to answer the question it raises.
@@ -14,7 +15,7 @@ import { MapPreview } from './map-preview'
  * The close is delayed a little so the pointer can travel from the badge to the
  * preview without it vanishing on the way.
  */
-export function LocationBadge({ location }: { location: string }) {
+export function LocationBadge({ location, mapTitle, locale = 'en' }: { location: string; mapTitle?: string; locale?: SiteLocale }) {
   const [hovered, setHovered] = useState(false)
   const [open, setOpen] = useState(false)
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -36,7 +37,7 @@ export function LocationBadge({ location }: { location: string }) {
         onFocus={show}
         onBlur={hide}
         aria-haspopup="dialog"
-        title={`Show ${location} on a map`}
+        title={mapTitle ?? (locale === 'fr' ? `Afficher ${location} sur une carte` : `Show ${location} on a map`)}
         className="inline-flex items-center gap-2 rounded-full border border-border px-3.5 py-2 text-xs text-text-secondary transition-colors hover:border-border-hover hover:text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
       >
         <MapPin size={14} className="text-text-tertiary" />
@@ -49,11 +50,11 @@ export function LocationBadge({ location }: { location: string }) {
           onMouseEnter={show}
           onMouseLeave={hide}
         >
-          <MapPreview location={location} onExpand={() => setOpen(true)} />
+          <MapPreview location={location} locale={locale} onExpand={() => setOpen(true)} />
         </span>
       ) : null}
 
-      {open ? <LocationMap location={location} onClose={() => setOpen(false)} /> : null}
+      {open ? <LocationMap location={location} locale={locale} onClose={() => setOpen(false)} /> : null}
     </span>
   )
 }

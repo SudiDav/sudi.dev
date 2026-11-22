@@ -10,7 +10,7 @@ export type CareerStep = { role: string; period: string; company: string; descri
  * marked "Now", and as the reader scrolls back through the years the line fills
  * and each role's dot lights up when the reading line reaches it.
  */
-export function CareerStepper({ steps }: { steps: CareerStep[] }) {
+export function CareerStepper({ steps, nowLabel = 'Now' }: { steps: CareerStep[]; nowLabel?: string }) {
   const listRef = useRef<HTMLOListElement>(null)
 
   useEffect(() => {
@@ -58,7 +58,7 @@ export function CareerStepper({ steps }: { steps: CareerStep[] }) {
             <div className="career-stepper-heading">
               <h3>
                 {step.role}
-                {index === 0 && <span className="career-stepper-now">Now</span>}
+                {index === 0 && <span className="career-stepper-now">{nowLabel}</span>}
               </h3>
               <span className="career-stepper-period">{step.period}</span>
             </div>

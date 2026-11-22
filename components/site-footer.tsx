@@ -3,17 +3,19 @@ import { GithubIcon, TwitterIcon, LinkedinIcon, InstagramIcon } from './brand-ic
 import { getSettings, socialUrl } from '@/lib/site'
 import { OutboundLink, isExternal } from './outbound-link'
 
-const LINKS = [
-  { href: '/rss.xml', label: 'RSS' },
-  { href: '/privacy', label: 'Privacy' },
-]
+import { localePath, type SiteLocale } from '@/lib/locale'
 
 /**
  * Design: "Footer" — ROW, padding [32,48], space-between, 1px top border.
  * Copyright is Geist Mono 12 in $text-tertiary; the right group is a ROW gap 24
  * with Inter 13 links and 16px icons in $text-tertiary.
  */
-export async function SiteFooter() {
+export async function SiteFooter({ locale = 'en' }: { locale?: SiteLocale } = {}) {
+  const french = locale === 'fr'
+  const links = [
+    { href: localePath(locale, '/rss.xml'), label: 'RSS' },
+    { href: localePath(locale, '/privacy'), label: french ? 'Confidentialité' : 'Privacy' },
+  ]
   const settings = await getSettings()
   // Instagram is not in the design's footer row; it renders only when set.
   const socials = (
@@ -29,10 +31,10 @@ export async function SiteFooter() {
     <footer className="border-t border-border">
       <div className="mx-auto flex max-w-[1440px] flex-col items-center justify-between gap-4 px-4 py-8 sm:flex-row sm:gap-0 md:px-6 lg:px-12">
         <p className="font-mono text-xs text-text-tertiary">
-          © 2026 sudi.dev — Built with caffeine &amp; curiosity
+          © 2026 sudi.dev — {french ? 'Du café et de la curiosité' : 'Built with caffeine & curiosity'}
         </p>
         <div className="flex items-center gap-6">
-          {[...LINKS, { href: socialUrl('github', settings.social.github), label: 'Source' }].map(
+          {[...links, { href: socialUrl('github', settings.social.github), label: french ? 'Code source' : 'Source' }].map(
             (link) => {
               const Component = isExternal(link.href) ? OutboundLink : Link
               return (

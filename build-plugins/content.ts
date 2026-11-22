@@ -1,4 +1,4 @@
-import { readFileSync, readdirSync } from 'node:fs'
+import { existsSync, readFileSync, readdirSync } from 'node:fs'
 import { resolve } from 'node:path'
 import type { Plugin } from 'vite'
 
@@ -16,8 +16,9 @@ export function bundledContent(root: string): Plugin {
     load(id) {
       if (id !== resolvedId) return
       const files: Record<string, string> = {}
-      for (const collection of ['posts', 'projects']) {
+      for (const collection of ['posts', 'projects', 'fr/posts', 'fr/projects']) {
         const directory = resolve(root, 'content', collection)
+        if (collection.startsWith('fr/') && !existsSync(directory)) continue
         for (const name of readdirSync(directory).filter((file) => file.endsWith('.mdx'))) {
           const path = resolve(directory, name)
           this.addWatchFile(path)

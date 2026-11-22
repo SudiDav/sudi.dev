@@ -1,0 +1,139 @@
+---
+title: "Les bases de l’observabilité : arrêtez de déboguer à l’aveugle"
+excerpt: "Ce que signifie vraiment l’observabilité et comment traces, métriques et journaux s’articulent. Première partie sur deux : les concepts avant l’instrumentation."
+date: "2026-05-12"
+readingTime: 6 min de lecture
+category: DevOps
+cover: /images/blog/055ce402f7b6.png
+featured: false
+tags: ["OpenTelemetry", "Observability", "Tracing"]
+---
+> Cet article est la première partie d’une série en deux volets sur l’observabilité. Nous en posons ici les bases conceptuelles. Dans la deuxième partie, nous instrumenterons une véritable pile .NET avec OpenTelemetry, Docker et Grafana.
+
+------------------------------------------------------------------------
+
+## Le problème des systèmes invisibles
+
+Imaginez une entreprise de logistique à l’heure de pointe. Les colis circulent entre les entrepôts, les camions sillonnent la ville et les clients attendent. Mais il manque une chose : personne ne sait où se trouve quoi que ce soit. Pas de numéros de suivi, pas de points de scan, pas de confirmation de livraison. Quand un client appelle pour demander pourquoi son colis est en retard, vous ne pouvez que hausser les épaules et faire une supposition.
+
+La plupart des systèmes logiciels fonctionnent exactement de cette manière.
+
+Chaque fois qu’un utilisateur clique sur un bouton, une requête est lancée. Elle traverse des API, passe d’un service à l’autre, interroge des bases de données, appelle des systèmes externes et finit par produire une réponse. L’utilisateur en voit le résultat. Mais que s’est-il passé en chemin ? Où la requête a-t-elle ralenti ? Quel service a eu un hoquet ?
+
+Sans observabilité, vous pilotez votre réseau logistique à l’aveugle.
+
+------------------------------------------------------------------------
+
+## Déboguer dans le noir
+
+Quand ce client appelle — « Mon colis est en retard » — voilà à quoi ressemble votre journée. Vous téléphonez à l’entrepôt. Vous appelez le chauffeur à la radio. Vous tentez de reconstituer un trajet que vous n’avez jamais enregistré. Vous trouverez peut-être le problème. Peut-être pas. La plupart du temps, vous faites des suppositions.
+
+C’est précisément ce qu’est le débogage sans observabilité. Vous fouillez les journaux avec `grep`. Vous redémarrez des services. Vous émettez des hypothèses sans données pour les vérifier. Parfois, vous avez de la chance. Souvent, vous vous trompez.
+
+Le coût ne se limite pas au temps perdu. C’est aussi la confiance qui s’effrite : confiance dans le système, dans l’équipe et dans votre capacité à corriger les problèmes avant que les utilisateurs ne les remarquent.
+
+------------------------------------------------------------------------
+
+## Ce que signifie vraiment l’observabilité
+
+Imaginez maintenant le contraire. Chaque colis porte un identifiant de suivi. Chaque déplacement laisse une trace. Chaque retard est consigné avec sa cause.
+
+Vous ouvrez un tableau de bord et voyez la situation dans son ensemble : où se trouve le colis, à quel endroit il a ralenti et ce qui a provoqué le retard. Pas les données d’hier. Pas un échantillon. La réalité, à l’instant même.
+
+Voilà ce qu’est l’observabilité.
+
+Ce n’est pas la supervision — qui vous indique qu’un incident s’est produit. Ce n’est pas la journalisation — qui vous donne des fragments après coup. L’observabilité, c’est la capacité à comprendre l’état interne de votre système en examinant ce qu’il produit. C’est la différence entre « le site est lent » et « le service X a mis 400 ms sur cette trace précise parce que le pool de connexions à la base de données était épuisé à 14 h 32 min 07 s ».
+
+------------------------------------------------------------------------
+
+## L’infrastructure de la visibilité
+
+L’observabilité ne se met pas en place toute seule. Elle exige un système conçu à cet effet : un langage commun pour décrire le comportement, et une chaîne de traitement pour collecter et relier les signaux émis par votre système.
+
+C’est là qu’intervient OpenTelemetry.
+
+Imaginez une norme mondiale que suivent toutes les usines, tous les entrepôts et tous les camions de votre réseau logistique. Chaque colis reçoit la même étiquette. Chaque déplacement est enregistré. Chaque étape peut être suivie.
+
+Sans cette norme, chaque service parle son propre dialecte. Les traces se rompent à la frontière entre les services. Les métriques utilisent des dimensions différentes. Vous vous retrouvez avec des fragments isolés qui ne racontent rien de cohérent.
+
+Avec elle, il devient possible de reconstituer tout le parcours.
+
+------------------------------------------------------------------------
+
+## Dans l’usine : les SDK
+
+Dans chaque usine — autrement dit, dans vos services — des travailleurs effectuent le travail de terrain. Ils étiquettent les colis à leur arrivée, enregistrent l’heure à chaque étape et transmettent les informations de suivi pour que le prochain travailleur puisse poursuivre la chaîne.
+
+Ces travailleurs, ce sont les SDK OpenTelemetry. Intégrés à votre code, ils fonctionnent en silence et font leur travail sans attirer l’attention. Mais sans eux, pas de suivi, pas de visibilité et aucun moyen de suivre une requête depuis sa première ligne de code jusqu’à la dernière.
+
+------------------------------------------------------------------------
+
+## Le centre de tri : le Collector
+
+Dans un vaste réseau logistique, vous n’envoyez pas les données de suivi de chaque colis directement à leur destination finale. Vous les faites passer par un centre de tri qui reçoit, classe et transmet efficacement les informations.
+
+C’est le rôle de l’OpenTelemetry Collector. Il reçoit les données de télémétrie de tous vos services, les traite, les enrichit et les achemine vers les bons systèmes de stockage et d’analyse. Il ne crée pas ces données — c’est votre application qui le fait. En revanche, il rend une plateforme d’observabilité à grande échelle réellement gérable.
+
+------------------------------------------------------------------------
+
+## Où résident les données
+
+Selon les questions que vous vous posez, vous aurez besoin d’outils différents. Voici comment les données circulent :
+
+- Jaeger vous montre le trajet : le parcours complet d’une requête à travers chacun des services qu’elle a traversés.
+
+- Prometheus vous montre les tendances : le volume de trafic, le taux d’erreur et l’évolution de la latence au fil du temps.
+
+- Loki stocke les détails : les événements bruts, les messages d’erreur et les journaux contextuels.
+
+Ensemble, ces outils répondent à toutes les questions qui comptent. Par où la requête est-elle passée ? Quel est le comportement du système ? Que s’est-il exactement passé à cet instant ?
+
+------------------------------------------------------------------------
+
+## Trois angles de vue sur un même système
+
+Tout système observable raconte son histoire à travers trois types de signaux. Il est essentiel de comprendre leurs différences.
+
+### Les traces — le parcours
+
+« Où cette requête est-elle passée, et combien de temps a pris chaque étape ? »
+
+Les traces capturent les liens de causalité. Elles ne montrent pas seulement que le service A a appelé le service B, mais aussi quand, pendant combien de temps et si cet appel a déclenché toute une chaîne de tâches en aval. Quand vous cherchez l’origine d’un pic de latence ou d’une défaillance partielle, les traces vous servent de carte.
+
+### Les métriques — la vue d’ensemble
+
+« Quel est le comportement global du système ? »
+
+Les métriques sont des données agrégées : le nombre de requêtes, les pourcentages d’erreurs, les latences par percentile et l’utilisation des ressources. Elles révèlent particulièrement bien les tendances, les limites de capacité et l’état de santé du système dans le temps. Les alertes se déclenchent à partir des métriques. Les tableaux de bord s’appuient sur elles.
+
+### Les journaux — les détails
+
+« Que s’est-il passé précisément à cet instant ? »
+
+Les journaux constituent le récit détaillé. Ils enregistrent des événements ponctuels : une erreur, une action utilisateur, un changement d’état. Quand une trace vous indique où se situe le problème et qu’une métrique vous dit quand il a commencé, le journal vous explique pourquoi.
+
+Ces trois signaux ne se font pas concurrence : ils se complètent. Les meilleures stratégies d’observabilité les utilisent tous, en les corrélant et en permettant de les interroger ensemble.
+
+------------------------------------------------------------------------
+
+## Des suppositions aux certitudes
+
+Revenons à ce colis en retard.
+
+Sans observabilité, vous faites des suppositions. Vous fouillez les fichiers journaux sans savoir où chercher. Vous perdez des heures à reconstituer une chronologie qui aurait dû être enregistrée automatiquement.
+
+Avec l’observabilité, vous voyez le parcours. Vous repérez le service précis où du temps a été perdu. Vous trouvez la cause racine — une requête lente en base de données, un délai d’attente dépassé, une défaillance en cascade — et vous la corrigez. Immédiatement.
+
+La différence ne tient pas seulement à la vitesse. On passe de la lutte réactive contre les incidents à une compréhension éclairée. On ne traite plus les symptômes : on diagnostique les causes.
+
+------------------------------------------------------------------------
+
+## En résumé
+
+> Un système que vous ne pouvez pas voir est un système que vous ne pouvez pas maîtriser.
+
+L’observabilité vous donne une visibilité. OpenTelemetry vous fournit la structure nécessaire pour l’obtenir à grande échelle. Ensemble, ils transforment la manière dont vous concevez, déboguez et améliorez vos logiciels.
+
+Dans la deuxième partie, nous passerons de la théorie à la pratique : nous instrumenterons une application .NET, lancerons l’OpenTelemetry Collector dans Docker et relierons Jaeger, Prometheus, Loki et Grafana pour former une pile d’observabilité prête pour la production.
+
+------------------------------------------------------------------------

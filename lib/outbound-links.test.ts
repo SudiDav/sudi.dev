@@ -30,13 +30,14 @@ async function routes() {
   const sitemap = await pageHtml('/sitemap.xml')
   const articles = [...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)]
     .map((match) => new URL(match[1]).pathname)
-    .filter((path) => path.startsWith('/blog/'))
+    .filter((path) => path.startsWith('/blog/') || path.startsWith('/fr/blog/'))
   expect(articles.length, 'The published article sitemap must not be empty').toBeGreaterThan(0)
-  return ['/', '/work', '/blog', '/about', ...articles]
+  const pages = ['/', '/work', '/blog', '/about', '/privacy']
+  return [...pages, ...pages.map(path => path === '/' ? '/fr' : '/fr' + path), ...articles]
 }
 
 async function pageHtml(route: string) {
-  const response = await fetch(BASE + route)
+  const response = await fetch(BASE + route, { signal: AbortSignal.timeout(12000) })
   expect(response.status, `Page ${route} must render before checking its links`).toBe(200)
   return response.text()
 }
@@ -66,7 +67,7 @@ describe('outbound links', async () => {
     }
 
     expect(offenders).toEqual([])
-  })
+  }, 30000)
 
   it.skipIf(!up)('carry rel="noopener" wherever they target a new tab', async () => {
     const offenders: string[] = []
@@ -81,7 +82,7 @@ describe('outbound links', async () => {
     }
 
     expect(offenders).toEqual([])
-  })
+  }, 30000)
 
   it('treats site-relative paths as internal', () => {
     expect(isExternal('/blog')).toBe(false)

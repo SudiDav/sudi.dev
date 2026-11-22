@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { LIGHT_CLASS } from '@/lib/theme'
+import type { SiteLocale } from '@/lib/locale'
 
 const GISCUS_ORIGIN = 'https://giscus.app'
 
@@ -26,7 +27,7 @@ const themeFor = (light: boolean) => (light ? 'light' : 'dark_dimmed')
  * The script is injected rather than written as JSX because giscus reads its
  * configuration off the script tag's data attributes at load time.
  */
-export function GiscusComments() {
+export function GiscusComments({ locale = 'en', slug = '' }: { locale?: SiteLocale; slug?: string } = {}) {
   const container = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -42,14 +43,15 @@ export function GiscusComments() {
       'repo-id': CONFIG.repoId,
       category: CONFIG.category,
       'category-id': CONFIG.categoryId,
-      // One discussion per post, keyed on the URL path.
-      mapping: 'pathname',
+      // French pages reuse the existing English path-keyed thread.
+      mapping: locale === 'fr' ? 'specific' : 'pathname',
+      ...(locale === 'fr' && slug ? { term: `blog/${slug}` } : {}),
       strict: '1',
       'reactions-enabled': '1',
       'emit-metadata': '0',
       'input-position': 'top',
       theme: themeFor(document.documentElement.classList.contains(LIGHT_CLASS)),
-      lang: 'en',
+      lang: locale === 'fr' ? 'fr' : 'en',
       loading: 'lazy',
     }).forEach(([key, value]) => script.setAttribute(`data-${key}`, value))
 
@@ -57,7 +59,7 @@ export function GiscusComments() {
     return () => {
       host.innerHTML = ''
     }
-  }, [])
+  }, [locale, slug])
 
   // The embed cannot read the page's theme, so it is pushed in on every change.
   useEffect(() => {

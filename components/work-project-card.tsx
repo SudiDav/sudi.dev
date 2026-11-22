@@ -4,12 +4,15 @@ import { OutboundLink } from './outbound-link'
 import { TechBadge } from './tech-badge'
 import { ProjectFolio } from './project-folio'
 import type { Project } from '@/lib/content.types'
+import type { SiteLocale } from '@/lib/locale'
 
 const projectLinkClass = 'inline-flex items-center gap-2 rounded-sm text-sm font-semibold text-[color:color-mix(in_srgb,var(--accent)_72%,var(--text-primary))] underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent'
 
-export function WorkProjectCard({ project }: { project: Project }) {
+export function WorkProjectCard({ project, locale = 'en' }: { project: Project; locale?: SiteLocale }) {
   const { slug, title, year, category, cover, description, tech, links } = project
   const summary = project.shortDescription ?? description
+  const fr = locale === 'fr'
+  const categoryLabel = fr ? ({ Fintech: 'Fintech', Platforms: 'Plateformes', 'Side Projects': 'Projets personnels' }[category] ?? category) : category
 
   return (
     <article id={slug} className="work-project-card flex min-w-0 scroll-mt-6 flex-col">
@@ -30,28 +33,28 @@ export function WorkProjectCard({ project }: { project: Project }) {
 
         <div className="mt-auto flex flex-wrap items-baseline gap-x-4 gap-y-2 pt-2">
           {links.live && (
-            <OutboundLink href={links.live} aria-label={`View project: ${title} (opens in a new tab)`} className={projectLinkClass}>
-              View project
+            <OutboundLink href={links.live} aria-label={fr ? `Voir le projet : ${title} (s’ouvre dans un nouvel onglet)` : `View project: ${title} (opens in a new tab)`} className={projectLinkClass}>
+              {fr ? 'Voir le projet' : 'View project'}
               <ArrowRight size={15} aria-hidden="true" />
             </OutboundLink>
           )}
           {links.github && (
-            <OutboundLink href={links.github} aria-label={`Source: ${title} (opens in a new tab)`} className={projectLinkClass}>
+            <OutboundLink href={links.github} aria-label={fr ? `Code source : ${title} (s’ouvre dans un nouvel onglet)` : `Source: ${title} (opens in a new tab)`} className={projectLinkClass}>
               <GithubIcon size={15} aria-hidden="true" />
-              Source
+              {fr ? 'Code source' : 'Source'}
             </OutboundLink>
           )}
 
           <details className="group open:basis-full">
             <summary className="inline-flex cursor-pointer list-none items-center gap-1.5 rounded-sm text-sm text-text-secondary hover:text-text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent [&::-webkit-details-marker]:hidden">
-              Project details
+              {fr ? 'Détails du projet' : 'Project details'}
               <ChevronDown size={14} className="group-open:rotate-180" aria-hidden="true" />
             </summary>
             <div className="mt-2.5 space-y-2.5 border-l border-border pl-3">
-              <p className="font-mono text-xs text-text-secondary">{category} · {year}</p>
+              <p className="font-mono text-xs text-text-secondary">{categoryLabel} · {year}</p>
               {summary !== description && <p className="text-sm leading-relaxed text-text-secondary">{description}</p>}
               {tech.length > 0 && (
-                <ul className="flex flex-wrap gap-1.5" aria-label="Built with">
+                <ul className="flex flex-wrap gap-1.5" aria-label={fr ? 'Technologies utilisées' : 'Built with'}>
                   {tech.map(value => <li key={value}><TechBadge label={value} /></li>)}
                 </ul>
               )}

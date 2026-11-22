@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Maximize2 } from 'lucide-react'
 import { CENTRE, tileUrl, ATTRIBUTION, MARKER_STYLE } from '@/lib/map'
 import 'leaflet/dist/leaflet.css'
+import type { SiteLocale } from '@/lib/locale'
 
 /**
  * The small map shown on hover.
@@ -12,7 +13,7 @@ import 'leaflet/dist/leaflet.css'
  * the page scroll. Exploring is what the full map is for, and this offers a way
  * through to it.
  */
-export function MapPreview({ location, onExpand }: { location: string; onExpand: () => void }) {
+export function MapPreview({ location, onExpand, locale = 'en' }: { location: string; onExpand: () => void; locale?: SiteLocale }) {
   const holder = useRef<HTMLDivElement>(null)
   const [failed, setFailed] = useState(false)
 
@@ -65,7 +66,7 @@ export function MapPreview({ location, onExpand }: { location: string; onExpand:
         className="inline-flex items-center justify-center gap-1.5 rounded-full px-2 py-1 text-[11px] text-text-secondary transition-colors hover:bg-bg-secondary hover:text-text-primary"
       >
         <Maximize2 size={11} />
-        Explore {location}
+        {locale === 'fr' ? `Explorer ${location}` : `Explore ${location}`}
       </button>
     </span>
   )
